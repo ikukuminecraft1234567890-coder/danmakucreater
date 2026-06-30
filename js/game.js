@@ -2250,8 +2250,10 @@ function applyAbilityEffect(cardId, owner) {
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
 
-                            if (useFastRemove) { b._dead = true; continue; }
-                            bullets.splice(i, 1); continue;
+                            if (!isCustomCardTesting) {
+                                if (useFastRemove) { b._dead = true; continue; }
+                                bullets.splice(i, 1); continue;
+                            }
                         }
                         if (!b.grazed && distSq < (player.grazeRadius + bHitR) ** 2) {
                             b.grazed = true; player.grazeCount++;
