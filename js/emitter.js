@@ -1687,47 +1687,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                     <div class="custom-card-actions">
                         <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">編集</button>
                         <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">共有</button>
-                        <button class="custom-card-act-btn btn-edit" style="border-color:#33aaff !important; color:#33aaff !important; background:rgba(51,170,255,0.05) !important;" onclick="downloadCardJson('${card.id}')">JSON保存</button>
                         <button class="custom-card-act-btn btn-delete" onclick="customCardMakerDeleteCard('${card.id}')">削除</button>
                     </div>
                 `;
                 container.appendChild(item);
             });
-        }
-
-        function downloadCardJson(cardId) {
-            const card = customCards.find(c => c.id === cardId);
-            if (!card) return;
-            try {
-                const filename = `${card.id}.json`;
-                
-                const cardData = {
-                    name: card.name,
-                    cost: card.cost || 100,
-                    desc: card.desc || '',
-                    duration: card.duration || 10,
-                    emitterScript: card.emitterScript,
-                    bulletScript: card.bulletScript,
-                    magicCircleScript: card.magicCircleScript || []
-                };
-
-                const jsonStr = JSON.stringify(cardData, null, 4);
-                const blob = new Blob([jsonStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                const shareUrl = `${window.location.origin}${window.location.pathname}?card=${card.id}`;
-                alert(`「${card.name.replace('【A】', '')}」のJSONファイルをダウンロードしました！\n\nファイル名: ${filename}\n\nこのファイルをGitHubリポジトリの「cards/」フォルダに配置（プッシュ）すると、以下の極短URLで共有・読み込みできるようになります！\n\n${shareUrl}`);
-            } catch (e) {
-                alert("JSONファイルのダウンロードに失敗しました: " + e.message);
-            }
         }
 
         let customCardDraftSaveTimer = null;
