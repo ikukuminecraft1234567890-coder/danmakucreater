@@ -2503,7 +2503,54 @@ function applyAbilityEffect(cardId, owner) {
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, PLAY_WIDTH, canvas.height);
 
-            // Dividing line removed
+            // ── プレイ領域の境界線（スマホで画面内外を明確に区別） ──────
+            {
+                const W = PLAY_WIDTH;
+                const H = canvas.height;
+                const t = performance.now();
+
+                // 薄いグリッド線（縦4本・横6本）
+                ctx.save();
+                ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                const cols = 4, rows = 6;
+                for (let i = 1; i < cols; i++) {
+                    const x = W / cols * i;
+                    ctx.moveTo(x, 0); ctx.lineTo(x, H);
+                }
+                for (let j = 1; j < rows; j++) {
+                    const y = H / rows * j;
+                    ctx.moveTo(0, y); ctx.lineTo(W, y);
+                }
+                ctx.stroke();
+
+                // 四辺のボーダー（アニメーションするグロー）
+                const glow = 0.55 + 0.2 * Math.sin(t / 800);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = `rgba(120, 200, 255, ${glow})`;
+                ctx.shadowColor = 'rgba(100, 180, 255, 0.8)';
+                ctx.shadowBlur = 8;
+                ctx.strokeRect(1, 1, W - 2, H - 2);
+
+                // 四隅のコーナーマーカー（L字）
+                const cLen = 18, cW = 3;
+                ctx.lineWidth = cW;
+                ctx.strokeStyle = `rgba(180, 230, 255, ${0.7 + 0.3 * Math.sin(t / 500)})`;
+                ctx.shadowColor = 'rgba(120, 200, 255, 1.0)';
+                ctx.shadowBlur = 10;
+                // 左上
+                ctx.beginPath(); ctx.moveTo(0, cLen); ctx.lineTo(0, 0); ctx.lineTo(cLen, 0); ctx.stroke();
+                // 右上
+                ctx.beginPath(); ctx.moveTo(W - cLen, 0); ctx.lineTo(W, 0); ctx.lineTo(W, cLen); ctx.stroke();
+                // 左下
+                ctx.beginPath(); ctx.moveTo(0, H - cLen); ctx.lineTo(0, H); ctx.lineTo(cLen, H); ctx.stroke();
+                // 右下
+                ctx.beginPath(); ctx.moveTo(W - cLen, H); ctx.lineTo(W, H); ctx.lineTo(W, H - cLen); ctx.stroke();
+
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            }
 
             const blurScale = 0; // shadowBlur is disabled for performance
             let tDrawBStart = performance.now();
