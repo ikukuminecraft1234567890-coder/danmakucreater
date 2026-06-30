@@ -1420,6 +1420,30 @@ function stepEmitter(c, state, attacker, target, dt) {
             return Math.max(1, Math.round(totalCost));
         }
 
+        function isUuidParam(str) {
+            if (!str) return false;
+            // UUID（cc_1782800409612）は50文字以下の英数字・アンダースコア・ハイフンのみで構成される
+            return str.length < 50 && /^[A-Za-z0-9_-]+$/.test(str);
+        }
+
+        function fetchCardByUuid(uuid, callback) {
+            const url = `./cards/${uuid}.json`;
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`ファイルが見つかりません (${res.status})`);
+                    }
+                    return res.json();
+                })
+                .then(card => {
+                    importCard(card);
+                    if (callback) callback();
+                })
+                .catch(err => {
+                    alert(`カードID "${uuid}" からのデータ取得に失敗しました。\nリポジトリの cards/${uuid}.json が正しく配置されているか確認してください。\n\n詳細: ${err.message}`);
+                });
+        }
+
         function parseSharedCard(decompressed) {
             const parsed = JSON.parse(decompressed);
             
@@ -1503,7 +1527,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         }
 
         function importCustomCardFromCode() {
-            const code = prompt("共有されたURL、または共有コードを入力してください：");
+            const code = prompt("共有されたURL、コード、またはカードID(UUID)を入力してください：");
             if (!code) return;
             
             let cardDataStr = "";
@@ -1515,15 +1539,19 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             
             if (cardDataStr) {
-                try {
-                    const decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
-                    if (!decompressed) {
-                        throw new Error("デコンプレスに失敗しました（データ破損の可能性）");
+                if (isUuidParam(cardDataStr)) {
+                    fetchCardByUuid(cardDataStr);
+                } else {
+                    try {
+                        const decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
+                        if (!decompressed) {
+                            throw new Error("デコンプレスに失敗しました（データ破損の可能性）");
+                        }
+                        const card = parseSharedCard(decompressed);
+                        importCard(card);
+                    } catch (e) {
+                        alert("データのインポートに失敗しました。正しい共有URLまたはコードを入力してください。\nエラー: " + e.message);
                     }
-                    const card = parseSharedCard(decompressed);
-                    importCard(card);
-                } catch (e) {
-                    alert("データのインポートに失敗しました。正しい共有URLまたはコードを入力してください。\nエラー: " + e.message);
                 }
             } else {
                 alert("有効なコードが見わからんでした。");
@@ -1560,21 +1588,33 @@ function stepEmitter(c, state, attacker, target, dt) {
             const params = new URLSearchParams(window.location.search);
             const cardDataStr = params.get('card');
             if (cardDataStr) {
-                try {
-                    const decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
-                    if (decompressed) {
-                        const card = parseSharedCard(decompressed);
-                        setTimeout(() => {
-                            if (confirm(`共有されたスペルカード「${card.name.replace('【A】', '')}」をインポートしますか？`)) {
-                                importCard(card);
+                if (isUuidParam(cardDataStr)) {
+                    setTimeout(() => {
+                        if (confirm(`共有されたスペルカード (ID: ${cardDataStr}) をインポートしますか？`)) {
+                            fetchCardByUuid(cardDataStr, () => {
                                 showScreen('screen-card-maker');
-                            }
-                            const newUrl = window.location.pathname;
-                            window.history.replaceState({}, document.title, newUrl);
-                        }, 500);
+                            });
+                        }
+                        const newUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, newUrl);
+                    }, 500);
+                } else {
+                    try {
+                        const decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
+                        if (decompressed) {
+                            const card = parseSharedCard(decompressed);
+                            setTimeout(() => {
+                                if (confirm(`共有されたスペルカード「${card.name.replace('【A】', '')}」をインポートしますか？`)) {
+                                    importCard(card);
+                                    showScreen('screen-card-maker');
+                                }
+                                const newUrl = window.location.pathname;
+                                window.history.replaceState({}, document.title, newUrl);
+                            }, 500);
+                        }
+                    } catch (e) {
+                        console.error("URLパラメータからのインポートに失敗:", e);
                     }
-                } catch (e) {
-                    console.error("URLパラメータからのインポートに失敗:", e);
                 }
             }
         }
@@ -1605,11 +1645,47 @@ function stepEmitter(c, state, attacker, target, dt) {
                     <div class="custom-card-actions">
                         <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">編集</button>
                         <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">共有</button>
+                        <button class="custom-card-act-btn btn-edit" style="border-color:#33aaff !important; color:#33aaff !important; background:rgba(51,170,255,0.05) !important;" onclick="downloadCardJson('${card.id}')">JSON保存</button>
                         <button class="custom-card-act-btn btn-delete" onclick="customCardMakerDeleteCard('${card.id}')">削除</button>
                     </div>
                 `;
                 container.appendChild(item);
             });
+        }
+
+        function downloadCardJson(cardId) {
+            const card = customCards.find(c => c.id === cardId);
+            if (!card) return;
+            try {
+                const filename = `${card.id}.json`;
+                
+                const cardData = {
+                    name: card.name,
+                    cost: card.cost || 100,
+                    desc: card.desc || '',
+                    duration: card.duration || 10,
+                    emitterScript: card.emitterScript,
+                    bulletScript: card.bulletScript,
+                    magicCircleScript: card.magicCircleScript || []
+                };
+
+                const jsonStr = JSON.stringify(cardData, null, 4);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                const shareUrl = `${window.location.origin}${window.location.pathname}?card=${card.id}`;
+                alert(`「${card.name.replace('【A】', '')}」のJSONファイルをダウンロードしました！\n\nファイル名: ${filename}\n\nこのファイルをGitHubリポジトリの「cards/」フォルダに配置（プッシュ）すると、以下の極短URLで共有・読み込みできるようになります！\n\n${shareUrl}`);
+            } catch (e) {
+                alert("JSONファイルのダウンロードに失敗しました: " + e.message);
+            }
         }
 
         let customCardDraftSaveTimer = null;
