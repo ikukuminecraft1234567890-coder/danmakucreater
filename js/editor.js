@@ -918,9 +918,15 @@ function customCardMakerSwitchTab(tab) {
                         if (preset === 'enemyRightUp') preset = 'rightUp';
                         if (preset === 'enemyLeftUp') preset = 'leftUp';
                         let duration = b.params.duration || '0';
-                        line = (String(duration).trim() === '0')
-                            ? `moveTo("${preset}")`
-                            : `slideTo("${preset}", ${duration})`;
+                        if (String(preset).includes(',')) {
+                            line = (String(duration).trim() === '0')
+                                ? `moveTo(${preset})`
+                                : `slideTo(${preset}, ${duration})`;
+                        } else {
+                            line = (String(duration).trim() === '0')
+                                ? `moveTo("${preset}")`
+                                : `slideTo("${preset}", ${duration})`;
+                        }
                         break;
                     }
                     case 'spawn_bullet': {
@@ -1094,13 +1100,35 @@ function customCardMakerSwitchTab(tab) {
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
                     let mMoveOwner = trimmed.match(/^moveTo\((.*?)\)$/i);
                     if (mMoveOwner) {
-                        let preset = mMoveOwner[1].trim().replace(/^['"]|['"]$/g, '');
+                        let args = mMoveOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let preset = 'center';
+                        if (args.length >= 2) {
+                            preset = args[0] + ',' + args[1];
+                        } else if (args.length === 1) {
+                            preset = args[0];
+                        }
                         block = { type: 'move_owner', params: { preset: preset || 'center', duration: '0' }, indent };
                     }
                     let mSlideOwner = trimmed.match(/^slideTo\((.*?)\)$/i);
                     if (mSlideOwner) {
                         let args = mSlideOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-                        block = { type: 'move_owner', params: { preset: args[0] || 'center', duration: args[1] || '1.0' }, indent };
+                        let preset = 'center';
+                        let duration = '1.0';
+                        if (args.length >= 3) {
+                            preset = args[0] + ',' + args[1];
+                            duration = args[2];
+                        } else if (args.length === 2) {
+                            if (!isNaN(parseFloat(args[0])) && !isNaN(parseFloat(args[1]))) {
+                                preset = args[0] + ',' + args[1];
+                                duration = '1.0';
+                            } else {
+                                preset = args[0];
+                                duration = args[1];
+                            }
+                        } else if (args.length === 1) {
+                            preset = args[0];
+                        }
+                        block = { type: 'move_owner', params: { preset, duration }, indent };
                     }
                     let mBounce = trimmed.match(/^bounce\(\)$/i);
                     if (mBounce) block = { type: 'bounce', params: {}, indent };
@@ -1354,13 +1382,35 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mMoveOwner = trimmed.match(/^moveTo\((.*?)\)$/i);
                 if (mMoveOwner) {
-                    let preset = mMoveOwner[1].trim().replace(/^['"]|['"]$/g, '');
+                    let args = mMoveOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                    let preset = 'center';
+                    if (args.length >= 2) {
+                        preset = args[0] + ',' + args[1];
+                    } else if (args.length === 1) {
+                        preset = args[0];
+                    }
                     block = { type: 'move_owner', params: { preset: preset || 'center', duration: '0' }, indent: indent };
                 }
                 let mSlideOwner = trimmed.match(/^slideTo\((.*?)\)$/i);
                 if (mSlideOwner) {
                     let args = mSlideOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-                    block = { type: 'move_owner', params: { preset: args[0] || 'center', duration: args[1] || '1.0' }, indent: indent };
+                    let preset = 'center';
+                    let duration = '1.0';
+                    if (args.length >= 3) {
+                        preset = args[0] + ',' + args[1];
+                        duration = args[2];
+                    } else if (args.length === 2) {
+                        if (!isNaN(parseFloat(args[0])) && !isNaN(parseFloat(args[1]))) {
+                            preset = args[0] + ',' + args[1];
+                            duration = '1.0';
+                        } else {
+                            preset = args[0];
+                            duration = args[1];
+                        }
+                    } else if (args.length === 1) {
+                        preset = args[0];
+                    }
+                    block = { type: 'move_owner', params: { preset, duration }, indent: indent };
                 }
                 let mBounce = trimmed.match(/^bounce\(\)$/i);
                 if (mBounce) {
