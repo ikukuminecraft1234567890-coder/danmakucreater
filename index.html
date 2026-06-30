@@ -6355,7 +6355,12 @@ while (true) {
                     // 難易度に応じた思考タイミングの管理
                     if (cpu.thinkTimer === undefined) cpu.thinkTimer = 0;
                     cpu.thinkTimer++;
-                    let shouldThink = (cpu.thinkTimer % cpu.thinkInterval === 0);
+                    let currentInterval = cpu.thinkInterval;
+                    // 高負荷時は思考フレーム間隔を広げてFPSを優先する
+                    if (bullets.length > 150) {
+                        currentInterval = Math.max(currentInterval, Math.floor(bullets.length / 5));
+                    }
+                    let shouldThink = (cpu.thinkTimer % currentInterval === 0);
 
                     if (cpuDifficulty === 'HARD' || cpuDifficulty === 'LUNATIC') {
                         // ========================================================
@@ -6374,9 +6379,13 @@ while (true) {
 
                         if (shouldThink) {
                             // 未来シミュレーションのタイムステップ
-                            const T_steps = cpuDifficulty === 'LUNATIC'
+                            let T_steps = cpuDifficulty === 'LUNATIC'
                                 ? [0.03, 0.06, 0.1, 0.15, 0.2, 0.3, 0.45, 0.6, 0.8]
                                 : [0.05, 0.1, 0.2, 0.35, 0.55, 0.8];
+                            if (bullets.length > 150) {
+                                // 弾数が多い時は予測ステップを間引いて処理負荷を半減
+                                T_steps = T_steps.filter((_, idx) => idx % 2 === 0);
+                            }
 
                             // 1. 【極めて重要】全弾道シミュレーション（1フレーム内で1回だけ実行）
                             // プレイヤーが発射した全弾（isNormalに関わらず）を対象に、その未来軌道を一括で計算
@@ -6922,11 +6931,29 @@ while (true) {
 
                 // 弾の更新と当たり判定
                 updateBulletTouchStates();
+
+                // ===== 弾数上限キャップ（パフォーマンス保護）=====
+                const BULLET_CAP = 500;
+                if (bullets.length > BULLET_CAP) {
+                    // 古いCPU通常弾を優先的に削除
+                    let excess = bullets.length - BULLET_CAP;
+                    for (let i = 0; i < bullets.length && excess > 0; i++) {
+                        let b = bullets[i];
+                        if (b && b.team === 'CPU' && !b.isCustom && !b.isBeam && !b.isLaser && !b.isGungnir) {
+                            b._dead = true;
+                            excess--;
+                        }
+                    }
+                    bullets = bullets.filter(b => !b._dead);
+                }
+
+                const useFastRemove = bullets.length > 200;
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     let b = bullets[i];
                     if (!b) continue; // 安全対策: ループ内で配列が縮小して範囲外になった場合の回避
                     if (b.update) b.update(b, dt); // 弾個別の状態更新 (消える魔球やエボリューションなど)
                     if (isBulletExpired(b)) {
+                        if (useFastRemove) { b._dead = true; continue; }
                         bullets.splice(i, 1);
                         continue;
                     }
@@ -6960,6 +6987,7 @@ while (true) {
                     }
 
                     if (shouldDespawn) {
+                        if (useFastRemove) { b._dead = true; continue; }
                         bullets.splice(i, 1); continue;
                     }
 
@@ -7067,6 +7095,7 @@ while (true) {
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
 
+                            if (useFastRemove) { b._dead = true; continue; }
                             bullets.splice(i, 1); continue;
                         }
                         if (!b.grazed && distSq < (player.grazeRadius + bHitR) ** 2) {
@@ -7183,6 +7212,7 @@ while (true) {
                             } else {
                                 spawnBombPiece(cpu.x, cpu.y, 15); // スペルカード命中時は15かけら
                             }
+                            if (useFastRemove) { b._dead = true; continue; }
                             bullets.splice(i, 1); continue;
                         }
                         if (!b.grazed && distSq < (cpu.grazeRadius + bHitR) ** 2) {
@@ -7209,6 +7239,9 @@ while (true) {
                             }
                         }
                     }
+                }
+                if (useFastRemove) {
+                    bullets = bullets.filter(b => !b._dead);
                 }
             }
 
