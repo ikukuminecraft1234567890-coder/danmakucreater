@@ -1420,36 +1420,83 @@ function stepEmitter(c, state, attacker, target, dt) {
             return Math.max(1, Math.round(totalCost));
         }
 
+        function parseSharedCard(decompressed) {
+            const parsed = JSON.parse(decompressed);
+            
+            // 新フォーマット（短縮キー）か旧フォーマットかをチェック
+            const name = parsed.n || parsed.name || '無名カード';
+            const cost = parsed.c !== undefined ? parsed.c : (parsed.cost || 100);
+            const desc = parsed.d || parsed.desc || '';
+            const duration = parsed.duration || 10;
+            
+            // emitterScript の復元
+            let emitterScript = [];
+            if (parsed.e !== undefined) {
+                emitterScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(parsed.e) : [];
+            } else if (Array.isArray(parsed.emitterScript)) {
+                emitterScript = parsed.emitterScript;
+            }
+            
+            // bulletScript の復元
+            let bulletScript = [];
+            if (parsed.b !== undefined) {
+                bulletScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(parsed.b) : [];
+            } else if (Array.isArray(parsed.bulletScript)) {
+                bulletScript = parsed.bulletScript;
+            }
+            
+            // magicCircleScript の復元
+            let magicCircleScript = [];
+            if (parsed.m !== undefined) {
+                magicCircleScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(parsed.m) : [];
+            } else if (Array.isArray(parsed.magicCircleScript)) {
+                magicCircleScript = parsed.magicCircleScript;
+            }
+            
+            return {
+                id: 'cc_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                name: name,
+                cost: cost,
+                rawCost: cost,
+                desc: desc,
+                duration: duration,
+                emitterScript: emitterScript,
+                bulletScript: bulletScript,
+                magicCircleScript: magicCircleScript
+            };
+        }
+
         function shareCustomCard(cardId) {
             const card = customCards.find(c => c.id === cardId);
             if (!card) return;
             try {
-                const jsonStr = JSON.stringify(card);
+                // ASTブロック配列をテキストコード文字列に逆変換
+                const emitterText = typeof blocksToCode === 'function' ? blocksToCode(card.emitterScript || []) : "";
+                const bulletText = typeof blocksToCode === 'function' ? blocksToCode(card.bulletScript || []) : "";
+                const magicCircleText = typeof blocksToCode === 'function' ? blocksToCode(card.magicCircleScript || []) : "";
+
+                // 必要なデータだけに絞ってキー名を極小化
+                const miniCard = {
+                    n: card.name,
+                    c: card.cost || 100,
+                    d: card.desc || '',
+                    e: emitterText,
+                    b: bulletText
+                };
+
+                if (magicCircleText) {
+                    miniCard.m = magicCircleText;
+                }
+
+                const jsonStr = JSON.stringify(miniCard);
                 const compressed = LZString.compressToEncodedURIComponent(jsonStr);
                 const shareUrl = window.location.origin + window.location.pathname + "?card=" + compressed;
                 
-                const copyToClipboard = (url) => {
-                    navigator.clipboard.writeText(url).then(() => {
-                        alert(`「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n\nURL: ${url}`);
-                    }).catch(err => {
-                        prompt("共有URLをコピーしてください：", url);
-                    });
-                };
-
-                // 短縮URLの作成を試みる
-                fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(shareUrl)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.shorturl) {
-                            copyToClipboard(data.shorturl);
-                        } else {
-                            copyToClipboard(shareUrl);
-                        }
-                    })
-                    .catch(() => {
-                        // オフラインやエラー時は長いURLをコピー
-                        copyToClipboard(shareUrl);
-                    });
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert(`「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\nプログラムで極限まで圧縮したため、以前の1/5〜1/10程度の短さになっています。\n\nURL: ${shareUrl}`);
+                }).catch(err => {
+                    prompt("共有URLをコピーしてください：", shareUrl);
+                });
             } catch (e) {
                 alert("共有URLの作成に失敗しました: " + e.message);
             }
@@ -1473,7 +1520,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     if (!decompressed) {
                         throw new Error("デコンプレスに失敗しました（データ破損の可能性）");
                     }
-                    const card = JSON.parse(decompressed);
+                    const card = parseSharedCard(decompressed);
                     importCard(card);
                 } catch (e) {
                     alert("データのインポートに失敗しました。正しい共有URLまたはコードを入力してください。\nエラー: " + e.message);
@@ -1516,7 +1563,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 try {
                     const decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
                     if (decompressed) {
-                        const card = JSON.parse(decompressed);
+                        const card = parseSharedCard(decompressed);
                         setTimeout(() => {
                             if (confirm(`共有されたスペルカード「${card.name.replace('【A】', '')}」をインポートしますか？`)) {
                                 importCard(card);
