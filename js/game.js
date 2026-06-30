@@ -1421,7 +1421,19 @@ function applyAbilityEffect(cardId, owner) {
 
             if (!isGameRunning) return;
             if (!lastTime) lastTime = timestamp;
-            let dt = (timestamp - lastTime) / 1000;
+            
+            const targetFps = 60;
+            const targetInterval = 1000 / targetFps;
+            let elapsed = timestamp - lastTime;
+            
+            // 目標フレーム間隔（16.67ms）に達していない場合は、次の更新までスキップする
+            // 軽微なインターバル揺れによる滑らかさ低下を防ぐために 1ms の猶予を持たせる
+            if (elapsed < targetInterval - 1.0) {
+                gameLoopFrameId = requestAnimationFrame(update);
+                return;
+            }
+            
+            let dt = elapsed / 1000;
             lastTime = timestamp;
             if (dt > 0.1) dt = 0.1;
 
@@ -1465,22 +1477,24 @@ function applyAbilityEffect(cardId, owner) {
             window.perfDraw = performance.now() - tDrawStart;
             window.perfTotal = performance.now() - tStart;
 
-            // 10フレームごとに詳細プロファイルをコンソールに垂れ流す（スパム防止＆リアルタイム確認）
-            if (!window.profileFrameCount) window.profileFrameCount = 0;
-            window.profileFrameCount++;
-            if (window.profileFrameCount % 10 === 0) {
-                console.log(
-                    `[PERF] FPS:${fpsDisplay} | ` +
-                    `Total:${window.perfTotal.toFixed(1)}ms | ` +
-                    `Sim:${window.perfSim.toFixed(1)}ms (Touch:${(window.perfTouch || 0).toFixed(1)}ms, Bullet:${(window.perfBullet || 0).toFixed(1)}ms, Emitter:${(window.perfEmitter || 0).toFixed(1)}ms) | ` +
-                    `Draw:${window.perfDraw.toFixed(1)}ms (BltDraw:${(window.perfDrawB || 0).toFixed(1)}ms) | ` +
-                    `Bullets:${bullets.length} | ` +
-                    `Cache:${numericExprCache.size}`
-                );
-                window.perfTouch = 0;
-                window.perfBullet = 0;
-                window.perfEmitter = 0;
+            // 10フレームごとに詳細プロファイルをコンソールに垂れ流す（window.showDebugProfiler が有効な場合のみ）
+            if (window.showDebugProfiler) {
+                if (!window.profileFrameCount) window.profileFrameCount = 0;
+                window.profileFrameCount++;
+                if (window.profileFrameCount % 10 === 0) {
+                    console.log(
+                        `[PERF] FPS:${fpsDisplay} | ` +
+                        `Total:${window.perfTotal.toFixed(1)}ms | ` +
+                        `Sim:${window.perfSim.toFixed(1)}ms (Touch:${(window.perfTouch || 0).toFixed(1)}ms, Bullet:${(window.perfBullet || 0).toFixed(1)}ms, Emitter:${(window.perfEmitter || 0).toFixed(1)}ms) | ` +
+                        `Draw:${window.perfDraw.toFixed(1)}ms (BltDraw:${(window.perfDrawB || 0).toFixed(1)}ms) | ` +
+                        `Bullets:${bullets.length} | ` +
+                        `Cache:${numericExprCache.size}`
+                    );
+                }
             }
+            window.perfTouch = 0;
+            window.perfBullet = 0;
+            window.perfEmitter = 0;
 
             startGameLoop();
         }
@@ -3189,25 +3203,27 @@ function applyAbilityEffect(cardId, owner) {
             ctx.font = '18px sans-serif';
             ctx.fillText('Graze: ' + player.grazeCount, UI_X, 875);
 
-            // FPS表示（プレイ領域の左上）と詳細プロファイラー表示
-            const fpsColor = fpsDisplay >= 55 ? '#00ff88' : fpsDisplay >= 30 ? '#ffcc00' : '#ff4444';
-            ctx.font = 'bold 11px monospace';
-            ctx.fillStyle = 'rgba(0,0,0,0.8)';
-            ctx.fillRect(4, 4, 150, 135);
-            ctx.fillStyle = fpsColor;
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            ctx.fillText('FPS  : ' + fpsDisplay, 8, 8);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText('Total: ' + (window.perfTotal || 0).toFixed(1) + 'ms', 8, 22);
-            ctx.fillText('Sim  : ' + (window.perfSim || 0).toFixed(1) + 'ms', 8, 36);
-            ctx.fillText(' -Tch: ' + (window.perfTouch || 0).toFixed(1) + 'ms', 8, 50);
-            ctx.fillText(' -Blt: ' + (window.perfBullet || 0).toFixed(1) + 'ms', 8, 64);
-            ctx.fillText(' -Emt: ' + (window.perfEmitter || 0).toFixed(1) + 'ms', 8, 78);
-            ctx.fillText('Draw : ' + (window.perfDraw || 0).toFixed(1) + 'ms', 8, 92);
-            ctx.fillText(' -Blt: ' + (window.perfDrawB || 0).toFixed(1) + 'ms', 8, 106);
-            ctx.fillStyle = '#ffcc00';
-            ctx.fillText('Count: ' + bullets.length + ' bullets', 8, 120);
+            // FPS表示（プレイ領域の左上）と詳細プロファイラー表示 (window.showDebugProfiler が有効な場合のみ描画)
+            if (window.showDebugProfiler) {
+                const fpsColor = fpsDisplay >= 55 ? '#00ff88' : fpsDisplay >= 30 ? '#ffcc00' : '#ff4444';
+                ctx.font = 'bold 11px monospace';
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(4, 4, 150, 135);
+                ctx.fillStyle = fpsColor;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText('FPS  : ' + fpsDisplay, 8, 8);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('Total: ' + (window.perfTotal || 0).toFixed(1) + 'ms', 8, 22);
+                ctx.fillText('Sim  : ' + (window.perfSim || 0).toFixed(1) + 'ms', 8, 36);
+                ctx.fillText(' -Tch: ' + (window.perfTouch || 0).toFixed(1) + 'ms', 8, 50);
+                ctx.fillText(' -Blt: ' + (window.perfBullet || 0).toFixed(1) + 'ms', 8, 64);
+                ctx.fillText(' -Emt: ' + (window.perfEmitter || 0).toFixed(1) + 'ms', 8, 78);
+                ctx.fillText('Draw : ' + (window.perfDraw || 0).toFixed(1) + 'ms', 8, 92);
+                ctx.fillText(' -Blt: ' + (window.perfDrawB || 0).toFixed(1) + 'ms', 8, 106);
+                ctx.fillStyle = '#ffcc00';
+                ctx.fillText('Count: ' + bullets.length + ' bullets', 8, 120);
+            }
             ctx.textBaseline = 'alphabetic';
         }
 

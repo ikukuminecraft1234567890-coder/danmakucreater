@@ -1,3 +1,4 @@
+        window.showDebugProfiler = false;
         let currentEditingDeck = null;
         let isGameRunning = false;
         let cpuDifficulty = 'NORMAL'; // 'EASY', 'NORMAL', 'HARD', 'LUNATIC'
@@ -1468,6 +1469,10 @@
             // （JSコードエディタのカーソル移動・改行・文字入力をブロックしないため）
             const focused = document.activeElement;
             if (focused && (focused.tagName === 'TEXTAREA' || focused.tagName === 'INPUT')) return;
+
+            if (e.key === 'd' || e.key === 'D') {
+                window.showDebugProfiler = !window.showDebugProfiler;
+            }
 
             keyboardState[e.key] = true;
 
