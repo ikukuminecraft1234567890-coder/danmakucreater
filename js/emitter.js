@@ -558,8 +558,54 @@ function stepEmitter(c, state, attacker, target, dt) {
             return radius;
         }
 
+        window.needsBulletTouchDetection = false;
+        window.needsWallTouchDetection = false;
+        window.needsEmitterSync = false;
+
+        function checkBulletTouchRequirement() {
+            try {
+                let allScripts = [];
+                if (typeof customCards !== 'undefined') allScripts.push(JSON.stringify(customCards));
+                if (typeof activeCards !== 'undefined') allScripts.push(JSON.stringify(activeCards));
+                const codeStr = allScripts.join(' ');
+                window.needsBulletTouchDetection = (
+                    codeStr.includes('isTouchBullet') ||
+                    codeStr.includes('touchingBullet') ||
+                    codeStr.includes('touchColor') ||
+                    codeStr.includes('touchX') ||
+                    codeStr.includes('touchY')
+                );
+                window.needsWallTouchDetection = (
+                    codeStr.includes('isBounced') ||
+                    codeStr.includes('isTouchWall') ||
+                    codeStr.includes('touchingWall') ||
+                    codeStr.includes('leftWall') ||
+                    codeStr.includes('rightWall') ||
+                    codeStr.includes('topWall') ||
+                    codeStr.includes('bottomWall')
+                );
+                window.needsEmitterSync = (
+                    codeStr.includes('e_') ||
+                    codeStr.includes('emitter_')
+                );
+            } catch (e) {
+                window.needsBulletTouchDetection = true;
+                window.needsWallTouchDetection = true;
+                window.needsEmitterSync = true;
+            }
+        }
+
         function updateBulletTouchStates() {
             if (!Array.isArray(bullets)) return;
+
+            // 定期的に弾の接触判定が必要かをチェック (不要なら即時 return)
+            if (Math.random() < 0.02) {
+                checkBulletTouchRequirement();
+            }
+            if (!window.needsBulletTouchDetection) {
+                return;
+            }
+
             const candidates = [];
             for (let i = 0; i < bullets.length; i++) {
                 const b = bullets[i];
@@ -618,34 +664,45 @@ function stepEmitter(c, state, attacker, target, dt) {
             let initAngle = Number(state.variables.angle) || 0;
             let initSpeed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             
-            // 毎フレーム壁との接触を判定（左・右・上端のみ。下端は除外）
-            // isPlayerSide の場合は、上端ではなく下端との接触を判定
-            let currentlyTouching;
-            let hitLeftWall = b.x < 10;
-            let hitRightWall = b.x > PLAY_WIDTH - 10;
-            let hitTopWall = b.y < 10;
-            let hitBottomWall = b.y > canvas.height - 10;
-            if (isPlayerSide) { currentlyTouching = (hitLeftWall || hitRightWall || hitBottomWall); }
-            else { currentlyTouching = (hitLeftWall || hitRightWall || hitTopWall); }
-            let wallTouchTrigger = (currentlyTouching && !b.wasTouchingWall) ? 1 : 0;
-            state.variables.isBounced = wallTouchTrigger;
-            state.variables.isTouchWall = wallTouchTrigger;
-            state.variables.touchingWall = currentlyTouching ? 1 : 0;
-            state.variables.leftWall = hitLeftWall ? 1 : 0;
-            state.variables.rightWall = hitRightWall ? 1 : 0;
-            state.variables.topWall = hitTopWall ? 1 : 0;
-            state.variables.bottomWall = hitBottomWall ? 1 : 0;
-            b.wasTouchingWall = currentlyTouching;
+            // 毎フレーム壁との接触を判定（スクリプトで壁判定を使用する場合のみ実行）
+            if (window.needsWallTouchDetection) {
+                let currentlyTouching;
+                let hitLeftWall = b.x < 10;
+                let hitRightWall = b.x > PLAY_WIDTH - 10;
+                let hitTopWall = b.y < 10;
+                let hitBottomWall = b.y > canvas.height - 10;
+                if (isPlayerSide) { currentlyTouching = (hitLeftWall || hitRightWall || hitBottomWall); }
+                else { currentlyTouching = (hitLeftWall || hitRightWall || hitTopWall); }
+                let wallTouchTrigger = (currentlyTouching && !b.wasTouchingWall) ? 1 : 0;
+                state.variables.isBounced = wallTouchTrigger;
+                state.variables.isTouchWall = wallTouchTrigger;
+                state.variables.touchingWall = currentlyTouching ? 1 : 0;
+                state.variables.leftWall = hitLeftWall ? 1 : 0;
+                state.variables.rightWall = hitRightWall ? 1 : 0;
+                state.variables.topWall = hitTopWall ? 1 : 0;
+                state.variables.bottomWall = hitBottomWall ? 1 : 0;
+                b.wasTouchingWall = currentlyTouching;
+            } else {
+                state.variables.isBounced = 0;
+                state.variables.isTouchWall = 0;
+                state.variables.touchingWall = 0;
+            }
 
-            let touchingBullet = b.pendingTouchBullet || null;
-            let bulletTouching = !!touchingBullet;
-            let bulletTouchTrigger = (bulletTouching && !b.wasTouchingBullet) ? 1 : 0;
-            state.variables.isTouchBullet = bulletTouchTrigger;
-            state.variables.touchingBullet = bulletTouching ? 1 : 0;
-            state.variables.touchColor = touchingBullet ? (touchingBullet.color || '') : '';
-            state.variables.touchX = touchingBullet ? touchingBullet.x : 0;
-            state.variables.touchY = touchingBullet ? (isPlayerSide ? (canvas.height - touchingBullet.y) : touchingBullet.y) : 0;
-            b.wasTouchingBullet = bulletTouching;
+            // 弾同士の接触判定（スクリプトで使用する場合のみ実行）
+            if (window.needsBulletTouchDetection) {
+                let touchingBullet = b.pendingTouchBullet || null;
+                let bulletTouching = !!touchingBullet;
+                let bulletTouchTrigger = (bulletTouching && !b.wasTouchingBullet) ? 1 : 0;
+                state.variables.isTouchBullet = bulletTouchTrigger;
+                state.variables.touchingBullet = bulletTouching ? 1 : 0;
+                state.variables.touchColor = touchingBullet ? (touchingBullet.color || '') : '';
+                state.variables.touchX = touchingBullet ? touchingBullet.x : 0;
+                state.variables.touchY = touchingBullet ? (isPlayerSide ? (canvas.height - touchingBullet.y) : touchingBullet.y) : 0;
+                b.wasTouchingBullet = bulletTouching;
+            } else {
+                state.variables.isTouchBullet = 0;
+                state.variables.touchingBullet = 0;
+            }
             
             // 初回フレームのみの初期化処理
             if (state.variables.timer === 0) {
@@ -662,11 +719,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
                 state.variables.cardFrame = Number(b.sharedEmitterState.variables.cardFrame || b.sharedEmitterState.variables.frame || 0);
                 
-                // コア（エミッター）の全変数をリアルタイムでe_ / emitter_接頭辞を付与して同期
-                Object.keys(b.sharedEmitterState.variables).forEach(key => {
-                    state.variables['e_' + key] = b.sharedEmitterState.variables[key];
-                    state.variables['emitter_' + key] = b.sharedEmitterState.variables[key];
-                });
+                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
+                if (window.needsEmitterSync) {
+                    Object.keys(b.sharedEmitterState.variables).forEach(key => {
+                        state.variables['e_' + key] = b.sharedEmitterState.variables[key];
+                        state.variables['emitter_' + key] = b.sharedEmitterState.variables[key];
+                    });
+                }
             } else {
                 state.variables.cardSecond = state.variables.second;
                 state.variables.cardFrame = state.variables.frame;
