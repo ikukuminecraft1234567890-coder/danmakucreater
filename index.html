@@ -79,12 +79,12 @@
         }
 
         /* PC等、画面が非常に大きいときは最大サイズを 800px x 900px に制限し、ボケを防ぐ */
-        @media (min-width: 900px) and (min-height: 1000px) {
+        @media (min-width: 1000px) and (min-height: 950px) {
             #gameContainer {
-                width: 800px;
-                height: 900px;
-                max-width: 800px;
-                max-height: 900px;
+                width: 968px;
+                height: 896px;
+                max-width: 968px;
+                max-height: 896px;
             }
         }
 
@@ -9892,7 +9892,7 @@ while (true) {
             let totalFrames = simDuration * fps;
 
             let attacker = { x: PLAY_WIDTH / 2, y: 150, team: 'ENEMY' };
-            let target = { x: PLAY_WIDTH / 2, y: (canvas ? canvas.height : 900) * 0.8 };
+            let target = { x: PLAY_WIDTH / 2, y: (canvas ? canvas.height : 896) * 0.8 };
 
             let emitterState = initEmitterState(emitterScript, attacker, target);
             let simBullets = [];
@@ -10006,7 +10006,7 @@ while (true) {
                     }
 
                     // 画面外判定
-                    let currentHeight = canvas ? canvas.height : 900;
+                    let currentHeight = canvas ? canvas.height : 896;
                     let isOff = (b.x < 0 || b.x > PLAY_WIDTH || b.y < 0 || b.y > currentHeight);
                     if (isOff) {
                         b.offscreenTime = (b.offscreenTime || 0) + dt;
