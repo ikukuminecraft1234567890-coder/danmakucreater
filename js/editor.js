@@ -88,11 +88,17 @@ function customCardMakerSwitchTab(tab) {
                 block.params.color = '#ff3333';
                 block.params.speed = '200';
                 block.params.angle = 'angle';
+                block.params.radius = '6';
+                block.params.bulletImage = 'none';
+                block.params.coordMode = 'relative';
             } else if (type === 'spawn_ring') {
                 block.params.bulletType = 'normal';
                 block.params.color = '#ff3333';
                 block.params.speed = '200';
                 block.params.count = '12';
+                block.params.radius = '6';
+                block.params.bulletImage = 'none';
+                block.params.coordMode = 'relative';
             } else if (type === 'spawn_way') {
                 block.params.bulletType = 'normal';
                 block.params.color = '#ff3333';
@@ -100,6 +106,9 @@ function customCardMakerSwitchTab(tab) {
                 block.params.angle = 'angle';
                 block.params.count = '3';
                 block.params.spread = '30';
+                block.params.radius = '6';
+                block.params.bulletImage = 'none';
+                block.params.coordMode = 'relative';
             } else if (type === 'homing') {
                 block.params.turnSpeed = '90';
             } else if (type === 'spawn_magic_circle') {
@@ -403,13 +412,32 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="normal" ${b.params.bulletType === 'normal' ? 'selected' : ''}>通常弾</option>
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
+                                <span>画像:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
+                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
+                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
+                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
+                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
+                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
+                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
+                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
+                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
+                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
+                                </select>
+                                <span>半径:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
                                 <span>色:</span>
                                 <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
                                 <span>速度:</span>
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
                                 <span>角度:</span>
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
-                                <span>補正 X:</span>
+                                <span>X:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
                                 <span>Y:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
@@ -424,13 +452,32 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="normal" ${b.params.bulletType === 'normal' ? 'selected' : ''}>通常弾</option>
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
+                                <span>画像:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
+                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
+                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
+                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
+                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
+                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
+                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
+                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
+                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
+                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
+                                </select>
+                                <span>半径:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
                                 <span>色:</span>
                                 <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
                                 <span>速度:</span>
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
                                 <span>弾数:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
-                                <span>補正 X:</span>
+                                <span>X:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
                                 <span>Y:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
@@ -445,6 +492,25 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="normal" ${b.params.bulletType === 'normal' ? 'selected' : ''}>通常弾</option>
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
+                                <span>画像:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
+                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
+                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
+                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
+                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
+                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
+                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
+                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
+                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
+                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
+                                </select>
+                                <span>半径:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
                                 <span>色:</span>
                                 <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
                                 <span>速度:</span>
@@ -455,7 +521,7 @@ function customCardMakerSwitchTab(tab) {
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
                                 <span>分散角:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.spread}" onchange="customCardMakerUpdateParam(${idx}, 'spread', this.value)">
-                                <span>補正 X:</span>
+                                <span>X:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
                                 <span>Y:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
@@ -938,7 +1004,13 @@ function customCardMakerSwitchTab(tab) {
                         let ang = b.params.angle || 'angle';
                         let ox = b.params.offsetX || '0';
                         let oy = b.params.offsetY || '0';
-                        if (ox !== '0' || oy !== '0') {
+                        let rad = b.params.radius || '6';
+                        let img = b.params.bulletImage || 'none';
+                        let cm = b.params.coordMode || 'relative';
+
+                        if (rad !== '6' || img !== 'none' || cm !== 'relative') {
+                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}")`;
+                        } else if (ox !== '0' || oy !== '0') {
                             line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy})`;
                         } else {
                             line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang})`;
@@ -952,7 +1024,13 @@ function customCardMakerSwitchTab(tab) {
                         let cntRing = b.params.count || '12';
                         let oxRing = b.params.offsetX || '0';
                         let oyRing = b.params.offsetY || '0';
-                        if (oxRing !== '0' || oyRing !== '0') {
+                        let radRing = b.params.radius || '6';
+                        let imgRing = b.params.bulletImage || 'none';
+                        let cmRing = b.params.coordMode || 'relative';
+
+                        if (radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative') {
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}")`;
+                        } else if (oxRing !== '0' || oyRing !== '0') {
                             line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
                         } else {
                             line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing})`;
@@ -968,7 +1046,13 @@ function customCardMakerSwitchTab(tab) {
                         let sprWay = b.params.spread || '30';
                         let oxWay = b.params.offsetX || '0';
                         let oyWay = b.params.offsetY || '0';
-                        if (oxWay !== '0' || oyWay !== '0') {
+                        let radWay = b.params.radius || '6';
+                        let imgWay = b.params.bulletImage || 'none';
+                        let cmWay = b.params.coordMode || 'relative';
+
+                        if (radWay !== '6' || imgWay !== 'none' || cmWay !== 'relative') {
+                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}")`;
+                        } else if (oxWay !== '0' || oyWay !== '0') {
                             line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay})`;
                         } else {
                             line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay})`;
@@ -1181,7 +1265,10 @@ function customCardMakerSwitchTab(tab) {
                                 speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
                                 angle: isLegacy ? (args[4] || 'angle') : (args[3] || 'angle'),
                                 offsetX: isLegacy ? '0' : (args[4] || '0'),
-                                offsetY: isLegacy ? '0' : (args[5] || '0')
+                                offsetY: isLegacy ? '0' : (args[5] || '0'),
+                                radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
+                                bulletImage: args.length >= 8 ? args[7] : 'none',
+                                coordMode: args.length >= 9 ? args[8] : 'relative'
                             },
                             indent
                         };
@@ -1198,7 +1285,10 @@ function customCardMakerSwitchTab(tab) {
                                 speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
                                 count: isLegacy ? (args[4] || '12') : (args[3] || '12'),
                                 offsetX: isLegacy ? '0' : (args[4] || '0'),
-                                offsetY: isLegacy ? '0' : (args[5] || '0')
+                                offsetY: isLegacy ? '0' : (args[5] || '0'),
+                                radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
+                                bulletImage: args.length >= 8 ? args[7] : 'none',
+                                coordMode: args.length >= 9 ? args[8] : 'relative'
                             },
                             indent
                         };
@@ -1217,7 +1307,10 @@ function customCardMakerSwitchTab(tab) {
                                 count: isLegacy ? (args[5] || '3') : (args[4] || '3'),
                                 spread: isLegacy ? (args[6] || '30') : (args[5] || '30'),
                                 offsetX: isLegacy ? '0' : (args[6] || '0'),
-                                offsetY: isLegacy ? '0' : (args[7] || '0')
+                                offsetY: isLegacy ? '0' : (args[7] || '0'),
+                                radius: isLegacy ? args[2] : (args.length >= 9 ? args[8] : '6'),
+                                bulletImage: args.length >= 10 ? args[9] : 'none',
+                                coordMode: args.length >= 11 ? args[10] : 'relative'
                             },
                             indent
                         };
@@ -1481,7 +1574,10 @@ function customCardMakerSwitchTab(tab) {
                             speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
                             angle: isLegacy ? (args[4] || 'angle') : (args[3] || 'angle'),
                             offsetX: isLegacy ? '0' : (args[4] || '0'),
-                            offsetY: isLegacy ? '0' : (args[5] || '0')
+                            offsetY: isLegacy ? '0' : (args[5] || '0'),
+                            radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
+                            bulletImage: args.length >= 8 ? args[7] : 'none',
+                            coordMode: args.length >= 9 ? args[8] : 'relative'
                         },
                         indent: indent
                     };
@@ -1504,7 +1600,10 @@ function customCardMakerSwitchTab(tab) {
                             speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
                             count: isLegacy ? (args[4] || '12') : (args[3] || '12'),
                             offsetX: isLegacy ? '0' : (args[4] || '0'),
-                            offsetY: isLegacy ? '0' : (args[5] || '0')
+                            offsetY: isLegacy ? '0' : (args[5] || '0'),
+                            radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
+                            bulletImage: args.length >= 8 ? args[7] : 'none',
+                            coordMode: args.length >= 9 ? args[8] : 'relative'
                         },
                         indent: indent
                     };
@@ -1529,7 +1628,10 @@ function customCardMakerSwitchTab(tab) {
                             count: isLegacy ? (args[5] || '3') : (args[4] || '3'),
                             spread: isLegacy ? (args[6] || '30') : (args[5] || '30'),
                             offsetX: isLegacy ? '0' : (args[6] || '0'),
-                            offsetY: isLegacy ? '0' : (args[7] || '0')
+                            offsetY: isLegacy ? '0' : (args[7] || '0'),
+                            radius: isLegacy ? args[2] : (args.length >= 9 ? args[8] : '6'),
+                            bulletImage: args.length >= 10 ? args[9] : 'none',
+                            coordMode: args.length >= 11 ? args[10] : 'relative'
                         },
                         indent: indent
                     };

@@ -252,13 +252,24 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let ox = evalExpr(block.params.offsetX || '0', state.variables);
                         let oy = evalExpr(block.params.offsetY || '0', state.variables);
 
-                        let spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
-                        let spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        let coordMode = block.params.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (coordMode === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
+                            spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+
                         let angleRad = angle * Math.PI / 180;
                         if (isPlayerSide) {
                             angleRad = -angleRad;
                         }
                         
+                        let bRadius = evalExpr(block.params.radius || '6', state.variables);
+                        let bImg = block.params.bulletImage || 'none';
+
                         let newBullet = {
                             x: spawnX,
                             y: spawnY,
@@ -266,7 +277,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                             startY: spawnY,
                             vx: Math.cos(angleRad) * speed,
                             vy: Math.sin(angleRad) * speed,
-                            radius: 6, // 弾の大きさは6に固定
+                            radius: bRadius,
+                            bulletImage: bImg,
                             team: attacker.team,
                             color: bColor,
                             customDmg: 20, // custom card damage balanced to 20
@@ -302,9 +314,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let ox = evalExpr(block.params.offsetX || '0', state.variables);
                         let oy = evalExpr(block.params.offsetY || '0', state.variables);
 
-                        let spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
-                        let spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        let coordMode = block.params.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (coordMode === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
+                            spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
                         
+                        let bRadius = evalExpr(block.params.radius || '6', state.variables);
+                        let bImg = block.params.bulletImage || 'none';
+
                         for (let k = 0; k < count; k++) {
                             let angle = (360 / count) * k;
                             let angleRad = angle * Math.PI / 180;
@@ -319,7 +341,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 startY: spawnY,
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
-                                radius: 6, // 弾の大きさは6に固定
+                                radius: bRadius,
+                                bulletImage: bImg,
                                 team: attacker.team,
                                 color: bColor,
                                 customDmg: 20,
@@ -358,9 +381,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let ox = evalExpr(block.params.offsetX || '0', state.variables);
                         let oy = evalExpr(block.params.offsetY || '0', state.variables);
 
-                        let spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
-                        let spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        let coordMode = block.params.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (coordMode === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
+                            spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
                         
+                        let bRadius = evalExpr(block.params.radius || '6', state.variables);
+                        let bImg = block.params.bulletImage || 'none';
+
                         let startAngle = centerAngle - (spread * (count - 1)) / 2;
                         
                         for (let k = 0; k < count; k++) {
@@ -377,7 +410,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 startY: spawnY,
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
-                                radius: 6, // 弾の大きさは6に固定
+                                radius: bRadius,
+                                bulletImage: bImg,
                                 team: attacker.team,
                                 color: bColor,
                                 customDmg: 20,

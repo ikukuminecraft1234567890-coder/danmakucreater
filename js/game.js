@@ -2846,10 +2846,21 @@ function applyAbilityEffect(cardId, owner) {
 
                     ctx.restore();
                 } else {
-                    let color = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
                     let drawRadius = b.radius * 1.5;
-                    ctx.fillStyle = color;
-                    ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
+                    if (b.bulletImage && b.bulletImage !== 'none' && window.bulletImages && window.bulletImages[b.bulletImage]) {
+                        ctx.save();
+                        ctx.translate(b.x, b.y);
+                        // 進行方向に回転（通常アセットは上が進行方向のため +Math.PI/2）
+                        let angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                        ctx.rotate(angle);
+                        const img = window.bulletImages[b.bulletImage];
+                        ctx.drawImage(img, -drawRadius, -drawRadius, drawRadius * 2, drawRadius * 2);
+                        ctx.restore();
+                    } else {
+                        let color = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
+                        ctx.fillStyle = color;
+                        ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
+                    }
                 }
             });
             window.perfDrawB = performance.now() - tDrawBStart;
