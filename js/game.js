@@ -2405,6 +2405,26 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             if (isCustomCardTesting) {
+                // クリアエフェクト進行中はタイマーを減らして待つ
+                if (window.customCardClearEffect) {
+                    window.customCardClearEffect.timer -= dt;
+                    // お祝いの虹色パーティクルを更新
+                    window.customCardClearEffect.particles.forEach(p => {
+                        p.x += p.vx * dt;
+                        p.y += p.vy * dt;
+                        p.vy += p.gravity * dt; // 重力
+                        p.life -= dt;
+                        p.alpha = Math.max(0, p.life / p.maxLife);
+                    });
+                    window.customCardClearEffect.particles = window.customCardClearEffect.particles.filter(p => p.life > 0);
+                    if (window.customCardClearEffect.timer <= 0) {
+                        window.customCardClearEffect = null;
+                        endCustomCardTest(true);
+                        return 'ended';
+                    }
+                    return; // エフェクト中は他の処理をスキップ
+                }
+
                 // 死亡エフェクト進行中はタイマーを減らして待つ
                 if (customCardDeathEffect) {
                     customCardDeathEffect.timer -= dt;
@@ -2448,10 +2468,26 @@ function applyAbilityEffect(cardId, owner) {
                 if (actionTimer <= 0 && !customCardTestEmitterDone) {
                     customCardTestEmitterDone = true;
                 }
-                // エミッター終了後、全弾が消えたらテスト成功
-                if (customCardTestEmitterDone && bullets.length === 0 && !customCardDeathEffect) {
-                    endCustomCardTest(true);
-                    return 'ended';
+                // エミッター終了後、全弾が消えたらテスト成功（クリアエフェクトを開始）
+                if (customCardTestEmitterDone && bullets.length === 0 && !customCardDeathEffect && !window.customCardClearEffect) {
+                    let particles = [];
+                    for (let i = 0; i < 80; i++) {
+                        let angle = Math.random() * Math.PI * 2;
+                        let speed = 100 + Math.random() * 250;
+                        particles.push({
+                            x: PLAY_WIDTH / 2 + (Math.random() - 0.5) * 100, // 画面中央付近
+                            y: canvas.height / 2 + (Math.random() - 0.5) * 100,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed - 50,
+                            gravity: -50 + Math.random() * 100, // フワフワ落ちる
+                            life: 1.0 + Math.random() * 1.5,
+                            maxLife: 1.0 + Math.random() * 1.5,
+                            alpha: 1,
+                            r: 4 + Math.random() * 5,
+                            hue: Math.random() * 360 // 虹色
+                        });
+                    }
+                    window.customCardClearEffect = { timer: 3.0, particles };
                 }
             }
         }
@@ -3352,6 +3388,58 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.font = 'bold 20px sans-serif';
                     ctx.fillStyle = '#ffaaaa';
                     ctx.fillText(Math.ceil(customCardDeathEffect.timer) + '秒後に終了...', PLAY_WIDTH / 2, canvas.height / 2 + 55);
+                }
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+
+            // ── クリアエフェクト描画 ───────────────────────────────
+            if (isCustomCardTesting && window.customCardClearEffect) {
+                ctx.save();
+                // 虹色の紙吹雪（パーティクル）
+                window.customCardClearEffect.particles.forEach(p => {
+                    ctx.globalAlpha = p.alpha * 0.9;
+                    ctx.fillStyle = `hsl(${p.hue}, 100%, 65%)`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                
+                // 「SPELL CARD CLEAR!」テキスト（エフェクト開始から0.3秒でフェードイン）
+                let elapsed = 3.0 - window.customCardClearEffect.timer;
+                let textAlpha = Math.min(1.0, Math.max(0, (elapsed - 0.3) / 0.3));
+                if (textAlpha > 0) {
+                    ctx.globalAlpha = textAlpha;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // 背景の帯状の半透明パネル
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+                    ctx.fillRect(0, canvas.height / 2 - 85, PLAY_WIDTH, 170);
+                    
+                    // 影
+                    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                    ctx.font = "italic bold 34px sans-serif";
+                    ctx.fillText('SPELL CARD', PLAY_WIDTH / 2 + 2, canvas.height / 2 - 30 + 2);
+                    ctx.font = "italic bold 56px sans-serif";
+                    ctx.fillText('CLEAR!', PLAY_WIDTH / 2 + 3, canvas.height / 2 + 25 + 3);
+                    
+                    // 本体（金色の文字グラデーション）
+                    let gradText = ctx.createLinearGradient(0, canvas.height / 2 - 50, 0, canvas.height / 2 + 50);
+                    gradText.addColorStop(0, '#ffe066');
+                    gradText.addColorStop(0.5, '#f5b041');
+                    gradText.addColorStop(1, '#d35400');
+                    ctx.fillStyle = gradText;
+                    
+                    ctx.font = "italic bold 34px sans-serif";
+                    ctx.fillText('SPELL CARD', PLAY_WIDTH / 2, canvas.height / 2 - 30);
+                    ctx.font = "italic bold 56px sans-serif";
+                    ctx.fillText('CLEAR!', PLAY_WIDTH / 2, canvas.height / 2 + 25);
+                    
+                    // 残り秒数表示
+                    ctx.fillStyle = '#aaffaa';
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.fillText(Math.ceil(window.customCardClearEffect.timer) + '秒後にエディタに戻ります...', PLAY_WIDTH / 2, canvas.height / 2 + 105);
                 }
                 ctx.globalAlpha = 1.0;
                 ctx.restore();
