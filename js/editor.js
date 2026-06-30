@@ -650,6 +650,7 @@ function customCardMakerSwitchTab(tab) {
             activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0);
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
+            customCardDeathEffect = null;
             normalShotTimer = 0;
             
             lastTime = performance.now();
@@ -660,6 +661,7 @@ function customCardMakerSwitchTab(tab) {
         function endCustomCardTest(success) {
             isCustomCardTesting = false;
             isGameRunning = false;
+            customCardDeathEffect = null;
             
             bullets = [];
             magicCircles = [];

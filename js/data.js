@@ -152,6 +152,7 @@
         let onlineCustomCards = [];
         let isCustomCardTesting = false;
         let customCardTestEmitterDone = false; // エミッター停止後、弾が消えるまで待つフラグ
+        let customCardDeathEffect = null; // 死亡エフェクト { timer: 残り秒数, particles: [] }
         let customCardMaker = {
             editingId: null,
             name: 'カスタムスペル',

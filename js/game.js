@@ -2402,16 +2402,52 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             if (isCustomCardTesting) {
+                // 死亡エフェクト進行中はタイマーを減らして待つ
+                if (customCardDeathEffect) {
+                    customCardDeathEffect.timer -= dt;
+                    // パーティクルを更新
+                    customCardDeathEffect.particles.forEach(p => {
+                        p.x += p.vx * dt;
+                        p.y += p.vy * dt;
+                        p.vy += 200 * dt; // 重力
+                        p.life -= dt;
+                        p.alpha = Math.max(0, p.life / p.maxLife);
+                    });
+                    customCardDeathEffect.particles = customCardDeathEffect.particles.filter(p => p.life > 0);
+                    if (customCardDeathEffect.timer <= 0) {
+                        customCardDeathEffect = null;
+                        endCustomCardTest(false);
+                        return 'ended';
+                    }
+                    return; // エフェクト中はダメージ判定・終了チェックをスキップ
+                }
+
                 if (player.pendingDamage > 0) {
-                    endCustomCardTest(false);
-                    return 'ended';
+                    // 死亡エフェクト開始（3秒）
+                    let particles = [];
+                    for (let i = 0; i < 60; i++) {
+                        let angle = Math.random() * Math.PI * 2;
+                        let speed = 80 + Math.random() * 300;
+                        particles.push({
+                            x: player.x, y: player.y,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed - 150,
+                            life: 0.8 + Math.random() * 1.5,
+                            maxLife: 0.8 + Math.random() * 1.5,
+                            alpha: 1,
+                            r: 3 + Math.random() * 6,
+                            hue: Math.random() * 60 // 赤〜オレンジ
+                        });
+                    }
+                    customCardDeathEffect = { timer: 3.0, particles };
+                    bullets = []; // 弾を全消去
                 }
                 // actionTimer が切れたらエミッター終了フェーズへ移行
                 if (actionTimer <= 0 && !customCardTestEmitterDone) {
                     customCardTestEmitterDone = true;
                 }
                 // エミッター終了後、全弾が消えたらテスト成功
-                if (customCardTestEmitterDone && bullets.length === 0) {
+                if (customCardTestEmitterDone && bullets.length === 0 && !customCardDeathEffect) {
                     endCustomCardTest(true);
                     return 'ended';
                 }
@@ -3089,6 +3125,69 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
+
+            // ── 残り時間を右上に表示 ──────────────────────────────
+            if (isCustomCardTesting && !customCardTestEmitterDone) {
+                let t = Math.max(0, actionTimer);
+                ctx.save();
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                // 残り5秒以下で赤く点滅
+                if (t <= 5) {
+                    let blink = 0.6 + 0.4 * Math.sin(performance.now() / 120);
+                    ctx.globalAlpha = blink;
+                    ctx.fillStyle = '#ff4444';
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                }
+                // 背景パネル
+                ctx.fillStyle = t <= 5 ? 'rgba(180,0,0,0.45)' : 'rgba(0,0,0,0.45)';
+                ctx.fillRect(PLAY_WIDTH - 90, 6, 84, 36);
+                // 文字
+                ctx.globalAlpha = t <= 5 ? (0.6 + 0.4 * Math.sin(performance.now() / 120)) : 1.0;
+                ctx.fillStyle = t <= 5 ? '#ff6666' : '#ffffff';
+                ctx.font = 'bold 26px monospace';
+                ctx.fillText(t.toFixed(1) + 's', PLAY_WIDTH - 10, 10);
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+
+            // ── 死亡エフェクト描画 ───────────────────────────────
+            if (isCustomCardTesting && customCardDeathEffect) {
+                ctx.save();
+                // パーティクル
+                customCardDeathEffect.particles.forEach(p => {
+                    ctx.globalAlpha = p.alpha * 0.9;
+                    ctx.fillStyle = `hsl(${p.hue}, 100%, 65%)`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                // 「FAILED」テキスト（エフェクト開始から0.5秒後にフェードイン）
+                let elapsed = 3.0 - customCardDeathEffect.timer;
+                let textAlpha = Math.min(1.0, Math.max(0, (elapsed - 0.4) / 0.3));
+                if (textAlpha > 0) {
+                    ctx.globalAlpha = textAlpha;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    // 影
+                    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                    ctx.font = 'bold 72px sans-serif';
+                    ctx.fillText('FAILED', PLAY_WIDTH / 2 + 3, canvas.height / 2 + 3);
+                    // 本体（赤グラデ）
+                    let grad = ctx.createLinearGradient(0, canvas.height/2 - 40, 0, canvas.height/2 + 40);
+                    grad.addColorStop(0, '#ff8888');
+                    grad.addColorStop(1, '#cc0000');
+                    ctx.fillStyle = grad;
+                    ctx.fillText('FAILED', PLAY_WIDTH / 2, canvas.height / 2);
+                    // 残り秒数
+                    ctx.font = 'bold 20px sans-serif';
+                    ctx.fillStyle = '#ffaaaa';
+                    ctx.fillText(Math.ceil(customCardDeathEffect.timer) + '秒後に終了...', PLAY_WIDTH / 2, canvas.height / 2 + 55);
+                }
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
 
             // 右側UI領域の描画
             if (canvas.width > PLAY_WIDTH) {
