@@ -2150,7 +2150,7 @@ function applyAbilityEffect(cardId, owner) {
                         continue;
                     }
 
-                    let bHitR = b.isLaser ? getLaserWidth(b) / 2 : 6;
+                    let bHitR = b.isLaser ? getLaserWidth(b) / 2 : (b.hitRadius !== undefined ? b.hitRadius : b.radius);
 
                     if (b.isBombPiece) {
                         let distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;

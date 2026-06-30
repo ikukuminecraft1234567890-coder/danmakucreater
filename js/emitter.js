@@ -268,6 +268,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         
                         let bRadius = evalExpr(block.params.radius || '6', state.variables);
+                        let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
                         let bImg = block.params.bulletImage || 'none';
 
                         let newBullet = {
@@ -278,6 +279,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             vx: Math.cos(angleRad) * speed,
                             vy: Math.sin(angleRad) * speed,
                             radius: bRadius,
+                            hitRadius: bHitRadius,
                             bulletImage: bImg,
                             team: attacker.team,
                             color: bColor,
@@ -325,6 +327,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         
                         let bRadius = evalExpr(block.params.radius || '6', state.variables);
+                        let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
                         let bImg = block.params.bulletImage || 'none';
 
                         for (let k = 0; k < count; k++) {
@@ -342,6 +345,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
                                 radius: bRadius,
+                                hitRadius: bHitRadius,
                                 bulletImage: bImg,
                                 team: attacker.team,
                                 color: bColor,
@@ -392,6 +396,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         
                         let bRadius = evalExpr(block.params.radius || '6', state.variables);
+                        let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
                         let bImg = block.params.bulletImage || 'none';
 
                         let startAngle = centerAngle - (spread * (count - 1)) / 2;
@@ -411,6 +416,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
                                 radius: bRadius,
+                                hitRadius: bHitRadius,
                                 bulletImage: bImg,
                                 team: attacker.team,
                                 color: bColor,

@@ -89,6 +89,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.speed = '200';
                 block.params.angle = 'angle';
                 block.params.radius = '6';
+                block.params.hitRadius = '';
                 block.params.bulletImage = 'none';
                 block.params.coordMode = 'relative';
             } else if (type === 'spawn_ring') {
@@ -97,6 +98,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.speed = '200';
                 block.params.count = '12';
                 block.params.radius = '6';
+                block.params.hitRadius = '';
                 block.params.bulletImage = 'none';
                 block.params.coordMode = 'relative';
             } else if (type === 'spawn_way') {
@@ -107,6 +109,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.count = '3';
                 block.params.spread = '30';
                 block.params.radius = '6';
+                block.params.hitRadius = '';
                 block.params.bulletImage = 'none';
                 block.params.coordMode = 'relative';
             } else if (type === 'homing') {
@@ -427,6 +430,8 @@ function customCardMakerSwitchTab(tab) {
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
                                     <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
                                     <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
@@ -467,6 +472,8 @@ function customCardMakerSwitchTab(tab) {
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
                                     <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
                                     <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
@@ -507,6 +514,8 @@ function customCardMakerSwitchTab(tab) {
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
                                     <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
                                     <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
@@ -1007,9 +1016,11 @@ function customCardMakerSwitchTab(tab) {
                         let rad = b.params.radius || '6';
                         let img = b.params.bulletImage || 'none';
                         let cm = b.params.coordMode || 'relative';
+                        let hr = b.params.hitRadius || '';
 
-                        if (rad !== '6' || img !== 'none' || cm !== 'relative') {
-                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}")`;
+                        if (hr !== '' || rad !== '6' || img !== 'none' || cm !== 'relative') {
+                            // hitRadiusを出力する場合はフル引数
+                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}", ${formatCodeColorArg(hr)})`;
                         } else if (ox !== '0' || oy !== '0') {
                             line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy})`;
                         } else {
@@ -1027,9 +1038,10 @@ function customCardMakerSwitchTab(tab) {
                         let radRing = b.params.radius || '6';
                         let imgRing = b.params.bulletImage || 'none';
                         let cmRing = b.params.coordMode || 'relative';
+                        let hrRing = b.params.hitRadius || '';
 
-                        if (radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative') {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}")`;
+                        if (hrRing !== '' || radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative') {
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
                         } else if (oxRing !== '0' || oyRing !== '0') {
                             line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
                         } else {
@@ -1049,9 +1061,10 @@ function customCardMakerSwitchTab(tab) {
                         let radWay = b.params.radius || '6';
                         let imgWay = b.params.bulletImage || 'none';
                         let cmWay = b.params.coordMode || 'relative';
+                        let hrWay = b.params.hitRadius || '';
 
-                        if (radWay !== '6' || imgWay !== 'none' || cmWay !== 'relative') {
-                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}")`;
+                        if (hrWay !== '' || radWay !== '6' || imgWay !== 'none' || cmWay !== 'relative') {
+                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}", ${formatCodeColorArg(hrWay)})`;
                         } else if (oxWay !== '0' || oyWay !== '0') {
                             line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay})`;
                         } else {
@@ -1268,7 +1281,8 @@ function customCardMakerSwitchTab(tab) {
                                 offsetY: isLegacy ? '0' : (args[5] || '0'),
                                 radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
                                 bulletImage: args.length >= 8 ? args[7] : 'none',
-                                coordMode: args.length >= 9 ? args[8] : 'relative'
+                                coordMode: args.length >= 9 ? args[8] : 'relative',
+                                hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
                             },
                             indent
                         };
@@ -1288,7 +1302,8 @@ function customCardMakerSwitchTab(tab) {
                                 offsetY: isLegacy ? '0' : (args[5] || '0'),
                                 radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
                                 bulletImage: args.length >= 8 ? args[7] : 'none',
-                                coordMode: args.length >= 9 ? args[8] : 'relative'
+                                coordMode: args.length >= 9 ? args[8] : 'relative',
+                                hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
                             },
                             indent
                         };
@@ -1310,7 +1325,8 @@ function customCardMakerSwitchTab(tab) {
                                 offsetY: isLegacy ? '0' : (args[7] || '0'),
                                 radius: isLegacy ? args[2] : (args.length >= 9 ? args[8] : '6'),
                                 bulletImage: args.length >= 10 ? args[9] : 'none',
-                                coordMode: args.length >= 11 ? args[10] : 'relative'
+                                coordMode: args.length >= 11 ? args[10] : 'relative',
+                                hitRadius: (args.length >= 12 && args[11] !== '""') ? args[11] : ''
                             },
                             indent
                         };
@@ -1577,7 +1593,8 @@ function customCardMakerSwitchTab(tab) {
                             offsetY: isLegacy ? '0' : (args[5] || '0'),
                             radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
                             bulletImage: args.length >= 8 ? args[7] : 'none',
-                            coordMode: args.length >= 9 ? args[8] : 'relative'
+                            coordMode: args.length >= 9 ? args[8] : 'relative',
+                            hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
                         },
                         indent: indent
                     };
@@ -1603,7 +1620,8 @@ function customCardMakerSwitchTab(tab) {
                             offsetY: isLegacy ? '0' : (args[5] || '0'),
                             radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
                             bulletImage: args.length >= 8 ? args[7] : 'none',
-                            coordMode: args.length >= 9 ? args[8] : 'relative'
+                            coordMode: args.length >= 9 ? args[8] : 'relative',
+                            hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
                         },
                         indent: indent
                     };
@@ -1631,7 +1649,8 @@ function customCardMakerSwitchTab(tab) {
                             offsetY: isLegacy ? '0' : (args[7] || '0'),
                             radius: isLegacy ? args[2] : (args.length >= 9 ? args[8] : '6'),
                             bulletImage: args.length >= 10 ? args[9] : 'none',
-                            coordMode: args.length >= 11 ? args[10] : 'relative'
+                            coordMode: args.length >= 11 ? args[10] : 'relative',
+                            hitRadius: (args.length >= 12 && args[11] !== '""') ? args[11] : ''
                         },
                         indent: indent
                     };
