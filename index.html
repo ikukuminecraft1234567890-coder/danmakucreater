@@ -1987,7 +1987,7 @@
                     </datalist>
                     <div class="maker-header">
                         <h3 id="card-editor-title" style="margin: 0; font-size: 20px;">スペルカード編集</h3>
-                        <div id="custom-card-cost-indicator" style="font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 4px; background: rgba(0,255,200,0.1); border: 1px solid #00ffcc;">
+                        <div id="custom-card-cost-indicator" style="display: none; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 4px; background: rgba(0,255,200,0.1); border: 1px solid #00ffcc;">
                             合計コスト: <span id="custom-card-cost">0</span> / 30
                         </div>
                     </div>
@@ -10019,7 +10019,7 @@ while (true) {
                         <span class="custom-card-title">${card.name.replace('【A】', '')}</span>
                         <span class="custom-card-desc">${descText}</span>
                     </div>
-                    <span class="custom-card-cost-badge">時間: ${getCustomCardDuration(card.duration)}s / コスト: ${card.cost} <span style="opacity:.7;">(評価:${card.rawCost || card.cost})</span></span>
+                    <span class="custom-card-cost-badge">制限時間: ${getCustomCardDuration(card.duration)}s</span>
                     <div class="custom-card-actions">
                         <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">編集</button>
                         <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">共有</button>
@@ -10752,11 +10752,7 @@ while (true) {
                 }
             }
 
-            let cost = estimateCustomCardEditCost(customCardMaker.emitterScript, customCardMaker.bulletScript);
-            if (cost > CUSTOM_CARD_COST_LIMIT) {
-                alert('cost limit exceeded: ' + cost + ' / ' + CUSTOM_CARD_COST_LIMIT);
-                return;
-            }
+            // コスト制限チェックを無効化
             let cardDuration = getCustomCardDuration(document.getElementById('custom-card-duration') ? document.getElementById('custom-card-duration').value : customCardMaker.duration);
             customCardMaker.duration = cardDuration;
             
@@ -10874,11 +10870,8 @@ while (true) {
                 }
             }
 
-            let cost = calculateCustomCardCost(customCardMaker.emitterScript, customCardMaker.bulletScript);
-            if (cost > CUSTOM_CARD_COST_LIMIT) {
-                alert('cost limit exceeded: ' + cost + ' / ' + CUSTOM_CARD_COST_LIMIT);
-                return;
-            }
+            // コスト制限チェックを無効化
+            let cost = 0;
             if (!customCardMaker.testPassed) {
                 alert("このカードを登録するには、まずテストプレイをノー被弾でクリアする必要があります！");
                 return;
