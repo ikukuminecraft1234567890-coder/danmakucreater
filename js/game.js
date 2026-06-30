@@ -1438,6 +1438,9 @@ function applyAbilityEffect(cardId, owner) {
             let tStart = performance.now();
 
             timeAccumulator += dt;
+            if (timeAccumulator > 0.1) {
+                timeAccumulator = 0.1;
+            }
             const FIXED_DT = 1 / 60;
 
             // 毎フレーム入力を更新（ゲームパッド ＆ キーコンフィグ）
@@ -1447,7 +1450,7 @@ function applyAbilityEffect(cardId, owner) {
             let tSimStart = performance.now();
             let stepCount = 0;
             let ended = false;
-            while (timeAccumulator >= FIXED_DT && stepCount < 6) {
+            while (timeAccumulator >= FIXED_DT && stepCount < 1) {
                 let res = tickSimulation(FIXED_DT);
                 timeAccumulator -= FIXED_DT;
                 stepCount++;
