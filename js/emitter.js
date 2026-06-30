@@ -1422,16 +1422,22 @@ function stepEmitter(c, state, attacker, target, dt) {
 
         function isUuidParam(str) {
             if (!str) return false;
-            // UUID（cc_1782800409612）は50文字以下の英数字・アンダースコア・ハイフンのみで構成される
-            return str.length < 50 && /^[A-Za-z0-9_-]+$/.test(str);
+            // cc_ で始まるローカルUUID、または jb_ で始まるJSONBlob ID
+            return str.length < 50 && (str.startsWith('cc_') || str.startsWith('jb_') || /^[A-Za-z0-9_-]+$/.test(str));
         }
 
         function fetchCardByUuid(uuid, callback) {
-            const url = `./cards/${uuid}.json`;
+            let url;
+            if (uuid.startsWith('jb_')) {
+                const id = uuid.replace('jb_', '');
+                url = `https://jsonblob.com/api/jsonBlob/${id}`;
+            } else {
+                url = `./cards/${uuid}.json`;
+            }
             fetch(url)
                 .then(res => {
                     if (!res.ok) {
-                        throw new Error(`ファイルが見つかりません (${res.status})`);
+                        throw new Error(`データが見つかりません (${res.status})`);
                     }
                     return res.json();
                 })
@@ -1440,7 +1446,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     if (callback) callback();
                 })
                 .catch(err => {
-                    alert(`カードID "${uuid}" からのデータ取得に失敗しました。\nリポジトリの cards/${uuid}.json が正しく配置されているか確認してください。\n\n詳細: ${err.message}`);
+                    alert(`カードのデータ取得に失敗しました。\n\n詳細: ${err.message}`);
                 });
         }
 
@@ -1499,27 +1505,63 @@ function stepEmitter(c, state, attacker, target, dt) {
                 const bulletText = typeof blocksToCode === 'function' ? blocksToCode(card.bulletScript || []) : "";
                 const magicCircleText = typeof blocksToCode === 'function' ? blocksToCode(card.magicCircleScript || []) : "";
 
-                // 必要なデータだけに絞ってキー名を極小化
-                const miniCard = {
-                    n: card.name,
-                    c: card.cost || 100,
-                    d: card.desc || '',
-                    e: emitterText,
-                    b: bulletText
+                // 保存用の完全なカードオブジェクトを生成
+                const cardData = {
+                    name: card.name,
+                    cost: card.cost || 100,
+                    desc: card.desc || '',
+                    duration: card.duration || 10,
+                    emitterScript: card.emitterScript,
+                    bulletScript: card.bulletScript,
+                    magicCircleScript: card.magicCircleScript || []
                 };
 
-                if (magicCircleText) {
-                    miniCard.m = magicCircleText;
-                }
+                const copyToClipboard = (url, msg) => {
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert(msg);
+                    }).catch(err => {
+                        prompt("共有URLをコピーしてください：", url);
+                    });
+                };
 
-                const jsonStr = JSON.stringify(miniCard);
-                const compressed = LZString.compressToEncodedURIComponent(jsonStr);
-                const shareUrl = window.location.origin + window.location.pathname + "?card=" + compressed;
-                
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert(`「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\nプログラムで極限まで圧縮したため、以前の1/5〜1/10程度の短さになっています。\n\nURL: ${shareUrl}`);
-                }).catch(err => {
-                    prompt("共有URLをコピーしてください：", shareUrl);
+                // JSONBlobへ保存を試みる（非同期）
+                fetch('https://jsonblob.com/api/jsonBlob', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(cardData)
+                })
+                .then(res => {
+                    const loc = res.headers.get('Location');
+                    let blobId = res.headers.get('jsonblob-id');
+                    if (!blobId && loc) {
+                        const parts = loc.split('/');
+                        blobId = parts[parts.length - 1];
+                    }
+                    if (blobId) {
+                        const shareUrl = `${window.location.origin}${window.location.pathname}?card=jb_${blobId}`;
+                        copyToClipboard(shareUrl, `「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n完全自動で超短縮URLが生成されました。\n\nURL: ${shareUrl}`);
+                    } else {
+                        throw new Error("ID取得失敗");
+                    }
+                })
+                .catch(() => {
+                    // JSONBlobが失敗した場合は、ローカルの圧縮URL（フォールバック）
+                    const miniCard = {
+                        n: card.name,
+                        c: card.cost || 100,
+                        d: card.desc || '',
+                        e: emitterText,
+                        b: bulletText
+                    };
+                    if (magicCircleText) miniCard.m = magicCircleText;
+
+                    const jsonStr = JSON.stringify(miniCard);
+                    const compressed = LZString.compressToEncodedURIComponent(jsonStr);
+                    const fallbackUrl = `${window.location.origin}${window.location.pathname}?card=${compressed}`;
+                    copyToClipboard(fallbackUrl, `「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n（外部保存サーバーが一時的にオフラインのため、圧縮URLを生成しました）\n\nURL: ${fallbackUrl}`);
                 });
             } catch (e) {
                 alert("共有URLの作成に失敗しました: " + e.message);
