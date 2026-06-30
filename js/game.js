@@ -3655,7 +3655,12 @@ function applyAbilityEffect(cardId, owner) {
             return m[2] === '==' ? left === right : left !== right;
         }
 
-        function evalCondition(cond, variables) {
+        const conditionCache = new Map();
+
+        function compileCondition(cond) {
+            if (conditionCache.has(cond)) return conditionCache.get(cond);
+            if (conditionCache.size > 2000) conditionCache.clear();
+
             let s = String(cond || '').trim();
             let normalized = s.replace(/\s+/g, '').toLowerCase();
             if (normalized === 'bounced') s = 'isBounced';
@@ -3673,9 +3678,48 @@ function applyAbilityEffect(cardId, owner) {
             }
             let normalizedCond = normalizeConditionOperators(s);
             normalizedCond = replaceRangeConditions(normalizedCond);
-            let stringResult = evalStringCondition(normalizedCond, variables || {});
-            if (stringResult !== null) return stringResult;
-            return !!evalExpr(normalizedCond, variables || {});
+
+            // 文字列比較の最適化コンパイル
+            let stringResultFn = null;
+            let m = normalizedCond.match(/^(.+?)\s*(==|!=)\s*(.+)$/);
+            if (m) {
+                let leftRaw = m[1].trim();
+                let rightRaw = m[3].trim();
+                let hasQuotedSide = /^['"]/.test(leftRaw) || /^['"]/.test(rightRaw);
+                let hasColorSide = /#(?:[0-9a-f]{3,8})\b/i.test(leftRaw + rightRaw);
+                if (hasQuotedSide || hasColorSide) {
+                    stringResultFn = new Function('__v', 
+                        'let left = ' + (leftRaw.startsWith('"') || leftRaw.startsWith("'") ? leftRaw : '(__v.' + leftRaw + ' !== undefined ? __v.' + leftRaw + ' : "")') + ';' +
+                        'let right = ' + (rightRaw.startsWith('"') || rightRaw.startsWith("'") ? rightRaw : '(__v.' + rightRaw + ' !== undefined ? __v.' + rightRaw + ' : "")') + ';' +
+                        'return ' + (m[2] === '==' ? 'String(left).trim().toLowerCase() === String(right).trim().toLowerCase()' : 'String(left).trim().toLowerCase() !== String(right).trim().toLowerCase()') + ';'
+                    );
+                }
+            }
+
+            if (stringResultFn) {
+                conditionCache.set(cond, stringResultFn);
+                return stringResultFn;
+            }
+
+            const exprFn = compileNumericExpr(normalizedCond);
+            if (exprFn) {
+                const condFn = function(variables) {
+                    return !!exprFn(variables, Math.random);
+                };
+                conditionCache.set(cond, condFn);
+                return condFn;
+            }
+
+            const fallbackFn = function(variables) {
+                return !!evalExpr(normalizedCond, variables);
+            };
+            conditionCache.set(cond, fallbackFn);
+            return fallbackFn;
+        }
+
+        function evalCondition(cond, variables) {
+            const fn = compileCondition(cond);
+            return fn(variables || EMPTY_OBJECT);
         }
         function setScriptVariable(state, name, value, isConst) {
             if (!name) return;

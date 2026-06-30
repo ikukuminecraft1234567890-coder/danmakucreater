@@ -561,6 +561,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         window.needsBulletTouchDetection = false;
         window.needsWallTouchDetection = false;
         window.needsEmitterSync = false;
+        window.needsDistanceCalc = false;
 
         function checkBulletTouchRequirement() {
             try {
@@ -588,10 +589,17 @@ function stepEmitter(c, state, attacker, target, dt) {
                     codeStr.includes('e_') ||
                     codeStr.includes('emitter_')
                 );
+                window.needsDistanceCalc = (
+                    codeStr.includes('dist') ||
+                    codeStr.includes('speed') ||
+                    codeStr.includes('aim') ||
+                    codeStr.includes('homing')
+                );
             } catch (e) {
                 window.needsBulletTouchDetection = true;
                 window.needsWallTouchDetection = true;
                 window.needsEmitterSync = true;
+                window.needsDistanceCalc = true;
             }
         }
 
@@ -733,19 +741,25 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             state.variables.x = b.x;
             state.variables.y = isPlayerSide ? (canvas.height - b.y) : b.y;
-            state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
-            
+
             // 送信機（エミッター）の現在位置
             state.variables.ex = attacker.x;
             state.variables.ey = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
             state.variables.emitter_x = state.variables.ex;
             state.variables.emitter_y = state.variables.ey;
-            
-            let dx = target.x - b.x;
-            let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
-            state.variables.dist = Math.sqrt(dx * dx + dy * dy);
+
+            // スクリプトで使用する場合のみ、Math.sqrt (平方根) 計算を実行して高速化
+            if (window.needsDistanceCalc) {
+                state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                let dx = target.x - b.x;
+                let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
+                state.variables.dist = Math.sqrt(dx * dx + dy * dy);
+            } else {
+                state.variables.speed = b.vx * b.vx + b.vy * b.vy === 0 ? 0 : 200; // ダミー値（平方根を回避）
+                state.variables.dist = 0;
+            }
             
             if (!state.finished) {
                 let dtRemaining = dt;
