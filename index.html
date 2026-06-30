@@ -10686,9 +10686,9 @@ while (true) {
                             else if (normalizedCond === 'touchcolor==#ff3333') selectVal = 'touchColor == #ff3333';
                             else if (normalizedCond === 'timer>1' || normalizedCond === 'timer>1.0') selectVal = 'timer > 1';
                             else if (normalizedCond === 'x<10') selectVal = 'x < 10';
-                            else if (normalizedCond === 'x>590' || normalizedCond === 'x>790') selectVal = 'x > 590';
+                            else if (normalizedCond === 'x>758' || normalizedCond === 'x>590' || normalizedCond === 'x>790') selectVal = 'x > 758';
                             else if (normalizedCond === 'y<10') selectVal = 'y < 10';
-                            else if (normalizedCond === 'y>890') selectVal = 'y > 890';
+                            else if (normalizedCond === 'y>886' || normalizedCond === 'y>890') selectVal = 'y > 886';
                             else if (normalizedCond === 'dist<150') selectVal = 'dist < 150';
                             else if (normalizedCond === 'color==#33ffff') selectVal = 'color == #33ffff';
                             else if (normalizedCond === 'color!=#33ffff') selectVal = 'color != #33ffff';
@@ -10703,9 +10703,9 @@ while (true) {
                                     <option value="touchColor == #ff3333" ${selectVal === 'touchColor == #ff3333' ? 'selected' : ''}>触れた弾が赤なら (touchColor == #ff3333)</option>
                                     <option value="timer > 1" ${selectVal === 'timer > 1' ? 'selected' : ''}>1秒経過したら (timer > 1)</option>
                                     <option value="x < 10" ${selectVal === 'x < 10' ? 'selected' : ''}>画面左端に達したら (x < 10)</option>
-                                    <option value="x > 590" ${selectVal === 'x > 590' ? 'selected' : ''}>画面右端に達したら (x > 590)</option>
+                                    <option value="x > 758" ${selectVal === 'x > 758' ? 'selected' : ''}>画面右端に達したら (x > 758)</option>
                                     <option value="y < 10" ${selectVal === 'y < 10' ? 'selected' : ''}>画面上端に達したら (y < 10)</option>
-                                    <option value="y > 890" ${selectVal === 'y > 890' ? 'selected' : ''}>画面下端に達したら (y > 890)</option>
+                                    <option value="y > 886" ${selectVal === 'y > 886' ? 'selected' : ''}>画面下端に達したら (y > 886)</option>
                                     <option value="dist < 150" ${selectVal === 'dist < 150' ? 'selected' : ''}>相手に近づいたら (dist < 150)</option>
                                     <option value="color == #33ffff" ${selectVal === 'color == #33ffff' ? 'selected' : ''}>色がシアンなら (color == #33ffff)</option>
                                     <option value="color != #33ffff" ${selectVal === 'color != #33ffff' ? 'selected' : ''}>色がシアン以外なら (color != #33ffff)</option>
