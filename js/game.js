@@ -1441,10 +1441,6 @@ function applyAbilityEffect(cardId, owner) {
             // 毎フレーム入力を更新（ゲームパッド ＆ キーコンフィグ）
             updateInputState();
 
-            // 1フレームに1回だけAIの意思決定シミュレーションを実行する (ラグ防止)
-            if (gameState === 'BATTLE' && !isOnlineMode) {
-                runCpuAiThinking();
-            }
 
             let stepCount = 0;
             let ended = false;
