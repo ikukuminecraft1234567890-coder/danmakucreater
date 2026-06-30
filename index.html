@@ -7276,11 +7276,15 @@ while (true) {
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, PLAY_WIDTH, canvas.height);
 
-
             // Dividing line removed
 
-            const blurScale = bullets.length > 300 ? 0.35 : 1;
+            const blurScale = 0; // shadowBlur is disabled for performance
             bullets.forEach(b => {
+                // 画面外カリング（通常弾のみ）
+                if (!b.isBeam && !b.isLaser && !b.isGungnir && !b.isStar && !b.isBombPiece) {
+                    if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) return;
+                }
+
                 if (b.isBombPiece) {
                     ctx.save();
                     ctx.translate(b.x, b.y);
@@ -7551,8 +7555,6 @@ while (true) {
                     ctx.rotate(rotAngle);
                     let drawRadius = b.radius * 1.6;
                     let color = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
-                    ctx.shadowBlur = 6 * blurScale;
-                    ctx.shadowColor = color;
                     ctx.fillStyle = color;
                     ctx.beginPath();
                     for (let i = 0; i < 10; i++) {
@@ -7563,26 +7565,15 @@ while (true) {
                     }
                     ctx.closePath();
                     ctx.fill();
-                    ctx.shadowBlur = 0;
                     ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    for (let i = 0; i < 10; i++) {
-                        let r = (i % 2 === 0) ? drawRadius * 0.45 : drawRadius * 0.18;
-                        let a = (Math.PI * 2 / 10) * i - Math.PI / 2;
-                        if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-                        else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-                    }
-                    ctx.closePath();
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(0, 0, drawRadius * 0.3, 0, Math.PI * 2); ctx.fill();
+
                     ctx.restore();
                 } else {
                     let color = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
-
-                    let drawRadius = b.radius * 1.5; // 当たり判定より少し大きく描画
+                    let drawRadius = b.radius * 1.5;
                     ctx.fillStyle = color;
                     ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius * 0.6, 0, Math.PI * 2); ctx.fill();
                 }
             });
 
@@ -7590,12 +7581,9 @@ while (true) {
             magicCircles.forEach(mc => {
                 ctx.save();
                 
-                // 外側リング（脈動と回転エフェクト）
+                // 外側リング
                 let pulse = 1 + 0.05 * Math.sin(performance.now() / 120 + mc.x);
                 let angle = (performance.now() * 0.001) % (Math.PI * 2);
-                
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = mc.color;
                 
                 ctx.strokeStyle = mc.color;
                 ctx.lineWidth = 2;
