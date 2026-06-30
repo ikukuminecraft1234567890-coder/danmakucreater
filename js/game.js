@@ -2862,6 +2862,45 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
                     }
                 }
+
+                // デバッグ用当たり判定の描画（Dキー押下時）
+                if (window.debugShowHitboxes) {
+                    let bHitR = b.isLaser ? getLaserWidth(b) / 2 : (b.hitRadius !== undefined ? b.hitRadius : b.radius);
+                    ctx.save();
+                    if (b.isLaser) {
+                        let x1 = b.x;
+                        let y1 = b.y;
+                        let x2, y2;
+                        if (b.isCustomBeam && b.bulletState) {
+                            let rad = (b.bulletState.variables.angle || 0) * Math.PI / 180;
+                            if (b.bulletState.isPlayerSide) rad = -rad;
+                            x2 = b.x + Math.cos(rad) * 1200;
+                            y2 = b.y + Math.sin(rad) * 1200;
+                        } else {
+                            let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                            let dx = b.vx / (speed || 1);
+                            let dy = b.vy / (speed || 1);
+                            let len = 80;
+                            x2 = b.x - dx * len;
+                            y2 = b.y - dy * len;
+                        }
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.lineWidth = bHitR * 2;
+                        ctx.strokeStyle = 'rgba(0, 255, 0, 0.4)';
+                        ctx.stroke();
+                    } else {
+                        ctx.strokeStyle = '#00ff00';
+                        ctx.lineWidth = 1.5;
+                        ctx.fillStyle = 'rgba(0, 255, 0, 0.35)';
+                        ctx.beginPath();
+                        ctx.arc(b.x, b.y, bHitR, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
             });
             window.perfDrawB = performance.now() - tDrawBStart;
 

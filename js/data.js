@@ -1482,6 +1482,7 @@
 
             if (e.key === 'd' || e.key === 'D') {
                 window.showDebugProfiler = !window.showDebugProfiler;
+                window.debugShowHitboxes = !window.debugShowHitboxes;
             }
 
             keyboardState[e.key] = true;
