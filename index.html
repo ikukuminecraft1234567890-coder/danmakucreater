@@ -36,10 +36,10 @@
         #gameContainer {
             position: relative;
             width: 92vw;
-            height: calc(92vw * 900 / 800);
-            max-width: calc(92vh * 680 / 560);
+            height: calc(92vw * 896 / 968);
+            max-width: calc(92vh * 968 / 896);
             max-height: 92vh;
-            aspect-ratio: 680 / 560;
+            aspect-ratio: 968 / 896;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
             border-radius: 12px;
             overflow: hidden;
@@ -153,7 +153,7 @@
             max-height: calc(100vh - 120px);
             width: auto;
             height: auto;
-            aspect-ratio: 680 / 560;
+            aspect-ratio: 968 / 896;
             touch-action: none;
             border-radius: 10px;
         }
@@ -765,9 +765,9 @@
             #gameContainer:not(.card-maker-active) {
                 position: relative !important;
                 /* アスペクト比を狂わせずに画面に100%収める魔法の min 計算式 */
-                width: min(94vw, 84vh * 680 / 560) !important;
-                height: min(94vw * 560 / 680, 84vh) !important;
-                aspect-ratio: 680 / 560 !important;
+                width: min(94vw, 84vh * 968 / 896) !important;
+                height: min(94vw * 896 / 968, 84vh) !important;
+                aspect-ratio: 968 / 896 !important;
                 margin: 0 auto !important;
                 box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9) !important;
                 border: none !important;
@@ -1871,7 +1871,7 @@
 
 <body>
     <div id="gameContainer">
-        <canvas id="gameCanvas" width="680" height="560"></canvas>
+        <canvas id="gameCanvas" width="968" height="896"></canvas>
 
         <!-- スマホ用フローティング霊撃ボタン（戦闘中の回避時のみ自動表示されます） -->
         <div id="mobileBombBtn" class="mobile-only-bomb-btn">霊撃</div>
@@ -1903,7 +1903,7 @@
                     <h3 style="margin-bottom: 5px;">自作カード管理</h3>
                     <p style="font-size: 11px; color: #aaa; text-align: center; margin: 0 0 10px 0;">
                         Scratch風のエディットでオリジナルのスペルカードを作成できます。<br>
-                        作ったカードはテストプレイでノー被弾クリア（ボム禁止）することでカード登録が可能になります。
+                        作ったカードは「弾幕をプレイ」で確認し、すぐに登録可能です。
                     </p>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%;">
                         <button class="menu-btn" onclick="customCardMakerOpenEditor(null)" style="background: linear-gradient(135deg, #005544 0%, #002211 100%); border-color: #00ffcc; text-shadow: 0 0 8px rgba(0, 255, 200, 0.6); font-weight: bold; width: 220px; font-size: 14px;">
@@ -2070,9 +2070,9 @@
 
                     <div style="margin-top: 15px; display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap;">
                         <button class="menu-btn" id="custom-card-test-btn" onclick="startCustomCardTest()" style="width: 160px; background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6);">
-                            テストプレイ
+                            弾幕をプレイ
                         </button>
-                        <button class="menu-btn" id="custom-card-save-btn" onclick="registerCustomCard()" disabled style="width: 160px; background: linear-gradient(135deg, #005544 0%, #002211 100%); border-color: #00ffcc; text-shadow: 0 0 8px rgba(0, 255, 200, 0.6);">
+                        <button class="menu-btn" id="custom-card-save-btn" onclick="registerCustomCard()" style="width: 160px; background: linear-gradient(135deg, #005544 0%, #002211 100%); border-color: #00ffcc; text-shadow: 0 0 8px rgba(0, 255, 200, 0.6);">
                             カード登録
                         </button>
                         <button class="menu-btn" id="custom-card-draft-save-btn" onclick="saveCustomCardDraft(true)" style="width: 110px; background: #333; border-color: #aaa;">
@@ -3376,7 +3376,7 @@ while (true) {
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const PLAY_WIDTH = 480;
+        const PLAY_WIDTH = 768;
 
         // ==========================================
         // 画像リソース
@@ -7964,16 +7964,7 @@ while (true) {
                         ctx.fillText(stateText, PLAY_WIDTH / 2, 35);
                     }
                 } else {
-                    ctx.fillStyle = 'rgba(255, 0, 50, 0.2)';
-                    ctx.fillRect(0, 0, PLAY_WIDTH, 40);
-                    ctx.strokeStyle = 'rgba(255, 0, 50, 0.6)';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath(); ctx.moveTo(0, 40); ctx.lineTo(PLAY_WIDTH, 40); ctx.stroke();
-                    ctx.fillStyle = '#ff3366';
-                    ctx.font = "bold 15px 'Noto Serif JP', sans-serif";
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText("◆ 自作弾幕テストプレイ中 (被弾・ボム禁止) ◆", PLAY_WIDTH / 2, 20);
+                    // 自作弾幕テストプレイ中の上部バナー表示を非表示にする
                 }
                 ctx.restore();
             }
@@ -9821,7 +9812,7 @@ while (true) {
                     testBtn.disabled = false;
                     testBtn.style.opacity = '1';
                 }
-                if (saveBtn) saveBtn.disabled = !customCardMaker.testPassed;
+                if (saveBtn) saveBtn.disabled = false;
             } else {
                 costIndicator.style.borderColor = '#ff3366';
                 costIndicator.style.color = '#ff3366';
@@ -9830,7 +9821,7 @@ while (true) {
                     testBtn.disabled = true;
                     testBtn.style.opacity = '0.4';
                 }
-                if (saveBtn) saveBtn.disabled = true;
+                if (saveBtn) saveBtn.disabled = false;
             }
         }
 
@@ -11064,13 +11055,8 @@ while (true) {
             document.getElementById('titleScreen').style.display = 'flex';
             showScreen('screen-card-maker');
             
-            if (success) {
-                customCardMaker.testPassed = true;
-                alert('★テスト成功！ノー被弾クリアしました！カード登録が可能です。');
-            } else {
-                customCardMaker.testPassed = false;
-                alert('被弾しました！テスト失敗です。');
-            }
+            // プレイ結果による成否メッセージ表示を非表示にする
+            customCardMaker.testPassed = true;
             
             renderCardMaker();
         }
@@ -11090,10 +11076,7 @@ while (true) {
 
             // コスト制限チェックを無効化
             let cost = 0;
-            if (!customCardMaker.testPassed) {
-                alert("このカードを登録するには、まずテストプレイをノー被弾でクリアする必要があります！");
-                return;
-            }
+            // テストクリア状態の確認をバイパスします
 
             let nameInput = document.getElementById('custom-card-name').value.trim() || 'カスタムスペル';
             let descInput = document.getElementById('custom-card-desc').value.trim() || 'オリジナルの弾幕パターン。';
