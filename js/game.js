@@ -2854,6 +2854,53 @@ function applyAbilityEffect(cardId, owner) {
                         // 進行方向に回転（通常アセットは上が進行方向のため +Math.PI/2）
                         let angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
                         ctx.rotate(angle);
+                        
+                        // 画像テクスチャの色を変更（アセットは赤ベースなので色相を直接回転させて指定色に合わせる）
+                        if (b.color) {
+                            let hue = 0;
+                            let colorStr = b.color;
+                            let r = 255, g = 0, bVal = 0;
+                            if (colorStr.startsWith('#')) {
+                                let hex = colorStr.substring(1);
+                                if (hex.length === 3) {
+                                    r = parseInt(hex[0] + hex[0], 16);
+                                    g = parseInt(hex[1] + hex[1], 16);
+                                    bVal = parseInt(hex[2] + hex[2], 16);
+                                } else if (hex.length === 6) {
+                                    r = parseInt(hex.substring(0, 2), 16);
+                                    g = parseInt(hex.substring(2, 4), 16);
+                                    bVal = parseInt(hex.substring(4, 6), 16);
+                                }
+                            } else if (colorStr.startsWith('rgb')) {
+                                let m = colorStr.match(/\d+/g);
+                                if (m && m.length >= 3) {
+                                    r = parseInt(m[0]);
+                                    g = parseInt(m[1]);
+                                    bVal = parseInt(m[2]);
+                                }
+                            } else {
+                                const names = {
+                                    red: [255, 0, 0], green: [0, 255, 0], blue: [0, 0, 255],
+                                    yellow: [255, 255, 0], purple: [128, 0, 128], cyan: [0, 255, 255],
+                                    magenta: [255, 0, 255], orange: [255, 165, 0]
+                                };
+                                let norm = colorStr.toLowerCase().trim();
+                                if (names[norm]) [r, g, bVal] = names[norm];
+                            }
+                            r /= 255; g /= 255; bVal /= 255;
+                            let max = Math.max(r, g, bVal), min = Math.min(r, g, bVal);
+                            if (max !== min) {
+                                let d = max - min;
+                                switch (max) {
+                                    case r: hue = (g - bVal) / d + (g < bVal ? 6 : 0); break;
+                                    case g: hue = (bVal - r) / d + 2; break;
+                                    case bVal: hue = (r - g) / d + 4; break;
+                                }
+                                hue = Math.round((hue / 6) * 360);
+                            }
+                            ctx.filter = `hue-rotate(${hue}deg)`;
+                        }
+
                         ctx.drawImage(img, -drawRadius, -drawRadius, drawRadius * 2, drawRadius * 2);
                         ctx.restore();
                     } else {
