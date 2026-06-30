@@ -2124,10 +2124,10 @@ function applyAbilityEffect(cardId, owner) {
                             shouldDespawn = true;
                         }
                     } else if (b.isCustom) {
-                        // Custom spells: can go offscreen, keep active up to 1.5 seconds
-                        if (b.x < -150 || b.x > PLAY_WIDTH + 150 || b.y < -150 || b.y > canvas.height + 150) {
+                        // Custom spells: can go offscreen, keep active up to 10 seconds
+                        if (b.x < -PLAY_WIDTH || b.x > PLAY_WIDTH * 2 || b.y < -canvas.height || b.y > canvas.height * 2) {
                             shouldDespawn = true;
-                        } else if (b.offscreenTime >= 1.5) {
+                        } else if (b.offscreenTime >= 10.0) {
                             shouldDespawn = true;
                         }
                     } else {
@@ -3698,6 +3698,13 @@ function applyAbilityEffect(cardId, owner) {
         }
 
         const numericExprCache = new Map();
+        const EMPTY_OBJECT = Object.freeze({});
+        const RESERVED_WORDS = new Set([
+            'true', 'false', 'null', 'undefined', 'NaN', 'Infinity',
+            'sin', 'cos', 'tan', 'sqrt', 'abs', 'min', 'max', 'PI', 'PI2',
+            'atan2', 'pow', 'log', 'exp', 'floor', 'round', 'ceil', 'random', 'rand',
+            'const', 'let', 'var', 'function', 'return'
+        ]);
 
         function compileNumericExpr(expr) {
             if (numericExprCache.has(expr)) return numericExprCache.get(expr);
@@ -3708,17 +3715,24 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             try {
-                // with ステートメントを使用して variables 内の変数をローカルスコープとして直接評価可能にする
+                // withを使わず、JITが効くように変数を __v.xxx に直接トランスパイル
+                let compiled = expr.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, function(match) {
+                    if (RESERVED_WORDS.has(match)) {
+                        if (match === 'random' || match === 'rand') {
+                            return '__rand';
+                        }
+                        return match;
+                    }
+                    return '(__v.' + match + ' !== undefined ? __v.' + match + ' : 0)';
+                });
+
                 const fn = new Function('__v', '__random',
                     'const __rand = (a, b) => {' +
                     '  if (b !== undefined) return Number(a || 0) + __random() * (Number(b || 0) - Number(a || 0));' +
                     '  if (a !== undefined) return __random() * Number(a || 0);' +
                     '  return __random();' +
                     '};' +
-                    'with(__v) {' +
-                    '  const random = __rand; const rand = __rand;' +
-                    '  return (' + expr + ');' +
-                    '}'
+                    'return (' + compiled + ');'
                 );
                 numericExprCache.set(expr, fn);
                 return fn;
@@ -3732,7 +3746,7 @@ function applyAbilityEffect(cardId, owner) {
             const fn = compileNumericExpr(expr);
             if (!fn) return null;
             try {
-                const value = fn(variables || {}, Math.random);
+                const value = fn(variables || EMPTY_OBJECT, Math.random);
                 return Number.isNaN(value) ? 0 : value;
             } catch(e) {
                 return null;
@@ -3741,20 +3755,20 @@ function applyAbilityEffect(cardId, owner) {
 
         function evalExpr(expr, variables) {
             if (typeof expr === 'number') return expr;
-            variables = variables || {};
+            const vars = variables || EMPTY_OBJECT;
             let s = String(expr).trim();
             s = replaceRangeConditions(s);
             if (s === '') return 0;
             
-            if (variables[s] !== undefined) return variables[s];
+            if (vars[s] !== undefined) return vars[s];
 
-            const fastValue = evalNumericExprFast(s, variables);
+            const fastValue = evalNumericExprFast(s, vars);
             if (fastValue !== null) return fastValue;
 
             // フォールバック（通常は compileNumericExpr で処理されるため、ここにはほぼ来ない）
             let resolved = s;
-            for (let varName in variables) {
-                let val = variables[varName];
+            for (let varName in vars) {
+                let val = vars[varName];
                 let re = new RegExp('\\b' + varName + '\\b', 'g');
                 resolved = resolved.replace(re, val);
             }

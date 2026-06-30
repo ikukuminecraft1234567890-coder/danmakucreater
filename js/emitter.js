@@ -646,9 +646,6 @@ function stepEmitter(c, state, attacker, target, dt) {
         }
 
         function runCustomBulletScript(b, dt, attacker, target) {
-            if (b.offscreenTime > 0.15) {
-                return;
-            }
             let state = b.bulletState;
             if (!state) return;
             if (b.sharedEmitterState && b.sharedEmitterState.variables) {
