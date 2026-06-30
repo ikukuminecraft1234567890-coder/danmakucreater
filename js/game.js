@@ -3688,9 +3688,15 @@ function applyAbilityEffect(cardId, owner) {
                 let hasQuotedSide = /^['"]/.test(leftRaw) || /^['"]/.test(rightRaw);
                 let hasColorSide = /#(?:[0-9a-f]{3,8})\b/i.test(leftRaw + rightRaw);
                 if (hasQuotedSide || hasColorSide) {
+                    const isValidIdentifier = name => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name);
+                    let leftExpr = (leftRaw.startsWith('"') || leftRaw.startsWith("'")) ? leftRaw : 
+                                   (isValidIdentifier(leftRaw) ? '(__v.' + leftRaw + ' !== undefined ? __v.' + leftRaw + ' : "")' : '"' + leftRaw + '"');
+                    let rightExpr = (rightRaw.startsWith('"') || rightRaw.startsWith("'")) ? rightRaw : 
+                                    (isValidIdentifier(rightRaw) ? '(__v.' + rightRaw + ' !== undefined ? __v.' + rightRaw + ' : "")' : '"' + rightRaw + '"');
+
                     stringResultFn = new Function('__v', 
-                        'let left = ' + (leftRaw.startsWith('"') || leftRaw.startsWith("'") ? leftRaw : '(__v.' + leftRaw + ' !== undefined ? __v.' + leftRaw + ' : "")') + ';' +
-                        'let right = ' + (rightRaw.startsWith('"') || rightRaw.startsWith("'") ? rightRaw : '(__v.' + rightRaw + ' !== undefined ? __v.' + rightRaw + ' : "")') + ';' +
+                        'let left = ' + leftExpr + ';' +
+                        'let right = ' + rightExpr + ';' +
                         'return ' + (m[2] === '==' ? 'String(left).trim().toLowerCase() === String(right).trim().toLowerCase()' : 'String(left).trim().toLowerCase() !== String(right).trim().toLowerCase()') + ';'
                     );
                 }
