@@ -1993,17 +1993,25 @@
                     </div>
                     
                     <div class="maker-metadata">
-                        <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 4px;">
+                        <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 4px;">
                             <label style="font-size: 11px; color: #aaa;">スペル名 (Name)</label>
                             <input type="text" id="custom-card-name" class="metadata-input" placeholder="例: 「スターブレイカー」" oninput="saveCustomCardDraft(false, false, true)">
                         </div>
-                        <div style="flex: 2; min-width: 300px; display: flex; flex-direction: column; gap: 4px;">
+                        <div style="flex: 2; min-width: 200px; display: flex; flex-direction: column; gap: 4px;">
                             <label style="font-size: 11px; color: #aaa;">説明文 (Description)</label>
                             <input type="text" id="custom-card-desc" class="metadata-input" placeholder="カードの効果やフレーバーテキスト" oninput="saveCustomCardDraft(false, false, true)">
                         </div>
-                        <div style="flex: 0 0 110px; min-width: 100px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">制限時間 (sec)</label>
+                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: #aaa;">制限時間(s)</label>
                             <input type="number" id="custom-card-duration" class="metadata-input" min="1" max="120" step="0.1" value="15" oninput="customCardMakerOnDurationInput()">
+                        </div>
+                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: #aaa;">出現位置 X</label>
+                            <input type="number" id="custom-card-x-offset" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
+                        </div>
+                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: #aaa;">出現位置 Y</label>
+                            <input type="number" id="custom-card-y-offset" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
                         </div>
                     </div>
 
@@ -2393,6 +2401,14 @@ while (true) {
                 
                 cc.bulletScript.push(...combinedList);
                 cc.bounceScript = [];
+            }
+            if (cc.x_offset === undefined) {
+                cc.x_offset = 0;
+                changed = true;
+            }
+            if (cc.y_offset === undefined) {
+                cc.y_offset = 0;
+                changed = true;
             }
             if (changed) {
                 applyCustomCardCosts(cc);
@@ -4708,7 +4724,7 @@ while (true) {
 
             selectedCards.forEach(copy => {
                 if (copy.isCustom) {
-                    copy.emitterState = initEmitterState(copy.emitterScript, attacker, target);
+                    copy.emitterState = initEmitterState(copy.emitterScript, attacker, target, copy.x_offset || 0, copy.y_offset || 0);
                 }
             });
 
@@ -8544,12 +8560,12 @@ while (true) {
             return isNaN(num) ? 0 : num;
         }
 
-        function initEmitterState(script, attacker, target) {
+        function initEmitterState(script, attacker, target, initXOffset = 0, initYOffset = 0) {
             let variables = {
                 angle: 0,
                 speed: 200,
-                x_offset: 0,
-                y_offset: 0,
+                x_offset: initXOffset,
+                y_offset: initYOffset,
                 second: 0,
                 frame: 0,
                 cardSecond: 0,
@@ -10074,6 +10090,8 @@ while (true) {
                 emitterScript: customCardMaker.emitterScript,
                 bulletScript: customCardMaker.bulletScript,
                 testPassed: customCardMaker.testPassed,
+                x_offset: document.getElementById('custom-card-x-offset') ? document.getElementById('custom-card-x-offset').value : "0",
+                y_offset: document.getElementById('custom-card-y-offset') ? document.getElementById('custom-card-y-offset').value : "0",
                 codeText: document.getElementById('workspace-code-textarea').value
             };
             
@@ -10110,6 +10128,10 @@ while (true) {
                 document.getElementById('custom-card-name').value = customCardMaker.name;
                 document.getElementById('custom-card-desc').value = customCardMaker.desc;
                 if (document.getElementById('custom-card-duration')) document.getElementById('custom-card-duration').value = customCardMaker.duration;
+                customCardMaker.x_offset = Number(draftData.x_offset) || 0;
+                customCardMaker.y_offset = Number(draftData.y_offset) || 0;
+                if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset;
+                if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset;
                 
                 document.getElementById('tab-btn-emitter').className = customCardMaker.activeTab === 'emitter' ? 'tab-btn active' : 'tab-btn';
                 document.getElementById('tab-btn-bullet').className = customCardMaker.activeTab === 'bullet' ? 'tab-btn active' : 'tab-btn';
@@ -10183,6 +10205,8 @@ while (true) {
                 customCardMaker.name = migratedCard.name.replace('【A】', '');
                 customCardMaker.desc = migratedCard.desc;
                 customCardMaker.duration = getCustomCardDuration(migratedCard.duration);
+                customCardMaker.x_offset = migratedCard.x_offset || 0;
+                customCardMaker.y_offset = migratedCard.y_offset || 0;
                 customCardMaker.emitterScript = JSON.parse(JSON.stringify(migratedCard.emitterScript || []));
                 customCardMaker.bulletScript = JSON.parse(JSON.stringify(migratedCard.bulletScript || []));
                 customCardMaker.testPassed = true;
@@ -10198,6 +10222,8 @@ while (true) {
                     { type: 'change_var', params: { name: 'angle', value: '30' }, indent: 1 },
                     { type: 'wait', params: { duration: '0.2' }, indent: 1 }
                 ];
+                customCardMaker.x_offset = 0;
+                customCardMaker.y_offset = 0;
                 customCardMaker.bulletScript = [];
                 customCardMaker.testPassed = false;
                 document.getElementById('card-editor-title').textContent = "新規スペルカード作成";
@@ -10208,6 +10234,8 @@ while (true) {
             document.getElementById('custom-card-name').value = customCardMaker.name;
             document.getElementById('custom-card-desc').value = customCardMaker.desc;
             if (document.getElementById('custom-card-duration')) document.getElementById('custom-card-duration').value = customCardMaker.duration;
+            if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset || 0;
+            if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset || 0;
             
             renderCardMaker();
         }
@@ -10756,14 +10784,19 @@ while (true) {
             let cardDuration = getCustomCardDuration(document.getElementById('custom-card-duration') ? document.getElementById('custom-card-duration').value : customCardMaker.duration);
             customCardMaker.duration = cardDuration;
             
+            let xOffsetInput = document.getElementById('custom-card-x-offset') ? Number(document.getElementById('custom-card-x-offset').value) || 0 : 0;
+            let yOffsetInput = document.getElementById('custom-card-y-offset') ? Number(document.getElementById('custom-card-y-offset').value) || 0 : 0;
+
             let tempCustomCard = {
                 id: 'custom_test',
                 name: '【A】' + (document.getElementById('custom-card-name').value.trim() || 'テスト弾幕'),
                 duration: cardDuration,
+                x_offset: xOffsetInput,
+                y_offset: yOffsetInput,
                 pattern: 'custom_test',
                 interval: 0.1,
-                rawCost: cost,
-                cost: getCustomCardPlayCost(cost),
+                rawCost: 0,
+                cost: 0,
                 desc: 'テスト中',
                 isCustom: true,
                 emitterScript: JSON.parse(JSON.stringify(customCardMaker.emitterScript)),
@@ -10823,7 +10856,7 @@ while (true) {
             turnCount = 1;
             
             activeCards = [ tempCustomCard ];
-            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player);
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0);
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
             normalShotTimer = 0;
@@ -10889,12 +10922,17 @@ while (true) {
                 descInput = '【自作カード】' + descInput;
             }
 
+            let xOffsetInput = document.getElementById('custom-card-x-offset') ? Number(document.getElementById('custom-card-x-offset').value) || 0 : 0;
+            let yOffsetInput = document.getElementById('custom-card-y-offset') ? Number(document.getElementById('custom-card-y-offset').value) || 0 : 0;
+
             let cardId = customCardMaker.editingId || ('custom_' + Date.now());
             let cardData = {
                 id: cardId,
                 name: nameInput,
                 desc: descInput,
                 duration: cardDuration,
+                x_offset: xOffsetInput,
+                y_offset: yOffsetInput,
                 rawCost: cost,
                 cost: getCustomCardPlayCost(cost),
                 isCustom: true,
