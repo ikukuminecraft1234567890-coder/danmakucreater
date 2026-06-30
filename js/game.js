@@ -3729,15 +3729,31 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             try {
-                // withを使わず、JITが効くように変数を __v.xxx に直接トランスパイル
-                let compiled = expr.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, function(match) {
+                // 1. レンジ条件 (x..y) をキャッシュ作成時に1回だけ置換
+                let s = replaceRangeConditions(expr);
+
+                // 2. 文字列リテラル（"..." や '...'）を一時的に退避して保護する
+                const literals = [];
+                s = s.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, function(match) {
+                    literals.push(match);
+                    return '___LITERAL_' + (literals.length - 1) + '___';
+                });
+
+                // 3. 変数部分を __v.変数名 にトランスパイル
+                s = s.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, function(match) {
                     if (RESERVED_WORDS.has(match)) {
                         if (match === 'random' || match === 'rand') {
                             return '__rand';
                         }
                         return match;
                     }
+                    if (match.startsWith('___LITERAL_')) return match; // 退避した文字列リテラルはスキップ
                     return '(__v.' + match + ' !== undefined ? __v.' + match + ' : 0)';
+                });
+
+                // 4. 退避していた文字列リテラルを元に戻す
+                s = s.replace(/___LITERAL_(\d+)___/g, function(match, index) {
+                    return literals[parseInt(index, 10)];
                 });
 
                 const fn = new Function('__v', '__random',
@@ -3746,11 +3762,12 @@ function applyAbilityEffect(cardId, owner) {
                     '  if (a !== undefined) return __random() * Number(a || 0);' +
                     '  return __random();' +
                     '};' +
-                    'return (' + compiled + ');'
+                    'return (' + s + ');'
                 );
                 numericExprCache.set(expr, fn);
                 return fn;
             } catch(e) {
+                console.warn('Failed to compile expression:', expr, e);
                 numericExprCache.set(expr, null);
                 return null;
             }
@@ -3771,28 +3788,21 @@ function applyAbilityEffect(cardId, owner) {
             if (typeof expr === 'number') return expr;
             const vars = variables || EMPTY_OBJECT;
             let s = String(expr).trim();
-            s = replaceRangeConditions(s);
             if (s === '') return 0;
             
             if (vars[s] !== undefined) return vars[s];
 
+            // 高速なJITコンパイル評価
             const fastValue = evalNumericExprFast(s, vars);
             if (fastValue !== null) return fastValue;
 
-            // フォールバック（通常は compileNumericExpr で処理されるため、ここにはほぼ来ない）
-            let resolved = s;
-            for (let varName in vars) {
-                let val = vars[varName];
-                let re = new RegExp('\\b' + varName + '\\b', 'g');
-                resolved = resolved.replace(re, val);
+            // コンパイルできなかった場合（文字列リテラルや色コードなどの定数）は
+            // 重い動的RegExpのループは一切走らせず、クォーテーションを剥いでそのまま返す
+            if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+                return s.substring(1, s.length - 1);
             }
-            try {
-                if (/^[0-9.+\-*/() <>=!&| ]+$/.test(resolved)) {
-                    return Function('"use strict"; return (' + resolved + ')')();
-                }
-            } catch(e) {}
-            let num = parseFloat(resolved);
-            return isNaN(num) ? 0 : num;
+            let num = parseFloat(s);
+            return isNaN(num) ? s : num; // 数値化できれば数値、できなければ文字列としてそのまま返す
         }
 
         function initEmitterState(script, attacker, target, initXOffset = 0, initYOffset = 0) {
