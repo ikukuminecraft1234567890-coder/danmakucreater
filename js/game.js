@@ -2847,13 +2847,13 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.restore();
                 } else {
                     let drawRadius = b.radius * 1.5;
-                    if (b.bulletImage && b.bulletImage !== 'none' && window.bulletImages && window.bulletImages[b.bulletImage]) {
+                    const img = (b.bulletImage && b.bulletImage !== 'none' && window.bulletImages) ? window.bulletImages[b.bulletImage] : null;
+                    if (img && img.complete && img.naturalWidth > 0) {
                         ctx.save();
                         ctx.translate(b.x, b.y);
                         // 進行方向に回転（通常アセットは上が進行方向のため +Math.PI/2）
                         let angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
                         ctx.rotate(angle);
-                        const img = window.bulletImages[b.bulletImage];
                         ctx.drawImage(img, -drawRadius, -drawRadius, drawRadius * 2, drawRadius * 2);
                         ctx.restore();
                     } else {
