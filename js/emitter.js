@@ -1457,7 +1457,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             const name = parsed.n || parsed.name || '無名カード';
             const cost = parsed.c !== undefined ? parsed.c : (parsed.cost || 100);
             const desc = parsed.d || parsed.desc || '';
-            const duration = parsed.duration || 10;
+            const duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
             
             // emitterScript の復元
             let emitterScript = [];
@@ -1553,6 +1553,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         n: card.name,
                         c: card.cost || 100,
                         d: card.desc || '',
+                        t: card.duration || 10,
                         e: emitterText,
                         b: bulletText
                     };
