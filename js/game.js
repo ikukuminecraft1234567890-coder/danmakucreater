@@ -1427,14 +1427,16 @@ function applyAbilityEffect(cardId, owner) {
             let elapsed = timestamp - lastTime;
             
             // 目標フレーム間隔（16.67ms）に達していない場合は、次の更新までスキップする
-            // 軽微なインターバル揺れによる滑らかさ低下を防ぐために 1ms の猶予を持たせる
+            // 軽微なインターバル揺れによるガタツキを防ぐために 1.0ms のマージンを設ける
             if (elapsed < targetInterval - 1.0) {
                 gameLoopFrameId = requestAnimationFrame(update);
                 return;
             }
             
+            // 余剰な時間（elapsed % targetInterval）を次にキャリーオーバーすることで、
+            // 75Hzや144Hzなどのモニターでもフレームスキップが1回おきに固定化せず、滑らかな平均60FPSを維持する
+            lastTime = timestamp - (elapsed % targetInterval);
             let dt = elapsed / 1000;
-            lastTime = timestamp;
             if (dt > 0.1) dt = 0.1;
 
             // FPS計測
