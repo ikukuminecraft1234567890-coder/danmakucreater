@@ -1,3 +1,57 @@
+        let currentEditingDeck = null;
+        let isGameRunning = false;
+        let cpuDifficulty = 'NORMAL'; // 'EASY', 'NORMAL', 'HARD', 'LUNATIC'
+        let activeSelectSlotType = null; // 'active' or 'passive'
+        let activeSelectSlotIndex = null; // 0-4 or 0-2
+
+        // ==========================================
+        // キーコンフィグ ＆ ゲームパッド管理システム
+        // ==========================================
+        let keyConfig = {
+            moveUp: 'ArrowUp',
+            moveDown: 'ArrowDown',
+            moveLeft: 'ArrowLeft',
+            moveRight: 'ArrowRight',
+            slowMove: 'Shift',
+            castSpell: ' ',
+            bomb: 'x',
+            card1: '1',
+            card2: '2',
+            card3: '3',
+            card4: '4',
+            card5: '5',
+            card6: '6'
+        };
+
+        const keyLabels = {
+            moveUp: '移動：上',
+            moveDown: '移動：下',
+            moveLeft: '移動：左',
+            moveRight: '移動：右',
+            slowMove: '低速移動(自機)',
+            castSpell: '弾幕展開(決定)',
+            bomb: '霊撃(ボム)',
+            card1: 'カード1選択',
+            card2: 'カード2選択',
+            card3: 'カード3選択',
+            card4: 'カード4選択',
+            card5: 'カード5選択',
+            card6: 'カード6選択'
+        };
+
+        let activeConfiguringKey = null;
+        let activeConfiguringGamepadAction = null;
+        let focusedCardIndex = 0; // PLANNINGフェーズ時のカードフォーカス選択（ゲームパッド用）
+
+        let gamepadConfig = {
+            slowMove: 7,   // R2
+            castSpell: 3,  // Y
+            bomb: 1,       // B (Button 1)
+            cardPrev: 4,   // L1
+            cardNext: 5,   // R1
+            confirm: 0     // A
+        };
+
 // ==========================================
         // オンライン対戦 (P2P / PeerJS) 管理システム
         // ==========================================
@@ -250,8 +304,12 @@
             customCards.forEach(cc => pushIntegratedCustomCard(cc));
             onlineCustomCards.forEach(cc => pushIntegratedCustomCard(cc));
         }
-        integrateCustomCards();
-        checkUrlParams();
+        document.addEventListener('DOMContentLoaded', () => {
+            integrateCustomCards();
+            if (typeof checkUrlParams === 'function') {
+                checkUrlParams();
+            }
+        });
         // --------------------------------
 
         let editingDeckIndex = -1; // -1:新規作成, >=0:編集中のデッキインデックス
@@ -289,59 +347,7 @@
             }
         } catch (e) { }
 
-        let currentEditingDeck = null;
-        let isGameRunning = false;
-        let cpuDifficulty = 'NORMAL'; // 'EASY', 'NORMAL', 'HARD', 'LUNATIC'
-        let activeSelectSlotType = null; // 'active' or 'passive'
-        let activeSelectSlotIndex = null; // 0-4 or 0-2
 
-        // ==========================================
-        // キーコンフィグ ＆ ゲームパッド管理システム
-        // ==========================================
-        let keyConfig = {
-            moveUp: 'ArrowUp',
-            moveDown: 'ArrowDown',
-            moveLeft: 'ArrowLeft',
-            moveRight: 'ArrowRight',
-            slowMove: 'Shift',
-            castSpell: ' ',
-            bomb: 'x',
-            card1: '1',
-            card2: '2',
-            card3: '3',
-            card4: '4',
-            card5: '5',
-            card6: '6'
-        };
-
-        const keyLabels = {
-            moveUp: '移動：上',
-            moveDown: '移動：下',
-            moveLeft: '移動：左',
-            moveRight: '移動：右',
-            slowMove: '低速移動(自機)',
-            castSpell: '弾幕展開(決定)',
-            bomb: '霊撃(ボム)',
-            card1: 'カード1選択',
-            card2: 'カード2選択',
-            card3: 'カード3選択',
-            card4: 'カード4選択',
-            card5: 'カード5選択',
-            card6: 'カード6選択'
-        };
-
-        let activeConfiguringKey = null;
-        let activeConfiguringGamepadAction = null;
-        let focusedCardIndex = 0; // PLANNINGフェーズ時のカードフォーカス選択（ゲームパッド用）
-
-        let gamepadConfig = {
-            slowMove: 7,   // R2
-            castSpell: 3,  // Y
-            bomb: 1,       // B (Button 1)
-            cardPrev: 4,   // L1
-            cardNext: 5,   // R1
-            confirm: 0     // A
-        };
 
         const gamepadLabels = {
             slowMove: '低速移動(自機)',
