@@ -5905,6 +5905,10 @@ while (true) {
         let lastTime = 0;
         let timeAccumulator = 0;
         let gameLoopFrameId = null;
+        let fpsDisplay = 60;
+        let fpsFrameCount = 0;
+        let fpsAccumTime = 0;
+
 
         function startGameLoop() {
             if (gameLoopFrameId !== null) return;
@@ -5928,6 +5932,16 @@ while (true) {
             let dt = (timestamp - lastTime) / 1000;
             lastTime = timestamp;
             if (dt > 0.1) dt = 0.1;
+
+            // FPS計測
+            fpsFrameCount++;
+            fpsAccumTime += dt;
+            if (fpsAccumTime >= 0.5) {
+                fpsDisplay = Math.round(fpsFrameCount / fpsAccumTime);
+                fpsFrameCount = 0;
+                fpsAccumTime = 0;
+            }
+
 
             timeAccumulator += dt;
             const FIXED_DT = 1 / 60;
@@ -7992,7 +8006,19 @@ while (true) {
             ctx.fillStyle = '#aaffaa';
             ctx.font = '18px sans-serif';
             ctx.fillText('Graze: ' + player.grazeCount, UI_X, 875);
+
+            // FPS表示（プレイ領域の左上）
+            const fpsColor = fpsDisplay >= 55 ? '#00ff88' : fpsDisplay >= 30 ? '#ffcc00' : '#ff4444';
+            ctx.font = 'bold 14px monospace';
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(4, 4, 72, 20);
+            ctx.fillStyle = fpsColor;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('FPS: ' + fpsDisplay, 8, 6);
+            ctx.textBaseline = 'alphabetic';
         }
+
 
         // ==========================================
         // スマートフォン用 タッチ操作・コントロール初期化システム
