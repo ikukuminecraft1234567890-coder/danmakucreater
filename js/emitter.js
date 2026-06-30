@@ -1428,11 +1428,28 @@ function stepEmitter(c, state, attacker, target, dt) {
                 const compressed = LZString.compressToEncodedURIComponent(jsonStr);
                 const shareUrl = window.location.origin + window.location.pathname + "?card=" + compressed;
                 
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert(`「${card.name.replace('【A】', '')}」の共有URLをクリップボードにコピーしました！\nこのURLを他の人に教えることで、作成した弾幕を共有できます。`);
-                }).catch(err => {
-                    prompt("共有URLをコピーしてください：", shareUrl);
-                });
+                const copyToClipboard = (url) => {
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert(`「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n\nURL: ${url}`);
+                    }).catch(err => {
+                        prompt("共有URLをコピーしてください：", url);
+                    });
+                };
+
+                // 短縮URLの作成を試みる
+                fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(shareUrl)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.shorturl) {
+                            copyToClipboard(data.shorturl);
+                        } else {
+                            copyToClipboard(shareUrl);
+                        }
+                    })
+                    .catch(() => {
+                        // オフラインやエラー時は長いURLをコピー
+                        copyToClipboard(shareUrl);
+                    });
             } catch (e) {
                 alert("共有URLの作成に失敗しました: " + e.message);
             }
