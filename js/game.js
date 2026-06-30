@@ -1435,13 +1435,16 @@ function applyAbilityEffect(cardId, owner) {
             }
 
 
+            let tStart = performance.now();
+
             timeAccumulator += dt;
             const FIXED_DT = 1 / 60;
 
             // 毎フレーム入力を更新（ゲームパッド ＆ キーコンフィグ）
             updateInputState();
+            window.perfInput = performance.now() - tStart;
 
-
+            let tSimStart = performance.now();
             let stepCount = 0;
             let ended = false;
             while (timeAccumulator >= FIXED_DT && stepCount < 6) {
@@ -1453,10 +1456,25 @@ function applyAbilityEffect(cardId, owner) {
                     break;
                 }
             }
+            window.perfSim = performance.now() - tSimStart;
 
             if (ended) return;
 
+            let tDrawStart = performance.now();
             draw();
+            window.perfDraw = performance.now() - tDrawStart;
+            window.perfTotal = performance.now() - tStart;
+
+            // 1秒ごとに詳細プロファイルをコンソールに表示
+            if (!window.lastProfileTime) window.lastProfileTime = 0;
+            if (timestamp - window.lastProfileTime > 1000) {
+                console.log(`[PROFILE] Total: ${window.perfTotal.toFixed(1)}ms | Sim: ${window.perfSim.toFixed(1)}ms (Touch: ${(window.perfTouch || 0).toFixed(1)}ms, Bullet: ${(window.perfBullet || 0).toFixed(1)}ms, Emitter: ${(window.perfEmitter || 0).toFixed(1)}ms) | Draw: ${window.perfDraw.toFixed(1)}ms | Bullets: ${bullets.length}`);
+                window.lastProfileTime = timestamp;
+                window.perfTouch = 0;
+                window.perfBullet = 0;
+                window.perfEmitter = 0;
+            }
+
             startGameLoop();
         }
 
@@ -1942,6 +1960,7 @@ function applyAbilityEffect(cardId, owner) {
                         let attacker = turnOwner === 'PLAYER' ? player : cpu;
                         let target = turnOwner === 'PLAYER' ? cpu : player;
 
+                        let tEmitStart = performance.now();
                         activeCards.forEach(c => {
                             if (c.isCustom) {
                                 if (c.emitterState) {
@@ -1965,6 +1984,7 @@ function applyAbilityEffect(cardId, owner) {
                                 }
                             }
                         });
+                        window.perfEmitter = (window.perfEmitter || 0) + (performance.now() - tEmitStart);
 
                         // 魔法陣の更新処理
                         if (magicCircles.length > 0) {
@@ -2073,9 +2093,11 @@ function applyAbilityEffect(cardId, owner) {
                 }
 
                 // 弾の更新と当たり判定
+                let tTouchStart = performance.now();
                 updateBulletTouchStates();
+                window.perfTouch = (window.perfTouch || 0) + (performance.now() - tTouchStart);
 
-
+                let tBulletStart = performance.now();
                 const useFastRemove = bullets.length > 200;
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     let b = bullets[i];
@@ -2372,6 +2394,7 @@ function applyAbilityEffect(cardId, owner) {
                 if (useFastRemove) {
                     bullets = bullets.filter(b => !b._dead);
                 }
+                window.perfBullet = (window.perfBullet || 0) + (performance.now() - tBulletStart);
             }
 
             if (isCustomCardTesting) {
