@@ -1465,11 +1465,18 @@ function applyAbilityEffect(cardId, owner) {
             window.perfDraw = performance.now() - tDrawStart;
             window.perfTotal = performance.now() - tStart;
 
-            // 1秒ごとに詳細プロファイルをコンソールに表示
-            if (!window.lastProfileTime) window.lastProfileTime = 0;
-            if (timestamp - window.lastProfileTime > 1000) {
-                console.log(`[PROFILE] Total: ${window.perfTotal.toFixed(1)}ms | Sim: ${window.perfSim.toFixed(1)}ms (Touch: ${(window.perfTouch || 0).toFixed(1)}ms, Bullet: ${(window.perfBullet || 0).toFixed(1)}ms, Emitter: ${(window.perfEmitter || 0).toFixed(1)}ms) | Draw: ${window.perfDraw.toFixed(1)}ms | Bullets: ${bullets.length}`);
-                window.lastProfileTime = timestamp;
+            // 10フレームごとに詳細プロファイルをコンソールに垂れ流す（スパム防止＆リアルタイム確認）
+            if (!window.profileFrameCount) window.profileFrameCount = 0;
+            window.profileFrameCount++;
+            if (window.profileFrameCount % 10 === 0) {
+                console.log(
+                    `[PERF] FPS:${fpsDisplay} | ` +
+                    `Total:${window.perfTotal.toFixed(1)}ms | ` +
+                    `Sim:${window.perfSim.toFixed(1)}ms (Touch:${(window.perfTouch || 0).toFixed(1)}ms, Bullet:${(window.perfBullet || 0).toFixed(1)}ms, Emitter:${(window.perfEmitter || 0).toFixed(1)}ms) | ` +
+                    `Draw:${window.perfDraw.toFixed(1)}ms (BltDraw:${(window.perfDrawB || 0).toFixed(1)}ms) | ` +
+                    `Bullets:${bullets.length} | ` +
+                    `Cache:${numericExprCache.size}`
+                );
                 window.perfTouch = 0;
                 window.perfBullet = 0;
                 window.perfEmitter = 0;
@@ -2464,6 +2471,7 @@ function applyAbilityEffect(cardId, owner) {
             // Dividing line removed
 
             const blurScale = 0; // shadowBlur is disabled for performance
+            let tDrawBStart = performance.now();
             bullets.forEach(b => {
                 // 画面外カリング（通常弾のみ）
                 if (!b.isBeam && !b.isLaser && !b.isGungnir && !b.isStar && !b.isBombPiece) {
@@ -2761,6 +2769,7 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
                 }
             });
+            window.perfDrawB = performance.now() - tDrawBStart;
 
             // 魔法陣（Magic Circles）の描画
             magicCircles.forEach(mc => {
@@ -3183,8 +3192,8 @@ function applyAbilityEffect(cardId, owner) {
             // FPS表示（プレイ領域の左上）と詳細プロファイラー表示
             const fpsColor = fpsDisplay >= 55 ? '#00ff88' : fpsDisplay >= 30 ? '#ffcc00' : '#ff4444';
             ctx.font = 'bold 11px monospace';
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.fillRect(4, 4, 130, 80);
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            ctx.fillRect(4, 4, 150, 135);
             ctx.fillStyle = fpsColor;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
@@ -3193,7 +3202,12 @@ function applyAbilityEffect(cardId, owner) {
             ctx.fillText('Total: ' + (window.perfTotal || 0).toFixed(1) + 'ms', 8, 22);
             ctx.fillText('Sim  : ' + (window.perfSim || 0).toFixed(1) + 'ms', 8, 36);
             ctx.fillText(' -Tch: ' + (window.perfTouch || 0).toFixed(1) + 'ms', 8, 50);
-            ctx.fillText('Draw : ' + (window.perfDraw || 0).toFixed(1) + 'ms', 8, 64);
+            ctx.fillText(' -Blt: ' + (window.perfBullet || 0).toFixed(1) + 'ms', 8, 64);
+            ctx.fillText(' -Emt: ' + (window.perfEmitter || 0).toFixed(1) + 'ms', 8, 78);
+            ctx.fillText('Draw : ' + (window.perfDraw || 0).toFixed(1) + 'ms', 8, 92);
+            ctx.fillText(' -Blt: ' + (window.perfDrawB || 0).toFixed(1) + 'ms', 8, 106);
+            ctx.fillStyle = '#ffcc00';
+            ctx.fillText('Count: ' + bullets.length + ' bullets', 8, 120);
             ctx.textBaseline = 'alphabetic';
         }
 
