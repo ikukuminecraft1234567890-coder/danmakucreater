@@ -3180,15 +3180,20 @@ function applyAbilityEffect(cardId, owner) {
             ctx.font = '18px sans-serif';
             ctx.fillText('Graze: ' + player.grazeCount, UI_X, 875);
 
-            // FPS表示（プレイ領域の左上）
+            // FPS表示（プレイ領域の左上）と詳細プロファイラー表示
             const fpsColor = fpsDisplay >= 55 ? '#00ff88' : fpsDisplay >= 30 ? '#ffcc00' : '#ff4444';
-            ctx.font = 'bold 14px monospace';
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.fillRect(4, 4, 72, 20);
+            ctx.font = 'bold 11px monospace';
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(4, 4, 130, 80);
             ctx.fillStyle = fpsColor;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
-            ctx.fillText('FPS: ' + fpsDisplay, 8, 6);
+            ctx.fillText('FPS  : ' + fpsDisplay, 8, 8);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('Total: ' + (window.perfTotal || 0).toFixed(1) + 'ms', 8, 22);
+            ctx.fillText('Sim  : ' + (window.perfSim || 0).toFixed(1) + 'ms', 8, 36);
+            ctx.fillText(' -Tch: ' + (window.perfTouch || 0).toFixed(1) + 'ms', 8, 50);
+            ctx.fillText('Draw : ' + (window.perfDraw || 0).toFixed(1) + 'ms', 8, 64);
             ctx.textBaseline = 'alphabetic';
         }
 
