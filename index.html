@@ -37,9 +37,9 @@
             position: relative;
             width: 92vw;
             height: calc(92vw * 900 / 800);
-            max-width: calc(92vh * 800 / 900);
+            max-width: calc(92vh * 680 / 560);
             max-height: 92vh;
-            aspect-ratio: 8 / 9;
+            aspect-ratio: 680 / 560;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
             border-radius: 12px;
             overflow: hidden;
@@ -153,7 +153,7 @@
             max-height: calc(100vh - 120px);
             width: auto;
             height: auto;
-            aspect-ratio: 8 / 9;
+            aspect-ratio: 680 / 560;
             touch-action: none;
             border-radius: 10px;
         }
@@ -765,9 +765,9 @@
             #gameContainer:not(.card-maker-active) {
                 position: relative !important;
                 /* アスペクト比を狂わせずに画面に100%収める魔法の min 計算式 */
-                width: min(94vw, 84vh * 800 / 900) !important;
-                height: min(94vw * 900 / 800, 84vh) !important;
-                aspect-ratio: 8 / 9 !important;
+                width: min(94vw, 84vh * 680 / 560) !important;
+                height: min(94vw * 560 / 680, 84vh) !important;
+                aspect-ratio: 680 / 560 !important;
                 margin: 0 auto !important;
                 box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9) !important;
                 border: none !important;
@@ -1871,7 +1871,7 @@
 
 <body>
     <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="900"></canvas>
+        <canvas id="gameCanvas" width="680" height="560"></canvas>
 
         <!-- スマホ用フローティング霊撃ボタン（戦闘中の回避時のみ自動表示されます） -->
         <div id="mobileBombBtn" class="mobile-only-bomb-btn">霊撃</div>
@@ -2410,6 +2410,10 @@ while (true) {
                 cc.y_offset = 0;
                 changed = true;
             }
+            if (cc.magicCircleScript === undefined) {
+                cc.magicCircleScript = [];
+                changed = true;
+            }
             if (changed) {
                 applyCustomCardCosts(cc);
             }
@@ -2448,7 +2452,8 @@ while (true) {
                 desc: migrated.desc,
                 isCustom: true,
                 emitterScript: migrated.emitterScript,
-                bulletScript: migrated.bulletScript
+                bulletScript: migrated.bulletScript,
+                magicCircleScript: migrated.magicCircleScript || []
             });
         }
 
@@ -2467,7 +2472,8 @@ while (true) {
                         desc: migrated.desc,
                         isCustom: true,
                         emitterScript: JSON.parse(JSON.stringify(migrated.emitterScript || [])),
-                        bulletScript: JSON.parse(JSON.stringify(migrated.bulletScript || []))
+                        bulletScript: JSON.parse(JSON.stringify(migrated.bulletScript || [])),
+                        magicCircleScript: JSON.parse(JSON.stringify(migrated.magicCircleScript || []))
                     };
                 });
         }
@@ -3370,7 +3376,7 @@ while (true) {
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const PLAY_WIDTH = 600;
+        const PLAY_WIDTH = 480;
 
         // ==========================================
         // 画像リソース
@@ -3443,6 +3449,7 @@ while (true) {
         };
 
         let bullets = [];
+        let magicCircles = [];
         let activeCards = []; // activeCardからactiveCards(配列)へ変更
 
         const customOwnerPositionLocks = {
@@ -3458,11 +3465,28 @@ while (true) {
         }
 
         function getCustomOwnerPosition(owner, preset) {
-            const unit = owner === 'PLAYER' ? player : cpu;
-            const radius = unit.grazeRadius || unit.hitboxRadius || 10;
+            let unit;
+            if (owner === 'PLAYER') unit = player;
+            else if (owner === 'CPU') unit = cpu;
+            else {
+                // Find matching magic circle by ID
+                unit = magicCircles ? magicCircles.find(mc => mc.id === owner) : null;
+            }
+            if (!unit) unit = cpu;
+            const radius = unit.grazeRadius || unit.hitboxRadius || unit.radius || 10;
             const minX = radius + 10;
             const maxX = PLAY_WIDTH - radius - 10;
             const centerX = PLAY_WIDTH / 2;
+
+            if (String(preset).includes(',')) {
+                let parts = String(preset).split(',').map(s => parseFloat(s.trim()));
+                if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    let targetX = Math.max(minX, Math.min(maxX, parts[0]));
+                    let targetY = Math.max(radius + 10, Math.min(canvas.height - radius - 10, parts[1]));
+                    return { x: targetX, y: targetY };
+                }
+            }
+
             const key = String(preset || 'center').trim().toLowerCase().replace(/[\s_-]/g, '');
             let x = centerX;
             let y = owner === 'PLAYER' ? canvas.height * 0.8 : canvas.height * 0.2;
@@ -3484,7 +3508,14 @@ while (true) {
         }
 
         function placeCustomOwnerAt(owner, pos) {
-            const unit = owner === 'PLAYER' ? player : cpu;
+            let unit;
+            if (owner === 'PLAYER') unit = player;
+            else if (owner === 'CPU') unit = cpu;
+            else {
+                unit = magicCircles ? magicCircles.find(mc => mc.id === owner) : null;
+            }
+            if (!unit) return;
+
             unit.x = pos.x;
             unit.y = pos.y;
             unit.moveDir = 0;
@@ -3492,7 +3523,7 @@ while (true) {
             if (owner === 'PLAYER') {
                 mobileTargetX = pos.x;
                 mobileTargetY = pos.y;
-            } else {
+            } else if (owner === 'CPU') {
                 cpu.targetX = pos.x;
                 cpu.targetY = pos.y;
             }
@@ -3503,7 +3534,14 @@ while (true) {
         }
 
         function setCustomOwnerPosition(owner, preset, duration = 0) {
-            const unit = owner === 'PLAYER' ? player : cpu;
+            let unit;
+            if (owner === 'PLAYER') unit = player;
+            else if (owner === 'CPU') unit = cpu;
+            else {
+                unit = magicCircles ? magicCircles.find(mc => mc.id === owner) : null;
+            }
+            if (!unit) return;
+
             const target = getCustomOwnerPosition(owner, preset);
             const moveDuration = Math.max(0, Number(duration) || 0);
             customOwnerPositionLocks[owner] = {
@@ -3962,6 +4000,7 @@ while (true) {
             activeReigekis = [];
             reigekiCutinTimer = 0;
             bullets = [];
+            magicCircles = [];
             gameState = 'BATTLE';
             turnCount = 1;
             selectedPlayerCards = [];
@@ -4058,6 +4097,7 @@ while (true) {
             cpu.hp = 1000; cpu.pendingDamage = 0; cpu.pendingHeal = 0; cpu.grazeCount = 0; cpu.recentHits = []; cpu.x = PLAY_WIDTH / 2; cpu.y = canvas.height * 0.2;
             cpu.targetX = cpu.x; cpu.targetY = cpu.y;
             bullets = [];
+            magicCircles = [];
             gameState = 'BATTLE';
             turnCount = 1;
             selectedPlayerCards = []; // リセット
@@ -5426,8 +5466,8 @@ while (true) {
                             attacker.y += b.dashVy * dt;
 
                             // Keep caster within play area boundaries
-                            let limitMinY = b.team === 'PLAYER' ? boundaryY + 15 : 15;
-                            let limitMaxY = b.team === 'PLAYER' ? canvas.height - 15 : boundaryY - 15;
+                            let limitMinY = 15;
+                            let limitMaxY = canvas.height - 15;
                             attacker.x = Math.max(15, Math.min(PLAY_WIDTH - 15, attacker.x));
                             attacker.y = Math.max(limitMinY, Math.min(limitMaxY, attacker.y));
 
@@ -5496,7 +5536,7 @@ while (true) {
                                 spawnCircle(attacker.x, attacker.y, ways, -b.shootAngle, speed, '#3366ff');
 
                                 // Extra side-spawners
-                                let topY = b.team === 'PLAYER' ? boundaryY + 20 : 20;
+                                let topY = b.team === 'PLAYER' ? canvas.height - 20 : 20;
                                 spawnCircle(20, topY, 2, b.shootAngle * 0.5, speed * 0.8, '#00ffff');
                                 spawnCircle(PLAY_WIDTH - 20, topY, 2, -b.shootAngle * 0.5, speed * 0.8, '#3366ff');
                             }
@@ -6340,7 +6380,7 @@ while (true) {
                 player.y += dy * currentSpeed * dt;
 
                 player.x = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, player.x));
-                player.y = Math.max(boundaryY + player.grazeRadius, Math.min(canvas.height - player.grazeRadius, player.y));
+                player.y = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, player.y));
                 if (isCustomActionLocked('PLAYER')) {
                     applyCustomOwnerPositionLock('PLAYER', dt);
                     dx = 0;
@@ -6466,10 +6506,13 @@ while (true) {
                             let simDt = 0.02; // 20ms刻み
                             let currentSimTime = 0;
                             let dummyBullets = [];
+                            let dummyMagicCircles = [];
                             let originalBullets = bullets;
+                            let originalMagicCircles = magicCircles;
 
                             // update関数内で bullets.push される分裂弾をダミー配列に回収するハック
                             bullets = dummyBullets;
+                            magicCircles = dummyMagicCircles;
 
                             try {
                                 while (currentSimTime < maxTime) {
@@ -6521,6 +6564,7 @@ while (true) {
                             } finally {
                                 // 状態の完全復元（サンドボックス復元エリア）
                                 bullets = originalBullets;
+                                magicCircles = originalMagicCircles;
                                 if (typeof addBattleEffect !== 'undefined') {
                                     addBattleEffect = originalAddBattleEffect;
                                 }
@@ -6589,7 +6633,7 @@ while (true) {
 
                                     // 画面外または境畍線を超えてしまう候補は除外（被弾扱い）
                                     if (futPx < cpu.hitboxRadius + 8 || futPx > PLAY_WIDTH - cpu.hitboxRadius - 8 ||
-                                        futPy < cpu.hitboxRadius + 8 || futPy > boundaryY - cpu.hitboxRadius - 8) {
+                                        futPy < cpu.hitboxRadius + 8 || futPy > canvas.height - cpu.hitboxRadius - 8) {
                                         minHitTime = Math.min(minHitTime, t);
                                         hitBulletDmgWeight = 100; // 重いペナルティ
                                         hitOccurred = true;
@@ -6683,7 +6727,7 @@ while (true) {
                         }
 
                         cpu.x = Math.max(cpu.hitboxRadius + 8, Math.min(PLAY_WIDTH - cpu.hitboxRadius - 8, cpu.x));
-                        cpu.y = Math.max(cpu.hitboxRadius + 8, Math.min(boundaryY - cpu.hitboxRadius - 8, cpu.y));
+                        cpu.y = Math.max(cpu.hitboxRadius + 8, Math.min(canvas.height - cpu.hitboxRadius - 8, cpu.y));
 
                     } else {
                         // ========================================================
@@ -6719,7 +6763,7 @@ while (true) {
                                     let tx = cpu.x + Math.cos(a) * d;
                                     let ty = cpu.y + Math.sin(a) * d;
                                     if (tx < cpu.hitboxRadius + 10 || tx > PLAY_WIDTH - cpu.hitboxRadius - 10) continue;
-                                    if (ty < cpu.hitboxRadius + 10 || ty > boundaryY - cpu.hitboxRadius - 10) continue;
+                                    if (ty < cpu.hitboxRadius + 10 || ty > canvas.height - cpu.hitboxRadius - 10) continue;
                                     let minTDist = Infinity;
                                     for (let t = 0.1; t <= 0.4; t += 0.1) {
                                         let pCpuX = cpu.x + Math.cos(a) * (d / 0.4) * t;
@@ -6768,7 +6812,7 @@ while (true) {
                         }
 
                         cpu.targetX = Math.max(cpu.hitboxRadius + 10, Math.min(PLAY_WIDTH - cpu.hitboxRadius - 10, cpu.targetX));
-                        cpu.targetY = Math.max(cpu.hitboxRadius + 10, Math.min(boundaryY - cpu.hitboxRadius - 10, cpu.targetY));
+                        cpu.targetY = Math.max(cpu.hitboxRadius + 10, Math.min(canvas.height - cpu.hitboxRadius - 10, cpu.targetY));
 
                         let cdx = cpu.targetX - cpu.x, cdy = cpu.targetY - cpu.y;
                         let cdist = Math.sqrt(cdx * cdx + cdy * cdy);
@@ -6832,6 +6876,24 @@ while (true) {
                                 }
                             }
                         });
+
+                        // 魔法陣の更新処理
+                        if (magicCircles.length > 0) {
+                            magicCircles.forEach(mc => {
+                                if (mc.emitterState && !mc.emitterState.finished) {
+                                    mc.emitterState.variables.x = mc.x;
+                                    mc.emitterState.variables.y = mc.y;
+                                    mc.emitterState.variables.tx = target.x;
+                                    mc.emitterState.variables.ty = target.y;
+
+                                    let mcCardObj = {
+                                        bulletScript: mc.bulletScript || []
+                                    };
+
+                                    stepEmitter(mcCardObj, mc.emitterState, mc, target, dt);
+                                }
+                            });
+                        }
 
                         // 常時発射：通常ショット（同時攻撃）
                         normalShotTimer += dt;
@@ -7276,12 +7338,7 @@ while (true) {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
             ctx.fillRect(0, 0, PLAY_WIDTH, canvas.height);
 
-            ctx.beginPath();
-            ctx.moveTo(0, boundaryY);
-            ctx.lineTo(PLAY_WIDTH, boundaryY);
-            ctx.strokeStyle = 'cyan';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            // Dividing line removed
 
             const blurScale = bullets.length > 300 ? 0.35 : 1;
             bullets.forEach(b => {
@@ -7588,6 +7645,56 @@ while (true) {
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius * 0.6, 0, Math.PI * 2); ctx.fill();
                 }
+            });
+
+            // 魔法陣（Magic Circles）の描画
+            magicCircles.forEach(mc => {
+                ctx.save();
+                
+                // 外側リング（脈動と回転エフェクト）
+                let pulse = 1 + 0.05 * Math.sin(performance.now() / 120 + mc.x);
+                let angle = (performance.now() * 0.001) % (Math.PI * 2);
+                
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = mc.color;
+                
+                ctx.strokeStyle = mc.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(mc.x, mc.y, mc.radius * pulse, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(mc.x, mc.y, mc.radius * pulse * 0.85, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.translate(mc.x, mc.y);
+                ctx.rotate(angle);
+                ctx.shadowBlur = 0;
+                
+                // 六角星の描画
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    let a1 = (Math.PI / 3) * i;
+                    let a2 = (Math.PI / 3) * (i + 2);
+                    let x1 = Math.cos(a1) * mc.radius * 0.75;
+                    let y1 = Math.sin(a1) * mc.radius * 0.75;
+                    let x2 = Math.cos(a2) * mc.radius * 0.75;
+                    let y2 = Math.sin(a2) * mc.radius * 0.75;
+                    if (i === 0) ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                }
+                ctx.strokeStyle = mc.color;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                // 内側の小さな円
+                ctx.beginPath();
+                ctx.arc(0, 0, mc.radius * 0.4, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.restore();
             });
 
             // 自機の描画
@@ -8026,7 +8133,7 @@ while (true) {
                 const newY = touchStartPlayerY + deltaY * scaleY * sensitivity;
 
                 mobileTargetX = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, newX));
-                mobileTargetY = Math.max(boundaryY + player.grazeRadius, Math.min(canvas.height - player.grazeRadius, newY));
+                mobileTargetY = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, newY));
             };
 
             const onDragEnd = () => {
@@ -8848,11 +8955,11 @@ while (true) {
                         let angle = evalExpr(block.params.angle, state.variables);
                         let bColor = resolveColorParam(block.params.color, state.variables);
                         
-                        let spawnX = attacker.x + (state.variables.x_offset || 0);
-                        let spawnY = attacker.y + (state.variables.y_offset || 0);
-                        if (isPlayerSide) {
-                            spawnY = attacker.y - (state.variables.y_offset || 0);
-                        }
+                        let ox = evalExpr(block.params.offsetX || '0', state.variables);
+                        let oy = evalExpr(block.params.offsetY || '0', state.variables);
+
+                        let spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
+                        let spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                         let angleRad = angle * Math.PI / 180;
                         if (isPlayerSide) {
                             angleRad = -angleRad;
@@ -8898,11 +9005,11 @@ while (true) {
                         let bColor = resolveColorParam(block.params.color, state.variables);
                         let count = Math.max(3, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(block.params.count || '12', state.variables))));
                         
-                        let spawnX = attacker.x + (state.variables.x_offset || 0);
-                        let spawnY = attacker.y + (state.variables.y_offset || 0);
-                        if (isPlayerSide) {
-                            spawnY = attacker.y - (state.variables.y_offset || 0);
-                        }
+                        let ox = evalExpr(block.params.offsetX || '0', state.variables);
+                        let oy = evalExpr(block.params.offsetY || '0', state.variables);
+
+                        let spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
+                        let spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                         
                         for (let k = 0; k < count; k++) {
                             let angle = (360 / count) * k;
@@ -8954,11 +9061,11 @@ while (true) {
                         let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(block.params.count || '3', state.variables))));
                         let spread = evalExpr(block.params.spread || '15', state.variables);
                         
-                        let spawnX = attacker.x + (state.variables.x_offset || 0);
-                        let spawnY = attacker.y + (state.variables.y_offset || 0);
-                        if (isPlayerSide) {
-                            spawnY = attacker.y - (state.variables.y_offset || 0);
-                        }
+                        let ox = evalExpr(block.params.offsetX || '0', state.variables);
+                        let oy = evalExpr(block.params.offsetY || '0', state.variables);
+
+                        let spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
+                        let spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                         
                         let startAngle = centerAngle - (spread * (count - 1)) / 2;
                         
@@ -9003,6 +9110,31 @@ while (true) {
                             
                             bullets.push(newBullet);
                         }
+                        break;
+                    }
+                    case 'spawn_magic_circle': {
+                        let bColor = resolveColorParam(block.params.color, state.variables);
+                        let ox = evalExpr(block.params.offsetX || '0', state.variables);
+                        let oy = evalExpr(block.params.offsetY || '0', state.variables);
+
+                        let spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
+                        let spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+
+                        let mcId = 'MC_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+                        let newMagicCircle = {
+                            id: mcId,
+                            x: spawnX,
+                            y: spawnY,
+                            radius: 18,
+                            color: bColor,
+                            team: attacker.team,
+                            isCustom: true,
+                            emitterState: initEmitterState(c.magicCircleScript || [], { x: spawnX, y: spawnY }, target, 0, 0),
+                            bulletScript: c.bulletScript || []
+                        };
+
+                        magicCircles.push(newMagicCircle);
                         break;
                     }
                     case 'tween_var':
@@ -9648,8 +9780,8 @@ while (true) {
                     return 2;
                 case 'spawn_ring':
                 case 'spawn_way':
-                case 'tween_var':
                 case 'tween_var_wait':
+                case 'spawn_magic_circle':
                     return 2;
                 default:
                     return 0;
@@ -9773,9 +9905,11 @@ while (true) {
             let emitterState = initEmitterState(emitterScript, attacker, target);
             let simBullets = [];
 
-            // 実行中のゲームに影響を与えないようにグローバル bullets 配列を退避
+            // 実行中のゲームに影響を与えないようにグローバル bullets, magicCircles 配列を退避
             let originalBullets = bullets;
+            let originalMagicCircles = magicCircles;
             bullets = [];
+            magicCircles = [];
 
             const MAX_BULLETS_PER_SECOND = 60;
             const MAX_THREAT_PER_SECOND = 60;
@@ -9898,8 +10032,9 @@ while (true) {
                 }
             }
 
-            // グローバル bullets 配列を復元
+            // グローバル bullets, magicCircles 配列を復元
             bullets = originalBullets;
+            magicCircles = originalMagicCircles;
 
             // 指標の計算（物理弾数は60発/秒、脅威度は60/秒で上限）
             let threatPerSecond = Math.min(MAX_THREAT_PER_SECOND, totalWeightedThreat / simDuration);
@@ -10077,6 +10212,8 @@ while (true) {
                     customCardMaker.emitterScript = parsed;
                 } else if (customCardMaker.activeTab === 'bullet') {
                     customCardMaker.bulletScript = parsed;
+                } else if (customCardMaker.activeTab === 'magicCircle') {
+                    customCardMaker.magicCircleScript = parsed;
                 }
             }
 
@@ -10089,6 +10226,7 @@ while (true) {
                 customCardMakerMode: customCardMakerMode,
                 emitterScript: customCardMaker.emitterScript,
                 bulletScript: customCardMaker.bulletScript,
+                magicCircleScript: customCardMaker.magicCircleScript || [],
                 testPassed: customCardMaker.testPassed,
                 x_offset: document.getElementById('custom-card-x-offset') ? document.getElementById('custom-card-x-offset').value : "0",
                 y_offset: document.getElementById('custom-card-y-offset') ? document.getElementById('custom-card-y-offset').value : "0",
@@ -10121,6 +10259,7 @@ while (true) {
                 customCardMaker.activeTab = draftData.activeTab || 'emitter';
                 customCardMaker.emitterScript = draftData.emitterScript || [];
                 customCardMaker.bulletScript = draftData.bulletScript || [];
+                customCardMaker.magicCircleScript = draftData.magicCircleScript || [];
                 customCardMaker.testPassed = draftData.testPassed || false;
                 
                 customCardMakerMode = draftData.customCardMakerMode || 'block';
@@ -10156,7 +10295,9 @@ while (true) {
                 if (draftData.codeText !== undefined) {
                     document.getElementById('workspace-code-textarea').value = draftData.codeText;
                 } else {
-                    let script = customCardMaker.activeTab === 'emitter' ? customCardMaker.emitterScript : customCardMaker.bulletScript;
+                    let script = customCardMaker.activeTab === 'emitter' ? customCardMaker.emitterScript 
+                                : customCardMaker.activeTab === 'bullet' ? customCardMaker.bulletScript 
+                                : (customCardMaker.magicCircleScript || []);
                     document.getElementById('workspace-code-textarea').value = blocksToCode(script);
                 }
                 
@@ -10209,6 +10350,7 @@ while (true) {
                 customCardMaker.y_offset = migratedCard.y_offset || 0;
                 customCardMaker.emitterScript = JSON.parse(JSON.stringify(migratedCard.emitterScript || []));
                 customCardMaker.bulletScript = JSON.parse(JSON.stringify(migratedCard.bulletScript || []));
+                customCardMaker.magicCircleScript = JSON.parse(JSON.stringify(migratedCard.magicCircleScript || []));
                 customCardMaker.testPassed = true;
                 document.getElementById('card-editor-title').textContent = "スペルカード編集";
             } else {
@@ -10225,6 +10367,7 @@ while (true) {
                 customCardMaker.x_offset = 0;
                 customCardMaker.y_offset = 0;
                 customCardMaker.bulletScript = [];
+                customCardMaker.magicCircleScript = [];
                 customCardMaker.testPassed = false;
                 document.getElementById('card-editor-title').textContent = "新規スペルカード作成";
             }
@@ -10254,15 +10397,20 @@ while (true) {
                     customCardMaker.emitterScript = parsed;
                 } else if (customCardMaker.activeTab === 'bullet') {
                     customCardMaker.bulletScript = parsed;
+                } else if (customCardMaker.activeTab === 'magicCircle') {
+                    customCardMaker.magicCircleScript = parsed;
                 }
             }
 
             customCardMaker.activeTab = tab;
             document.getElementById('tab-btn-emitter').className = tab === 'emitter' ? 'tab-btn active' : 'tab-btn';
             document.getElementById('tab-btn-bullet').className = tab === 'bullet' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-btn-magic-circle').className = tab === 'magicCircle' ? 'tab-btn active' : 'tab-btn';
             
             if (customCardMakerMode === 'code') {
-                let script = tab === 'emitter' ? customCardMaker.emitterScript : customCardMaker.bulletScript;
+                let script = tab === 'emitter' ? customCardMaker.emitterScript 
+                            : tab === 'bullet' ? customCardMaker.bulletScript 
+                            : (customCardMaker.magicCircleScript || []);
                 document.getElementById('workspace-code-textarea').value = blocksToCode(script);
                 scheduleCustomCardCostCalculation();
             } else {
@@ -10272,7 +10420,9 @@ while (true) {
 
         function getActiveScript() {
             if (customCardMaker.activeTab === 'emitter') return customCardMaker.emitterScript;
-            return customCardMaker.bulletScript;
+            if (customCardMaker.activeTab === 'bullet') return customCardMaker.bulletScript;
+            if (!customCardMaker.magicCircleScript) customCardMaker.magicCircleScript = [];
+            return customCardMaker.magicCircleScript;
         }
 
         function customCardMakerAddBlock(type) {
@@ -10343,6 +10493,10 @@ while (true) {
                 block.params.spread = '30';
             } else if (type === 'homing') {
                 block.params.turnSpeed = '90';
+            } else if (type === 'spawn_magic_circle') {
+                block.params.color = '#00ffff';
+                block.params.offsetX = '50';
+                block.params.offsetY = '-50';
             } else if (type === 'speed_scale_slow') {
                 block.type = 'speed_scale'; block.params.mode = 'slow'; block.params.effect = '0.5'; block.params.delay = '0';
             } else if (type === 'speed_scale_fast') {
@@ -10646,6 +10800,10 @@ while (true) {
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
                                 <span>角度:</span>
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>補正 X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -10663,6 +10821,10 @@ while (true) {
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
                                 <span>弾数:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
+                                <span>補正 X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -10684,6 +10846,22 @@ while (true) {
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
                                 <span>分散角:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.spread}" onchange="customCardMakerUpdateParam(${idx}, 'spread', this.value)">
+                                <span>補正 X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'spawn_magic_circle':
+                            blockDiv.className = 'maker-block color-action';
+                            html = `
+                                <span>[召喚] 魔法陣を召喚する - 色:</span>
+                                <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#00ffff'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
+                                <span>補正 X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -10777,6 +10955,8 @@ while (true) {
                     customCardMaker.emitterScript = parsed;
                 } else if (customCardMaker.activeTab === 'bullet') {
                     customCardMaker.bulletScript = parsed;
+                } else if (customCardMaker.activeTab === 'magicCircle') {
+                    customCardMaker.magicCircleScript = parsed;
                 }
             }
 
@@ -10800,7 +10980,8 @@ while (true) {
                 desc: 'テスト中',
                 isCustom: true,
                 emitterScript: JSON.parse(JSON.stringify(customCardMaker.emitterScript)),
-                bulletScript: JSON.parse(JSON.stringify(customCardMaker.bulletScript))
+                bulletScript: JSON.parse(JSON.stringify(customCardMaker.bulletScript)),
+                magicCircleScript: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || []))
             };
             
             let testCardIdx = defaultCards.active.findIndex(c => c.id === 'custom_test');
@@ -10820,6 +11001,7 @@ while (true) {
             for (let k in keyboardState) keyboardState[k] = false;
             
             bullets = [];
+            magicCircles = [];
             activeReigekis = [];
             reigekiCutinTimer = 0;
             prevBombInput = false;
@@ -10871,6 +11053,7 @@ while (true) {
             isGameRunning = false;
             
             bullets = [];
+            magicCircles = [];
             activeReigekis = [];
             
             const bombBtn = document.getElementById('mobileBombBtn');
@@ -10900,6 +11083,8 @@ while (true) {
                     customCardMaker.emitterScript = parsed;
                 } else if (customCardMaker.activeTab === 'bullet') {
                     customCardMaker.bulletScript = parsed;
+                } else if (customCardMaker.activeTab === 'magicCircle') {
+                    customCardMaker.magicCircleScript = parsed;
                 }
             }
 
@@ -10937,7 +11122,8 @@ while (true) {
                 cost: getCustomCardPlayCost(cost),
                 isCustom: true,
                 emitterScript: JSON.parse(JSON.stringify(customCardMaker.emitterScript)),
-                bulletScript: JSON.parse(JSON.stringify(customCardMaker.bulletScript))
+                bulletScript: JSON.parse(JSON.stringify(customCardMaker.bulletScript)),
+                magicCircleScript: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || []))
             };
 
             if (customCardMaker.editingId) {
@@ -11141,7 +11327,13 @@ while (true) {
                         let col = b.params.color || '#ff3333';
                         let spd = b.params.speed || '200';
                         let ang = b.params.angle || 'angle';
-                        line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang})`;
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        if (ox !== '0' || oy !== '0') {
+                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy})`;
+                        } else {
+                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang})`;
+                        }
                         break;
                     }
                     case 'spawn_ring': {
@@ -11149,7 +11341,13 @@ while (true) {
                         let colRing = b.params.color || '#ff3333';
                         let spdRing = b.params.speed || '200';
                         let cntRing = b.params.count || '12';
-                        line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing})`;
+                        let oxRing = b.params.offsetX || '0';
+                        let oyRing = b.params.offsetY || '0';
+                        if (oxRing !== '0' || oyRing !== '0') {
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
+                        } else {
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing})`;
+                        }
                         break;
                     }
                     case 'spawn_way': {
@@ -11159,7 +11357,24 @@ while (true) {
                         let angWay = b.params.angle || 'angle';
                         let cntWay = b.params.count || '3';
                         let sprWay = b.params.spread || '30';
-                        line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay})`;
+                        let oxWay = b.params.offsetX || '0';
+                        let oyWay = b.params.offsetY || '0';
+                        if (oxWay !== '0' || oyWay !== '0') {
+                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay})`;
+                        } else {
+                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay})`;
+                        }
+                        break;
+                    }
+                    case 'spawn_magic_circle': {
+                        let col = b.params.color || '#00ffff';
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        if (ox !== '0' || oy !== '0') {
+                            line = `spawnMagicCircle(${formatCodeColorArg(col)}, ${ox}, ${oy})`;
+                        } else {
+                            line = `spawnMagicCircle(${formatCodeColorArg(col)})`;
+                        }
                         break;
                     }
                     case 'speed_scale':
@@ -11321,20 +11536,73 @@ while (true) {
                     let mSpawn = trimmed.match(/^spawnBullet\((.*?)\)$/i);
                     if (mSpawn) {
                         let args = mSpawn[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-                        let isLegacy = args.length >= 5;
-                        block = { type: 'spawn_bullet', params: { bulletType: args[0]||'normal', color: args[1]||'#ff3333', speed: isLegacy?(args[3]||'200'):(args[2]||'200'), angle: isLegacy?(args[4]||'angle'):(args[3]||'angle') }, indent };
+                        let isLegacy = false;
+                        if (args.length === 5) {
+                            let arg3IsNumber = !isNaN(parseFloat(args[3]));
+                            let arg2IsRadius = args[2] === '6' || args[2] === '8' || args[2] === '12';
+                            if (arg2IsRadius && arg3IsNumber) isLegacy = true;
+                        }
+                        block = {
+                            type: 'spawn_bullet',
+                            params: {
+                                bulletType: args[0] || 'normal',
+                                color: args[1] || '#ff3333',
+                                speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
+                                angle: isLegacy ? (args[4] || 'angle') : (args[3] || 'angle'),
+                                offsetX: isLegacy ? '0' : (args[4] || '0'),
+                                offsetY: isLegacy ? '0' : (args[5] || '0')
+                            },
+                            indent
+                        };
                     }
                     let mSpawnRing = trimmed.match(/^spawnRing\((.*?)\)$/i);
                     if (mSpawnRing) {
                         let args = mSpawnRing[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-                        let isLegacy = args.length >= 5;
-                        block = { type: 'spawn_ring', params: { bulletType: args[0]||'normal', color: args[1]||'#ff3333', speed: isLegacy?(args[3]||'200'):(args[2]||'200'), count: isLegacy?(args[4]||'12'):(args[3]||'12') }, indent };
+                        let isLegacy = args.length === 5 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
+                        block = {
+                            type: 'spawn_ring',
+                            params: {
+                                bulletType: args[0] || 'normal',
+                                color: args[1] || '#ff3333',
+                                speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
+                                count: isLegacy ? (args[4] || '12') : (args[3] || '12'),
+                                offsetX: isLegacy ? '0' : (args[4] || '0'),
+                                offsetY: isLegacy ? '0' : (args[5] || '0')
+                            },
+                            indent
+                        };
                     }
                     let mSpawnWay = trimmed.match(/^spawnWay\((.*?)\)$/i);
                     if (mSpawnWay) {
                         let args = mSpawnWay[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-                        let isLegacy = args.length >= 7;
-                        block = { type: 'spawn_way', params: { bulletType: args[0]||'normal', color: args[1]||'#ff3333', speed: isLegacy?(args[3]||'200'):(args[2]||'200'), angle: isLegacy?(args[4]||'angle'):(args[3]||'angle'), count: isLegacy?(args[5]||'3'):(args[4]||'3'), spread: isLegacy?(args[6]||'30'):(args[5]||'30') }, indent };
+                        let isLegacy = args.length === 7 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
+                        block = {
+                            type: 'spawn_way',
+                            params: {
+                                bulletType: args[0] || 'normal',
+                                color: args[1] || '#ff3333',
+                                speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
+                                angle: isLegacy ? (args[4] || 'angle') : (args[3] || 'angle'),
+                                count: isLegacy ? (args[5] || '3') : (args[4] || '3'),
+                                spread: isLegacy ? (args[6] || '30') : (args[5] || '30'),
+                                offsetX: isLegacy ? '0' : (args[6] || '0'),
+                                offsetY: isLegacy ? '0' : (args[7] || '0')
+                            },
+                            indent
+                        };
+                    }
+                    let mSpawnMC = trimmed.match(/^spawnMagicCircle\((.*?)\)$/i);
+                    if (mSpawnMC) {
+                        let args = mSpawnMC[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: 'spawn_magic_circle',
+                            params: {
+                                color: args[0] || '#00ffff',
+                                offsetX: args[1] || '0',
+                                offsetY: args[2] || '0'
+                            },
+                            indent
+                        };
                     }
                     if (!block) {
                         let mChange = trimmed.match(/^(\w+)\s*([+\-])=\s*(.+)$/);
@@ -11546,14 +11814,21 @@ while (true) {
                         }
                         return sTrim;
                     });
-                    let isLegacy = args.length >= 5;
+                    let isLegacy = false;
+                    if (args.length === 5) {
+                        let arg3IsNumber = !isNaN(parseFloat(args[3]));
+                        let arg2IsRadius = args[2] === '6' || args[2] === '8' || args[2] === '12';
+                        if (arg2IsRadius && arg3IsNumber) isLegacy = true;
+                    }
                     block = {
                         type: 'spawn_bullet',
                         params: {
                             bulletType: args[0] || 'normal',
                             color: args[1] || '#ff3333',
                             speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
-                            angle: isLegacy ? (args[4] || 'angle') : (args[3] || 'angle')
+                            angle: isLegacy ? (args[4] || 'angle') : (args[3] || 'angle'),
+                            offsetX: isLegacy ? '0' : (args[4] || '0'),
+                            offsetY: isLegacy ? '0' : (args[5] || '0')
                         },
                         indent: indent
                     };
@@ -11567,14 +11842,16 @@ while (true) {
                         }
                         return sTrim;
                     });
-                    let isLegacy = args.length >= 5;
+                    let isLegacy = args.length === 5 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
                     block = {
                         type: 'spawn_ring',
                         params: {
                             bulletType: args[0] || 'normal',
                             color: args[1] || '#ff3333',
                             speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
-                            count: isLegacy ? (args[4] || '12') : (args[3] || '12')
+                            count: isLegacy ? (args[4] || '12') : (args[3] || '12'),
+                            offsetX: isLegacy ? '0' : (args[4] || '0'),
+                            offsetY: isLegacy ? '0' : (args[5] || '0')
                         },
                         indent: indent
                     };
@@ -11588,7 +11865,7 @@ while (true) {
                         }
                         return sTrim;
                     });
-                    let isLegacy = args.length >= 7;
+                    let isLegacy = args.length === 7 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
                     block = {
                         type: 'spawn_way',
                         params: {
@@ -11597,7 +11874,28 @@ while (true) {
                             speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
                             angle: isLegacy ? (args[4] || 'angle') : (args[3] || 'angle'),
                             count: isLegacy ? (args[5] || '3') : (args[4] || '3'),
-                            spread: isLegacy ? (args[6] || '30') : (args[5] || '30')
+                            spread: isLegacy ? (args[6] || '30') : (args[5] || '30'),
+                            offsetX: isLegacy ? '0' : (args[6] || '0'),
+                            offsetY: isLegacy ? '0' : (args[7] || '0')
+                        },
+                        indent: indent
+                    };
+                }
+                let mSpawnMC = trimmed.match(/^spawnMagicCircle\((.*?)\)$/i);
+                if (mSpawnMC) {
+                    let args = mSpawnMC[1].split(",").map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    block = {
+                        type: 'spawn_magic_circle',
+                        params: {
+                            color: args[0] || '#00ffff',
+                            offsetX: args[1] || '0',
+                            offsetY: args[2] || '0'
                         },
                         indent: indent
                     };
