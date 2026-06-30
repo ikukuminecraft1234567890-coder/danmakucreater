@@ -2440,7 +2440,6 @@ function applyAbilityEffect(cardId, owner) {
                         });
                     }
                     customCardDeathEffect = { timer: 3.0, particles };
-                    bullets = []; // 弾を全消去
                 }
                 // actionTimer が切れたらエミッター終了フェーズへ移行
                 if (actionTimer <= 0 && !customCardTestEmitterDone) {
