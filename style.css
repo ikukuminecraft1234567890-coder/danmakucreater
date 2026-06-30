@@ -24,10 +24,10 @@ html,
         #gameContainer {
             position: relative;
             width: 92vw;
-            height: calc(92vw * 896 / 968);
-            max-width: calc(92vh * 968 / 896);
+            height: calc(92vw * 896 / 768);
+            max-width: calc(92vh * 768 / 896);
             max-height: 92vh;
-            aspect-ratio: 968 / 896;
+            aspect-ratio: 768 / 896;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
             border-radius: 12px;
             overflow: hidden;
@@ -69,9 +69,9 @@ html,
         /* PC等、画面が非常に大きいときは最大サイズを 800px x 900px に制限し、ボケを防ぐ */
         @media (min-width: 1000px) and (min-height: 950px) {
             #gameContainer {
-                width: 968px;
+                width: 768px;
                 height: 896px;
-                max-width: 968px;
+                max-width: 768px;
                 max-height: 896px;
             }
         }
@@ -141,7 +141,7 @@ html,
             max-height: calc(100vh - 120px);
             width: auto;
             height: auto;
-            aspect-ratio: 968 / 896;
+            aspect-ratio: 768 / 896;
             touch-action: none;
             border-radius: 10px;
         }
@@ -753,9 +753,9 @@ html,
             #gameContainer:not(.card-maker-active) {
                 position: relative !important;
                 /* アスペクト比を狂わせずに画面に100%収める魔法の min 計算式 */
-                width: min(94vw, 84vh * 968 / 896) !important;
-                height: min(94vw * 896 / 968, 84vh) !important;
-                aspect-ratio: 968 / 896 !important;
+                width: min(94vw, 84vh * 768 / 896) !important;
+                height: min(94vw * 896 / 768, 84vh) !important;
+                aspect-ratio: 768 / 896 !important;
                 margin: 0 auto !important;
                 box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9) !important;
                 border: none !important;

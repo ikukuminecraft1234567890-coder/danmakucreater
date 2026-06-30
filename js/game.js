@@ -1409,15 +1409,7 @@ function applyAbilityEffect(cardId, owner) {
 
         function update(timestamp) {
             gameLoopFrameId = null;
-            // 霊撃ボタンの表示・非表示動的制御 (戦闘の回避アクション中のみ自動表示)
-            const bombBtn = document.getElementById('mobileBombBtn');
-            if (bombBtn) {
-                if (isGameRunning && gameState === 'BATTLE' && battlePhase === 'ACTION' && turnOwner === 'CPU') {
-                    bombBtn.style.display = 'flex';
-                } else {
-                    bombBtn.style.display = 'none';
-                }
-            }
+
 
             if (!isGameRunning) return;
             if (!lastTime) lastTime = timestamp;
@@ -3098,101 +3090,101 @@ function applyAbilityEffect(cardId, owner) {
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
             // 右側UI領域の描画
-            const UI_X = PLAY_WIDTH + 20;
-            ctx.fillStyle = '#222';
-            ctx.fillRect(PLAY_WIDTH, 0, canvas.width - PLAY_WIDTH, canvas.height);
+            if (canvas.width > PLAY_WIDTH) {
+                const UI_X = PLAY_WIDTH + 20;
+                ctx.fillStyle = '#222';
+                ctx.fillRect(PLAY_WIDTH, 0, canvas.width - PLAY_WIDTH, canvas.height);
 
-            ctx.strokeStyle = '#555';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(PLAY_WIDTH, 0);
-            ctx.lineTo(PLAY_WIDTH, canvas.height);
-            ctx.stroke();
+                ctx.strokeStyle = '#555';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(PLAY_WIDTH, 0);
+                ctx.lineTo(PLAY_WIDTH, canvas.height);
+                ctx.stroke();
 
-            ctx.textAlign = 'left';
+                ctx.textAlign = 'left';
 
-            // CPU情報
-            ctx.fillStyle = '#fff';
-            ctx.font = '20px sans-serif';
-            ctx.fillText(isOnlineMode ? 'ENEMY' : 'CPU', UI_X, 40);
-
-            // CPUのボム（スペル）残数表示 (星マーク) - 表示位置は 75 (HPの上)
-            ctx.fillStyle = '#ff3366';
-            ctx.font = 'bold 20px sans-serif';
-            ctx.fillText('Spell: ', UI_X, 75);
-            let cpuBombStr = '';
-            for (let k = 0; k < cpu.maxBombs; k++) {
-                cpuBombStr += k < cpu.bombs ? '★' : '☆';
-            }
-            ctx.fillStyle = '#ff3366';
-            ctx.fillText(cpuBombStr, UI_X + 60, 75);
-
-            // CPUのHP表示 - 表示位置は 110 (逆レイアウト)
-            ctx.fillStyle = cpu.hp < 300 ? '#ff5555' : '#55ff55';
-            ctx.font = 'bold 24px sans-serif';
-            ctx.fillText('HP: ' + Math.floor(Math.max(0, cpu.hp)), UI_X, 110);
-            if (cpu.pendingDamage > 0) {
-                let t = turnCount - 1;
-                let dmgMult = Math.pow(2, (t * t + 15 * t) / 450);
-                ctx.fillStyle = '#ff5555';
-                ctx.font = '18px sans-serif';
-                ctx.fillText(`(-${Math.floor(cpu.pendingDamage * dmgMult)})`, UI_X + 120, 110);
-            }
-
-            ctx.fillStyle = '#aaffaa';
-            ctx.font = '20px sans-serif';
-            ctx.fillText('Graze: ' + cpu.grazeCount, UI_X, 145);
-
-            // フェーズ・ターン情報
-            ctx.fillStyle = '#fff';
-            ctx.font = '20px sans-serif';
-            let phaseName = battlePhase === 'PLANNING' ? '策謀' : (battlePhase === 'ACTION' ? '戦闘' : '精算');
-            ctx.fillText('Phase: ' + phaseName, UI_X, 400);
-
-            let ownerText = turnOwner === 'PLAYER' ? '自ターン' : '敵ターン';
-            ctx.fillStyle = turnOwner === 'PLAYER' ? '#55ff55' : '#ff5555';
-            ctx.fillText(ownerText, UI_X, 435);
-
-            if (battlePhase === 'ACTION' || battlePhase === 'RESOLUTION') {
-                let displayTime = battlePhase === 'ACTION' ? actionTimer : resolutionTimer;
+                // CPU情報
                 ctx.fillStyle = '#fff';
-                ctx.font = 'bold 28px sans-serif';
-                ctx.fillText(Math.max(0, displayTime).toFixed(1) + 's', UI_X, 475);
-            }
+                ctx.font = '20px sans-serif';
+                ctx.fillText(isOnlineMode ? 'ENEMY' : 'CPU', UI_X, 40);
 
-            // プレイヤー情報
-            ctx.fillStyle = '#fff';
-            ctx.font = '20px sans-serif';
-            ctx.fillText('PLAYER', UI_X, 765);
+                // CPUのボム（スペル）残数表示 (星マーク) - 表示位置は 75 (HPの上)
+                ctx.fillStyle = '#ff3366';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.fillText('Spell: ', UI_X, 75);
+                let cpuBombStr = '';
+                for (let k = 0; k < cpu.maxBombs; k++) {
+                    cpuBombStr += k < cpu.bombs ? '★' : '☆';
+                }
+                ctx.fillStyle = '#ff3366';
+                ctx.fillText(cpuBombStr, UI_X + 60, 75);
 
-            // プレイヤーのHP表示 - 表示位置は 800 (位置を上げる)
-            ctx.fillStyle = player.hp < 300 ? '#ff5555' : '#55ff55';
-            ctx.font = 'bold 24px sans-serif';
-            ctx.fillText('HP: ' + Math.floor(Math.max(0, player.hp)), UI_X, 800);
-            if (player.pendingDamage > 0) {
-                let t = turnCount - 1;
-                let dmgMult = Math.pow(2, (t * t + 15 * t) / 450);
-                ctx.fillStyle = '#ff5555';
+                // CPUのHP表示 - 表示位置は 110 (逆レイアウト)
+                ctx.fillStyle = cpu.hp < 300 ? '#ff5555' : '#55ff55';
+                ctx.font = 'bold 24px sans-serif';
+                ctx.fillText('HP: ' + Math.floor(Math.max(0, cpu.hp)), UI_X, 110);
+                if (cpu.pendingDamage > 0) {
+                    let t = turnCount - 1;
+                    let dmgMult = Math.pow(2, (t * t + 15 * t) / 450);
+                    ctx.fillStyle = '#ff5555';
+                    ctx.font = '18px sans-serif';
+                    ctx.fillText(`(-${Math.floor(cpu.pendingDamage * dmgMult)})`, UI_X + 120, 110);
+                }
+
+                ctx.fillStyle = '#aaffaa';
+                ctx.font = '20px sans-serif';
+                ctx.fillText('Graze: ' + cpu.grazeCount, UI_X, 145);
+
+                // フェーズ・ターン情報
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px sans-serif';
+                let phaseName = battlePhase === 'PLANNING' ? '策謀' : (battlePhase === 'ACTION' ? '戦闘' : '精算');
+                ctx.fillText('Phase: ' + phaseName, UI_X, 400);
+
+                let ownerText = turnOwner === 'PLAYER' ? '自ターン' : '敵ターン';
+                ctx.fillStyle = turnOwner === 'PLAYER' ? '#55ff55' : '#ff5555';
+                ctx.fillText(ownerText, UI_X, 435);
+
+                if (battlePhase === 'ACTION' || battlePhase === 'RESOLUTION') {
+                    let displayTime = battlePhase === 'ACTION' ? actionTimer : resolutionTimer;
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 28px sans-serif';
+                    ctx.fillText(Math.max(0, displayTime).toFixed(1) + 's', UI_X, 475);
+                }
+
+                // プレイヤー情報
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px sans-serif';
+                ctx.fillText('PLAYER', UI_X, 765);
+
+                // プレイヤーのHP表示 - 表示位置は 800 (位置を上げる)
+                ctx.fillStyle = player.hp < 300 ? '#ff5555' : '#55ff55';
+                ctx.font = 'bold 24px sans-serif';
+                ctx.fillText('HP: ' + Math.floor(Math.max(0, player.hp)), UI_X, 800);
+                if (player.pendingDamage > 0) {
+                    let t = turnCount - 1;
+                    let dmgMult = Math.pow(2, (t * t + 15 * t) / 450);
+                    ctx.fillStyle = '#ff5555';
+                    ctx.font = '18px sans-serif';
+                    ctx.fillText(`(-${Math.floor(player.pendingDamage * dmgMult)})`, UI_X + 120, 800);
+                }
+
+                // プレイヤーのボム表示 - 表示位置は 835 (HPがあった位置)
+                ctx.fillStyle = '#ffcc00';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.fillText('Bomb: ', UI_X, 835);
+                let playerBombStr = '';
+                for (let k = 0; k < player.maxBombs; k++) {
+                    playerBombStr += k < player.bombs ? '★' : '☆';
+                }
+                ctx.fillStyle = '#ffaa00';
+                ctx.fillText(playerBombStr, UI_X + 65, 835);
+
+                ctx.fillStyle = '#aaffaa';
                 ctx.font = '18px sans-serif';
-                ctx.fillText(`(-${Math.floor(player.pendingDamage * dmgMult)})`, UI_X + 120, 800);
+                ctx.fillText('Graze: ' + player.grazeCount, UI_X, 875);
             }
-
-            // プレイヤーのボム表示 - 表示位置は 835 (HPがあった位置)
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 20px sans-serif';
-            ctx.fillText('Bomb: ', UI_X, 835);
-            let playerBombStr = '';
-            for (let k = 0; k < player.maxBombs; k++) {
-                playerBombStr += k < player.bombs ? '★' : '☆';
-            }
-            ctx.fillStyle = '#ffaa00';
-            ctx.fillText(playerBombStr, UI_X + 65, 835);
-
-            // ボムのかけら（Pieces）ゲージの描画（かけら廃止のため削除）
-
-            ctx.fillStyle = '#aaffaa';
-            ctx.font = '18px sans-serif';
-            ctx.fillText('Graze: ' + player.grazeCount, UI_X, 875);
 
             // FPS表示（プレイ領域の左上）と詳細プロファイラー表示 (window.showDebugProfiler が有効な場合のみ描画)
             if (window.showDebugProfiler) {
@@ -3323,18 +3315,7 @@ function applyAbilityEffect(cardId, owner) {
                 }
             });
 
-            // 2. スマホ用「スマート霊撃 (BOMB)」フローティングボタン (タップ即時反応の超レスポンス仕様)
-            const btnBomb = document.getElementById('mobileBombBtn');
-            if (btnBomb) {
-                const triggerBomb = (e) => {
-                    e.preventDefault();
-                    if (battlePhase === 'ACTION' && turnOwner === 'CPU') {
-                        mobileBombTriggered = true; // メインループ側で検知されてボムが発動します
-                    }
-                };
-                btnBomb.addEventListener('touchstart', triggerBomb, { passive: false });
-                btnBomb.addEventListener('click', triggerBomb);
-            }
+
         }
 
         // ==========================================
