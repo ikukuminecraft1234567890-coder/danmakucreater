@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -9060,7 +9060,7 @@ while (true) {
                 laserWidth: 12,
                 laserStartTime: null
             };
-            let compiledBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(script || [])));
+            let compiledBlocks = (!script || script.length === 0) ? [] : compileIndentedBlocks(JSON.parse(JSON.stringify(script)));
 
             return {
                 blocks: compiledBlocks,
@@ -10752,7 +10752,7 @@ while (true) {
                 }
             }
 
-            let cost = calculateCustomCardCost(customCardMaker.emitterScript, customCardMaker.bulletScript);
+            let cost = estimateCustomCardEditCost(customCardMaker.emitterScript, customCardMaker.bulletScript);
             if (cost > CUSTOM_CARD_COST_LIMIT) {
                 alert('cost limit exceeded: ' + cost + ' / ' + CUSTOM_CARD_COST_LIMIT);
                 return;
