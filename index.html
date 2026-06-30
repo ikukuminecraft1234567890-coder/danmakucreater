@@ -4821,74 +4821,7 @@ while (true) {
                             b.vx = Math.cos(newAngle) * speedVal;
                             b.vy = Math.sin(newAngle) * speedVal;
 
-                            // 2. Spawn trail
-                            b.trailTimer += dt;
-                            if (b.trailTimer >= 0.08) {
-                                b.trailTimer = 0;
-                                let offset = (Math.random() - 0.5) * 16;
-                                let perpAngle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
-                                let tx = b.x + Math.cos(perpAngle) * offset;
-                                let ty = b.y + Math.sin(perpAngle) * offset;
-                                let vAng = Math.random() * Math.PI * 2;
-                                let vSpd = 50 + Math.random() * 50;
-
-                                // Push trail bullet to the global bullets array!
-                                bullets.push({
-                                    x: tx,
-                                    y: ty,
-                                    vx: Math.cos(vAng) * vSpd,
-                                    vy: Math.sin(vAng) * vSpd,
-                                    radius: 3.5,
-                                    team: b.team,
-                                    color: b.color,
-                                    state: 0,
-                                    timer: 0,
-                                    stopTime: 0.1 + Math.random() * 0.2,
-                                    update: (tb, tdt) => {
-                                        tb.timer += tdt;
-                                        if (tb.state === 0) {
-                                            // Decelerate to stop
-                                            if (tb.timer >= tb.stopTime) {
-                                                tb.vx = 0;
-                                                tb.vy = 0;
-                                                tb.state = 1;
-                                                tb.timer = 0;
-                                            }
-                                        } else if (tb.state === 1) {
-                                            // Wait for 1.8 seconds, then vanish with a tiny burst
-                                            if (tb.timer >= 1.8) {
-                                                // Create a few burst particles before vanishing
-                                                for (let k = 0; k < 3; k++) {
-                                                    let pAng = Math.random() * Math.PI * 2;
-                                                    let pSpd = 40 + Math.random() * 45;
-                                                    bullets.push({
-                                                        x: tb.x,
-                                                        y: tb.y,
-                                                        vx: Math.cos(pAng) * pSpd,
-                                                        vy: Math.sin(pAng) * pSpd,
-                                                        radius: 2.0,
-                                                        team: tb.team,
-                                                        color: tb.color,
-                                                        state: 2,
-                                                        timer: 0,
-                                                        update: (pb, pdt) => {
-                                                            pb.timer += pdt;
-                                                            if (pb.timer >= 0.25) {
-                                                                // remove bullet
-                                                                pb.x = -9999;
-                                                                pb.y = -9999;
-                                                            }
-                                                        }
-                                                    });
-                                                }
-                                                // Remove self
-                                                tb.x = -9999;
-                                                tb.y = -9999;
-                                            }
-                                        }
-                                    }
-                                });
-                            }
+                            // Trail spawn removed for performance
                         }
                     });
                 }
@@ -5897,18 +5830,7 @@ while (true) {
 
                         if (b.state === 0) {
                             // 槍が通過した跡（軌跡）に赤い弾幕を撒き散らす
-                            b.trailSpawnTimer = (b.trailSpawnTimer || 0) + dt;
-                            if (b.trailSpawnTimer >= 0.04) {
-                                b.trailSpawnTimer = 0;
-                                let moveAngle = Math.atan2(b.vy, b.vx);
-                                let perpAngle1 = moveAngle + Math.PI / 2 + (Math.random() - 0.5) * 0.4;
-                                let perpAngle2 = moveAngle - Math.PI / 2 + (Math.random() - 0.5) * 0.4;
-                                let spd = 60 + Math.random() * 80;
-                                bullets.push(
-                                    { x: b.x, y: b.y, vx: Math.cos(perpAngle1) * spd, vy: Math.sin(perpAngle1) * spd, radius: 6.5, team: b.team, color: '#ff3344', isNormal: false, customDmg: 15 },
-                                    { x: b.x, y: b.y, vx: Math.cos(perpAngle2) * spd, vy: Math.sin(perpAngle2) * spd, radius: 6.5, team: b.team, color: '#ff3344', isNormal: false, customDmg: 15 }
-                                );
-                            }
+                            // Trail spawn removed for performance
 
                             // すべての敵弾を貫通して消滅させる (55pxの超広範囲)
                             for (let k = bullets.length - 1; k >= 0; k--) {
@@ -7336,8 +7258,10 @@ while (true) {
                 ctx.translate(dx, dy);
             }
 
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.clearRect(0, 0, PLAY_WIDTH, canvas.height);
+            ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, PLAY_WIDTH, canvas.height);
+
 
             // Dividing line removed
 
