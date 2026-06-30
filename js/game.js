@@ -2471,7 +2471,8 @@ function applyAbilityEffect(cardId, owner) {
             let tDrawBStart = performance.now();
             bullets.forEach(b => {
                 // 画面外カリング（通常弾のみ）
-                if (!b.isBeam && !b.isLaser && !b.isGungnir && !b.isStar && !b.isBombPiece) {
+                // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
+                if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece) {
                     if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) return;
                 }
 
