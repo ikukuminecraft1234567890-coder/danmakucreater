@@ -1506,8 +1506,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     return res.json();
                 })
                 .then(card => {
-                    importCard(card);
-                    if (callback) callback();
+                    const imported = importCard(card);
+                    if (callback) callback(imported);
                 })
                 .catch(err => {
                     alert(`カードのデータ取得に失敗しました。\n\n詳細: ${err.message}`);
@@ -1701,7 +1701,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         function importCard(card) {
             if (!card.name || !card.emitterScript || !card.bulletScript) {
                 alert("無効なカードデータです。");
-                return;
+                return null;
             }
             
             card.id = 'cc_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
@@ -1722,6 +1722,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             alert(`スペルカード「${card.name.replace('【A】', '')}」をインポートしました！`);
             integrateCustomCards();
             renderCardMakerList();
+            return card;
         }
 
         function checkUrlParams() {
@@ -1730,9 +1731,12 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (cardDataStr) {
                 if (isUuidParam(cardDataStr)) {
                     setTimeout(() => {
-                        if (confirm(`共有されたスペルカード (ID: ${cardDataStr}) をインポートしますか？`)) {
-                            fetchCardByUuid(cardDataStr, () => {
-                                showScreen('screen-card-maker');
+                        if (confirm(`共有されたスペルカード (ID: ${cardDataStr}) をインポートして即座にテストプレイしますか？`)) {
+                            fetchCardByUuid(cardDataStr, (importedCard) => {
+                                if (importedCard) {
+                                    customCardMakerOpenEditor(importedCard.id);
+                                    startCustomCardTest();
+                                }
                             });
                         }
                         const newUrl = window.location.pathname;
@@ -1744,9 +1748,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (decompressed) {
                             const card = parseSharedCard(decompressed);
                             setTimeout(() => {
-                                if (confirm(`共有されたスペルカード「${card.name.replace('【A】', '')}」をインポートしますか？`)) {
-                                    importCard(card);
-                                    showScreen('screen-card-maker');
+                                if (confirm(`共有されたスペルカード「${card.name.replace('【A】', '')}」をインポートして即座にテストプレイしますか？`)) {
+                                    const importedCard = importCard(card);
+                                    if (importedCard) {
+                                        customCardMakerOpenEditor(importedCard.id);
+                                        startCustomCardTest();
+                                    }
                                 }
                                 const newUrl = window.location.pathname;
                                 window.history.replaceState({}, document.title, newUrl);
