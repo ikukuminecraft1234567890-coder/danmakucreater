@@ -21,20 +21,20 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 curY = Number(state.variables[tw.name + '_y']) || tw.fromY;
                             }
                             
-                            nextX = curX + tw.stepX;
-                            nextY = curY + tw.stepY;
+                            // ベクトルベースの滑らかな等速追従（斜め加速やカクつきを解消）
+                            let dx = tw.toX - curX;
+                            let dy = tw.toY - curY;
+                            let dist = Math.sqrt(dx * dx + dy * dy);
                             
-                            let xDone = false;
-                            if ((tw.stepX > 0 && nextX >= tw.toX) || (tw.stepX < 0 && nextX <= tw.toX) || tw.stepX === 0) {
+                            if (dist <= tw.stepVal || dist === 0) {
                                 nextX = tw.toX;
-                                xDone = true;
-                            }
-                            let yDone = false;
-                            if ((tw.stepY > 0 && nextY >= tw.toY) || (tw.stepY < 0 && nextY <= tw.toY) || tw.stepY === 0) {
                                 nextY = tw.toY;
-                                yDone = true;
+                                isDone = true;
+                            } else {
+                                nextX = curX + (dx / dist) * tw.stepVal;
+                                nextY = curY + (dy / dist) * tw.stepVal;
+                                isDone = false;
                             }
-                            isDone = xDone && yDone;
                         } else {
                             tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                             let t = Math.min(1, tw.elapsed / tw.total);
@@ -577,16 +577,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
                                 state.variables[varName] = fromVal;
                                 if (mode === 'step') {
-                                    // step モードの場合は、目標への各軸の移動量を計算
                                     let stepVal = evalExpr(block.params.stepVal || block.params.value || '5', state.variables);
-                                    let stepX = stepVal;
-                                    let stepY = stepVal;
-                                    if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
-                                    if (fromParts[1] > toParts[1] && stepY > 0) stepY = -stepY;
-                                    // 既に同じ位置なら移動量は0
-                                    if (fromParts[0] === toParts[0]) stepX = 0;
-                                    if (fromParts[1] === toParts[1]) stepY = 0;
-
                                     state.tweens.push({
                                         name: varName,
                                         isCoordPair: true,
@@ -595,8 +586,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         toX: toParts[0],
                                         fromY: fromParts[1],
                                         toY: toParts[1],
-                                        stepX: stepX,
-                                        stepY: stepY,
+                                        stepVal: stepVal,
                                         mode,
                                         total: 1,
                                         elapsed: 0
