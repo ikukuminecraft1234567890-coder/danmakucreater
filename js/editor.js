@@ -600,8 +600,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="seconds" ${mode === 'seconds' ? 'selected' : ''}>秒で</option>
                                     <option value="frames"  ${mode === 'frames'  ? 'selected' : ''}>フレームで</option>
                                     <option value="step"    ${mode === 'step'    ? 'selected' : ''}>ずつ（毎フレーム）</option>
+                                    <option value="vecstep" ${mode === 'vecstep' ? 'selected' : ''}>等速（ベクトル）で</option>
                                 </select>
-                                ${mode !== 'step' ? `<input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '1'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">` : `<input type="text" list="val-suggestions" style="width:50px;" value="${b.params.stepVal || '5'}" onchange="customCardMakerUpdateParam(${idx}, 'stepVal', this.value)">`}
+                                ${(mode !== 'step' && mode !== 'vecstep') ? `<input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '1'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">` : `<input type="text" list="val-suggestions" style="width:50px;" value="${b.params.stepVal || '5'}" onchange="customCardMakerUpdateParam(${idx}, 'stepVal', this.value)">`}
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -1101,8 +1102,8 @@ function customCardMakerSwitchTab(tab) {
                         let nameStr = JSON.stringify(b.params.name || 'angle');
                         let fromVal = b.params.from || '0';
                         let toVal = b.params.to || '360';
-                        if (mode === 'step') {
-                            line = `${fnName}(${nameStr}, ${fromVal}, ${toVal}, "step", ${b.params.stepVal || '5'})`;
+                        if (mode === 'step' || mode === 'vecstep') {
+                            line = `${fnName}(${nameStr}, ${fromVal}, ${toVal}, "${mode}", ${b.params.stepVal || '5'})`;
                         } else {
                             line = `${fnName}(${nameStr}, ${fromVal}, ${toVal}, "${mode}", ${b.params.duration || '1'})`;
                         }
@@ -1255,8 +1256,8 @@ function customCardMakerSwitchTab(tab) {
                                 from: fromVal,
                                 to: toVal,
                                 mode: mode,
-                                duration: mode !== 'step' ? modeVal : '1',
-                                stepVal: mode === 'step' ? modeVal : '5'
+                                duration: (mode !== 'step' && mode !== 'vecstep') ? modeVal : '1',
+                                stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5'
                             },
                             indent
                         };
@@ -1561,8 +1562,8 @@ function customCardMakerSwitchTab(tab) {
                             from: fromVal,
                             to: toVal,
                             mode: mode,
-                            duration: mode !== 'step' ? modeVal : '1',
-                            stepVal: mode === 'step' ? modeVal : '5'
+                            duration: (mode !== 'step' && mode !== 'vecstep') ? modeVal : '1',
+                            stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5'
                         },
                         indent: indent
                     };
