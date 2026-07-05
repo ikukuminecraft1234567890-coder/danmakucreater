@@ -21,19 +21,37 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 curY = Number(state.variables[tw.name + '_y']) || tw.fromY;
                             }
                             
-                            // ベクトルベースの滑らかな等速追従（斜め加速やカクつきを解消）
-                            let dx = tw.toX - curX;
-                            let dy = tw.toY - curY;
-                            let dist = Math.sqrt(dx * dx + dy * dy);
-                            
-                            if (dist <= tw.stepVal || dist === 0) {
-                                nextX = tw.toX;
-                                nextY = tw.toY;
-                                isDone = true;
+                            if (tw.isVecStep) {
+                                // 新規：ベクトルベースの等速直線移動（vecstep）
+                                let dx = tw.toX - curX;
+                                let dy = tw.toY - curY;
+                                let dist = Math.sqrt(dx * dx + dy * dy);
+                                
+                                if (dist <= tw.stepVal || dist === 0) {
+                                    nextX = tw.toX;
+                                    nextY = tw.toY;
+                                    isDone = true;
+                                } else {
+                                    nextX = curX + (dx / dist) * tw.stepVal;
+                                    nextY = curY + (dy / dist) * tw.stepVal;
+                                    isDone = false;
+                                }
                             } else {
-                                nextX = curX + (dx / dist) * tw.stepVal;
-                                nextY = curY + (dy / dist) * tw.stepVal;
-                                isDone = false;
+                                // 復元：従来の個別軸加算（step）
+                                nextX = curX + tw.stepX;
+                                nextY = curY + tw.stepY;
+                                
+                                let xDone = false;
+                                if ((tw.stepX > 0 && nextX >= tw.toX) || (tw.stepX < 0 && nextX <= tw.toX) || tw.stepX === 0) {
+                                    nextX = tw.toX;
+                                    xDone = true;
+                                }
+                                let yDone = false;
+                                if ((tw.stepY > 0 && nextY >= tw.toY) || (tw.stepY < 0 && nextY <= tw.toY) || tw.stepY === 0) {
+                                    nextY = tw.toY;
+                                    yDone = true;
+                                }
+                                isDone = xDone && yDone;
                             }
                         } else {
                             tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
@@ -576,21 +594,48 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
                             if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
                                 state.variables[varName] = fromVal;
-                                if (mode === 'step') {
+                                if (mode === 'step' || mode === 'vecstep') {
                                     let stepVal = evalExpr(block.params.stepVal || block.params.value || '5', state.variables);
-                                    state.tweens.push({
-                                        name: varName,
-                                        isCoordPair: true,
-                                        isStep: true,
-                                        fromX: fromParts[0],
-                                        toX: toParts[0],
-                                        fromY: fromParts[1],
-                                        toY: toParts[1],
-                                        stepVal: stepVal,
-                                        mode,
-                                        total: 1,
-                                        elapsed: 0
-                                    });
+                                    if (mode === 'vecstep') {
+                                        state.tweens.push({
+                                            name: varName,
+                                            isCoordPair: true,
+                                            isStep: true,
+                                            isVecStep: true,
+                                            fromX: fromParts[0],
+                                            toX: toParts[0],
+                                            fromY: fromParts[1],
+                                            toY: toParts[1],
+                                            stepVal: stepVal,
+                                            mode,
+                                            total: 1,
+                                            elapsed: 0
+                                        });
+                                    } else {
+                                        // 従来の step モードの復元（各軸独立して加算）
+                                        let stepX = stepVal;
+                                        let stepY = stepVal;
+                                        if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
+                                        if (fromParts[1] > toParts[1] && stepY > 0) stepY = -stepY;
+                                        if (fromParts[0] === toParts[0]) stepX = 0;
+                                        if (fromParts[1] === toParts[1]) stepY = 0;
+
+                                        state.tweens.push({
+                                            name: varName,
+                                            isCoordPair: true,
+                                            isStep: true,
+                                            isVecStep: false,
+                                            fromX: fromParts[0],
+                                            toX: toParts[0],
+                                            fromY: fromParts[1],
+                                            toY: toParts[1],
+                                            stepX: stepX,
+                                            stepY: stepY,
+                                            mode,
+                                            total: 1,
+                                            elapsed: 0
+                                        });
+                                    }
                                 } else {
                                     // 通常の時間ベースの補間
                                     let total = evalExpr(block.params.duration || '1', state.variables);
