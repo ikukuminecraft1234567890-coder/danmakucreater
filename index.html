@@ -228,145 +228,168 @@
                     <div id="custom-code-guide-modal" class="code-guide-modal hidden" onclick="if(event.target === this) toggleCustomCodeGuide(false)">
                         <div class="code-guide-panel">
                             <div class="code-guide-header">
-                                <h4>自作弾幕コードヘルプ</h4>
-                                <div class="code-guide-grid">
-                                    <section>
-                                        <h5>よく使う時間・加速</h5>
-                                        <pre>// 弾側: 時間が経つほど加速
-speed += timer * 0.2
-
-// コア側で弾ごとに値を渡す
-accelRank = 3
-spawnWay("normal", "#33ffff", 250, angle, 1, 10)
-
-// 弾側: 渡された値で加速差を作る
-speed += timer * accelRank * 0.08</pre>
-                                        <p><code>timer</code> はその弾が出てからの秒数です。<code>second</code> はカード開始からの秒数、<code>frame</code> は毎フレーム増える値です。</p>
-                                    </section>
-                                    <section>
-                                        <h5>自作カードの発動制限</h5>
-                                        <pre>自作カード + アビリティカード: OK
-自作カード + 通常アクティブカード: NG</pre>
-                                        <p>自作カードを選んだ時は、他の通常アクティブカードとは同時発動できません。アビリティカードは同時に使えます。</p>
-                                    </section>
-                                </div>
+                                <h4>自作弾幕コードヘルプ (全機能一覧)</h4>
                                 <button class="tab-btn active" onclick="toggleCustomCodeGuide(false)">閉じる</button>
                             </div>
                             <div class="code-guide-body">
                                 <div class="code-guide-grid">
                                     <section>
-                                        <h5>基本形</h5>
-                                        <pre>for (let i = 0; i < 10; i++) {
-    // 10回実行
-}
+                                        <h5>基本構文・制御</h5>
+                                        <pre>// 指定回数の繰り返し (iを変更可能)
+for (let i = 0; i &lt; 10; i++) { ... }
 
-while (true) {
-    // アクション中ずっと実行
-}
+// 無限ループ (ゲーム中ずっと実行)
+while (true) { ... }
 
-if (条件) {
-    // 条件が true の時だけ実行
-}
+// 条件付きループ
+while (条件) { ... }
 
-wait(0.5) // 0.5秒待つ</pre>
-                                        <p>一番上に複数の <code>while (true)</code> や <code>for</code> を置くと、同時に並行して動きます。古い <code>forever()</code> / <code>repeat()</code> もそのまま使えます。</p>
+// 条件分岐
+if (条件) { ... }
+
+// 弾の生存期間中に1回だけ実行 (弾側のみ)
+once { ... }
+
+// 指定秒数待機する
+wait(0.5)</pre>
+                                        <p>一番上の階層に複数のループを書くと、それらは並行して同時に動きます。</p>
                                     </section>
+
                                     <section>
-                                        <h5>エミッター側</h5>
-                                        <pre>aimAtTarget()
-spawnBullet("normal", "#ff3333", 200, angle)
-spawnRing("normal", "#33ffff", 180, 24)
-spawnWay("normal", "#ff3333", 250, angle, 5, 20)
+                                        <h5>コア (Emitter) &amp; 魔法陣の命令</h5>
+                                        <pre>// 弾を単発発射
+spawnBullet("型", "色", 速度, 角度, Xオフセット, Yオフセット, 半径, "画像", "座標モード", 判定半径)
 
-moveTo("center")
-moveTo("right")
-moveTo("left")
-moveTo("farRight")
-moveTo("farLeft")
-moveTo("rightUp")
-moveTo("leftUp")
-slideTo("farRight", 0.5)
+// 弾を全方位(リング状)に発射
+spawnRing("型", "色", 速度, 弾数, Xオフセット, Yオフセット, 半径, "画像", "座標モード", 判定半径)
 
-// 変数のスムーズ移行 (非同期で移行します)
-tween("angle", 0, 360, "seconds", 1)  // 秒で移行
-tween("speed", 100, 300, "frames", 60) // フレームで移行
-tween("angle", 0, 180, "step", 5)      // 毎フレーム加算移行
+// 弾を扇状(Way)に発射
+spawnWay("型", "色", 速度, 角度, 弾数, 拡散角, Xオフセット, Yオフセット, 半径, "画像", "座標モード", 判定半径)
 
-// 変数のスムーズ移行完了を待つ (移行が終わるまで一時停止します)
-tweenWait("angle", 0, 360, "seconds", 1)</pre>
-                                        <p><code>moveTo</code> は即移動、<code>slideTo</code> は指定秒数で滑らかに移動します。<code>tween</code> は非同期に変数を移行し、<code>tweenWait</code> は移行完了を待ってから次の行に進みます。</p>
-                                    </section>
-                                </div>
-                                <div class="code-guide-grid">
-                                    <section>
-                                        <h5>弾側</h5>
-                                        <pre>speed += 10
-speed -= 5
-speed = 300
-angle += 2
-angle = angle + random(-5, 5)
-color = #33ffff
+// 魔法陣を生成 (魔法陣スクリプトが動きます)
+spawnMagicCircle("色", Xオフセット, Yオフセット)
 
+// ターゲットの方向を向く (angle に代入)
 aimAtTarget()
-homing(90)
-bounce()
-slow(0.5, 0)
-fast(2, 0)
 
-if (isBounced) {
-    color = #ffdd33
-}
-if (touchingBullet) {
-    if (touchColor == #ff3333) {
-        y = 999999
-    }
-}</pre>
-                                        <p>弾側コードは、発射された弾1つ1つの目線で毎フレーム動きます。</p>
-                                    </section>
-                                    <section>
-                                        <h5>変数と条件</h5>
-                                        <pre>angle      // 角度
-speed      // 速度
-x, y       // 現在位置
-ex, ey     // 送信機（エミッター）の位置
-e_変数名   // 送信機のカスタム変数のリアルタイム値 (例: e_xspa)
-tx, ty     // 相手の位置
-player_x   // プレイヤーのX位置
-player_y   // プレイヤーのY位置
-dist       // 相手との距離
-timer      // その弾の経過秒
-second     // 秒数
-frame      // フレーム数
-color      // 色
-isBounced  // bounceで跳ねたら1
-isTouchBullet   // 弾に触れた瞬間だけ1
-touchingBullet  // 弾に触れている間1
-touchColor      // 触れた弾の色
+// 座標の瞬間移動 / スライド移動
+moveTo("位置") または slideTo("位置", 秒数)
+※ 位置: "center", "left", "right", "farLeft", "farRight", "leftUp", "rightUp"
 
-random()        // 0から1
-random(100)     // 0から100
-random(-5, 5)   // -5から5</pre>
-                                        <p>条件は <code>if (speed &gt; 300)</code> や <code>if (color == #33ffff)</code> のように書けます。</p>
+// 変数の非同期移行 / 移行完了まで待機
+tween("変数名", 開始, 終了, "秒/フレーム/加算", 値)
+tweenWait("変数名", 開始, 終了, "秒/フレーム/加算", 値)
+※時間モード: "seconds", "frames", "step"</pre>
                                     </section>
                                 </div>
-                                <h5>例: 移動する発射台</h5>
-                                <pre>while (true) {
-    slideTo("center", 0.5)
-    wait(2)
-    slideTo("farRight", 0.5)
-    wait(0.7)
-    slideTo("center", 0.5)
-    wait(2)
-    slideTo("farLeft", 0.5)
-    wait(0.7)
-}
 
+                                <div class="code-guide-grid" style="margin-top: 12px;">
+                                    <section>
+                                        <h5>弾 (Bullet) の命令</h5>
+                                        <pre>// 速度・角度・色・レーザー幅を変更
+speed = 200      // 速度を固定
+speed += 10      // 加速
+angle += 2       // 曲がる
+color = #ff3333  // 色変更
+laserWidth = 16  // レーザー幅
+
+// ターゲットの方向に向き直す
+aimAtTarget()
+
+// 毎秒指定の度数で追尾(ホーミング)
+homing(90)
+
+// 画面外の壁で跳ね返る
+bounce()
+
+// 速度の乗算変化 (倍率, 遅延秒数)
+fast(2.0, 0.5)  // 0.5秒後に2倍速
+slow(0.5, 0.2)  // 0.2秒後に半減
+
+// レーザー予告線と実体化の設定
+warningTime = 1.0  // 予告1秒
+activeTime = 1.5   // 実体化1.5秒
+laserWidth = 12    // 幅12px</pre>
+                                    </section>
+
+                                    <section>
+                                        <h5>組み込み変数と衝突判定</h5>
+                                        <pre>// --- 共通変数 ---
+angle, speed   // 角度、速度
+x, y           // 現在のX, Y座標
+tx, ty         // ターゲット(相手)のX, Y座標
+player_x, player_y // プレイヤーの座標(絶対座標)
+dist           // 相手との直線距離
+second, timer  // 経過秒数 (弾は発射から、コアはカード開始から)
+frame          // 経過フレーム数
+cardSecond     // 【弾側】カード開始からの秒数
+cardFrame      // 【弾側】カード開始からのフレーム数
+
+// --- 弾側専用の変数 ---
+ex, ey         // 发射台(エミッター)の位置
+e_変数名       // コア側のカスタム変数 (例: e_xspa)
+color          // 弾の色コード
+laserWidth     // レーザーの現在の太さ
+
+// --- 衝突・状態判定 (0 または 1) ---
+isBounced      // bounce() で壁反射した瞬間
+isTouchWall    // 壁に衝突した瞬間
+touchingWall   // 壁に接触中
+leftWall, rightWall, topWall, bottomWall // 各壁の接触状態
+isTouchBullet  // 他の弾に衝突した瞬間
+touchingBullet // 他の弾に接触中
+touchColor     // 接触した弾の色
+touchX, touchY // 接触した弾の位置</pre>
+                                    </section>
+                                </div>
+
+                                <div class="code-guide-grid" style="margin-top: 12px;">
+                                    <section>
+                                        <h5>パラメータの選択肢 &amp; 組み込み関数</h5>
+                                        <pre>// 【画像の種類】
+"none" (丸ドロー), "marutama" (丸弾), "kome" (米弾), "ootama" (大玉), 
+"poihuru" (ポイフル), "star" (星), "uroko" (鱗), "virus" (ウイルス), 
+"onmyoutama" (陰陽玉), "knife" (ナイフ), "ohuda" (お札)
+
+// 【座標モード】
+"relative" // 発射台の動きに合わせて弾も一緒に動く (相対)
+"absolute" // 発射後は発射台が動いても弾は独立して進む (絶対)
+
+// 【組み込み数学関数】
+random()        // 0.0 以上 1.0 未満の乱数
+random(max)     // 0 から max 未満の乱数
+random(min,max) // min から max 未満の乱数
+rand()          // random の略称 (同じ動作)
+sin(度)         // 正弦 (サイン, 度数法)
+cos(度)         // 余弦 (コサイン, 度数法)
+tan(度)         // 正接 (タンジェント, 度数法)
+sqrt(値)        // 平方根
+abs(値)         // 絶対値
+min(a, b)       // 小さい方の値
+max(a, b)       // 大きい方の値
+PI, PI2         // 円周率 (3.1415...), 2倍円周率 (6.283...)</pre>
+                                    </section>
+
+                                    <section>
+                                        <h5>自作カードの制限 &amp; 実装例</h5>
+                                        <pre>【カード装備の制限】
+自作カード ＋ アビリティカード  : 同時装備 OK
+自作カード ＋ 通常アクティブカード : 同時装備 NG (同時発動不可)
+
+【実装例: 敵に向かって撃ちながら左右にスライドする発射台】
+while (true) {
+    slideTo("farLeft", 1.0)
+    wait(1.5)
+    slideTo("farRight", 1.0)
+    wait(1.5)
+}
 while (true) {
     aimAtTarget()
-    angle += random(-8, 8)
-    spawnWay("normal", "#33ffff", 360, angle, 5, 12)
-    wait(0.08)
+    spawnWay("normal", "#33ffff", 220, angle, 5, 15)
+    wait(0.12)
 }</pre>
+                                    </section>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -377,7 +400,7 @@ while (true) {
 
 
 
-    
+
     <!-- Modular Game Scripts -->
     <script src="js/data.js?v=1.3.8"></script>
     <script src="js/emitter.js?v=1.3.8"></script>
