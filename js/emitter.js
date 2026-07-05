@@ -791,11 +791,22 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
 
-            // 送信機（エミッター）の現在位置
-            state.variables.ex = attacker.x;
-            state.variables.ey = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
+            // 送信機（エミッター）の現在位置（差分追従方式で上書きを防ぐ）
+            let emitterDx = attacker.x - (b.prevEmitterX !== undefined ? b.prevEmitterX : attacker.x);
+            let emitterDy = attacker.y - (b.prevEmitterY !== undefined ? b.prevEmitterY : attacker.y);
+            
+            if (state.variables.ex === undefined || state.variables.ex === null) {
+                state.variables.ex = attacker.x;
+                state.variables.ey = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
+            } else {
+                state.variables.ex += emitterDx;
+                state.variables.ey += isPlayerSide ? -emitterDy : emitterDy;
+            }
             state.variables.emitter_x = state.variables.ex;
             state.variables.emitter_y = state.variables.ey;
+            
+            b.prevEmitterX = attacker.x;
+            b.prevEmitterY = attacker.y;
 
             // スクリプトで使用する場合のみ、Math.sqrt (平方根) 計算を実行して高速化
             if (window.needsDistanceCalc) {
