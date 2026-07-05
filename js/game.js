@@ -3942,6 +3942,8 @@ function applyAbilityEffect(cardId, owner) {
             if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) return s.substring(1, s.length - 1);
             if (variables && variables[s] !== undefined) return variables[s];
             if (isCssColorLiteral(s)) return s;
+            // "12,522" のようなコンマ区切り座標リテラルは数式評価せずそのまま文字列として返す
+            if (/^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?$/.test(s)) return s;
             return evalExpr(expr, variables || {});
         }
 
