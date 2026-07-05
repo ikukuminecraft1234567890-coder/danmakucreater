@@ -2054,8 +2054,8 @@ function applyAbilityEffect(cardId, owner) {
                         }
                     }
 
-                    // 制限時間が切れ、かつ画面上の弾がすべて消えたら精算フェーズへ
-                    if (actionTimer <= 0 && bullets.length === 0) {
+                    // 制限時間が切れ、かつ画面上の弾がすべて消えたら精算フェーズへ（自作カードテストプレイ中は除く）
+                    if (actionTimer <= 0 && bullets.length === 0 && !isCustomCardTesting) {
                         if (isOnlineMode) {
                             if (!sentDamageSync) {
                                 sentDamageSync = true;
