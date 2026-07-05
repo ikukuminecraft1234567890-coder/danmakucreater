@@ -2464,12 +2464,9 @@ function applyAbilityEffect(cardId, owner) {
                     }
                     customCardDeathEffect = { timer: 3.0, particles };
                 }
-                // actionTimer が切れたらエミッター終了フェーズへ移行
-                if (actionTimer <= 0 && !customCardTestEmitterDone) {
-                    customCardTestEmitterDone = true;
-                }
-                // エミッター終了後、全弾が消えたらテスト成功（クリアエフェクトを開始）
-                if (customCardTestEmitterDone && bullets.length === 0 && !customCardDeathEffect && !window.customCardClearEffect) {
+                // actionTimer が切れたら即座に全弾を消去してクリアエフェクトを開始
+                if (actionTimer <= 0 && !customCardDeathEffect && !window.customCardClearEffect) {
+                    bullets = []; // 弾を全消去
                     let particles = [];
                     for (let i = 0; i < 80; i++) {
                         let angle = Math.random() * Math.PI * 2;
@@ -2488,6 +2485,7 @@ function applyAbilityEffect(cardId, owner) {
                         });
                     }
                     window.customCardClearEffect = { timer: 3.0, particles };
+                    customCardTestEmitterDone = true;
                 }
             }
         }
@@ -3450,6 +3448,11 @@ function applyAbilityEffect(cardId, owner) {
                 const UI_X = PLAY_WIDTH + 20;
                 ctx.fillStyle = '#222';
                 ctx.fillRect(PLAY_WIDTH, 0, canvas.width - PLAY_WIDTH, canvas.height);
+
+                // クリア・死亡エフェクト進行中は右側UIのテキストやライフバーを非表示にする
+                if (isCustomCardTesting && (customCardDeathEffect || window.customCardClearEffect)) {
+                    return;
+                }
 
                 ctx.strokeStyle = '#555';
                 ctx.lineWidth = 2;

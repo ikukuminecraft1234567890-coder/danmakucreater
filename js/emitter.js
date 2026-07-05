@@ -300,6 +300,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
                         inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                         newBullet.bulletState.variables.color = bColor;
+                        newBullet.bulletState.variables.radius = bRadius;
+                        newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                         newBullet.sharedEmitterState = state;
                         newBullet.update = (b, bdt) => {
                             runCustomBulletScript(b, bdt, attacker, target);
@@ -366,6 +368,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = bRadius;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.sharedEmitterState = state;
                             newBullet.update = (b, bdt) => {
                                 runCustomBulletScript(b, bdt, attacker, target);
@@ -437,6 +441,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = bRadius;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.sharedEmitterState = state;
                             newBullet.update = (b, bdt) => {
                                 runCustomBulletScript(b, bdt, attacker, target);
@@ -1101,6 +1107,23 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             if (state.variables.color !== undefined) {
                 b.color = state.variables.color;
+            }
+            if (state.variables.radius !== undefined) {
+                let rNum = parseFloat(evalExpr(state.variables.radius, state.variables));
+                if (!isNaN(rNum)) {
+                    b.radius = rNum;
+                }
+            }
+            if (state.variables.hitRadius !== undefined) {
+                let hrVal = state.variables.hitRadius;
+                if (hrVal === '' || hrVal === 'none' || hrVal === '""' || hrVal === "''" || hrVal === undefined || hrVal === null) {
+                    b.hitRadius = undefined;
+                } else {
+                    let hrNum = parseFloat(evalExpr(hrVal, state.variables));
+                    if (!isNaN(hrNum)) {
+                        b.hitRadius = hrNum;
+                    }
+                }
             }
             b.laserWidth = getLaserWidth(b);
             
