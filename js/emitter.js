@@ -6,6 +6,18 @@ function stepEmitter(c, state, attacker, target, dt) {
             // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
                 state.tweens = state.tweens.filter(tw => {
+                    if (tw.isCoordPair) {
+                        tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
+                        let t = Math.min(1, tw.elapsed / tw.total);
+                        let curX = tw.fromX + (tw.toX - tw.fromX) * t;
+                        let curY = tw.fromY + (tw.toY - tw.fromY) * t;
+                        state.variables[tw.name] = `${curX},${curY}`;
+                        state.variables[tw.name + '_x'] = curX;
+                        state.variables[tw.name + '_y'] = curY;
+                        state.variables[tw.name + '.x'] = curX;
+                        state.variables[tw.name + '.y'] = curY;
+                        return t < 1;
+                    }
                     if (tw.mode === 'step') {
                         // 毎フレーム固定量加算
                         let cur = Number(state.variables[tw.name]) || 0;
@@ -486,6 +498,39 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (!state.tweens) state.tweens = [];
                         // 同じ変数の既存tweenを上書き
                         state.tweens = state.tweens.filter(t => t.name !== varName);
+
+                        // 座標ペア（コンマ区切り文字列）の tween 補間の処理
+                        if (typeof toVal === 'string' && toVal.includes(',')) {
+                            let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
+                            let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
+                            if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
+                                let total = evalExpr(block.params.duration || '1', state.variables);
+                                if (mode === 'frames') total = Math.max(1, total);
+                                else total = Math.max(0.001, total);
+                                state.variables[varName] = fromVal;
+                                state.tweens.push({
+                                    name: varName,
+                                    isCoordPair: true,
+                                    fromX: fromParts[0],
+                                    toX: toParts[0],
+                                    fromY: fromParts[1],
+                                    toY: toParts[1],
+                                    mode,
+                                    total,
+                                    elapsed: 0
+                                });
+                                // 子変数を即座に初期化
+                                state.variables[varName + '_x'] = fromParts[0];
+                                state.variables[varName + '_y'] = fromParts[1];
+                                state.variables[varName + '.x'] = fromParts[0];
+                                state.variables[varName + '.y'] = fromParts[1];
+                                if (block.type === 'tween_var_wait') {
+                                    state.waitingTweenName = varName;
+                                }
+                                break;
+                            }
+                        }
+
                         if (mode === 'step') {
                             let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
                             if (fromVal > toVal && stepVal > 0) stepVal = -stepVal;

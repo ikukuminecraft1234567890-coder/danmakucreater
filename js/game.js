@@ -4090,6 +4090,17 @@ function applyAbilityEffect(cardId, owner) {
             if (state.constVars.has(name) && !isConst) return;
             state.variables[name] = value;
             if (isConst) state.constVars.add(name);
+            
+            // 座標ペア（コンマ区切り）の自動パース機能
+            if (typeof value === 'string' && value.includes(',')) {
+                let parts = value.split(',').map(p => parseFloat(p.trim()));
+                if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    state.variables[name + '_x'] = parts[0];
+                    state.variables[name + '_y'] = parts[1];
+                    state.variables[name + '.x'] = parts[0];
+                    state.variables[name + '.y'] = parts[1];
+                }
+            }
         }
         function applySpeedScaleBlock(block, state) {
             if (!state.speedScaleApplied || typeof state.speedScaleApplied.has !== 'function') state.speedScaleApplied = new Set();
