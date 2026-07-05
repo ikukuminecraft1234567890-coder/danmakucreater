@@ -4137,7 +4137,7 @@ function applyAbilityEffect(cardId, owner) {
             'true', 'false', 'null', 'undefined', 'NaN', 'Infinity',
             'sin', 'cos', 'tan', 'sqrt', 'abs', 'min', 'max', 'PI', 'PI2',
             'atan2', 'pow', 'log', 'exp', 'floor', 'round', 'ceil', 'random', 'rand',
-            'const', 'let', 'var', 'function', 'return'
+            'const', 'let', 'var', 'function', 'return', 'n'
         ]);
 
         function compileNumericExpr(expr) {
@@ -4176,14 +4176,50 @@ function applyAbilityEffect(cardId, owner) {
                     return literals[parseInt(index, 10)];
                 });
 
-                const fn = new Function('__v', '__random',
+                // 4.5. 誤差許容演算子（== と !=）のトランスパイル（=== と !== は保護）
+                let strictEquals = [];
+                s = s.replace(/===/g, function() {
+                    strictEquals.push('===');
+                    return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
+                });
+                s = s.replace(/!==/g, function() {
+                    strictEquals.push('!==');
+                    return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
+                });
+
+                // a == b / a != b を誤差許容関数呼び出しに置換
+                s = s.replace(/([^&|?,:=]+)\s*==\s*([^&|?,:=]+)/g, '__fuzzyEqual($1,$2)');
+                s = s.replace(/([^&|?,:=]+)\s*!=\s*([^&|?,:=]+)/g, '__fuzzyNotEqual($1,$2)');
+
+                // 退避した厳密比較演算子を復元
+                s = s.replace(/___STRICT_EQ_(\d+)___/g, function(match, index) {
+                    return strictEquals[parseInt(index, 10)];
+                });
+
+                // 4.8. 特殊変数 n が数式に含まれているか確認
+                const hasN = /\bn\b/.test(expr);
+
+                let functionBody = 
                     'const __rand = (a, b) => {' +
                     '  if (b !== undefined) return Number(a || 0) + __random() * (Number(b || 0) - Number(a || 0));' +
                     '  if (a !== undefined) return __random() * Number(a || 0);' +
                     '  return __random();' +
                     '};' +
-                    'return (' + s + ');'
-                );
+                    'const __fuzzyEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) < 0.017 : a == b;' +
+                    'const __fuzzyNotEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) >= 0.017 : a != b;';
+
+                if (hasN) {
+                    functionBody += 
+                        'for (let n = 0; n <= 1000; n++) {' +
+                        '  if (' + s + ') return true;' +
+                        '}' +
+                        'return false;';
+                } else {
+                    functionBody += 
+                        'return (' + s + ');';
+                }
+
+                const fn = new Function('__v', '__random', functionBody);
                 numericExprCache.set(expr, fn);
                 return fn;
             } catch(e) {

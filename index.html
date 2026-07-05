@@ -108,6 +108,8 @@
                         <option value="isTouchBullet">isTouchBullet</option>
                         <option value="touchingBullet">touchingBullet</option>
                         <option value="touchColor == #ff3333">touchColor == #ff3333</option>
+                        <option value="cardSecond == 5 * n">5秒おき (cardSecond == 5 * n)</option>
+                        <option value="cardFrame == 60 * n">1秒おき (cardFrame == 60 * n)</option>
                         <option value="touchColor != #ff3333">touchColor != #ff3333</option>
                         <option value="timer">生存タイマー (timer)</option>
                         <option value="second">秒数 (second)</option>
@@ -337,6 +339,10 @@ e_ex, e_ey     // コア側エミッターの「最新のリアルタイム位�
 e_変数名       // コア側のカスタム変数 (例: e_xspa)
 color          // 弾の色コード
 laserWidth     // レーザーの現在の太さ
+
+// --- 条件用特殊変数 ---
+n              // 任意の整数 (例: cardSecond == 5 * n で5秒おきに判定)
+               // ※ 誤差許容は == を使用し、厳密一致は === を使用します。
 
 // --- 衝突・状態判定 (0 または 1) ---
 isBounced      // bounce() で壁反射した瞬間

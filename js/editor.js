@@ -314,6 +314,8 @@ function customCardMakerSwitchTab(tab) {
                             else if (normalizedCond === 'touchingedge' || cond === 'touchingEdge') selectVal = 'touchingEdge';
                             else if (normalizedCond === 'istouchbullet' || cond === 'isTouchBullet') selectVal = 'isTouchBullet';
                             else if (normalizedCond === 'touchingbullet' || cond === 'touchingBullet') selectVal = 'touchingBullet';
+                            else if (normalizedCond === 'cardsecond==5*n' || cond === 'cardSecond == 5 * n') selectVal = 'cardSecond == 5 * n';
+                            else if (normalizedCond === 'cardframe==60*n' || cond === 'cardFrame == 60 * n') selectVal = 'cardFrame == 60 * n';
                             else if (normalizedCond === 'touchcolor==#ff3333') selectVal = 'touchColor == #ff3333';
                             else if (normalizedCond === 'timer>1' || normalizedCond === 'timer>1.0') selectVal = 'timer > 1';
                             else if (normalizedCond === 'x<10') selectVal = 'x < 10';
@@ -333,6 +335,8 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="touchingEdge" ${selectVal === 'touchingEdge' ? 'selected' : ''}>画面端に接触中 (touchingEdge)</option>
                                     <option value="isTouchBullet" ${selectVal === 'isTouchBullet' ? 'selected' : ''}>弾に触れた瞬間 (isTouchBullet)</option>
                                     <option value="touchingBullet" ${selectVal === 'touchingBullet' ? 'selected' : ''}>弾に触れている間 (touchingBullet)</option>
+                                    <option value="cardSecond == 5 * n" ${selectVal === 'cardSecond == 5 * n' ? 'selected' : ''}>5秒おきに (cardSecond == 5 * n)</option>
+                                    <option value="cardFrame == 60 * n" ${selectVal === 'cardFrame == 60 * n' ? 'selected' : ''}>1秒(60F)おきに (cardFrame == 60 * n)</option>
                                     <option value="touchColor == #ff3333" ${selectVal === 'touchColor == #ff3333' ? 'selected' : ''}>触れた弾が赤なら (touchColor == #ff3333)</option>
                                     <option value="timer > 1" ${selectVal === 'timer > 1' ? 'selected' : ''}>1秒経過したら (timer > 1)</option>
                                     <option value="x < 10" ${selectVal === 'x < 10' ? 'selected' : ''}>画面左端に達したら (x < 10)</option>
