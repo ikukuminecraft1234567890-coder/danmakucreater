@@ -4234,7 +4234,7 @@ function applyAbilityEffect(cardId, owner) {
                     '  let prevVal = variables[stateKey];' +
                     '  variables[stateKey] = currentVal;' +
                     '  if (prevVal === undefined) {' +
-                    '    return currentVal <= 0.017;' +
+                    '    prevVal = 0;' +
                     '  }' +
                     '  return Math.floor(prevVal / interval) !== Math.floor(currentVal / interval);' +
                     '};' +
@@ -4243,7 +4243,7 @@ function applyAbilityEffect(cardId, owner) {
 
                 if (hasN) {
                     functionBody += 
-                        'for (let n = 0; n <= 1000; n++) {' +
+                        'for (let n = 1; n <= 1000; n++) {' +
                         '  if (' + s + ') return true;' +
                         '}' +
                         'return false;';
