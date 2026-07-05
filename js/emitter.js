@@ -1517,34 +1517,52 @@ function stepEmitter(c, state, attacker, target, dt) {
         function parseSharedCard(decompressed) {
             const parsed = JSON.parse(decompressed);
             
-            // 新フォーマット（短縮キー）か旧フォーマットかをチェック
-            const name = parsed.n || parsed.name || '無名カード';
-            const cost = parsed.c !== undefined ? parsed.c : (parsed.cost || 100);
-            const desc = parsed.d || parsed.desc || '';
-            const duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
+            let name, cost, desc, duration, emitterText, bulletText, magicCircleText;
+            
+            if (Array.isArray(parsed)) {
+                // 配列形式のデシリアライズ (新フォーマット)
+                // [name, cost, desc, duration, emitterText, bulletText, magicCircleText]
+                name = parsed[0] || '無名カード';
+                cost = parsed[1] !== undefined ? parsed[1] : 100;
+                desc = parsed[2] || '';
+                duration = parsed[3] !== undefined ? parsed[3] : 10;
+                emitterText = parsed[4] || '';
+                bulletText = parsed[5] || '';
+                magicCircleText = parsed[6] || '';
+            } else {
+                // オブジェクト形式のデシリアライズ (旧フォーマット)
+                name = parsed.n || parsed.name || '無名カード';
+                cost = parsed.c !== undefined ? parsed.c : (parsed.cost || 100);
+                desc = parsed.d || parsed.desc || '';
+                duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
+                
+                emitterText = parsed.e !== undefined ? parsed.e : parsed.emitterScript;
+                bulletText = parsed.b !== undefined ? parsed.b : parsed.bulletScript;
+                magicCircleText = parsed.m !== undefined ? parsed.m : parsed.magicCircleScript;
+            }
             
             // emitterScript の復元
             let emitterScript = [];
-            if (parsed.e !== undefined) {
-                emitterScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(parsed.e) : [];
-            } else if (Array.isArray(parsed.emitterScript)) {
-                emitterScript = parsed.emitterScript;
+            if (typeof emitterText === 'string') {
+                emitterScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(emitterText) : [];
+            } else if (Array.isArray(emitterText)) {
+                emitterScript = emitterText;
             }
             
             // bulletScript の復元
             let bulletScript = [];
-            if (parsed.b !== undefined) {
-                bulletScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(parsed.b) : [];
-            } else if (Array.isArray(parsed.bulletScript)) {
-                bulletScript = parsed.bulletScript;
+            if (typeof bulletText === 'string') {
+                bulletScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(bulletText) : [];
+            } else if (Array.isArray(bulletText)) {
+                bulletScript = bulletText;
             }
             
             // magicCircleScript の復元
             let magicCircleScript = [];
-            if (parsed.m !== undefined) {
-                magicCircleScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(parsed.m) : [];
-            } else if (Array.isArray(parsed.magicCircleScript)) {
-                magicCircleScript = parsed.magicCircleScript;
+            if (typeof magicCircleText === 'string') {
+                magicCircleScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(magicCircleText) : [];
+            } else if (Array.isArray(magicCircleText)) {
+                magicCircleScript = magicCircleText;
             }
             
             return {
@@ -1613,20 +1631,35 @@ function stepEmitter(c, state, attacker, target, dt) {
                 })
                 .catch(() => {
                     // JSONBlobが失敗した場合は、ローカルの圧縮URL（フォールバック）
-                    const miniCard = {
-                        n: card.name,
-                        c: card.cost || 100,
-                        d: card.desc || '',
-                        t: card.duration || 10,
-                        e: emitterText,
-                        b: bulletText
+                    // 不要なインデント、空行、コメントを除去してデータサイズを劇的に削減する
+                    const cleanCode = (code) => {
+                        if (!code) return "";
+                        return code.split('\n')
+                            .map(line => line.trim())
+                            .filter(line => line !== "" && !line.startsWith('//'))
+                            .join('\n');
                     };
-                    if (magicCircleText) miniCard.m = magicCircleText;
+
+                    const emitterClean = cleanCode(emitterText);
+                    const bulletClean = cleanCode(bulletText);
+                    const magicCircleClean = cleanCode(magicCircleText);
+
+                    // 配列形式に変換してJSONキー名などのオーバーヘッドを取り除く
+                    // [name, cost, desc, duration, emitterScript, bulletScript, magicCircleScript]
+                    const miniCard = [
+                        card.name,
+                        card.cost || 100,
+                        card.desc || '',
+                        card.duration || 10,
+                        emitterClean,
+                        bulletClean,
+                        magicCircleClean
+                    ];
 
                     const jsonStr = JSON.stringify(miniCard);
                     const compressed = LZString.compressToEncodedURIComponent(jsonStr);
                     const fallbackUrl = `${window.location.origin}${window.location.pathname}?card=${compressed}`;
-                    copyToClipboard(fallbackUrl, `「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n（外部保存サーバーが一時的にオフラインのため、圧縮URLを生成しました）\n\nURL: ${fallbackUrl}`);
+                    copyToClipboard(fallbackUrl, `「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n（外部保存サーバーが一時的にオフラインのため、超圧縮URLを生成しました）\n\nURL: ${fallbackUrl}`);
                 });
             } catch (e) {
                 alert("共有URLの作成に失敗しました: " + e.message);
