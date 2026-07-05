@@ -3298,7 +3298,7 @@ function applyAbilityEffect(cardId, owner) {
 
             if (isCustomCardTesting) {
                 ctx.save();
-                if (customCardTestEmitterDone) {
+                if (customCardTestEmitterDone && window.showDebugProfiler) {
                     // 弾消滅待ちフェーズ
                     ctx.fillStyle = 'rgba(0, 180, 255, 0.2)';
                     ctx.fillRect(0, 0, PLAY_WIDTH, 40);
