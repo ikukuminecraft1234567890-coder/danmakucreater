@@ -1606,8 +1606,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     });
                 };
 
-                // JSONBlobへ保存を試みる（非同期）
-                fetch('https://jsonblob.com/api/jsonBlob', {
+                // JSONBlobへ保存を試みる（非同期・CORSプロキシ経由）
+                fetch('https://corsproxy.io/?https://jsonblob.com/api/jsonBlob', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
