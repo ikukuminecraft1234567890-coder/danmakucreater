@@ -7,16 +7,55 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (state.tweens && state.tweens.length > 0) {
                 state.tweens = state.tweens.filter(tw => {
                     if (tw.isCoordPair) {
-                        tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
-                        let t = Math.min(1, tw.elapsed / tw.total);
-                        let curX = tw.fromX + (tw.toX - tw.fromX) * t;
-                        let curY = tw.fromY + (tw.toY - tw.fromY) * t;
-                        state.variables[tw.name] = `${curX},${curY}`;
-                        state.variables[tw.name + '_x'] = curX;
-                        state.variables[tw.name + '_y'] = curY;
-                        state.variables[tw.name + '.x'] = curX;
-                        state.variables[tw.name + '.y'] = curY;
-                        return t < 1;
+                        let nextX, nextY;
+                        let isDone = false;
+                        
+                        if (tw.isStep) {
+                            let curX, curY;
+                            if (tw.name.includes(',')) {
+                                let varNames = tw.name.split(',').map(n => n.trim());
+                                curX = Number(state.variables[varNames[0]]) || tw.fromX;
+                                curY = Number(state.variables[varNames[1]]) || tw.fromY;
+                            } else {
+                                curX = Number(state.variables[tw.name + '_x']) || tw.fromX;
+                                curY = Number(state.variables[tw.name + '_y']) || tw.fromY;
+                            }
+                            
+                            nextX = curX + tw.stepX;
+                            nextY = curY + tw.stepY;
+                            
+                            let xDone = false;
+                            if ((tw.stepX > 0 && nextX >= tw.toX) || (tw.stepX < 0 && nextX <= tw.toX) || tw.stepX === 0) {
+                                nextX = tw.toX;
+                                xDone = true;
+                            }
+                            let yDone = false;
+                            if ((tw.stepY > 0 && nextY >= tw.toY) || (tw.stepY < 0 && nextY <= tw.toY) || tw.stepY === 0) {
+                                nextY = tw.toY;
+                                yDone = true;
+                            }
+                            isDone = xDone && yDone;
+                        } else {
+                            tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
+                            let t = Math.min(1, tw.elapsed / tw.total);
+                            nextX = tw.fromX + (tw.toX - tw.fromX) * t;
+                            nextY = tw.fromY + (tw.toY - tw.fromY) * t;
+                            isDone = (t >= 1);
+                        }
+                        
+                        // 変数へ書き戻し
+                        if (tw.name.includes(',')) {
+                            let varNames = tw.name.split(',').map(n => n.trim());
+                            state.variables[varNames[0]] = nextX;
+                            state.variables[varNames[1]] = nextY;
+                        } else {
+                            state.variables[tw.name] = `${nextX},${nextY}`;
+                            state.variables[tw.name + '_x'] = nextX;
+                            state.variables[tw.name + '_y'] = nextY;
+                            state.variables[tw.name + '.x'] = nextX;
+                            state.variables[tw.name + '.y'] = nextY;
+                        }
+                        return !isDone;
                     }
                     if (tw.mode === 'step') {
                         // 毎フレーム固定量加算
@@ -513,8 +552,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                     case 'tween_var':
                     case 'tween_var_wait': {
                         let varName = block.params.name || 'angle';
-                        let fromVal = evalExpr(block.params.from, state.variables);
-                        let toVal   = evalExpr(block.params.to,   state.variables);
+                        let isMultiVar = varName.includes(',');
+                        
+                        let fromVal, toVal;
+                        if (isMultiVar) {
+                            let fromParts = (block.params.from || '').split(',').map(p => evalExpr(p.trim(), state.variables));
+                            let toParts = (block.params.to || '').split(',').map(p => evalExpr(p.trim(), state.variables));
+                            fromVal = `${fromParts[0] || 0},${fromParts[1] || 0}`;
+                            toVal = `${toParts[0] || 0},${toParts[1] || 0}`;
+                        } else {
+                            fromVal = evalExpr(block.params.from, state.variables);
+                            toVal   = evalExpr(block.params.to,   state.variables);
+                        }
+
                         let mode    = block.params.mode || 'seconds'; // 'seconds' | 'frames' | 'step'
                         if (!state.tweens) state.tweens = [];
                         // 同じ変数の既存tweenを上書き
