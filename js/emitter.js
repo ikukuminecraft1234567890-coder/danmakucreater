@@ -46,6 +46,27 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables.y = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
+
+            // 環境変数 exy, txy (座標ペア) の初期定義
+            if (state.variables.exy === undefined) {
+                state.variables.exy = `${attacker.x},${state.variables.y}`;
+            }
+            // ドット記法およびアンダーバー記法の子変数同期
+            let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
+            if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
+                state.variables['exy_x'] = curExy[0];
+                state.variables['exy_y'] = curExy[1];
+                state.variables['exy.x'] = curExy[0];
+                state.variables['exy.y'] = curExy[1];
+                // エミッター位置オフセット（x_offset, y_offset）への反映
+                state.variables.x_offset = curExy[0] - attacker.x;
+                state.variables.y_offset = curExy[1] - state.variables.y;
+            }
+            state.variables.txy = `${state.variables.tx},${state.variables.ty}`;
+            state.variables['txy_x'] = state.variables.tx;
+            state.variables['txy_y'] = state.variables.ty;
+            state.variables['txy.x'] = state.variables.tx;
+            state.variables['txy.y'] = state.variables.ty;
             // プレイヤーの絶対座標（常にプレイヤー側、Y軸は画面下が0の論理座標）
             state.variables.player_x = player.x;
             state.variables.player_y = canvas.height - player.y;
@@ -504,21 +525,50 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
                             let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
                             if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
-                                let total = evalExpr(block.params.duration || '1', state.variables);
-                                if (mode === 'frames') total = Math.max(1, total);
-                                else total = Math.max(0.001, total);
                                 state.variables[varName] = fromVal;
-                                state.tweens.push({
-                                    name: varName,
-                                    isCoordPair: true,
-                                    fromX: fromParts[0],
-                                    toX: toParts[0],
-                                    fromY: fromParts[1],
-                                    toY: toParts[1],
-                                    mode,
-                                    total,
-                                    elapsed: 0
-                                });
+                                if (mode === 'step') {
+                                    // step モードの場合は、目標への各軸の移動量を計算
+                                    let stepVal = evalExpr(block.params.stepVal || block.params.value || '5', state.variables);
+                                    let stepX = stepVal;
+                                    let stepY = stepVal;
+                                    if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
+                                    if (fromParts[1] > toParts[1] && stepY > 0) stepY = -stepY;
+                                    // 既に同じ位置なら移動量は0
+                                    if (fromParts[0] === toParts[0]) stepX = 0;
+                                    if (fromParts[1] === toParts[1]) stepY = 0;
+
+                                    state.tweens.push({
+                                        name: varName,
+                                        isCoordPair: true,
+                                        isStep: true,
+                                        fromX: fromParts[0],
+                                        toX: toParts[0],
+                                        fromY: fromParts[1],
+                                        toY: toParts[1],
+                                        stepX: stepX,
+                                        stepY: stepY,
+                                        mode,
+                                        total: 1,
+                                        elapsed: 0
+                                    });
+                                } else {
+                                    // 通常の時間ベースの補間
+                                    let total = evalExpr(block.params.duration || '1', state.variables);
+                                    if (mode === 'frames') total = Math.max(1, total);
+                                    else total = Math.max(0.001, total);
+                                    state.tweens.push({
+                                        name: varName,
+                                        isCoordPair: true,
+                                        isStep: false,
+                                        fromX: fromParts[0],
+                                        toX: toParts[0],
+                                        fromY: fromParts[1],
+                                        toY: toParts[1],
+                                        mode,
+                                        total,
+                                        elapsed: 0
+                                    });
+                                }
                                 // 子変数を即座に初期化
                                 state.variables[varName + '_x'] = fromParts[0];
                                 state.variables[varName + '_y'] = fromParts[1];
