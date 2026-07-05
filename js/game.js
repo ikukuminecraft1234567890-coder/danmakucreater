@@ -1416,6 +1416,7 @@ function applyAbilityEffect(cardId, owner) {
             let dt = (timestamp - lastTime) / 1000;
             lastTime = timestamp;
             if (dt > 0.1) dt = 0.1;
+            window.currentDt = dt;
 
             // FPS計測
             fpsFrameCount++;
@@ -4187,6 +4188,29 @@ function applyAbilityEffect(cardId, owner) {
                     return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
                 });
 
+                // 4.6. インターンバル跨ぎ（またぎ）判定のトランスパイル
+                let intervalIdx = 0;
+                // 変数 == 周期 * n
+                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*([^&|?,:=]+?)\s*\*\s*n\b/gi, (match, varName, period) => {
+                    intervalIdx++;
+                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+                // 変数 == n * 周期
+                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*n\s*\*\s*([^&|?,:=]+?)\b/gi, (match, varName, period) => {
+                    intervalIdx++;
+                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+                // 周期 * n == 変数
+                s = s.replace(/([^&|?,:=]+?)\s*\*\s*n\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
+                    intervalIdx++;
+                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+                // n * 周期 == 変数
+                s = s.replace(/\bn\s*\*\s*([^&|?,:=]+?)\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
+                    intervalIdx++;
+                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+
                 // a == b / a != b を誤差許容関数呼び出しに置換
                 s = s.replace(/([^&|?,:=]+)\s*==\s*([^&|?,:=]+)/g, '__fuzzyEqual($1,$2)');
                 s = s.replace(/([^&|?,:=]+)\s*!=\s*([^&|?,:=]+)/g, '__fuzzyNotEqual($1,$2)');
@@ -4205,8 +4229,17 @@ function applyAbilityEffect(cardId, owner) {
                     '  if (a !== undefined) return __random() * Number(a || 0);' +
                     '  return __random();' +
                     '};' +
-                    'const __fuzzyEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) < 0.017 : a == b;' +
-                    'const __fuzzyNotEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) >= 0.017 : a != b;';
+                    'const __checkInterval = (currentVal, interval, stateKey, variables) => {' +
+                    '  if (!interval || interval <= 0) return false;' +
+                    '  let prevVal = variables[stateKey];' +
+                    '  variables[stateKey] = currentVal;' +
+                    '  if (prevVal === undefined) {' +
+                    '    return currentVal <= 0.017;' +
+                    '  }' +
+                    '  return Math.floor(prevVal / interval) !== Math.floor(currentVal / interval);' +
+                    '};' +
+                    'const __fuzzyEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) < (window.currentDt || 0.017) : a == b;' +
+                    'const __fuzzyNotEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) >= (window.currentDt || 0.017) : a != b;';
 
                 if (hasN) {
                     functionBody += 
