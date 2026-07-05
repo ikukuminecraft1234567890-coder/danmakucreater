@@ -1151,7 +1151,7 @@
         // 画像リソース
         // ==========================================
         // 弾アセット画像プリロード
-        const bulletImgNames = ['knife', 'kome', 'marutama', 'ohuda', 'ootama', 'poihuru', 'star', 'uroko', 'virus'];
+        const bulletImgNames = ['knife', 'kome', 'marutama', 'ohuda', 'ootama', 'poihuru', 'star', 'uroko', 'virus', 'onmyoutama'];
         window.bulletImages = {};
         bulletImgNames.forEach(name => {
             const img = new Image();
