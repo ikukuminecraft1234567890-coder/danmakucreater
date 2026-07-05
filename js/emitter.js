@@ -1657,8 +1657,18 @@ function stepEmitter(c, state, attacker, target, dt) {
                     ];
 
                     const jsonStr = JSON.stringify(miniCard);
-                    const compressed = LZString.compressToEncodedURIComponent(jsonStr);
-                    const fallbackUrl = `${window.location.origin}${window.location.pathname}?card=${compressed}`;
+                    
+                    // Deflate (pako) + Base64url による強力なオフライン圧縮
+                    let compressed = deflateAndBase64url(jsonStr);
+                    let fallbackUrl;
+                    if (compressed) {
+                        fallbackUrl = `${window.location.origin}${window.location.pathname}?card=pk_${compressed}`;
+                    } else {
+                        // pakoがロードされていない等の場合のセーフティフォールバック（旧LZString）
+                        const lzCompressed = LZString.compressToEncodedURIComponent(jsonStr);
+                        fallbackUrl = `${window.location.origin}${window.location.pathname}?card=${lzCompressed}`;
+                    }
+
                     copyToClipboard(fallbackUrl, `「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n（外部保存サーバーが一時的にオフラインのため、超圧縮URLを生成しました）\n\nURL: ${fallbackUrl}`);
                 });
             } catch (e) {
@@ -1725,6 +1735,47 @@ function stepEmitter(c, state, attacker, target, dt) {
             return card;
         }
 
+        // --- オフライン用 Deflate (pako.js) + Base64url 圧縮ヘルパー ---
+        function deflateAndBase64url(jsonStr) {
+            if (typeof pako === 'undefined') return "";
+            try {
+                const enc = new TextEncoder();
+                const bytes = enc.encode(jsonStr);
+                const compressed = pako.deflate(bytes);
+                let binary = '';
+                const len = compressed.byteLength;
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(compressed[i]);
+                }
+                const b64 = btoa(binary);
+                return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            } catch (e) {
+                console.error("Deflate error:", e);
+                return "";
+            }
+        }
+
+        function inflateAndBase64url(compressedB64) {
+            if (typeof pako === 'undefined') return "";
+            try {
+                let b64 = compressedB64.replace(/-/g, '+').replace(/_/g, '/');
+                while (b64.length % 4) {
+                    b64 += '=';
+                }
+                const binary = atob(b64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                const decompressed = pako.inflate(bytes);
+                const dec = new TextDecoder();
+                return dec.decode(decompressed);
+            } catch (e) {
+                console.error("Inflate error:", e);
+                return "";
+            }
+        }
+
         function checkUrlParams() {
             const params = new URLSearchParams(window.location.search);
             const cardDataStr = params.get('card');
@@ -1744,7 +1795,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }, 500);
                 } else {
                     try {
-                        const decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
+                        let decompressed = "";
+                        if (cardDataStr.startsWith('pk_')) {
+                            // 新フォーマット：pako (deflate) による解凍
+                            const cleanB64 = cardDataStr.slice(3); // 'pk_' プレフィックスを除去
+                            decompressed = inflateAndBase64url(cleanB64);
+                        } else {
+                            // 旧フォーマット：LZString による解凍
+                            decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
+                        }
+
                         if (decompressed) {
                             const card = parseSharedCard(decompressed);
                             setTimeout(() => {
