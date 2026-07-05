@@ -1514,21 +1514,100 @@ function stepEmitter(c, state, attacker, target, dt) {
                 });
         }
 
+        // ブロック配列を極小シリアライズするための順番定義
+        const BLOCK_PARAM_ORDER = {
+            'repeat': ['count', 'indexVar'],
+            'forever': [],
+            'wait': ['duration'],
+            'if': ['cond'],
+            'once': [],
+            'const_var': ['name', 'value'],
+            'set_var': ['name', 'value'],
+            'change_var': ['name', 'op', 'value'],
+            'tween_var': ['name', 'start', 'end', 'mode', 'value'],
+            'tween_var_wait': ['name', 'start', 'end', 'mode', 'value'],
+            'set_laser': ['warningTime', 'activeTime', 'laserWidth'],
+            'aim_at_target': [],
+            'move_owner': ['preset', 'duration'],
+            'slide_owner': ['preset', 'duration'],
+            'spawn_bullet': ['type', 'color', 'speed', 'angle', 'x_offset', 'y_offset', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_ring': ['type', 'color', 'speed', 'count', 'x_offset', 'y_offset', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spreadAngle', 'x_offset', 'y_offset', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'homing': ['turnSpeed'],
+            'speed_add': ['value'],
+            'speed_set': ['value'],
+            'angle_add': ['value'],
+            'angle_set': ['value'],
+            'color_set': ['value'],
+            'speed_scale_slow': ['effect', 'delay'],
+            'speed_scale_fast': ['effect', 'delay'],
+            'bounce': []
+        };
+
+        const BLOCK_TYPE_MAP = {
+            'repeat': 'r', 'forever': 'f', 'wait': 'w', 'if': 'i', 'once': 'o',
+            'const_var': 'v', 'set_var': 's', 'change_var': 'c',
+            'tween_var': 't', 'tween_var_wait': 'tw', 'set_laser': 'sl',
+            'aim_at_target': 'a', 'move_owner': 'm', 'slide_owner': 'd',
+            'spawn_bullet': 'sb', 'spawn_ring': 'sr', 'spawn_way': 'sw',
+            'homing': 'h', 'speed_add': 'sa', 'speed_set': 'ss',
+            'angle_add': 'aa', 'angle_set': 'as', 'color_set': 'cs',
+            'speed_scale_slow': 'sls', 'speed_scale_fast': 'ssf', 'bounce': 'b'
+        };
+
+        const BLOCK_TYPE_REVERSE_MAP = {};
+        for (let k in BLOCK_TYPE_MAP) {
+            BLOCK_TYPE_REVERSE_MAP[BLOCK_TYPE_MAP[k]] = k;
+        }
+
+        function serializeBlocks(blocks) {
+            if (!Array.isArray(blocks)) return [];
+            return blocks.map(b => {
+                const shortType = BLOCK_TYPE_MAP[b.type] || b.type;
+                const indent = b.indent || 0;
+                const params = [];
+                const keys = BLOCK_PARAM_ORDER[b.type];
+                if (keys && b.params) {
+                    keys.forEach(k => {
+                        params.push(b.params[k] !== undefined ? b.params[k] : '');
+                    });
+                }
+                return [indent, shortType, params];
+            });
+        }
+
+        function deserializeBlocks(serialized) {
+            if (!Array.isArray(serialized)) return [];
+            return serialized.map(item => {
+                const indent = item[0];
+                const shortType = item[1];
+                const paramValues = item[2] || [];
+                const type = BLOCK_TYPE_REVERSE_MAP[shortType] || shortType;
+                const params = {};
+                const keys = BLOCK_PARAM_ORDER[type];
+                if (keys) {
+                    keys.forEach((k, idx) => {
+                        params[k] = paramValues[idx] !== undefined ? paramValues[idx] : '';
+                    });
+                }
+                return { type, params, indent };
+            });
+        }
+
         function parseSharedCard(decompressed) {
             const parsed = JSON.parse(decompressed);
             
-            let name, cost, desc, duration, emitterText, bulletText, magicCircleText;
+            let name, cost, desc, duration, emitterData, bulletData, magicCircleData;
             
             if (Array.isArray(parsed)) {
                 // 配列形式のデシリアライズ (新フォーマット)
-                // [name, cost, desc, duration, emitterText, bulletText, magicCircleText]
                 name = parsed[0] || '無名カード';
                 cost = parsed[1] !== undefined ? parsed[1] : 100;
                 desc = parsed[2] || '';
                 duration = parsed[3] !== undefined ? parsed[3] : 10;
-                emitterText = parsed[4] || '';
-                bulletText = parsed[5] || '';
-                magicCircleText = parsed[6] || '';
+                emitterData = parsed[4] || [];
+                bulletData = parsed[5] || [];
+                magicCircleData = parsed[6] || [];
             } else {
                 // オブジェクト形式のデシリアライズ (旧フォーマット)
                 name = parsed.n || parsed.name || '無名カード';
@@ -1536,33 +1615,45 @@ function stepEmitter(c, state, attacker, target, dt) {
                 desc = parsed.d || parsed.desc || '';
                 duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
                 
-                emitterText = parsed.e !== undefined ? parsed.e : parsed.emitterScript;
-                bulletText = parsed.b !== undefined ? parsed.b : parsed.bulletScript;
-                magicCircleText = parsed.m !== undefined ? parsed.m : parsed.magicCircleScript;
+                emitterData = parsed.e !== undefined ? parsed.e : parsed.emitterScript;
+                bulletData = parsed.b !== undefined ? parsed.b : parsed.bulletScript;
+                magicCircleData = parsed.m !== undefined ? parsed.m : parsed.magicCircleScript;
             }
             
             // emitterScript の復元
             let emitterScript = [];
-            if (typeof emitterText === 'string') {
-                emitterScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(emitterText) : [];
-            } else if (Array.isArray(emitterText)) {
-                emitterScript = emitterText;
+            if (Array.isArray(emitterData)) {
+                if (emitterData.length > 0 && Array.isArray(emitterData[0])) {
+                    emitterScript = deserializeBlocks(emitterData);
+                } else {
+                    emitterScript = emitterData;
+                }
+            } else if (typeof emitterData === 'string') {
+                emitterScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(emitterData) : [];
             }
             
             // bulletScript の復元
             let bulletScript = [];
-            if (typeof bulletText === 'string') {
-                bulletScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(bulletText) : [];
-            } else if (Array.isArray(bulletText)) {
-                bulletScript = bulletText;
+            if (Array.isArray(bulletData)) {
+                if (bulletData.length > 0 && Array.isArray(bulletData[0])) {
+                    bulletScript = deserializeBlocks(bulletData);
+                } else {
+                    bulletScript = bulletData;
+                }
+            } else if (typeof bulletData === 'string') {
+                bulletScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(bulletData) : [];
             }
             
             // magicCircleScript の復元
             let magicCircleScript = [];
-            if (typeof magicCircleText === 'string') {
-                magicCircleScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(magicCircleText) : [];
-            } else if (Array.isArray(magicCircleText)) {
-                magicCircleScript = magicCircleText;
+            if (Array.isArray(magicCircleData)) {
+                if (magicCircleData.length > 0 && Array.isArray(magicCircleData[0])) {
+                    magicCircleScript = deserializeBlocks(magicCircleData);
+                } else {
+                    magicCircleScript = magicCircleData;
+                }
+            } else if (typeof magicCircleData === 'string') {
+                magicCircleScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(magicCircleData) : [];
             }
             
             return {
@@ -1582,94 +1673,35 @@ function stepEmitter(c, state, attacker, target, dt) {
             const card = customCards.find(c => c.id === cardId);
             if (!card) return;
             try {
-                // ASTブロック配列をテキストコード文字列に逆変換
-                const emitterText = typeof blocksToCode === 'function' ? blocksToCode(card.emitterScript || []) : "";
-                const bulletText = typeof blocksToCode === 'function' ? blocksToCode(card.bulletScript || []) : "";
-                const magicCircleText = typeof blocksToCode === 'function' ? blocksToCode(card.magicCircleScript || []) : "";
+                // 配列かつ極小シリアライズされたデータをパック
+                const miniCard = [
+                    card.name,
+                    card.cost || 100,
+                    card.desc || '',
+                    card.duration || 10,
+                    serializeBlocks(card.emitterScript || []),
+                    serializeBlocks(card.bulletScript || []),
+                    serializeBlocks(card.magicCircleScript || [])
+                ];
 
-                // 保存用の完全なカードオブジェクトを生成
-                const cardData = {
-                    name: card.name,
-                    cost: card.cost || 100,
-                    desc: card.desc || '',
-                    duration: card.duration || 10,
-                    emitterScript: card.emitterScript,
-                    bulletScript: card.bulletScript,
-                    magicCircleScript: card.magicCircleScript || []
-                };
+                const jsonStr = JSON.stringify(miniCard);
+                
+                // Deflate + Base64url で圧縮
+                let compressed = deflateAndBase64url(jsonStr);
+                let shareUrl;
+                if (compressed) {
+                    shareUrl = `${window.location.origin}${window.location.pathname}?card=pk_${compressed}`;
+                } else {
+                    // pakoがロードされていない等の場合のセーフティフォールバック（旧LZString）
+                    const lzCompressed = LZString.compressToEncodedURIComponent(jsonStr);
+                    shareUrl = `${window.location.origin}${window.location.pathname}?card=${lzCompressed}`;
+                }
 
-                const copyToClipboard = (url, msg) => {
-                    navigator.clipboard.writeText(url).then(() => {
-                        alert(msg);
-                    }).catch(err => {
-                        prompt("共有URLをコピーしてください：", url);
-                    });
-                };
-
-                // JSONBlobへ保存を試みる（非同期・CORSプロキシ経由）
-                fetch('https://corsproxy.io/?https://jsonblob.com/api/jsonBlob', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(cardData)
-                })
-                .then(res => {
-                    const loc = res.headers.get('Location');
-                    let blobId = res.headers.get('jsonblob-id');
-                    if (!blobId && loc) {
-                        const parts = loc.split('/');
-                        blobId = parts[parts.length - 1];
-                    }
-                    if (blobId) {
-                        const shareUrl = `${window.location.origin}${window.location.pathname}?card=jb_${blobId}`;
-                        copyToClipboard(shareUrl, `「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n完全自動で超短縮URLが生成されました。\n\nURL: ${shareUrl}`);
-                    } else {
-                        throw new Error("ID取得失敗");
-                    }
-                })
-                .catch(() => {
-                    // JSONBlobが失敗した場合は、ローカルの圧縮URL（フォールバック）
-                    // 不要なインデント、空行、コメントを除去してデータサイズを劇的に削減する
-                    const cleanCode = (code) => {
-                        if (!code) return "";
-                        return code.split('\n')
-                            .map(line => line.trim())
-                            .filter(line => line !== "" && !line.startsWith('//'))
-                            .join('\n');
-                    };
-
-                    const emitterClean = cleanCode(emitterText);
-                    const bulletClean = cleanCode(bulletText);
-                    const magicCircleClean = cleanCode(magicCircleText);
-
-                    // 配列形式に変換してJSONキー名などのオーバーヘッドを取り除く
-                    // [name, cost, desc, duration, emitterScript, bulletScript, magicCircleScript]
-                    const miniCard = [
-                        card.name,
-                        card.cost || 100,
-                        card.desc || '',
-                        card.duration || 10,
-                        emitterClean,
-                        bulletClean,
-                        magicCircleClean
-                    ];
-
-                    const jsonStr = JSON.stringify(miniCard);
-                    
-                    // Deflate (pako) + Base64url による強力なオフライン圧縮
-                    let compressed = deflateAndBase64url(jsonStr);
-                    let fallbackUrl;
-                    if (compressed) {
-                        fallbackUrl = `${window.location.origin}${window.location.pathname}?card=pk_${compressed}`;
-                    } else {
-                        // pakoがロードされていない等の場合のセーフティフォールバック（旧LZString）
-                        const lzCompressed = LZString.compressToEncodedURIComponent(jsonStr);
-                        fallbackUrl = `${window.location.origin}${window.location.pathname}?card=${lzCompressed}`;
-                    }
-
-                    copyToClipboard(fallbackUrl, `「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n（外部保存サーバーが一時的にオフラインのため、超圧縮URLを生成しました）\n\nURL: ${fallbackUrl}`);
+                // クリップボードにコピー
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert(`「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n完全オフライン対応の超圧縮URLです。\n\nURL: ${shareUrl}`);
+                }).catch(err => {
+                    prompt("共有URLをコピーしてください：", shareUrl);
                 });
             } catch (e) {
                 alert("共有URLの作成に失敗しました: " + e.message);
@@ -1693,7 +1725,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                     fetchCardByUuid(cardDataStr);
                 } else {
                     try {
-                        const decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
+                        let decompressed = "";
+                        if (cardDataStr.startsWith('pk_')) {
+                            const cleanB64 = cardDataStr.slice(3);
+                            decompressed = inflateAndBase64url(cleanB64);
+                        } else {
+                            decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
+                        }
                         if (!decompressed) {
                             throw new Error("デコンプレスに失敗しました（データ破損の可能性）");
                         }
