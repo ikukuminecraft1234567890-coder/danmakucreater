@@ -340,9 +340,12 @@ laserWidth     // レーザーの現在の太さ
 
 // --- 衝突・状態判定 (0 または 1) ---
 isBounced      // bounce() で壁反射した瞬間
-isTouchWall    // 壁に衝突した瞬間
+isTouchWall    // 壁に衝突した瞬間 (画面の枠線10px手前)
 touchingWall   // 壁に接触中
 leftWall, rightWall, topWall, bottomWall // 各壁の接触状態
+isTouchEdge    // 完全に画面外枠（画面端）に達した瞬間
+touchingEdge   // 画面端に接触中（画面外にいる）
+leftEdge, rightEdge, topEdge, bottomEdge // 各画面端の接触状態
 isTouchBullet  // 他の弾に衝突した瞬間
 touchingBullet // 他の弾に接触中
 touchColor     // 接触した弾の色

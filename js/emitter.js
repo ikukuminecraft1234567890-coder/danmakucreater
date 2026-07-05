@@ -810,7 +810,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     codeStr.includes('leftWall') ||
                     codeStr.includes('rightWall') ||
                     codeStr.includes('topWall') ||
-                    codeStr.includes('bottomWall')
+                    codeStr.includes('bottomWall') ||
+                    codeStr.includes('Edge')
                 );
                 window.needsEmitterSync = (
                     codeStr.includes('e_') ||
@@ -899,7 +900,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             let initAngle = Number(state.variables.angle) || 0;
             let initSpeed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             
-            // 毎フレーム壁との接触を判定（スクリプトで壁判定を使用する場合のみ実行）
+            // 毎フレーム壁および画面端との接触を判定（スクリプトで使用する場合のみ実行）
             if (window.needsWallTouchDetection) {
                 let currentlyTouching;
                 let hitLeftWall = b.x < 10;
@@ -917,10 +918,31 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.topWall = hitTopWall ? 1 : 0;
                 state.variables.bottomWall = hitBottomWall ? 1 : 0;
                 b.wasTouchingWall = currentlyTouching;
+
+                // 新規：画面端（Edge）の判定 (x <= 0 や y <= 0 など、完全に画面外・境界線に達したか)
+                let hitLeftEdge = b.x <= 0;
+                let hitRightEdge = b.x >= PLAY_WIDTH;
+                let hitTopEdge = b.y <= 0;
+                let hitBottomEdge = b.y >= canvas.height;
+                let currentlyTouchingEdge = (hitLeftEdge || hitRightEdge || hitTopEdge || hitBottomEdge);
+                let edgeTouchTrigger = (currentlyTouchingEdge && !b.wasTouchingEdge) ? 1 : 0;
+                state.variables.isTouchEdge = edgeTouchTrigger;
+                state.variables.touchingEdge = currentlyTouchingEdge ? 1 : 0;
+                state.variables.leftEdge = hitLeftEdge ? 1 : 0;
+                state.variables.rightEdge = hitRightEdge ? 1 : 0;
+                state.variables.topEdge = hitTopEdge ? 1 : 0;
+                state.variables.bottomEdge = hitBottomEdge ? 1 : 0;
+                b.wasTouchingEdge = currentlyTouchingEdge;
             } else {
                 state.variables.isBounced = 0;
                 state.variables.isTouchWall = 0;
                 state.variables.touchingWall = 0;
+                state.variables.isTouchEdge = 0;
+                state.variables.touchingEdge = 0;
+                state.variables.leftEdge = 0;
+                state.variables.rightEdge = 0;
+                state.variables.topEdge = 0;
+                state.variables.bottomEdge = 0;
             }
 
             // 弾同士の接触判定（スクリプトで使用する場合のみ実行）

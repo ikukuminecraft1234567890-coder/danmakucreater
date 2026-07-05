@@ -310,6 +310,8 @@ function customCardMakerSwitchTab(tab) {
                             let normalizedCond = cond.replace(/\s+/g, '');
                             let selectVal = 'custom';
                             if (normalizedCond === 'isbounced' || cond === 'isBounced') selectVal = 'isBounced';
+                            else if (normalizedCond === 'istouchedge' || cond === 'isTouchEdge') selectVal = 'isTouchEdge';
+                            else if (normalizedCond === 'touchingedge' || cond === 'touchingEdge') selectVal = 'touchingEdge';
                             else if (normalizedCond === 'istouchbullet' || cond === 'isTouchBullet') selectVal = 'isTouchBullet';
                             else if (normalizedCond === 'touchingbullet' || cond === 'touchingBullet') selectVal = 'touchingBullet';
                             else if (normalizedCond === 'touchcolor==#ff3333') selectVal = 'touchColor == #ff3333';
@@ -327,6 +329,8 @@ function customCardMakerSwitchTab(tab) {
                                 <span>[制御] もし</span>
                                 <select onchange="customCardMakerOnIfCondSelectChange(${idx}, this.value)" style="margin-right: 4px;">
                                     <option value="isBounced" ${selectVal === 'isBounced' ? 'selected' : ''}>壁に触れたら (isBounced)</option>
+                                    <option value="isTouchEdge" ${selectVal === 'isTouchEdge' ? 'selected' : ''}>画面端に触れた瞬間 (isTouchEdge)</option>
+                                    <option value="touchingEdge" ${selectVal === 'touchingEdge' ? 'selected' : ''}>画面端に接触中 (touchingEdge)</option>
                                     <option value="isTouchBullet" ${selectVal === 'isTouchBullet' ? 'selected' : ''}>弾に触れた瞬間 (isTouchBullet)</option>
                                     <option value="touchingBullet" ${selectVal === 'touchingBullet' ? 'selected' : ''}>弾に触れている間 (touchingBullet)</option>
                                     <option value="touchColor == #ff3333" ${selectVal === 'touchColor == #ff3333' ? 'selected' : ''}>触れた弾が赤なら (touchColor == #ff3333)</option>
