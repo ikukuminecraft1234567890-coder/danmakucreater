@@ -166,7 +166,7 @@ function customCardMakerSwitchTab(tab) {
 
         function customCardMakerIndent(idx, dir) {
             let script = getActiveScript();
-            script[idx].indent = Math.max(0, Math.min(3, (script[idx].indent || 0) + dir));
+            script[idx].indent = Math.max(0, Math.min(20, (script[idx].indent || 0) + dir));
             customCardMaker.testPassed = false;
             saveCustomCardDraft(false);
             renderCardMaker();
@@ -1181,7 +1181,7 @@ function customCardMakerSwitchTab(tab) {
                 if (!trimmed || trimmed === '{' || trimmed === '}' || trimmed.startsWith('//')) return;
 
                 // インデントを計算（スタックの深さで決定）
-                let indent = Math.max(0, Math.min(3, currentIndent));
+                let indent = Math.max(0, Math.min(20, currentIndent));
 
                 const makeBlock = (trimmed, indent) => {
                     let block = null;
@@ -1451,7 +1451,7 @@ function customCardMakerSwitchTab(tab) {
                     else spaceCount += 1;
                 }
                 let indent = Math.floor(spaceCount / 4);
-                indent = Math.max(0, Math.min(3, indent));
+                indent = Math.max(0, Math.min(20, indent));
                 
                 let cleanLine = stripComments(line);
                 let trimmed = cleanLine.trim();

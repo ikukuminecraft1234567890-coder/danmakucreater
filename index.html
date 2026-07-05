@@ -63,6 +63,7 @@
                     <datalist id="var-suggestions">
                         <option value="speed">弾速 (speed)</option>
                         <option value="angle">角度 (angle)</option>
+                        <option value="spriteAngle">画像の回転角度 (spriteAngle)</option>
                         <option value="warningTime">ビーム警告時間 (warningTime)</option>
                         <option value="activeTime">ビーム照射時間 (activeTime)</option>
                         <option value="laserWidth">レーザー太さ (laserWidth)</option>
@@ -91,6 +92,7 @@
                         <option value="angle">現在の角度 (angle)</option>
                         <option value="angle + 30">角度 + 30度 (angle + 30)</option>
                         <option value="angle - 30">角度 - 30度 (angle - 30)</option>
+                        <option value="spriteAngle">画像の回転角度 (spriteAngle)</option>
                         <option value="speed">現在の速度 (speed)</option>
                         <option value="speed + 50">速度 + 50 (speed + 50)</option>
                         <option value="speed * 0.5">speed * 0.5</option>
@@ -290,6 +292,7 @@ tweenWait("変数名", 開始, 終了, "秒/フレーム/加算", 値)
 speed = 200      // 速度を固定
 speed += 10      // 加速
 angle += 2       // 曲がる
+spriteAngle += 5 // 画像だけ回転 (見た目のみ)
 color = #ff3333  // 色変更
 laserWidth = 16  // レーザー幅
 
@@ -316,6 +319,7 @@ laserWidth = 12    // 幅12px</pre>
                                         <h5>組み込み変数と衝突判定</h5>
                                         <pre>// --- 共通変数 ---
 angle, speed   // 角度、速度
+spriteAngle    // 画像の回転角度 (見た目の向きのみ)
 x, y           // 現在のX, Y座標
 tx, ty         // ターゲット(相手)のX, Y座標
 player_x, player_y // プレイヤーの座標(絶対座標)

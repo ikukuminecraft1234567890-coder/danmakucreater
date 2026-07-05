@@ -530,6 +530,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             let variables = {
                 speed: initialSpeed,
                 angle: initialAngle,
+                spriteAngle: initialAngle,
                 timer: 0,
                 second: 0,
                 frame: 0,

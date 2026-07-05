@@ -2949,8 +2949,18 @@ function applyAbilityEffect(cardId, owner) {
                         if (texture) {
                             ctx.save();
                             ctx.translate(b.x, b.y);
-                            // 進行方向に回転
-                            let angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                            
+                            // spriteAngleが定義されている場合はその絶対角度、なければ進行方向の角度を使用
+                            let angle;
+                            if (b.bulletState && b.bulletState.variables && b.bulletState.variables.spriteAngle !== undefined && b.bulletState.variables.spriteAngle !== null) {
+                                let spriteAngleRad = (Number(b.bulletState.variables.spriteAngle) || 0) * Math.PI / 180;
+                                if (b.bulletState.isPlayerSide) {
+                                    spriteAngleRad = -spriteAngleRad;
+                                }
+                                angle = spriteAngleRad + Math.PI / 2;
+                            } else {
+                                angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                            }
                             ctx.rotate(angle);
                             ctx.drawImage(texture, -drawRadius, -drawRadius, drawRadius * 2, drawRadius * 2);
                             ctx.restore();
@@ -4096,7 +4106,7 @@ function applyAbilityEffect(cardId, owner) {
         function inheritEmitterVariablesToBullet(emitterState, bulletState) {
             if (!emitterState || !bulletState || !emitterState.variables || !bulletState.variables) return;
             const reserved = new Set([
-                'speed', 'angle', 'timer', 'second', 'frame', 'cardSecond', 'cardFrame', 'x', 'y', 'tx', 'ty', 'dist',
+                'speed', 'angle', 'spriteAngle', 'timer', 'second', 'frame', 'cardSecond', 'cardFrame', 'x', 'y', 'tx', 'ty', 'dist',
                 'ex', 'ey', 'emitter_x', 'emitter_y',
                 'x_offset', 'y_offset', 'isBounced', 'isTouchWall', 'touchingWall',
                 'isTouchBullet', 'touchingBullet', 'touchColor', 'touchX', 'touchY',
