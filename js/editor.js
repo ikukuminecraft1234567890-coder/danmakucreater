@@ -736,6 +736,7 @@ function customCardMakerSwitchTab(tab) {
         function endCustomCardTest(success) {
             isCustomCardTesting = false;
             isGameRunning = false;
+            gameState = 'TITLE';
             customCardDeathEffect = null;
             
             bullets = [];

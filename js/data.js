@@ -1972,6 +1972,9 @@
         }
 
         function changePhase(phase, owner) {
+            if (isCustomCardTesting) return;
+            if (gameState !== 'BATTLE') return;
+
             battlePhase = phase;
             turnOwner = owner;
 
