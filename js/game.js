@@ -4145,7 +4145,8 @@ function applyAbilityEffect(cardId, owner) {
             'true', 'false', 'null', 'undefined', 'NaN', 'Infinity',
             'sin', 'cos', 'tan', 'sqrt', 'abs', 'min', 'max', 'PI', 'PI2',
             'atan2', 'pow', 'log', 'exp', 'floor', 'round', 'ceil', 'random', 'rand',
-            'const', 'let', 'var', 'function', 'return', 'n'
+            'const', 'let', 'var', 'function', 'return', 'n',
+            '__fuzzyEqual', '__fuzzyNotEqual', '__checkInterval', '__v'
         ]);
 
         function compileNumericExpr(expr) {
@@ -4167,7 +4168,50 @@ function applyAbilityEffect(cardId, owner) {
                     return '___LITERAL_' + (literals.length - 1) + '___';
                 });
 
-                // 3. 変数部分を __v.変数名 にトランスパイル
+                // 3. 厳密等価演算子（=== と !==）を退避して保護する
+                let strictEquals = [];
+                s = s.replace(/===/g, function() {
+                    strictEquals.push('===');
+                    return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
+                });
+                s = s.replace(/!==/g, function() {
+                    strictEquals.push('!==');
+                    return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
+                });
+
+                // 4. インターンバル跨ぎ（またぎ）判定のトランスパイル（プレーンな変数名のまま置換）
+                let intervalIdx = 0;
+                // 変数 == 周期 * n
+                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*([^&|?,:=]+?)\s*\*\s*n\b/gi, (match, varName, period) => {
+                    intervalIdx++;
+                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+                // 変数 == n * 周期
+                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*n\s*\*\s*([^&|?,:=]+?)\b/gi, (match, varName, period) => {
+                    intervalIdx++;
+                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+                // 周期 * n == 変数
+                s = s.replace(/([^&|?,:=]+?)\s*\*\s*n\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
+                    intervalIdx++;
+                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+                // n * 周期 == 変数
+                s = s.replace(/\bn\s*\*\s*([^&|?,:=]+?)\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
+                    intervalIdx++;
+                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
+                });
+
+                // 5. a == b / a != b を誤差許容関数呼び出しに置換
+                s = s.replace(/([^&|?,:=]+)\s*==\s*([^&|?,:=]+)/g, '__fuzzyEqual($1,$2)');
+                s = s.replace(/([^&|?,:=]+)\s*!=\s*([^&|?,:=]+)/g, '__fuzzyNotEqual($1,$2)');
+
+                // 6. 退避した厳密比較演算子を復元
+                s = s.replace(/___STRICT_EQ_(\d+)___/g, function(match, index) {
+                    return strictEquals[parseInt(index, 10)];
+                });
+
+                // 7. 変数部分を __v.変数名 にトランスパイル (最後のフェーズで実行して構文破壊を完璧に防ぐ)
                 s = s.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, function(match) {
                     if (RESERVED_WORDS.has(match)) {
                         if (match === 'random' || match === 'rand') {
@@ -4179,52 +4223,9 @@ function applyAbilityEffect(cardId, owner) {
                     return '(__v.' + match + ' !== undefined ? __v.' + match + ' : 0)';
                 });
 
-                // 4. 退避していた文字列リテラルを元に戻す
+                // 8. 退避していた文字列リテラルを元に戻す
                 s = s.replace(/___LITERAL_(\d+)___/g, function(match, index) {
                     return literals[parseInt(index, 10)];
-                });
-
-                // 4.5. 誤差許容演算子（== と !=）のトランスパイル（=== と !== は保護）
-                let strictEquals = [];
-                s = s.replace(/===/g, function() {
-                    strictEquals.push('===');
-                    return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
-                });
-                s = s.replace(/!==/g, function() {
-                    strictEquals.push('!==');
-                    return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
-                });
-
-                // 4.6. インターンバル跨ぎ（またぎ）判定のトランスパイル
-                let intervalIdx = 0;
-                // 変数 == 周期 * n
-                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*([^&|?,:=]+?)\s*\*\s*n\b/gi, (match, varName, period) => {
-                    intervalIdx++;
-                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
-                // 変数 == n * 周期
-                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*n\s*\*\s*([^&|?,:=]+?)\b/gi, (match, varName, period) => {
-                    intervalIdx++;
-                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
-                // 周期 * n == 変数
-                s = s.replace(/([^&|?,:=]+?)\s*\*\s*n\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
-                    intervalIdx++;
-                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
-                // n * 周期 == 変数
-                s = s.replace(/\bn\s*\*\s*([^&|?,:=]+?)\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
-                    intervalIdx++;
-                    return `__checkInterval(__v.${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
-
-                // a == b / a != b を誤差許容関数呼び出しに置換
-                s = s.replace(/([^&|?,:=]+)\s*==\s*([^&|?,:=]+)/g, '__fuzzyEqual($1,$2)');
-                s = s.replace(/([^&|?,:=]+)\s*!=\s*([^&|?,:=]+)/g, '__fuzzyNotEqual($1,$2)');
-
-                // 退避した厳密比較演算子を復元
-                s = s.replace(/___STRICT_EQ_(\d+)___/g, function(match, index) {
-                    return strictEquals[parseInt(index, 10)];
                 });
 
                 // 4.8. 特殊変数 n が数式に含まれているか確認
