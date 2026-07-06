@@ -1023,6 +1023,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables.x = b.x;
             state.variables.y = isPlayerSide ? (canvas.height - b.y) : b.y;
             state.variables.xy = `${state.variables.x},${state.variables.y}`;
+            let initXY = state.variables.xy;
             state.variables['xy_x'] = state.variables.x;
             state.variables['xy_y'] = state.variables.y;
             state.variables['xy.x'] = state.variables.x;
@@ -1541,8 +1542,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             b.vy = Math.sin(finalAngleRad) * state.variables.speed;
             
             // Sync mutated coordinates
-            // xy の変更を x, y に同期
-            if (state.variables.xy !== `${state.variables.x},${state.variables.y}`) {
+            // xy の変更を x, y に同期 (開始時の initXY から明示的に変化した時のみ同期することで、x や y 単体を個別に変更した際に古い xy でリセットされるのを防ぐ)
+            if (state.variables.xy !== initXY) {
                 let xyParts = String(state.variables.xy).split(',').map(p => parseFloat(p.trim()));
                 if (xyParts.length === 2 && !isNaN(xyParts[0]) && !isNaN(xyParts[1])) {
                     state.variables.x = xyParts[0];
