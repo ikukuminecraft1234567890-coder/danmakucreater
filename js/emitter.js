@@ -1568,8 +1568,10 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (state.variables.y !== undefined) {
                 let targetY = isPlayerSide ? (canvas.height - state.variables.y) : state.variables.y;
                 if (Math.abs(targetY - b.y) > 0.001) {
+                    console.log("[DEBUG] y changed! state.variables.y:", state.variables.y, "targetY:", targetY, "b.y (before):", b.y);
                     b.y = targetY;
                     yChanged = true;
+                    console.log("[DEBUG] b.y (after):", b.y);
                 }
             }
             let currentSpeed = Number(state.variables.speed) || 0;
