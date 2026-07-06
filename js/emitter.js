@@ -725,6 +725,7 @@ function stepEmitter(c, state, attacker, target, dt) {
     }
 
         function initBulletState(script, initialSpeed, initialAngle, attacker, target) {
+            console.log(`[DEBUG] initBulletState: initialSpeed=${initialSpeed}, initialAngle=${initialAngle}`);
             let variables = {
                 speed: initialSpeed,
                 angle: initialAngle,

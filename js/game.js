@@ -4145,7 +4145,13 @@ function applyAbilityEffect(cardId, owner) {
                 'warningTime', 'activeTime', 'laserStartTime', 'laserWidth', 'color', 'bulletType'
             ]);
             Object.keys(emitterState.variables).forEach(name => {
-                if (reserved.has(name)) return;
+                if (reserved.has(name)) {
+                    if (name === 'speed' || name === 'angle') {
+                        console.log(`[DEBUG] inheritEmitterVariablesToBullet BLOCKED copy of reserved variable: ${name}`);
+                    }
+                    return;
+                }
+                console.log(`[DEBUG] inheritEmitterVariablesToBullet COPYING custom variable: ${name} = ${emitterState.variables[name]}`);
                 bulletState.variables[name] = emitterState.variables[name];
             });
         }
