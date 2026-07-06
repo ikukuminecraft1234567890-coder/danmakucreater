@@ -402,7 +402,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             runCustomBulletScript(b, bdt, attacker, target);
                         };
                         
-                        console.log(`[DEBUG] spawnBullet: color=${bColor}, speed=${speed}, angle=${angle}, bulletScript length=${(c.bulletScript || []).length}, bulletScript=${JSON.stringify(c.bulletScript || [])}`);
+                        console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
                         bullets.push(newBullet);
                         break;
                     }
@@ -479,6 +479,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             
                             bullets.push(newBullet);
                         }
+                        console.log(`[DEBUG] spawn_ring: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, angle=${centerAngle}`);
                         break;
                     }
                     case 'spawn_way': {
@@ -557,6 +558,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             
                             bullets.push(newBullet);
                         }
+                        console.log(`[DEBUG] spawn_way: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, spread=${spread}, centerAngle=${centerAngle}`);
                         break;
                     }
                     case 'spawn_magic_circle': {
@@ -725,7 +727,7 @@ function stepEmitter(c, state, attacker, target, dt) {
     }
 
         function initBulletState(script, initialSpeed, initialAngle, attacker, target) {
-            console.log(`[DEBUG] initBulletState: initialSpeed=${initialSpeed}, initialAngle=${initialAngle}`);
+
             let variables = {
                 speed: initialSpeed,
                 angle: initialAngle,
@@ -2035,9 +2037,9 @@ function stepEmitter(c, state, attacker, target, dt) {
             'aim_at_target': [],
             'move_owner': ['preset', 'duration'],
             'slide_owner': ['preset', 'duration'],
-            'spawn_bullet': ['type', 'color', 'speed', 'angle', 'x_offset', 'y_offset', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
-            'spawn_ring': ['type', 'color', 'speed', 'count', 'x_offset', 'y_offset', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
-            'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spreadAngle', 'x_offset', 'y_offset', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_bullet': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_ring': ['type', 'color', 'speed', 'count', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
             'homing': ['turnSpeed'],
             'speed_add': ['value'],
             'speed_set': ['value'],

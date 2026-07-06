@@ -4174,16 +4174,13 @@ function applyAbilityEffect(cardId, owner) {
                 'isTouchBullet', 'touchingBullet', 'touchColor', 'touchX', 'touchY',
                 'warningTime', 'activeTime', 'laserStartTime', 'laserWidth', 'color', 'bulletType'
             ]);
+            let copiedCount = 0;
             Object.keys(emitterState.variables).forEach(name => {
-                if (reserved.has(name)) {
-                    if (name === 'speed' || name === 'angle') {
-                        console.log(`[DEBUG] inheritEmitterVariablesToBullet BLOCKED copy of reserved variable: ${name}`);
-                    }
-                    return;
-                }
-                console.log(`[DEBUG] inheritEmitterVariablesToBullet COPYING custom variable: ${name} = ${emitterState.variables[name]}`);
+                if (reserved.has(name)) return;
                 bulletState.variables[name] = emitterState.variables[name];
+                copiedCount++;
             });
+            console.log(`[DEBUG] inheritEmitterVariablesToBullet: copied ${copiedCount} custom variables`);
         }
 
         const numericExprCache = new Map();
