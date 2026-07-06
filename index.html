@@ -202,7 +202,7 @@
                             <div class="tabs-header">
                                 <button id="tab-btn-emitter" class="tab-btn active" onclick="customCardMakerSwitchTab('emitter')">コアの挙動 (Emitter)</button>
                                 <button id="tab-btn-bullet" class="tab-btn" onclick="customCardMakerSwitchTab('bullet')">弾の挙動 (Bullet)</button>
-                                <button id="tab-btn-magic-circle" class="tab-btn" onclick="customCardMakerSwitchTab('magicCircle')">魔法陣の挙動 (Magic Circle)</button>
+                                <button id="tab-btn-magic-circle" class="tab-btn" onclick="customCardMakerSwitchTab('magicCircle')">子弾の挙動 (Child Bullet)</button>
                                 <div style="flex-grow: 1;"></div>
                                 <button id="mode-btn-block" class="tab-btn active" onclick="customCardMakerSwitchMode('block')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">ブロック</button>
                                 <button id="mode-btn-code" class="tab-btn" onclick="customCardMakerSwitchMode('code')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">JSコード</button>
@@ -261,7 +261,7 @@ wait(0.5)</pre>
                                     </section>
 
                                     <section>
-                                        <h5>コア (Emitter) &amp; 魔法陣の命令</h5>
+                                        <h5>コア (Emitter) &amp; 子弾設定の命令</h5>
                                         <pre>// 弾を単発発射
 spawnBullet("型", "色", 速度, 角度, Xオフセット, Yオフセット, 半径, "画像", "座標モード", 判定半径)
 
@@ -271,7 +271,7 @@ spawnRing("型", "色", 速度, 弾数, Xオフセット, Yオフセット, 半�
 // 弾を扇状(Way)に発射
 spawnWay("型", "色", 速度, 角度, 弾数, 拡散角, Xオフセット, Yオフセット, 半径, "画像", "座標モード", 判定半径)
 
-// 魔法陣を生成 (魔法陣スクリプトが動きます)
+// 子弾設定の魔法陣を生成 (子弾の挙動スクリプトが動きます)
 spawnMagicCircle("色", Xオフセット, Yオフセット)
 
 // ターゲットの方向を向く (angle に代入)

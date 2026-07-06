@@ -96,6 +96,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.bulletType = 'normal';
                 block.params.color = '#ff3333';
                 block.params.speed = '200';
+                block.params.angle = '0';
                 block.params.count = '12';
                 block.params.radius = '6';
                 block.params.hitRadius = '';
@@ -492,6 +493,8 @@ function customCardMakerSwitchTab(tab) {
                                 <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
                                 <span>速度:</span>
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
+                                <span>角度:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.angle || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
                                 <span>弾数:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
                                 <span>X:</span>
@@ -551,9 +554,9 @@ function customCardMakerSwitchTab(tab) {
                         case 'spawn_magic_circle':
                             blockDiv.className = 'maker-block color-action';
                             html = `
-                                <span>[召喚] 魔法陣を召喚する - 色:</span>
+                                <span>[子弾] 魔法陣弾を発射する - 色:</span>
                                 <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#00ffff'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
-                                <span>補正 X:</span>
+                                <span>X:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
                                 <span>Y:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
