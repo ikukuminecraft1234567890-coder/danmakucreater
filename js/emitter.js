@@ -402,6 +402,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             runCustomBulletScript(b, bdt, attacker, target);
                         };
                         
+                        console.log(`[DEBUG] spawnBullet: color=${bColor}, speed=${speed}, angle=${angle}, bulletScript length=${(c.bulletScript || []).length}, bulletScript=${JSON.stringify(c.bulletScript || [])}`);
                         bullets.push(newBullet);
                         break;
                     }
@@ -902,6 +903,11 @@ function stepEmitter(c, state, attacker, target, dt) {
         function runCustomBulletScript(b, dt, attacker, target) {
             let state = b.bulletState;
             if (!state) return;
+            if (window.bulletDebugCount === undefined) window.bulletDebugCount = 0;
+            if (b.bulletDebugId === undefined) {
+                b.bulletDebugId = window.bulletDebugCount++;
+            }
+            let shouldLog = b.bulletDebugId < 15; // 最初の15発のみログ対象
             if (window.currentCardSecond !== undefined) {
                 state.variables.cardSecond = window.currentCardSecond;
                 state.variables.cardFrame = window.currentCardFrame || 0;
@@ -1448,6 +1454,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     case 'set_var': {
                                 let varName = block.params.name;
                                 let val = evalValue(block.params.value, state.variables);
+                                if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} set_var: ${varName} = ${val} (raw: ${block.params.value})`);
                         setScriptVariable(state, varName, val, block.type === 'const_var');
                                 break;
                             }
@@ -1455,8 +1462,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let varName = block.params.name;
                                 let val = evalExpr(block.params.value, state.variables);
                                 let delta = block.params.op === '-' ? -val : val;
+                                let before = state.variables[varName];
                                 if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
                                 if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
+                                if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${block.params.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${state.variables[varName]})`);
                                 break;
                             }
                             case 'aim_at_target': {
@@ -1583,6 +1592,10 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             if (state.variables.isBounced) {
                 angleChanged = true;
+            }
+
+            if (shouldLog) {
+                console.log(`[DEBUG] Bullet #${b.bulletDebugId} FrameSyncEnd - color: ${state.variables.color}, speed (start: ${initSpeed}, current: ${state.variables.speed}), angle (start: ${initAngle}, current: ${state.variables.angle}), vx: ${b.vx}, vy: ${b.vy}`);
             }
 
             if (xChanged || yChanged || speedChanged || angleChanged || b.laserMoved) {

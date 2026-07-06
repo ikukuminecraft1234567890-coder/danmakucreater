@@ -759,7 +759,7 @@ function customCardMakerSwitchTab(tab) {
             customCardDeathEffect = null;
             normalShotTimer = 0;
             
-            lastTime = 0;
+            lastTime = performance.now();
             timeAccumulator = 0;
             startGameLoop();
         }
