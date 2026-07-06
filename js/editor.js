@@ -1048,6 +1048,7 @@ function customCardMakerSwitchTab(tab) {
                         let btRing = b.params.bulletType || 'normal';
                         let colRing = b.params.color || '#ff3333';
                         let spdRing = b.params.speed || '200';
+                        let angRing = b.params.angle || '0';
                         let cntRing = b.params.count || '12';
                         let oxRing = b.params.offsetX || '0';
                         let oyRing = b.params.offsetY || '0';
@@ -1056,12 +1057,12 @@ function customCardMakerSwitchTab(tab) {
                         let cmRing = b.params.coordMode || 'relative';
                         let hrRing = b.params.hitRadius || '';
 
-                        if (hrRing !== '' || radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative') {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
+                        if (hrRing !== '' || radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative' || angRing !== '0') {
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
                         } else if (oxRing !== '0' || oyRing !== '0') {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
                         } else {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${cntRing})`;
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing})`;
                         }
                         break;
                     }
@@ -1313,13 +1314,14 @@ function customCardMakerSwitchTab(tab) {
                                 bulletType: args[0] || 'normal',
                                 color: args[1] || '#ff3333',
                                 speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
-                                count: isLegacy ? (args[4] || '12') : (args[3] || '12'),
-                                offsetX: isLegacy ? '0' : (args[4] || '0'),
-                                offsetY: isLegacy ? '0' : (args[5] || '0'),
-                                radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
-                                bulletImage: args.length >= 8 ? args[7] : 'none',
-                                coordMode: args.length >= 9 ? args[8] : 'relative',
-                                hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
+                                angle: isLegacy ? '0' : (args[3] || '0'),
+                                count: isLegacy ? (args[4] || '12') : (args[4] || '12'),
+                                offsetX: isLegacy ? '0' : (args[5] || '0'),
+                                offsetY: isLegacy ? '0' : (args[6] || '0'),
+                                radius: isLegacy ? args[2] : (args.length >= 8 ? args[7] : '6'),
+                                bulletImage: args.length >= 9 ? args[8] : 'none',
+                                coordMode: args.length >= 10 ? args[9] : 'relative',
+                                hitRadius: (args.length >= 11 && args[10] !== '""') ? args[10] : ''
                             },
                             indent
                         };
@@ -1631,13 +1633,14 @@ function customCardMakerSwitchTab(tab) {
                             bulletType: args[0] || 'normal',
                             color: args[1] || '#ff3333',
                             speed: isLegacy ? (args[3] || '200') : (args[2] || '200'),
-                            count: isLegacy ? (args[4] || '12') : (args[3] || '12'),
-                            offsetX: isLegacy ? '0' : (args[4] || '0'),
-                            offsetY: isLegacy ? '0' : (args[5] || '0'),
-                            radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
-                            bulletImage: args.length >= 8 ? args[7] : 'none',
-                            coordMode: args.length >= 9 ? args[8] : 'relative',
-                            hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
+                            angle: isLegacy ? '0' : (args[3] || '0'),
+                            count: isLegacy ? (args[4] || '12') : (args[4] || '12'),
+                            offsetX: isLegacy ? '0' : (args[5] || '0'),
+                            offsetY: isLegacy ? '0' : (args[6] || '0'),
+                            radius: isLegacy ? args[2] : (args.length >= 8 ? args[7] : '6'),
+                            bulletImage: args.length >= 9 ? args[8] : 'none',
+                            coordMode: args.length >= 10 ? args[9] : 'relative',
+                            hitRadius: (args.length >= 11 && args[10] !== '""') ? args[10] : ''
                         },
                         indent: indent
                     };
