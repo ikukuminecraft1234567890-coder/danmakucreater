@@ -1405,7 +1405,9 @@ function applyAbilityEffect(cardId, owner) {
 
 
         function startGameLoop() {
-            if (gameLoopFrameId !== null) return;
+            if (gameLoopFrameId !== null) {
+                cancelAnimationFrame(gameLoopFrameId);
+            }
             gameLoopFrameId = requestAnimationFrame(update);
         }
 
@@ -1486,6 +1488,11 @@ function applyAbilityEffect(cardId, owner) {
         }
 
         function tickSimulation(dt) {
+            // エディタ表示中、またはゲーム中(BATTLE)でない場合はシミュレーションを進めない (裏でのエミッターや弾の暴走を完全にブロック)
+            if (!isGameRunning || gameState !== 'BATTLE') {
+                return;
+            }
+
             // バトルエフェクトのタイマー更新
             for (let i = activeEffects.length - 1; i >= 0; i--) {
                 activeEffects[i].timer -= dt;
@@ -2478,7 +2485,7 @@ function applyAbilityEffect(cardId, owner) {
                 }
                 // actionTimer が切れたら即座に全弾を消去してクリアエフェクトを開始
                 if (actionTimer <= 0 && !customCardDeathEffect && !window.customCardClearEffect) {
-                    bullets = []; // 弾を全消去
+                    bullets.length = 0; // 弾を全消去
                     let particles = [];
                     for (let i = 0; i < 80; i++) {
                         let angle = Math.random() * Math.PI * 2;

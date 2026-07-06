@@ -707,12 +707,12 @@ function customCardMakerSwitchTab(tab) {
             // テストプレイ開始時に全キー入力をリセット（スタックキー防止）
             for (let k in keyboardState) keyboardState[k] = false;
             
-            bullets = [];
-            magicCircles = [];
-            activeReigekis = [];
+            bullets.length = 0;
+            magicCircles.length = 0;
+            activeReigekis.length = 0;
             reigekiCutinTimer = 0;
             prevBombInput = false;
-            activeEffects = [];
+            activeEffects.length = 0;
             
             player.x = PLAY_WIDTH / 2;
             player.y = canvas.height * 0.8;
@@ -770,9 +770,9 @@ function customCardMakerSwitchTab(tab) {
             gameState = 'TITLE';
             customCardDeathEffect = null;
             
-            bullets = [];
-            magicCircles = [];
-            activeReigekis = [];
+            bullets.length = 0;
+            magicCircles.length = 0;
+            activeReigekis.length = 0;
             
             const bombBtn = document.getElementById('mobileBombBtn');
             if (bombBtn) bombBtn.style.display = 'none';

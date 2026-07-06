@@ -1780,10 +1780,10 @@
             cpu.bombs = cpu.maxBombs;
             cpu.bombCooldown = 0;
 
-            activeReigekis = [];
+            activeReigekis.length = 0;
             reigekiCutinTimer = 0;
-            bullets = [];
-            magicCircles = [];
+            bullets.length = 0;
+            magicCircles.length = 0;
             gameState = 'BATTLE';
             turnCount = 1;
             selectedPlayerCards = [];
@@ -1870,17 +1870,17 @@
             cpu.isInvincible = false;
             cpu.invincibleTimer = 0;
 
-            activeReigekis = [];
+            activeReigekis.length = 0;
             reigekiCutinTimer = 0;
             reigekiCutinOwner = 'PLAYER';
             prevBombInput = false;
-            activeEffects = []; // エフェクト配列のクリア
+            activeEffects.length = 0; // エフェクト配列のクリア
             player.p7Triggered = false; // HP25%以下自動回復フラグ
             cpu.p7Triggered = false;
             cpu.hp = 1000; cpu.pendingDamage = 0; cpu.pendingHeal = 0; cpu.grazeCount = 0; cpu.recentHits = []; cpu.x = PLAY_WIDTH / 2; cpu.y = canvas.height * 0.2;
             cpu.targetX = cpu.x; cpu.targetY = cpu.y;
-            bullets = [];
-            magicCircles = [];
+            bullets.length = 0;
+            magicCircles.length = 0;
             gameState = 'BATTLE';
             turnCount = 1;
             selectedPlayerCards = []; // リセット
