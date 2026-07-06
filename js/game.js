@@ -3365,6 +3365,24 @@ function applyAbilityEffect(cardId, owner) {
 
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
+            // ── スペルカード名を左上に表示 ──────────────────────────────
+            if (gameState === 'BATTLE' && activeCards && activeCards[0]) {
+                ctx.save();
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.font = "italic bold 16px 'Noto Serif JP', sans-serif";
+                // テキストのシャドウ（視認性向上）
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillText(activeCards[0].name, 12, 12);
+                // 金〜白のグラデーション
+                let grad = ctx.createLinearGradient(10, 10, 10, 26);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(1, '#ffe066');
+                ctx.fillStyle = grad;
+                ctx.fillText(activeCards[0].name, 10, 10);
+                ctx.restore();
+            }
+
             // ── 残り時間を右上に表示 ──────────────────────────────
             if (isCustomCardTesting && !customCardTestEmitterDone) {
                 let t = Math.max(0, actionTimer);
@@ -4180,7 +4198,9 @@ function applyAbilityEffect(cardId, owner) {
                 bulletState.variables[name] = emitterState.variables[name];
                 copiedCount++;
             });
-            console.log(`[DEBUG] inheritEmitterVariablesToBullet: copied ${copiedCount} custom variables`);
+            if (window.showDebugProfiler) {
+                console.log(`[DEBUG] inheritEmitterVariablesToBullet: copied ${copiedCount} custom variables`);
+            }
         }
 
         const numericExprCache = new Map();

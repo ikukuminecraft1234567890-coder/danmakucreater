@@ -402,7 +402,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             runCustomBulletScript(b, bdt, attacker, target);
                         };
                         
-                        console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
+                        if (window.showDebugProfiler) {
+                            console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
+                        }
                         bullets.push(newBullet);
                         break;
                     }
@@ -479,7 +481,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             
                             bullets.push(newBullet);
                         }
-                        console.log(`[DEBUG] spawn_ring: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, angle=${centerAngle}`);
+                        if (window.showDebugProfiler) {
+                            console.log(`[DEBUG] spawn_ring: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, angle=${centerAngle}`);
+                        }
                         break;
                     }
                     case 'spawn_way': {
@@ -558,7 +562,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             
                             bullets.push(newBullet);
                         }
-                        console.log(`[DEBUG] spawn_way: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, spread=${spread}, centerAngle=${centerAngle}`);
+                        if (window.showDebugProfiler) {
+                            console.log(`[DEBUG] spawn_way: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, spread=${spread}, centerAngle=${centerAngle}`);
+                        }
                         break;
                     }
                     case 'spawn_magic_circle': {
@@ -910,7 +916,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (b.bulletDebugId === undefined) {
                 b.bulletDebugId = window.bulletDebugCount++;
             }
-            let shouldLog = b.bulletDebugId < 15; // 最初の15発のみログ対象
+            let shouldLog = window.showDebugProfiler && b.bulletDebugId < 15; // デバッグモード時のみ最初の15発のみログ対象
             if (window.currentCardSecond !== undefined) {
                 state.variables.cardSecond = window.currentCardSecond;
                 state.variables.cardFrame = window.currentCardFrame || 0;
