@@ -230,9 +230,12 @@ function customCardMakerSwitchTab(tab) {
             document.getElementById('palette-btn-aim').style.display = 'block';
             document.getElementById('palette-btn-move-owner').style.display = (tab === 'emitter') ? 'block' : 'none';
             document.getElementById('palette-btn-slide-owner').style.display = (tab === 'emitter') ? 'block' : 'none';
-            document.getElementById('palette-btn-spawn').style.display = (tab === 'emitter') ? 'block' : 'none';
-            document.getElementById('palette-btn-spawn-ring').style.display = (tab === 'emitter') ? 'block' : 'none';
-            document.getElementById('palette-btn-spawn-way').style.display = (tab === 'emitter') ? 'block' : 'none';
+            document.getElementById('palette-btn-spawn').style.display = 'block';
+            document.getElementById('palette-btn-spawn-ring').style.display = 'block';
+            document.getElementById('palette-btn-spawn-way').style.display = 'block';
+            if (document.getElementById('palette-btn-magic-circle')) {
+                document.getElementById('palette-btn-magic-circle').style.display = 'block';
+            }
             document.getElementById('palette-btn-homing').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-speed-add').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-speed-set').style.display = (tab === 'bullet') ? 'block' : 'none';
