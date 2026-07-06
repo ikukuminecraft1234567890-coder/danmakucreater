@@ -2148,7 +2148,7 @@ function applyAbilityEffect(cardId, owner) {
                         if (activeCards && activeCards[0] && activeCards[0].despawnTime !== undefined) {
                             despawnLimit = Number(activeCards[0].despawnTime) || 1.5;
                         }
-                        if (b.x < -200 || b.x > PLAY_WIDTH + 200 || b.y < -200 || b.y > canvas.height + 200) {
+                        if (b.x < -500 || b.x > PLAY_WIDTH + 500 || b.y < -500 || b.y > canvas.height + 500) {
                             shouldDespawn = true;
                         } else if (b.offscreenTime >= despawnLimit) {
                             shouldDespawn = true;
