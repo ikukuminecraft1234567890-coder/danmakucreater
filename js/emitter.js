@@ -2110,7 +2110,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         function parseSharedCard(decompressed) {
             const parsed = JSON.parse(decompressed);
             
-            let name, cost, desc, duration, emitterData, bulletData, magicCircleData;
+            let name, cost, desc, duration, emitterData, bulletData, magicCircleData, despawnTime;
             
             if (Array.isArray(parsed)) {
                 // 配列形式のデシリアライズ (新フォーマット)
@@ -2121,12 +2121,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                 emitterData = parsed[4] || [];
                 bulletData = parsed[5] || [];
                 magicCircleData = parsed[6] || [];
+                despawnTime = parsed[7] !== undefined ? parsed[7] : 1.5;
             } else {
                 // オブジェクト形式のデシリアライズ (旧フォーマット)
                 name = parsed.n || parsed.name || '無名カード';
                 cost = parsed.c !== undefined ? parsed.c : (parsed.cost || 100);
                 desc = parsed.d || parsed.desc || '';
                 duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
+                despawnTime = parsed.despawnTime !== undefined ? parsed.despawnTime : 1.5;
                 
                 emitterData = parsed.e !== undefined ? parsed.e : parsed.emitterScript;
                 bulletData = parsed.b !== undefined ? parsed.b : parsed.bulletScript;
@@ -2176,6 +2178,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 rawCost: cost,
                 desc: desc,
                 duration: duration,
+                despawnTime: despawnTime,
                 emitterScript: emitterScript,
                 bulletScript: bulletScript,
                 magicCircleScript: magicCircleScript
@@ -2194,7 +2197,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     card.duration || 10,
                     serializeBlocks(card.emitterScript || []),
                     serializeBlocks(card.bulletScript || []),
-                    serializeBlocks(card.magicCircleScript || [])
+                    serializeBlocks(card.magicCircleScript || []),
+                    card.despawnTime !== undefined ? card.despawnTime : 1.5
                 ];
 
                 const jsonStr = JSON.stringify(miniCard);
@@ -2459,6 +2463,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 testPassed: customCardMaker.testPassed,
                 x_offset: document.getElementById('custom-card-x-offset') ? document.getElementById('custom-card-x-offset').value : "0",
                 y_offset: document.getElementById('custom-card-y-offset') ? document.getElementById('custom-card-y-offset').value : "0",
+                despawnTime: document.getElementById('custom-card-despawn-time') ? document.getElementById('custom-card-despawn-time').value : "1.5",
                 codeText: document.getElementById('workspace-code-textarea').value
             };
             
@@ -2498,8 +2503,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (document.getElementById('custom-card-duration')) document.getElementById('custom-card-duration').value = customCardMaker.duration;
                 customCardMaker.x_offset = Number(draftData.x_offset) || 0;
                 customCardMaker.y_offset = Number(draftData.y_offset) || 0;
+                customCardMaker.despawnTime = Number(draftData.despawnTime) || 1.5;
                 if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset;
                 if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset;
+                if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime;
                 
                 document.getElementById('tab-btn-emitter').className = customCardMaker.activeTab === 'emitter' ? 'tab-btn active' : 'tab-btn';
                 document.getElementById('tab-btn-bullet').className = customCardMaker.activeTab === 'bullet' ? 'tab-btn active' : 'tab-btn';
@@ -2580,6 +2587,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.emitterScript = JSON.parse(JSON.stringify(migratedCard.emitterScript || []));
                 customCardMaker.bulletScript = JSON.parse(JSON.stringify(migratedCard.bulletScript || []));
                 customCardMaker.magicCircleScript = JSON.parse(JSON.stringify(migratedCard.magicCircleScript || []));
+                customCardMaker.despawnTime = migratedCard.despawnTime !== undefined ? migratedCard.despawnTime : 1.5;
                 customCardMaker.testPassed = true;
                 document.getElementById('card-editor-title').textContent = "スペルカード編集";
             } else {
@@ -2587,6 +2595,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.name = 'カスタムスペル';
                 customCardMaker.desc = 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = 15;
+                customCardMaker.despawnTime = 1.5;
                 customCardMaker.emitterScript = [
                     { type: 'repeat', params: { count: '12' }, indent: 0 },
                     { type: 'spawn_bullet', params: { bulletType: 'normal', color: '#ff3333', radius: '6', speed: '200', angle: 'angle' }, indent: 1 },
@@ -2608,6 +2617,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (document.getElementById('custom-card-duration')) document.getElementById('custom-card-duration').value = customCardMaker.duration;
             if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset || 0;
             if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset || 0;
+            if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime !== undefined ? customCardMaker.despawnTime : 1.5;
             
             renderCardMaker();
         }

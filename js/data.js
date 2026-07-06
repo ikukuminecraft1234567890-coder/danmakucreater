@@ -231,6 +231,10 @@
                 cc.magicCircleScript = [];
                 changed = true;
             }
+            if (cc.despawnTime === undefined) {
+                cc.despawnTime = 1.5;
+                changed = true;
+            }
             if (changed) {
                 applyCustomCardCosts(cc);
             }

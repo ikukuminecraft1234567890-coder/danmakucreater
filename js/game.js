@@ -2143,10 +2143,14 @@ function applyAbilityEffect(cardId, owner) {
                             shouldDespawn = true;
                         }
                     } else if (b.isCustom) {
-                        // Custom spells: can go offscreen, keep active up to 1.5 seconds to prevent mobile lag
+                        // Custom spells: can go offscreen, keep active up to despawnTime (default 1.5) to prevent mobile lag
+                        let despawnLimit = 1.5;
+                        if (activeCards && activeCards[0] && activeCards[0].despawnTime !== undefined) {
+                            despawnLimit = Number(activeCards[0].despawnTime) || 1.5;
+                        }
                         if (b.x < -200 || b.x > PLAY_WIDTH + 200 || b.y < -200 || b.y > canvas.height + 200) {
                             shouldDespawn = true;
-                        } else if (b.offscreenTime >= 1.5) {
+                        } else if (b.offscreenTime >= despawnLimit) {
                             shouldDespawn = true;
                         }
                     } else {
