@@ -1774,6 +1774,7 @@ function applyAbilityEffect(cardId, owner) {
                         for (let j = bullets.length - 1; j >= 0; j--) {
                             let b = bullets[j];
                             if (b.team === 'CPU') {
+                                if (b.hitRadius === 0) continue;
                                 let distSq = (b.x - r.x) ** 2 + (b.y - r.y) ** 2;
                                 let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
                                 if (distSq < (r.radius + bHitR) ** 2) {
@@ -1795,6 +1796,7 @@ function applyAbilityEffect(cardId, owner) {
                         for (let j = bullets.length - 1; j >= 0; j--) {
                             let b = bullets[j];
                             if (b.team === 'PLAYER') {
+                                if (b.hitRadius === 0) continue;
                                 let distSq = (b.x - r.x) ** 2 + (b.y - r.y) ** 2;
                                 let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
                                 if (distSq < (r.radius + bHitR) ** 2) {
@@ -1884,6 +1886,7 @@ function applyAbilityEffect(cardId, owner) {
                                 let pCpuY = cpu.y + Math.sin(a) * (d / 0.4) * t;
                                 for (let b of bullets) {
                                     if (b.team === 'PLAYER' && !b.isNormal) {
+                                        if (b.hitRadius === 0) continue;
                                         if (Math.random() < cpu.ignoreChance) continue;
                                         if (b.isBeam) {
                                             let rx = pCpuX - b.x, ry = pCpuY - b.y;
@@ -2148,6 +2151,10 @@ function applyAbilityEffect(cardId, owner) {
                     }
 
                     if (b.isBeam || b.isGungnir) {
+                        continue;
+                    }
+
+                    if (b.hitRadius === 0) {
                         continue;
                     }
 

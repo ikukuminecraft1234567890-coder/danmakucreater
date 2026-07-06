@@ -359,6 +359,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         
                         let bRadius = evalExpr(block.params.radius || '6', state.variables);
                         let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
                         let bImg = block.params.bulletImage || 'none';
 
                         let newBullet = {
@@ -420,6 +424,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         
                         let bRadius = evalExpr(block.params.radius || '6', state.variables);
                         let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
                         let bImg = block.params.bulletImage || 'none';
 
                         for (let k = 0; k < count; k++) {
@@ -491,6 +499,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         
                         let bRadius = evalExpr(block.params.radius || '6', state.variables);
                         let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
                         let bImg = block.params.bulletImage || 'none';
 
                         let startAngle = centerAngle - (spread * (count - 1)) / 2;
@@ -774,6 +786,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             return !!(
                 b && b.bulletState && !b._expired &&
                 !b.isLaser && !b.isWarningLaser && !b.isBombPiece &&
+                b.hitRadius !== 0 &&
                 Number.isFinite(b.x) && Number.isFinite(b.y)
             );
         }
@@ -1353,7 +1366,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                 } else {
                     let hrNum = parseFloat(evalExpr(hrVal, state.variables));
                     if (!isNaN(hrNum)) {
+                        if (hrNum < 0.1) hrNum = 0;
                         b.hitRadius = hrNum;
+                        state.variables.hitRadius = hrNum;
                     }
                 }
             }
