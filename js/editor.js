@@ -440,6 +440,11 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
                                     <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
                                     <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
+                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
+                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
+                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
+                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
+                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
@@ -483,6 +488,11 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
                                     <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
                                     <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
+                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
+                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
+                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
+                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
+                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
@@ -528,6 +538,11 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
                                     <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
                                     <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
+                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
+                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
+                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
+                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
+                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
