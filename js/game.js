@@ -2418,7 +2418,14 @@ function applyAbilityEffect(cardId, owner) {
                     }
                 }
                 if (useFastRemove) {
-                    bullets = bullets.filter(b => !b._dead);
+                    // 参照を壊さないようにインプレース（破壊的）に生存している弾のみを残す
+                    let writeIdx = 0;
+                    for (let i = 0; i < bullets.length; i++) {
+                        if (!bullets[i]._dead) {
+                            bullets[writeIdx++] = bullets[i];
+                        }
+                    }
+                    bullets.length = writeIdx;
                 }
                 window.perfBullet = (window.perfBullet || 0) + (performance.now() - tBulletStart);
             }
