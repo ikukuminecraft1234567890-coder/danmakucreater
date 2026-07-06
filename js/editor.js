@@ -694,6 +694,8 @@ function customCardMakerSwitchTab(tab) {
             }
             
             isCustomCardTesting = true;
+            window.currentCardSecond = 0;
+            window.currentCardFrame = 0;
             
             setCardMakerScreenActive(false);
             document.getElementById('titleScreen').style.display = 'none';

@@ -902,7 +902,10 @@ function stepEmitter(c, state, attacker, target, dt) {
         function runCustomBulletScript(b, dt, attacker, target) {
             let state = b.bulletState;
             if (!state) return;
-            if (b.sharedEmitterState && b.sharedEmitterState.variables) {
+            if (window.currentCardSecond !== undefined) {
+                state.variables.cardSecond = window.currentCardSecond;
+                state.variables.cardFrame = window.currentCardFrame || 0;
+            } else if (b.sharedEmitterState && b.sharedEmitterState.variables) {
                 state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
                 state.variables.cardFrame = Number(b.sharedEmitterState.variables.cardFrame || b.sharedEmitterState.variables.frame || 0);
             } else {
@@ -990,7 +993,18 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables.timer += dt;
             state.variables.second = (Number(state.variables.second) || 0) + dt;
             state.variables.frame = (Number(state.variables.frame) || 0) + 1;
-            if (b.sharedEmitterState && b.sharedEmitterState.variables) {
+            if (window.currentCardSecond !== undefined) {
+                state.variables.cardSecond = window.currentCardSecond;
+                state.variables.cardFrame = window.currentCardFrame || 0;
+                
+                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
+                if (window.needsEmitterSync && b.sharedEmitterState && b.sharedEmitterState.variables) {
+                    Object.keys(b.sharedEmitterState.variables).forEach(key => {
+                        state.variables['e_' + key] = b.sharedEmitterState.variables[key];
+                        state.variables['emitter_' + key] = b.sharedEmitterState.variables[key];
+                    });
+                }
+            } else if (b.sharedEmitterState && b.sharedEmitterState.variables) {
                 state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
                 state.variables.cardFrame = Number(b.sharedEmitterState.variables.cardFrame || b.sharedEmitterState.variables.frame || 0);
                 

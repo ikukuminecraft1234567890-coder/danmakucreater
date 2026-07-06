@@ -264,6 +264,8 @@ function applyAbilityEffect(cardId, owner) {
             activeCards = selectedCards;
             if (activeCards.length === 0) return;
             actionTimer = Math.max(...activeCards.map(c => c.duration));
+            window.currentCardSecond = 0;
+            window.currentCardFrame = 0;
             normalShotTimer = 0;
             changePhase('ACTION', turnOwner);
         }
@@ -1962,6 +1964,8 @@ function applyAbilityEffect(cardId, owner) {
                 // アクションフェーズの弾幕展開
                 if (battlePhase === 'ACTION') {
                     actionTimer -= dt;
+                    window.currentCardSecond = (window.currentCardSecond || 0) + dt;
+                    window.currentCardFrame = (window.currentCardFrame || 0) + 1;
 
                     // 制限時間内のみ弾を生成する
                     if (actionTimer > 0) {
