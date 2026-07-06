@@ -2433,7 +2433,7 @@ function applyAbilityEffect(cardId, owner) {
             if (isCustomCardTesting) {
                 // クリアエフェクト進行中はタイマーを減らして待つ
                 if (window.customCardClearEffect) {
-                    window.customCardClearEffect.timer -= dt;
+                    window.customCardClearEffect.elapsed = (window.customCardClearEffect.elapsed || 0) + dt;
                     // お祝いの虹色パーティクルを更新
                     window.customCardClearEffect.particles.forEach(p => {
                         p.x += p.vx * dt;
@@ -2443,7 +2443,8 @@ function applyAbilityEffect(cardId, owner) {
                         p.alpha = Math.max(0, p.life / p.maxLife);
                     });
                     window.customCardClearEffect.particles = window.customCardClearEffect.particles.filter(p => p.life > 0);
-                    if (window.customCardClearEffect.timer <= 0) {
+                    // タップ5回で終了
+                    if (window.customCardClearEffect.tapCount >= 5) {
                         window.customCardClearEffect = null;
                         endCustomCardTest(true);
                         return 'ended';
@@ -2510,7 +2511,7 @@ function applyAbilityEffect(cardId, owner) {
                             hue: Math.random() * 360 // 虹色
                         });
                     }
-                    window.customCardClearEffect = { timer: 3.0, particles };
+                    window.customCardClearEffect = { elapsed: 0, tapCount: 0, particles };
                     customCardTestEmitterDone = true;
                 }
             }
@@ -3440,7 +3441,7 @@ function applyAbilityEffect(cardId, owner) {
                 });
                 
                 // 「SPELL CARD CLEAR!」テキスト（エフェクト開始から0.3秒でフェードイン）
-                let elapsed = 3.0 - window.customCardClearEffect.timer;
+                let elapsed = window.customCardClearEffect.elapsed || 0;
                 let textAlpha = Math.min(1.0, Math.max(0, (elapsed - 0.3) / 0.3));
                 if (textAlpha > 0) {
                     ctx.globalAlpha = textAlpha;
@@ -3449,7 +3450,7 @@ function applyAbilityEffect(cardId, owner) {
                     
                     // 背景の帯状の半透明パネル
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-                    ctx.fillRect(0, canvas.height / 2 - 85, PLAY_WIDTH, 170);
+                    ctx.fillRect(0, canvas.height / 2 - 85, PLAY_WIDTH, 200);
                     
                     // 影
                     ctx.fillStyle = 'rgba(0,0,0,0.85)';
@@ -3470,10 +3471,22 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.font = "italic bold 56px sans-serif";
                     ctx.fillText('CLEAR!', PLAY_WIDTH / 2, canvas.height / 2 + 25);
                     
-                    // 残り秒数表示
+                    // タップ数インジケーター（5回でエディタに戻る）
+                    let tapCount = window.customCardClearEffect.tapCount || 0;
+                    let remaining = 5 - tapCount;
                     ctx.fillStyle = '#aaffaa';
                     ctx.font = 'bold 16px sans-serif';
-                    ctx.fillText(Math.ceil(window.customCardClearEffect.timer) + '秒後にエディタに戻ります...', PLAY_WIDTH / 2, canvas.height / 2 + 105);
+                    ctx.fillText('タップして戻る (' + tapCount + '/5)', PLAY_WIDTH / 2, canvas.height / 2 + 105);
+                    // ●の連打インジケーター
+                    let dotSpacing = 22;
+                    let dotStartX = PLAY_WIDTH / 2 - dotSpacing * 2;
+                    for (let di = 0; di < 5; di++) {
+                        ctx.globalAlpha = textAlpha;
+                        ctx.beginPath();
+                        ctx.arc(dotStartX + di * dotSpacing, canvas.height / 2 + 130, 7, 0, Math.PI * 2);
+                        ctx.fillStyle = di < tapCount ? '#ffe066' : 'rgba(255,255,255,0.25)';
+                        ctx.fill();
+                    }
                 }
                 ctx.globalAlpha = 1.0;
                 ctx.restore();
@@ -3672,6 +3685,11 @@ function applyAbilityEffect(cardId, owner) {
 
             // 1. 自機のドラッグ（スライド）移動操作 (container全体で検知して前面UIとの干渉を完全に防ぐ)
             container.addEventListener('touchstart', (e) => {
+                // クリアエフェクト中はタップでカウントアップ
+                if (window.customCardClearEffect) {
+                    window.customCardClearEffect.tapCount = (window.customCardClearEffect.tapCount || 0) + 1;
+                    return;
+                }
                 // 開発者ツールなどのエミュレータ対策としてタッチ開始時にも強制付与
                 document.body.classList.add('mobile-mode');
 
@@ -3695,6 +3713,11 @@ function applyAbilityEffect(cardId, owner) {
 
             // PCマウスでのドラッグ操作にも完全対応！
             container.addEventListener('mousedown', (e) => {
+                // クリアエフェクト中はクリックでカウントアップ
+                if (window.customCardClearEffect) {
+                    window.customCardClearEffect.tapCount = (window.customCardClearEffect.tapCount || 0) + 1;
+                    return;
+                }
                 onDragStart(e.clientX, e.clientY);
             });
 
