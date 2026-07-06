@@ -4146,7 +4146,7 @@ function applyAbilityEffect(cardId, owner) {
             'sin', 'cos', 'tan', 'sqrt', 'abs', 'min', 'max', 'PI', 'PI2',
             'atan2', 'pow', 'log', 'exp', 'floor', 'round', 'ceil', 'random', 'rand',
             'const', 'let', 'var', 'function', 'return', 'n',
-            '__fuzzyEqual', '__fuzzyNotEqual', '__checkInterval', '__v'
+            '__fuzzyEqual', '__fuzzyNotEqual', '__v'
         ]);
 
         function compileNumericExpr(expr) {
@@ -4179,28 +4179,7 @@ function applyAbilityEffect(cardId, owner) {
                     return '___STRICT_EQ_' + (strictEquals.length - 1) + '___';
                 });
 
-                // 4. インターンバル跨ぎ（またぎ）判定のトランスパイル（プレーンな変数名のまま置換）
-                let intervalIdx = 0;
-                // 変数 == 周期 * n
-                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*([^&|?,:=]+?)\s*\*\s*n\b/gi, (match, varName, period) => {
-                    intervalIdx++;
-                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
-                // 変数 == n * 周期
-                s = s.replace(/\b(cardSecond|timer|frame|cardFrame|second)\s*==\s*n\s*\*\s*([^&|?,:=]+?)\b/gi, (match, varName, period) => {
-                    intervalIdx++;
-                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
-                // 周期 * n == 変数
-                s = s.replace(/([^&|?,:=]+?)\s*\*\s*n\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
-                    intervalIdx++;
-                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
-                // n * 周期 == 変数
-                s = s.replace(/\bn\s*\*\s*([^&|?,:=]+?)\s*==\s*\b(cardSecond|timer|frame|cardFrame|second)\b/gi, (match, period, varName) => {
-                    intervalIdx++;
-                    return `__checkInterval(${varName}, (${period}), "__prev_interval_${intervalIdx}", __v)`;
-                });
+
 
                 // 5. a == b / a != b を誤差許容関数呼び出しに置換
                 s = s.replace(/([^&|?,:=]+)\s*==\s*([^&|?,:=]+)/g, '__fuzzyEqual($1,$2)');
