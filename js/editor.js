@@ -650,8 +650,11 @@ function customCardMakerSwitchTab(tab) {
         }
 
         function startCustomCardTest() {
-            if (customCardMakerMode === 'code') {
-                let code = document.getElementById('workspace-code-textarea').value;
+            // コードエリアが非表示でない場合は、テキストコードからブロックを強制同期パースする
+            // (リロード直後に変数モードとUIの表示がズレて、初回のテストプレイだけデフォルト赤弾が出る不具合を解消)
+            const codeTextarea = document.getElementById('workspace-code-textarea');
+            if (codeTextarea && !codeTextarea.classList.contains('hidden')) {
+                let code = codeTextarea.value;
                 let parsed = codeToBlocks(code);
                 if (customCardMaker.activeTab === 'emitter') {
                     customCardMaker.emitterScript = parsed;
@@ -713,6 +716,10 @@ function customCardMakerSwitchTab(tab) {
             
             player.x = PLAY_WIDTH / 2;
             player.y = canvas.height * 0.8;
+            player.targetX = player.x;
+            player.targetY = player.y;
+            player.prevX = player.x;
+            player.prevY = player.y;
             player.isInvincible = false;
             player.invincibleTimer = 0;
             player.hp = 1000;
@@ -727,6 +734,10 @@ function customCardMakerSwitchTab(tab) {
             
             cpu.x = PLAY_WIDTH / 2;
             cpu.y = canvas.height * 0.2;
+            cpu.targetX = cpu.x;
+            cpu.targetY = cpu.y;
+            cpu.prevX = cpu.x;
+            cpu.prevY = cpu.y;
             cpu.hp = 1000;
             cpu.pendingDamage = 0;
             cpu.pendingHeal = 0;
