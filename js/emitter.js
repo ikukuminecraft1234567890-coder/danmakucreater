@@ -2044,7 +2044,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'move_owner': ['preset', 'duration'],
             'slide_owner': ['preset', 'duration'],
             'spawn_bullet': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
-            'spawn_ring': ['type', 'color', 'speed', 'count', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_ring': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
             'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
             'homing': ['turnSpeed'],
             'speed_add': ['value'],
