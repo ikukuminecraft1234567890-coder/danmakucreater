@@ -1244,12 +1244,7 @@ function customCardMakerSwitchTab(tab) {
                 let trimmed = rawLine.trim();
                 trimmed = trimmed.replace(/;+$/, "").trim();
                 // コメント・空行・単独の { } をスキップ
-                if (!trimmed || trimmed === '{' || trimmed === '}') return;
-                // コメント行（//で始まる）は未解釈ブロックとして保持
-                if (trimmed.startsWith('//')) {
-                    blocks.push({ type: 'unknown', params: { code: trimmed }, indent: Math.max(0, Math.min(20, currentIndent)) });
-                    return;
-                }
+                if (!trimmed || trimmed === '{' || trimmed === '}' || trimmed.startsWith('//')) return;
 
                 // インデントを計算（スタックの深さで決定）
                 let indent = Math.max(0, Math.min(20, currentIndent));
@@ -1533,13 +1528,6 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let indent = Math.floor(spaceCount / 4);
                 indent = Math.max(0, Math.min(20, indent));
-
-                // コメント行（//で始まる）は未解釈ブロックとして保持（stripComments前に判定）
-                let rawTrimmed = line.trim();
-                if (rawTrimmed.startsWith('//')) {
-                    blocks.push({ type: 'unknown', params: { code: rawTrimmed }, indent: indent });
-                    return;
-                }
 
                 let cleanLine = stripComments(line);
                 let trimmed = cleanLine.trim();
