@@ -388,7 +388,8 @@
             return labels[bIndex] !== undefined ? labels[bIndex] : `Button ${bIndex}`;
         }
 
-        // ローカルストレージからキー設定・ゲームパッド設定ロード
+        // ローカルストレージからキー設定・ゲームパッド設定・当たり判定色設定ロード
+        window.hitboxColorSetting = 'red';
         try {
             const savedKeys = localStorage.getItem('touhou_kyoukaisen_keys');
             if (savedKeys) {
@@ -397,6 +398,10 @@
             const savedGamepad = localStorage.getItem('touhou_kyoukaisen_gamepad');
             if (savedGamepad) {
                 gamepadConfig = Object.assign(gamepadConfig, JSON.parse(savedGamepad));
+            }
+            const savedHitboxColor = localStorage.getItem('touhou_kyoukaisen_hitbox_color');
+            if (savedHitboxColor) {
+                window.hitboxColorSetting = savedHitboxColor;
             }
         } catch (e) { }
 
@@ -540,16 +545,35 @@
             }
         }, 50);
 
-        function saveKeyConfig() {
+        function saveKeyConfigAndSettings() {
+            const select = document.getElementById('setting-hitbox-color');
+            if (select) {
+                window.hitboxColorSetting = select.value;
+                try {
+                    localStorage.setItem('touhou_kyoukaisen_hitbox_color', window.hitboxColorSetting);
+                } catch (e) {}
+            }
             try {
                 localStorage.setItem('touhou_kyoukaisen_keys', JSON.stringify(keyConfig));
                 localStorage.setItem('touhou_kyoukaisen_gamepad', JSON.stringify(gamepadConfig));
-                alert('入力設定を保存しました！');
+                alert('設定を保存しました！');
                 showScreen('screen-menu');
             } catch (e) {
                 alert('保存に失敗しました。');
             }
         }
+        window.saveKeyConfigAndSettings = saveKeyConfigAndSettings;
+
+        function openConfigScreen() {
+            showScreen('screen-config');
+            renderKeyConfig();
+            renderGamepadConfig();
+            const select = document.getElementById('setting-hitbox-color');
+            if (select) {
+                select.value = window.hitboxColorSetting || 'red';
+            }
+        }
+        window.openConfigScreen = openConfigScreen;
 
         function resetKeyConfig() {
             if (confirm('設定をすべて初期化しますか？')) {

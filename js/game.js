@@ -3253,12 +3253,13 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.stroke();
             }
 
-            // 自機の当たり判定（赤いドット）は常時表示（視認性を究極まで高める）
+            // 自機の当たり判定（白と枠線の色の逆転＆赤・青切り替え）
+            let outerColor = (window.hitboxColorSetting === 'blue') ? '#0088ff' : 'red';
             ctx.beginPath();
             ctx.arc(player.x, player.y, player.hitboxRadius + 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = 'white';
             ctx.fill();
-            ctx.strokeStyle = 'white';
+            ctx.strokeStyle = outerColor;
             ctx.lineWidth = 1;
             ctx.stroke();
 
