@@ -257,9 +257,39 @@ if (m === 1) {
     `
     },
     {
-    name: "弾幕名",
-    desc: "説明文や作成者名など",
-    duration: 11,            // 制限時間（秒）
+    name: "超絶気合符「インフィニットスパイラル」",
+    desc: "",
+    duration: 15,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+    for (let i = 0; i < 1200000000; i++) {
+    spawnRing("normal", "#ff3333", 200, angle, 36 + way, 0, 0, 20, "ohuda", "relative", "6")
+    way += 2
+    angle += 16
+    wait(0.26)
+}
+while (true) {
+    moveTo("center")
+}
+    `,
+    bulletScript: `
+    if (isBounced) {
+    y = -80000
+}
+if (y > 886) {
+    y = -80000
+}
+    `,
+    magicCircleScript: `
+    `
+    },
+    {
+    name: "",
+    desc: "",
+    duration: 15,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -271,4 +301,19 @@ if (m === 1) {
     magicCircleScript: `
     `
     },
+    {
+    name: "",
+    desc: "",
+    duration: 15,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+    `,
+    bulletScript: `
+    `,
+    magicCircleScript: `
+    `
+    }
 ];
