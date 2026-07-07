@@ -51,28 +51,89 @@ if (isBounced) {
         magicCircleScript: ``
     },
     {
-        name: "【サンプル】十字レーザー格子",
-        desc: "設置レーザーによる格子状の弾幕を形成します（サンプル）",
-        duration: 15,
+        name: "華符「大輪舞転」",
+        desc: "とにかく綺麗に作った。",
+        duration: 30,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 2.0,
         emitterScript: `
-let d = 0;
+angle2 = 0
+xspa2 = x
+yspa2 = y
 while (true) {
-    warningTime = 1.0
-    activeTime = 1.5
-    laserWidth = 10
-    
-    for (let i = 0; i < 4; i++) {
-        spawnBullet("laser", "#ff3333", 0, d + i * 90, 0, 0, 8, "none", "relative")
+    spawnWay("normal", "#ff3333", 1000, angle + 180, 5, 72, 0, 0, 16, "ohuda", "relative", "2")
+    spawnWay("normal", "#ff3333", 1000, angle, 5, 72, 0, 0, 16, "ohuda", "relative", "2")
+    if (second >= 10) {
+        angle2 -= 43.5
     }
-    d += 12
-    wait(1.2)
+    angle += 0.2
+    wait(0.008)
+}
+while (true) {
+    tween("xspa", x, 384, "step", 1)
+    tween("yspa", y, 448, "step", 1)
+    xspa = 384
+    yspa = 448
+    wait(3)
+    while (true) {
+        tween("xspa", xspa, 384, "step", 0.1)
+        tween("yspa", yspa, 448, "step", 0.1)
+        wait(3)
+    }
+}
+while (true) {
+    spawnRing("normal", "#ffffff", 200, 0, 18, 0, 0, 9, "poihuru", "relative", "7")
+    wait(0.6)
 }
         `,
         bulletScript: `
-// 設置レーザーなので弾の挙動は特になし
+if (color != #ffffff) {
+    if (frame == 1) {
+        if (color == "#ff3333") {
+            x = e_xspa
+            y = e_yspa
+            prev_x = e_xspa
+            prev_y = e_yspa
+        }
+        if (color == "#3366ff") {
+            x = e_xspa2
+            y = e_yspa2
+            prev_x = e_xspa2
+            prev_y = e_yspa2
+        }
+    }
+    if (color == "#ff3333") {
+        dx = e_xspa - prev_x
+        dy = e_yspa - prev_y
+        prev_x = e_xspa
+        prev_y = e_yspa
+    }
+    if (color == "#3366ff") {
+        dx = e_xspa2 - prev_x
+        dy = e_yspa2 - prev_y
+        prev_x = e_xspa2
+        prev_y = e_yspa2
+    }
+    x += dx
+    y += dy
+    if (frame == 5..150) {
+        angle += 2
+    }
+    if (frame == 170..250) {
+        angle += 0
+    }
+    if (frame == 110..2510) {
+        y += 800000
+        angle -= 0
+    }
+}
+if (color == #ffffff) {
+    once {
+        x = 384
+        y = 448
+    }
+}
         `,
         magicCircleScript: ``
     }
