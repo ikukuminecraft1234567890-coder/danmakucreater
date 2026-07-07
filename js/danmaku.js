@@ -198,6 +198,21 @@ if (m === 1) {
     `
     },
     {
+    name: "弾幕の檻",
+    desc: "",
+    duration: 11,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+    `,
+    bulletScript: `
+    `,
+    magicCircleScript: `
+    `
+    },
+    {
     name: "弾幕名",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
@@ -206,8 +221,52 @@ if (m === 1) {
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
+    while (true) {
+    aimAtTarget()
+    spawnWay("normal", "#ff3333", 500, angle, 5, 20, 0, 0, 30, "ootama", "relative", "15")
+    wait(0.1)
+    aimAtTarget()
+    spawnWay("normal", "#ff3333", 500, angle + 50, 5, 20, 0, 0, 30, "ootama", "relative", "15")
+    wait(0.1)
+    aimAtTarget()
+    spawnWay("normal", "#ff3333", 500, angle - 50, 5, 20, 0, 0, 30, "ootama", "relative", "15")
+    wait(2)
+    aimAtTarget()
+    for (let i = 0; i < 36; i++) {
+        spawnWay("normal", "#3333ff", 500, angle, 1, 10, 0, 0, 20, "ohuda", "relative", "6")
+        angle += 25
+        wait(0.01)
+    }
+    wait(3)
+}
     `,
     bulletScript: `
+    if (color != #ffffff) {
+    if (x > 758) {
+        angle = 180
+        warningTime = 1
+        activeTime = 1.5
+        laserWidth = 20
+    }
+    if (y < 10) {
+        angle = 90
+        warningTime = 1
+        activeTime = 1.5
+        laserWidth = 20
+    }
+    if (x < 10) {
+        angle = 0
+        warningTime = 1
+        activeTime = 1.5
+        laserWidth = 20
+    }
+    if (y > 886) {
+        angle = 270
+        warningTime = 1
+        activeTime = 1.5
+        laserWidth = 20
+    }
+}
     `,
     magicCircleScript: `
     `
