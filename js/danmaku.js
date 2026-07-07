@@ -1,26 +1,26 @@
 /**
- * 共有弾幕データの一覧
+共有弾幕データの一覧
  * 
  * 弾幕を作ったら、以下のフォーマットでコピペして追加してください。
  * 
- * {
- *     name: "弾幕名",
- *     desc: "説明文や作成者名など",
- *     duration: 15,            // 制限時間（秒）
- *     x_offset: 0,             // 出現位置の横オフセット
- *     y_offset: 0,             // 出現位置の縦オフセット
- *     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
- *     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
- *     emitterScript: `
- *         // コア挙動の独自コード
- *     `,
- *     bulletScript: `
- *         // 弾挙動の独自コード
- *     `,
- *     magicCircleScript: `
- *         // 子弾挙動の独自コード（任意）
- *     `
- * }
+,{
+    name: "弾幕名",
+    desc: "説明文や作成者名など",
+    duration: 15,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+        // コア挙動の独自コード
+    `,
+    bulletScript: `
+        // 弾挙動の独自コード
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+}
  */
 const sharedDanmakuList = [
     {
@@ -137,7 +137,7 @@ if (color == #ffffff) {
     },
     {
     name: "サンライトインパクト",
-    desc: "",
+    desc: "ルナティックインパクトのパク...オマージュ。",
     duration: 50,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
@@ -199,7 +199,7 @@ if (m === 1) {
     },
     {
     name: "弾幕の檻",
-    desc: "説明文や作成者名など",
+    desc: "自機狙いと自機外しの弾が発射され、壁に当たるとレーザーを放つ。もちろん殺意の百合のオマージュ",
     duration: 15,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
@@ -258,7 +258,7 @@ if (m === 1) {
     },
     {
     name: "超絶気合符「インフィニットスパイラル」",
-    desc: "",
+    desc: "楽しい！好き！",
     duration: 15,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
@@ -288,7 +288,7 @@ if (y > 886) {
     },
     {
     name: "技符「陰陽掃除機」",
-    desc: "",
+    desc: "完全パターンスペル。そこそこ作るのに苦労しました",
     duration: 30,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
@@ -338,18 +338,75 @@ if (shotTimer >= 12) {
     `
     },
     {
-    name: "",
-    desc: "",
+    name: "上は洪水下は大火事",
+    desc: "普通にお気に入りのスペル！楽しい！",
+    duration: 35,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+    while (true) {
+    angle = -90 + random(-20,20)
+    if (cardSecond == 15..30) {
+        angle += random(-30,30)
+    }
+    if (cardSecond == 30..35) {
+        angle += random(-50,50)
+    }
+    spawnBullet("normal", "#ff3333", 200, angle, 0, 886, 20, "poihuru", "relative", "10")
+    if (cardSecond == 0..15) {
+        wait(0.05)
+    }
+    if (cardSecond == 15..30) {
+        wait(0.02)
+    }
+    if (cardSecond == 30..35) {
+        wait(0.0002)
+    }
+}
+    `,
+    bulletScript: `
+    if (color == #ff3333) {
+    if (y < 0) {
+        angle = 90 + random(-5,5)
+        speed = 5
+        color = #33ffff
+        y = 5
+    }
+    speed += 0.4
+}
+if (color == #33ffff) {
+    speed += 2
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: `
+    `
+    }
+];
+
+/**
+共有弾幕データの一覧
+ * 
+ * 弾幕を作ったら、以下のフォーマットでコピペして追加してください。
+ * 
+,{
+    name: "弾幕名",
+    desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
+        // コア挙動の独自コード
     `,
     bulletScript: `
+        // 弾挙動の独自コード
     `,
     magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
     `
-    }
-];
+}
+ */
