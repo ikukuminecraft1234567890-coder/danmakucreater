@@ -402,7 +402,7 @@ if (shotTimer >= 12) {
     {
     name: "上は洪水下は大火事",
     desc: "普通にお気に入りのスペル！楽しい！",
-    duration: 35,            // 制限時間（秒）
+    duration: 32,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -445,7 +445,67 @@ spriteAngle = angle
     `,
     magicCircleScript: `
     `
+    },{
+    name: "フラッシュレートレイン",
+    desc: "雨と巨大レーザー！",
+    duration: 30,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 1200000; i++) {
+    spawn = random(0,768)
+    for (let i = 0; i < 3; i++) {
+        spawnBullet("normal", "#ff3333", 300, 90, 0, -200, 7, "uroko", "relative", "4")
+        wait(0.03)
     }
+}
+for (let i = 0; i < 1200000; i++) {
+    spawn2 = random(0,768)
+    for (let i = 0; i < 5; i++) {
+        spawnBullet("normal", "#ff3323", 300, 90, 0, -200, 7, "uroko", "relative", "4")
+        wait(0.03)
+    }
+}
+for (let i = 0; i < 1200000; i++) {
+    spawn3 = random(0,768)
+    for (let i = 0; i < 7; i++) {
+        spawnBullet("normal", "#ff3332", 300, 90, 0, -200, 7, "uroko", "relative", "4")
+        wait(0.03)
+    }
+}
+while (true) {
+    wait(4)
+    spawnBullet("normal", "#33ffff", 200, 90, 0, -150)
+}
+    `,
+    bulletScript: `
+once {
+    if (color == #ff3333) {
+        x = spawn
+    }
+    if (color == #ff3332) {
+        x = spawn2
+    }
+    if (color == #ff3323) {
+        x = spawn3
+    }
+    if (color == #33ffff) {
+        x = tx
+        warningTime = 3
+        activeTime = 1.5
+        laserWidth = 900
+    }
+    wait(0.1)
+}
+if (y > 896) {
+    y = -580000
+}
+    `,
+    magicCircleScript: `
+    `
+}
 ];
 
 /**
