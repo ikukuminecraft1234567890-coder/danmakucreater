@@ -1484,14 +1484,10 @@ function customCardMakerSwitchTab(tab) {
             let depth = 0;
 
             rawLines.forEach(rawLine => {
-                const rawTrimmed = rawLine.trim();
-                // コメント行は stripComments で消えてしまうので先に分岐
-                const cleanLine = rawTrimmed.startsWith('//') ? rawTrimmed : stripComments(rawLine);
-                const t = cleanLine.trim();
+                const t = rawLine.trim();
                 if (!t) return;
                 if (t === '{') { depth++; return; }
                 if (t === '}') { depth = Math.max(0, depth - 1); return; }
-                // 行末 { が残っていたら深さを増やして除去
                 let line = t;
                 let hasBraceAtEnd = /\{\s*$/.test(line);
                 line = line.replace(/\{\s*$/, '').trim();
@@ -1531,10 +1527,7 @@ function customCardMakerSwitchTab(tab) {
                 let indent = Math.floor(spaceCount / 4);
                 indent = Math.max(0, Math.min(20, indent));
 
-                // コメント行は stripComments で消えないよう先に判定
-                let rawTrimmed = line.trim();
-                let cleanLine = rawTrimmed.startsWith('//') ? rawTrimmed : stripComments(line);
-                let trimmed = cleanLine.trim();
+                let trimmed = line.trim();
                 // セミコロン、行末の波括弧を除去
                 trimmed = trimmed.replace(/;+$/, "").trim();
                 trimmed = trimmed.replace(/\{\s*$/, "").trim();
