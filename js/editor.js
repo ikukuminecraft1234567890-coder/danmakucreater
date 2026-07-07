@@ -1905,31 +1905,31 @@ function customCardMakerSwitchTab(tab) {
                 const btnShadow = isCleared ? 'rgba(0,136,255,0.6)' : 'rgba(216,0,255,0.6)';
 
                 const cardDiv = document.createElement('div');
-                cardDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid ${borderNormal}; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: border-color 0.2s;`;
+                cardDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid ${borderNormal}; border-radius: 8px; margin-bottom: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: border-color 0.2s;`;
                 cardDiv.onmouseover = () => { cardDiv.style.borderColor = borderHover; };
                 cardDiv.onmouseout = () => { cardDiv.style.borderColor = borderNormal; };
                 
                 const infoDiv = document.createElement('div');
                 infoDiv.style.flex = '1';
-                infoDiv.style.paddingRight = '15px';
+                infoDiv.style.paddingRight = '10px';
                 
                 const titleSpan = document.createElement('span');
-                titleSpan.style.cssText = `font-weight: bold; color: ${titleColor}; font-size: 16px; text-shadow: 0 0 5px ${titleShadow};`;
+                titleSpan.style.cssText = `font-weight: bold; color: ${titleColor}; font-size: 14px; text-shadow: 0 0 5px ${titleShadow}; vertical-align: middle;`;
                 titleSpan.textContent = card.name;
                 
                 if (isCleared) {
                     const clearBadge = document.createElement('span');
-                    clearBadge.style.cssText = 'margin-left: 8px; font-size: 11px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 2px 6px; border-radius: 4px; vertical-align: middle; font-weight: bold;';
+                    clearBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
                     clearBadge.textContent = '★CLEARED';
                     titleSpan.appendChild(clearBadge);
                 }
                 
                 const timeSpan = document.createElement('span');
-                timeSpan.style.cssText = 'margin-left: 10px; font-size: 11px; color: #00ffcc; background: rgba(0,255,200,0.15); border: 1px solid rgba(0,255,200,0.3); padding: 2px 6px; border-radius: 4px; vertical-align: middle;';
+                timeSpan.style.cssText = 'margin-left: 8px; font-size: 10px; color: #00ffcc; background: rgba(0,255,200,0.15); border: 1px solid rgba(0,255,200,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle;';
                 timeSpan.textContent = `${card.duration}秒`;
                 
                 const descP = document.createElement('p');
-                descP.style.cssText = 'margin: 6px 0 0 0; font-size: 12px; color: #ccc; line-height: 1.4;';
+                descP.style.cssText = 'margin: 4px 0 0 0; font-size: 11px; color: #ccc; line-height: 1.35;';
                 descP.textContent = card.desc || '説明はありません。';
                 
                 infoDiv.appendChild(titleSpan);
@@ -1938,7 +1938,7 @@ function customCardMakerSwitchTab(tab) {
                 
                 const playBtn = document.createElement('button');
                 playBtn.className = 'menu-btn';
-                playBtn.style.cssText = `width: 100px; height: 38px; font-size: 14px; margin: 0; background: ${btnBg}; border-color: ${btnBorder}; text-shadow: 0 0 8px ${btnShadow}; font-weight: bold;`;
+                playBtn.style.cssText = `width: 75px; height: 30px; font-size: 12px; margin: 0; background: ${btnBg}; border-color: ${btnBorder}; text-shadow: 0 0 6px ${btnShadow}; font-weight: bold; flex-shrink: 0;`;
                 playBtn.textContent = 'プレイ';
                 playBtn.onclick = () => playSharedDanmaku(idx);
                 
