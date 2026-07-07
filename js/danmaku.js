@@ -35,7 +35,7 @@ let r = 0;
 while (true) {
     aimAtTarget()
     spawnRing("normal", "#33ffff", 180, r, 8, 0, 0, 6, "none", "relative")
-    r += 15
+    r += 1
     angle = r
     wait(0.1)
 }
