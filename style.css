@@ -1609,6 +1609,7 @@ html,
         .maker-block.color-vars { background-color: #563071 !important; border-left-color: #d990ff !important; }
         .maker-block.color-motion { background-color: #145f87 !important; border-left-color: #69d8ff !important; }
         .maker-block.color-action { background-color: #83281f !important; border-left-color: #ff8d7e !important; }
+        .maker-block.color-unknown { background-color: #3e3e3e !important; border-left-color: #888888 !important; }
         .maker-block select,
         .maker-block input[type="text"] {
             min-height: 28px !important;

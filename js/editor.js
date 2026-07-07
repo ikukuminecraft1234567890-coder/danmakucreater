@@ -267,10 +267,7 @@ function customCardMakerSwitchTab(tab) {
                     let html = '';
                     switch (b.type) {
                         case 'unknown':
-                            blockDiv.style.background = 'linear-gradient(135deg, #444 0%, #2b2b2b 100%)';
-                            blockDiv.style.borderColor = '#555';
-                            blockDiv.style.color = '#ccc';
-                            blockDiv.className = 'maker-block';
+                            blockDiv.className = 'maker-block color-unknown';
                             html = `
                                 <span style="color:#aaa; font-weight:bold; margin-right:5px;">[未解釈]</span>
                                 <input type="text" style="width:260px; background:#1a1a1a; color:#fff; border:1px solid #444; padding:3px 6px; border-radius:4px; font-family:monospace;" value="${b.params.code}" onchange="customCardMakerUpdateParam(${idx}, 'code', this.value)">
