@@ -31,12 +31,10 @@ const sharedDanmakuList = [
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-let r = 0;
 while (true) {
     aimAtTarget()
-    spawnRing("normal", "#33ffff", 180, r, 8, 0, 0, 6, "none", "relative")
-    r += 1
-    angle = r
+    spawnRing("normal", "#33ffff", 180, angle, 8, 0, 0, 6, "none", "relative")
+    angle += 5
     wait(0.1)
 }
         `,
