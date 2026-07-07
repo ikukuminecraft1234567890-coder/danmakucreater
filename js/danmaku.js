@@ -184,7 +184,7 @@ if (isTouchEdge) {
 if (m===0) {
     for (let i = 0; i < 2; i++) {
         rang = random(0,360)
-        spawnRing("normal", "#ff3333", 300, rang, 36, 0, 0, 9, "star", "relative", "6")
+        spawnRing("normal", "#ff3333", 300, rang, 36, 0, 0, 9, "star", "relative", "3")
         wait(0.2)
     }
     m = 1
