@@ -1420,8 +1420,8 @@ function customCardMakerSwitchTab(tab) {
                         let mChange = trimmed.match(/^(\w+)\s*([+\-])=\s*(.+)$/);
                         if (mChange) block = { type: 'change_var', params: { name: mChange[1], op: mChange[2], value: mChange[3] }, indent };
                         else {
-                            let mConst = trimmed.match(/^const\s+(\w+)\s*=\s*(.+)$/);
-                            if (mConst) block = { type: 'const_var', params: { name: mConst[1], value: mConst[2] }, indent };
+                            let mConst = trimmed.match(/^(const|let|var)\s+(\w+)\s*=\s*(.+)$/i);
+                            if (mConst) block = { type: 'const_var', params: { name: mConst[2], value: mConst[3] }, indent };
                             else { let mSet = trimmed.match(/^(\w+)\s*=\s*(.+)$/); if (mSet) block = { type: 'set_var', params: { name: mSet[1], value: mSet[2] }, indent }; }
                         }
                     }
@@ -1766,8 +1766,8 @@ function customCardMakerSwitchTab(tab) {
                             indent: indent
                         };
                     } else {
-                        let mConst = trimmed.match(/^const\s+(\w+)\s*=\s*(.+)$/);
-                            if (mConst) { block = { type: 'const_var', params: { name: mConst[1].trim(), value: mConst[2].trim() }, indent: indent }; }
+                        let mConst = trimmed.match(/^(const|let|var)\s+(\w+)\s*=\s*(.+)$/i);
+                            if (mConst) { block = { type: 'const_var', params: { name: mConst[2].trim(), value: mConst[3].trim() }, indent: indent }; }
                             else { let mSet = trimmed.match(/^(\w+)\s*=\s*(.+)$/); if (mSet) { block = { type: 'set_var', params: { name: mSet[1].trim(), value: mSet[2].trim() }, indent: indent }; } }
                     }
                 }
