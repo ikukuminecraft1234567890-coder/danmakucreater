@@ -1484,7 +1484,9 @@ function customCardMakerSwitchTab(tab) {
             let depth = 0;
 
             rawLines.forEach(rawLine => {
-                let cleanLine = stripComments(rawLine);
+                const rawTrimmed = rawLine.trim();
+                // コメント行は stripComments で消えてしまうので先に分岐
+                const cleanLine = rawTrimmed.startsWith('//') ? rawTrimmed : stripComments(rawLine);
                 const t = cleanLine.trim();
                 if (!t) return;
                 if (t === '{') { depth++; return; }
