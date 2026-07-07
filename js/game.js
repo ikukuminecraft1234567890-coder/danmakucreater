@@ -2954,23 +2954,39 @@ function applyAbilityEffect(cardId, owner) {
                                     const names = {
                                         red: [255, 0, 0], green: [0, 255, 0], blue: [0, 0, 255],
                                         yellow: [255, 255, 0], purple: [128, 0, 128], cyan: [0, 255, 255],
-                                        magenta: [255, 0, 255], orange: [255, 165, 0]
+                                        magenta: [255, 0, 255], orange: [255, 165, 0],
+                                        white: [255, 255, 255], black: [0, 0, 0],
+                                        gray: [128, 128, 128], grey: [128, 128, 128],
+                                        silver: [192, 192, 192], darkgray: [169, 169, 169]
                                     };
                                     let norm = colorStr.toLowerCase().trim();
                                     if (names[norm]) [r, g, bVal] = names[norm];
                                 }
                                 r /= 255; g /= 255; bVal /= 255;
-                                let max = Math.max(r, g, bVal), min = Math.min(r, g, bVal);
-                                if (max !== min) {
-                                    let d = max - min;
-                                    switch (max) {
-                                        case r: hue = (g - bVal) / d + (g < bVal ? 6 : 0); break;
-                                        case g: hue = (bVal - r) / d + 2; break;
-                                        case bVal: hue = (r - g) / d + 4; break;
+                                
+                                let isMonochrome = (Math.abs(r - g) < 0.05 && Math.abs(g - bVal) < 0.05);
+                                if (isMonochrome) {
+                                    let brightness = (r + g + bVal) / 3;
+                                    if (brightness > 0.9) {
+                                        oCtx.filter = 'grayscale(1) brightness(2.0) contrast(1.5)';
+                                    } else if (brightness < 0.08) {
+                                        oCtx.filter = 'brightness(0)';
+                                    } else {
+                                        oCtx.filter = `grayscale(1) brightness(${brightness * 1.5}) contrast(1.2)`;
                                     }
-                                    hue = Math.round((hue / 6) * 360);
+                                } else {
+                                    let max = Math.max(r, g, bVal), min = Math.min(r, g, bVal);
+                                    if (max !== min) {
+                                        let d = max - min;
+                                        switch (max) {
+                                            case r: hue = (g - bVal) / d + (g < bVal ? 6 : 0); break;
+                                            case g: hue = (bVal - r) / d + 2; break;
+                                            case bVal: hue = (r - g) / d + 4; break;
+                                        }
+                                        hue = Math.round((hue / 6) * 360);
+                                    }
+                                    oCtx.filter = `hue-rotate(${hue}deg)`;
                                 }
-                                oCtx.filter = `hue-rotate(${hue}deg)`;
                                 oCtx.drawImage(baseImg, 0, 0, w, h);
                                 window.bulletTextureCache[cacheKey] = offscreen;
                                 texture = offscreen;
