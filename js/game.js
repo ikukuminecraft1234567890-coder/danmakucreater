@@ -4324,6 +4324,7 @@ function applyAbilityEffect(cardId, owner) {
                 const value = fn(variables || EMPTY_OBJECT, Math.random);
                 return Number.isNaN(value) ? 0 : value;
             } catch(e) {
+                console.error(`[DANMAKU EVAL ERROR] 式 "${expr}" の実行中にエラーが発生しました:`, e);
                 return null;
             }
         }

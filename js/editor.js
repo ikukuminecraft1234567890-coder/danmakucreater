@@ -266,6 +266,17 @@ function customCardMakerSwitchTab(tab) {
                     
                     let html = '';
                     switch (b.type) {
+                        case 'unknown':
+                            blockDiv.style.background = 'linear-gradient(135deg, #444 0%, #2b2b2b 100%)';
+                            blockDiv.style.borderColor = '#555';
+                            blockDiv.style.color = '#ccc';
+                            blockDiv.className = 'maker-block';
+                            html = `
+                                <span style="color:#aaa; font-weight:bold; margin-right:5px;">[未解釈]</span>
+                                <input type="text" style="width:260px; background:#1a1a1a; color:#fff; border:1px solid #444; padding:3px 6px; border-radius:4px; font-family:monospace;" value="${b.params.code}" onchange="customCardMakerUpdateParam(${idx}, 'code', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
                         case 'wait':
                             blockDiv.className = 'maker-block color-control';
                             html = `
@@ -713,6 +724,7 @@ function customCardMakerSwitchTab(tab) {
             }
             
             isCustomCardTesting = true;
+            currentTestPlaySource = 'maker';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
             
@@ -780,6 +792,8 @@ function customCardMakerSwitchTab(tab) {
             startGameLoop();
         }
 
+        let currentTestPlaySource = 'maker';
+
         function endCustomCardTest(success) {
             isCustomCardTesting = false;
             isGameRunning = false;
@@ -796,12 +810,16 @@ function customCardMakerSwitchTab(tab) {
             if (overlay) overlay.classList.add('hidden');
             
             document.getElementById('titleScreen').style.display = 'flex';
-            showScreen('screen-card-maker');
             
-            // プレイ結果による成否メッセージ表示を非表示にする
-            customCardMaker.testPassed = true;
-            
-            renderCardMaker();
+            if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared') {
+                showScreen('screen-shared-danmaku');
+                renderSharedDanmakuList();
+            } else {
+                showScreen('screen-card-maker');
+                // プレイ結果による成否メッセージ表示を非表示にする
+                customCardMaker.testPassed = true;
+                renderCardMaker();
+            }
         }
 
         function registerCustomCard() {
@@ -1011,8 +1029,11 @@ function customCardMakerSwitchTab(tab) {
                 
                 let indentStr = "    ".repeat(indent);
                 let line = "";
-                switch (b.type) {
-                    case 'wait':
+                 switch (b.type) {
+                     case 'unknown':
+                         line = b.params.code;
+                         break;
+                     case 'wait':
                         line = `wait(${b.params.duration || '0.2'})`;
                         break;
                     case 'repeat':
@@ -1409,7 +1430,16 @@ function customCardMakerSwitchTab(tab) {
 
                 // ブロックを平坦リストへ追加
                 let block = makeBlock(trimmed, indent);
-                if (block) blocks.push(block);
+                if (block) {
+                    blocks.push(block);
+                } else {
+                    console.error(`[DANMAKU PARSE ERROR] 行: "${rawLine.trim()}" - 独自の弾幕構文として解釈できませんでした。スペルミス、引数の括弧の有無、代入式の形式などを確認してください。`);
+                    blocks.push({
+                        type: 'unknown',
+                        params: { code: trimmed },
+                        indent: indent
+                    });
+                }
             }
 
             const rawLines = [];
@@ -1744,6 +1774,13 @@ function customCardMakerSwitchTab(tab) {
                 
                 if (block) {
                     blocks.push(block);
+                } else {
+                    console.error(`[DANMAKU PARSE ERROR] 行: "${line.trim()}" - 独自の弾幕構文として解釈できませんでした。スペルミス、引数の括弧の有無、代入式の形式などを確認してください。`);
+                    blocks.push({
+                        type: 'unknown',
+                        params: { code: trimmed },
+                        indent: indent
+                    });
                 }
             });
             
@@ -1807,3 +1844,185 @@ function customCardMakerSwitchTab(tab) {
         // スマホ操作の自動初期化
         initTouchControls();
         initZoomControls();
+
+        // -------------------------------------------------------------
+        // 共有弾幕（作った弾幕一覧）表示・プレイ機能
+        // -------------------------------------------------------------
+        function showSharedDanmakuScreen() {
+            showScreen('screen-shared-danmaku');
+            renderSharedDanmakuList();
+        }
+
+        function renderSharedDanmakuList() {
+            const container = document.getElementById('shared-danmaku-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (typeof sharedDanmakuList === 'undefined' || sharedDanmakuList.length === 0) {
+                container.innerHTML = '<div style="color:#888; font-size:12px; text-align:center; padding:50px 0; border:1.5px dashed rgba(255,255,255,0.1); border-radius:8px;">作った弾幕がありません。「js/danmaku.js」にデータを追加してください。</div>';
+                return;
+            }
+
+            sharedDanmakuList.forEach((card, idx) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(216,0,255,0.3); border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: border-color 0.2s;';
+                cardDiv.onmouseover = () => { cardDiv.style.borderColor = 'rgba(216,0,255,0.7)'; };
+                cardDiv.onmouseout = () => { cardDiv.style.borderColor = 'rgba(216,0,255,0.3)'; };
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.style.flex = '1';
+                infoDiv.style.paddingRight = '15px';
+                
+                const titleSpan = document.createElement('span');
+                titleSpan.style.cssText = 'font-weight: bold; color: #ffccff; font-size: 16px; text-shadow: 0 0 5px rgba(216,0,255,0.4);';
+                titleSpan.textContent = card.name;
+                
+                const timeSpan = document.createElement('span');
+                timeSpan.style.cssText = 'margin-left: 10px; font-size: 11px; color: #00ffcc; background: rgba(0,255,200,0.15); border: 1px solid rgba(0,255,200,0.3); padding: 2px 6px; border-radius: 4px; vertical-align: middle;';
+                timeSpan.textContent = `${card.duration}秒`;
+                
+                const descP = document.createElement('p');
+                descP.style.cssText = 'margin: 6px 0 0 0; font-size: 12px; color: #ccc; line-height: 1.4;';
+                descP.textContent = card.desc || '説明はありません。';
+                
+                infoDiv.appendChild(titleSpan);
+                infoDiv.appendChild(timeSpan);
+                infoDiv.appendChild(descP);
+                
+                const playBtn = document.createElement('button');
+                playBtn.className = 'menu-btn';
+                playBtn.style.cssText = 'width: 100px; height: 38px; font-size: 14px; margin: 0; background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6); font-weight: bold;';
+                playBtn.textContent = 'プレイ';
+                playBtn.onclick = () => playSharedDanmaku(idx);
+                
+                cardDiv.appendChild(infoDiv);
+                cardDiv.appendChild(playBtn);
+                container.appendChild(cardDiv);
+            });
+        }
+
+        function playSharedDanmaku(idx) {
+            const sharedCard = sharedDanmakuList[idx];
+            if (!sharedCard) return;
+
+            // 独自のJS風コード文字列、またはブロック配列をパースする
+            let emitterScript = [];
+            if (typeof sharedCard.emitterScript === 'string') {
+                emitterScript = codeToBlocks(sharedCard.emitterScript);
+            } else if (Array.isArray(sharedCard.emitterScript)) {
+                emitterScript = sharedCard.emitterScript;
+            }
+
+            let bulletScript = [];
+            if (typeof sharedCard.bulletScript === 'string') {
+                bulletScript = codeToBlocks(sharedCard.bulletScript);
+            } else if (Array.isArray(sharedCard.bulletScript)) {
+                bulletScript = sharedCard.bulletScript;
+            }
+
+            let magicCircleScript = [];
+            if (typeof sharedCard.magicCircleScript === 'string') {
+                magicCircleScript = codeToBlocks(sharedCard.magicCircleScript);
+            } else if (Array.isArray(sharedCard.magicCircleScript)) {
+                magicCircleScript = sharedCard.magicCircleScript;
+            }
+
+            let cardDuration = parseFloat(sharedCard.duration) || 15;
+            let xOffset = Number(sharedCard.x_offset) || 0;
+            let yOffset = Number(sharedCard.y_offset) || 0;
+            let despawnTime = parseFloat(sharedCard.despawnTime) || 1.5;
+
+            let tempCustomCard = {
+                id: 'custom_test_shared_' + idx,
+                name: sharedCard.name.startsWith('【A】') ? sharedCard.name : '【A】' + sharedCard.name,
+                duration: cardDuration,
+                x_offset: xOffset,
+                y_offset: yOffset,
+                despawnTime: despawnTime,
+                pattern: 'custom_test_shared_' + idx,
+                interval: 0.1,
+                rawCost: 0,
+                cost: 0,
+                desc: sharedCard.desc || '共有弾幕',
+                isCustom: true,
+                emitterScript: emitterScript,
+                bulletScript: bulletScript,
+                magicCircleScript: magicCircleScript
+            };
+
+            // defaultCards.active に登録して上書き
+            let testCardIdx = defaultCards.active.findIndex(c => c.id === tempCustomCard.id);
+            if (testCardIdx !== -1) {
+                defaultCards.active[testCardIdx] = tempCustomCard;
+            } else {
+                defaultCards.active.push(tempCustomCard);
+            }
+
+            isCustomCardTesting = true;
+            currentTestPlaySource = 'shared';
+            window.currentCardSecond = 0;
+            window.currentCardFrame = 0;
+
+            setCardMakerScreenActive(false);
+            document.getElementById('titleScreen').style.display = 'none';
+            isGameRunning = true;
+
+            // キー入力状態のリセット
+            for (let k in keyboardState) keyboardState[k] = false;
+
+            bullets.length = 0;
+            magicCircles.length = 0;
+            activeReigekis.length = 0;
+            reigekiCutinTimer = 0;
+            prevBombInput = false;
+            activeEffects.length = 0;
+
+            player.x = PLAY_WIDTH / 2;
+            player.y = canvas.height * 0.8;
+            player.targetX = player.x;
+            player.targetY = player.y;
+            player.prevX = player.x;
+            player.prevY = player.y;
+            player.isInvincible = false;
+            player.invincibleTimer = 0;
+            player.hp = 1000;
+            player.maxHp = 1000;
+            player.pendingDamage = 0;
+            player.pendingHeal = 0;
+            player.grazeCount = 0;
+            player.bombs = 0;
+            player.maxBombs = 0;
+            player.passives = [];
+            player.recentHits = [];
+
+            cpu.x = PLAY_WIDTH / 2;
+            cpu.y = canvas.height * 0.2;
+            cpu.targetX = cpu.x;
+            cpu.targetY = cpu.y;
+            cpu.prevX = cpu.x;
+            cpu.prevY = cpu.y;
+            cpu.hp = 1000;
+            cpu.pendingDamage = 0;
+            cpu.pendingHeal = 0;
+            cpu.grazeCount = 0;
+            cpu.bombs = 0;
+            cpu.maxBombs = 0;
+            cpu.passives = [];
+            cpu.recentHits = [];
+
+            gameState = 'BATTLE';
+            battlePhase = 'ACTION';
+            turnOwner = 'CPU';
+            turnCount = 1;
+
+            activeCards = [ tempCustomCard ];
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0);
+            actionTimer = tempCustomCard.duration;
+            customCardTestEmitterDone = false;
+            customCardDeathEffect = null;
+            normalShotTimer = 0;
+
+            lastTime = performance.now();
+            timeAccumulator = 0;
+            startGameLoop();
+        }
