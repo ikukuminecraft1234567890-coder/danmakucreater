@@ -287,18 +287,54 @@ if (y > 886) {
     `
     },
     {
-    name: "",
+    name: "技符「陰陽掃除機」",
     desc: "",
-    duration: 15,            // 制限時間（秒）
+    duration: 30,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
+    while (true) {
+    spawnBullet("normal", "#ff3333", 150, 45, 0, 0, 100, "b_knife", "relative", "40")
+    spawnBullet("normal", "#ff3333", 150, 45 + 90 + 90, 0, 0, 100, "b_knife", "relative", "40")
+    wait(200)
+}
     `,
     bulletScript: `
+    once {
+    shotTimer = 0
+}
+speed += 2
+spriteAngle = angle
+if (y > 886) {
+    angle = -angle
+    speed = 150
+    y = 886
+}
+if (y < 10) {
+    angle = -angle
+    speed = 150
+    y = 10
+}
+if (x < 10) {
+    angle = 180 - angle
+    speed = 150
+    x = 10
+}
+if (x > 758) {
+    angle = 180 - angle
+    speed = 150
+    x = 758
+}
+shotTimer = shotTimer + 1
+if (shotTimer >= 12) {
+    spawnWay("normal", "#3388ff", 200, angle + 180, 5, 72, 0, 0, 6, "onmyoutama", "relative", "6")
+    shotTimer = 0
+}
     `,
     magicCircleScript: `
+    spriteAngle += 5
     `
     },
     {
