@@ -810,6 +810,10 @@ function customCardMakerSwitchTab(tab) {
             
             document.getElementById('titleScreen').style.display = 'flex';
             
+            if (success && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared' && typeof currentSharedDanmakuName !== 'undefined' && currentSharedDanmakuName) {
+                saveClearedSharedDanmaku(currentSharedDanmakuName);
+            }
+            
             if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared') {
                 showScreen('screen-shared-danmaku');
                 renderSharedDanmakuList();
@@ -1844,6 +1848,35 @@ function customCardMakerSwitchTab(tab) {
         // -------------------------------------------------------------
         // 共有弾幕（作った弾幕一覧）表示・プレイ機能
         // -------------------------------------------------------------
+        let currentSharedDanmakuName = null;
+
+        function saveClearedSharedDanmaku(name) {
+            let clearedList = [];
+            try {
+                const saved = localStorage.getItem('touhou_kyoukaisen_cleared_shared');
+                if (saved) {
+                    clearedList = JSON.parse(saved);
+                }
+            } catch(e) {}
+            if (!clearedList.includes(name)) {
+                clearedList.push(name);
+                try {
+                    localStorage.setItem('touhou_kyoukaisen_cleared_shared', JSON.stringify(clearedList));
+                } catch(e) {}
+            }
+        }
+
+        function isSharedDanmakuCleared(name) {
+            try {
+                const saved = localStorage.getItem('touhou_kyoukaisen_cleared_shared');
+                if (saved) {
+                    const clearedList = JSON.parse(saved);
+                    return clearedList.includes(name);
+                }
+            } catch(e) {}
+            return false;
+        }
+
         function showSharedDanmakuScreen() {
             showScreen('screen-shared-danmaku');
             renderSharedDanmakuList();
@@ -1860,18 +1893,36 @@ function customCardMakerSwitchTab(tab) {
             }
 
             sharedDanmakuList.forEach((card, idx) => {
+                const isCleared = isSharedDanmakuCleared(card.name);
+                
+                // 配色出し分け (クリア時は青、未クリア時は紫)
+                const borderNormal = isCleared ? 'rgba(0,120,255,0.3)' : 'rgba(216,0,255,0.3)';
+                const borderHover = isCleared ? 'rgba(0,120,255,0.7)' : 'rgba(216,0,255,0.7)';
+                const titleColor = isCleared ? '#ccffff' : '#ffccff';
+                const titleShadow = isCleared ? 'rgba(0,120,255,0.4)' : 'rgba(216,0,255,0.4)';
+                const btnBg = isCleared ? 'linear-gradient(135deg, #002255 0%, #000c22 100%)' : 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)';
+                const btnBorder = isCleared ? '#0088ff' : '#d800ff';
+                const btnShadow = isCleared ? 'rgba(0,136,255,0.6)' : 'rgba(216,0,255,0.6)';
+
                 const cardDiv = document.createElement('div');
-                cardDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(216,0,255,0.3); border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: border-color 0.2s;';
-                cardDiv.onmouseover = () => { cardDiv.style.borderColor = 'rgba(216,0,255,0.7)'; };
-                cardDiv.onmouseout = () => { cardDiv.style.borderColor = 'rgba(216,0,255,0.3)'; };
+                cardDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid ${borderNormal}; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: border-color 0.2s;`;
+                cardDiv.onmouseover = () => { cardDiv.style.borderColor = borderHover; };
+                cardDiv.onmouseout = () => { cardDiv.style.borderColor = borderNormal; };
                 
                 const infoDiv = document.createElement('div');
                 infoDiv.style.flex = '1';
                 infoDiv.style.paddingRight = '15px';
                 
                 const titleSpan = document.createElement('span');
-                titleSpan.style.cssText = 'font-weight: bold; color: #ffccff; font-size: 16px; text-shadow: 0 0 5px rgba(216,0,255,0.4);';
+                titleSpan.style.cssText = `font-weight: bold; color: ${titleColor}; font-size: 16px; text-shadow: 0 0 5px ${titleShadow};`;
                 titleSpan.textContent = card.name;
+                
+                if (isCleared) {
+                    const clearBadge = document.createElement('span');
+                    clearBadge.style.cssText = 'margin-left: 8px; font-size: 11px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 2px 6px; border-radius: 4px; vertical-align: middle; font-weight: bold;';
+                    clearBadge.textContent = '★CLEARED';
+                    titleSpan.appendChild(clearBadge);
+                }
                 
                 const timeSpan = document.createElement('span');
                 timeSpan.style.cssText = 'margin-left: 10px; font-size: 11px; color: #00ffcc; background: rgba(0,255,200,0.15); border: 1px solid rgba(0,255,200,0.3); padding: 2px 6px; border-radius: 4px; vertical-align: middle;';
@@ -1887,7 +1938,7 @@ function customCardMakerSwitchTab(tab) {
                 
                 const playBtn = document.createElement('button');
                 playBtn.className = 'menu-btn';
-                playBtn.style.cssText = 'width: 100px; height: 38px; font-size: 14px; margin: 0; background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6); font-weight: bold;';
+                playBtn.style.cssText = `width: 100px; height: 38px; font-size: 14px; margin: 0; background: ${btnBg}; border-color: ${btnBorder}; text-shadow: 0 0 8px ${btnShadow}; font-weight: bold;`;
                 playBtn.textContent = 'プレイ';
                 playBtn.onclick = () => playSharedDanmaku(idx);
                 
@@ -1900,6 +1951,7 @@ function customCardMakerSwitchTab(tab) {
         function playSharedDanmaku(idx) {
             const sharedCard = sharedDanmakuList[idx];
             if (!sharedCard) return;
+            currentSharedDanmakuName = sharedCard.name;
 
             // 独自のJS風コード文字列、またはブロック配列をパースする
             let emitterScript = [];
