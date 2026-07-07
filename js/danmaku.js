@@ -134,5 +134,82 @@ if (color == #ffffff) {
 }
         `,
         magicCircleScript: ``
+    },
+    {
+    name: "サンライトインパクト",
+    desc: "",
+    duration: 50,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+    while (true) {
+    m = 0
+    aimAtTarget()
+    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    wait(10)
+    m = 0
+    aimAtTarget()
+    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    wait(6)
+    m = 0
+    aimAtTarget()
+    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    wait(10)
+    m = 0
+    aimAtTarget()
+    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    wait(10)
+    m = 0
+    aimAtTarget()
+    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    wait(10)
+    m = 0
+    aimAtTarget()
+    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    wait(10)
+}
+    `,
+    bulletScript: `
+    once {
+    m = 1
+}
+if (isTouchEdge) {
+    aimAtTarget()
+    spriteAngle = angle
+    speed = 0
+    m = 0
+}
+if (m===0) {
+    for (let i = 0; i < 5; i++) {
+        rang = random(0,360)
+        spawnRing("normal", "#ff3333", 300, rang, 36, 0, 0, 9, "star", "relative", "6")
+        wait(0.05)
+    }
+    m = 1
+}
+if (m === 1) {
+    speed += 2.5
+}
+    `,
+    magicCircleScript: `
+    spriteAngle += 3
+    `
+    },
+    {
+    name: "弾幕名",
+    desc: "説明文や作成者名など",
+    duration: 15,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+    `,
+    bulletScript: `
+    `,
+    magicCircleScript: `
+    `
     }
 ];
