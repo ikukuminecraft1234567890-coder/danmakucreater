@@ -199,21 +199,6 @@ if (m === 1) {
     },
     {
     name: "弾幕の檻",
-    desc: "",
-    duration: 11,            // 制限時間（秒）
-    x_offset: 0,             // 出現位置の横オフセット
-    y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
-    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
-    emitterScript: `
-    `,
-    bulletScript: `
-    `,
-    magicCircleScript: `
-    `
-    },
-    {
-    name: "弾幕名",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
@@ -270,5 +255,20 @@ if (m === 1) {
     `,
     magicCircleScript: `
     `
-    }
+    },
+    {
+    name: "弾幕名",
+    desc: "説明文や作成者名など",
+    duration: 11,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+    `,
+    bulletScript: `
+    `,
+    magicCircleScript: `
+    `
+    },
 ];
