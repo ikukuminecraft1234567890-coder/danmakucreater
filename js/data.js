@@ -146,8 +146,8 @@
         // --- CUSTOM SPELL CARD SYSTEM ---
         const CUSTOM_CARD_COST_LIMIT = 30;
         const CUSTOM_CARD_PLAY_COST_DIVISOR = 2;
-        const CUSTOM_SPAWN_WAY_MAX_COUNT = 60;
-        const CUSTOM_SPAWN_RING_MAX_COUNT = 72;
+        const CUSTOM_SPAWN_WAY_MAX_COUNT = 9999;
+        const CUSTOM_SPAWN_RING_MAX_COUNT = 9999;
         let customCards = [];
         let onlineCustomCards = [];
         let isCustomCardTesting = false;
