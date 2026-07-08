@@ -79,6 +79,9 @@ function customCardMakerSwitchTab(tab) {
             } else if (type === 'move_owner') {
                 block.params.preset = 'center';
                 block.params.duration = '0';
+            } else if (type === 'aim_at_coord') {
+                block.params.targetX = '384';
+                block.params.targetY = '300';
             } else if (type === 'slide_owner') {
                 block.type = 'move_owner';
                 block.params.preset = 'right';
@@ -447,6 +450,17 @@ function customCardMakerSwitchTab(tab) {
                             blockDiv.className = 'maker-block color-motion';
                             html = `
                                 <span>[動作] 相手の方向を向く (angleを設定)</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'aim_at_coord':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] 座標を向く X:</span>
+                                <input type="text" list="val-suggestions" style="width:70px;" value="${b.params.targetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'targetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:70px;" value="${b.params.targetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'targetY', this.value)">
+                                <span>(angleを設定)</span>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
