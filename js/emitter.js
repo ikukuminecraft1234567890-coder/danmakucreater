@@ -115,9 +115,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables['exy_y'] = curExy[1];
                 state.variables['exy.x'] = curExy[0];
                 state.variables['exy.y'] = curExy[1];
-                // エミッター位置オフセット（x_offset, y_offset）への反映
-                state.variables.x_offset = curExy[0] - attacker.x;
-                state.variables.y_offset = curExy[1] - state.variables.y;
+                // 敵本体の座標を直接 exy に合わせる（見た目も動く）
+                attacker.x = curExy[0];
+                attacker.y = curExy[1];
+                // x_offset/y_offset は 0 に保つ（発射位置は attacker.x/y 基準になる）
+                state.variables.x_offset = 0;
+                state.variables.y_offset = 0;
             }
             state.variables.txy = `${state.variables.tx},${state.variables.ty}`;
             state.variables['txy_x'] = state.variables.tx;
