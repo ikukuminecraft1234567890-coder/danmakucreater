@@ -1566,6 +1566,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 state.variables.angle = Math.atan2(dy, dx) * 180 / Math.PI;
                                 break;
                             }
+                            case 'aim_at_coord': {
+                                let txRawB = evalExpr(block.params.targetX || '0', state.variables);
+                                let tyRawB = evalExpr(block.params.targetY || '0', state.variables);
+                                let txAbsB = Number(txRawB) || 0;
+                                let tyAbsB = isPlayerSide ? (canvas.height - (Number(tyRawB) || 0)) : (Number(tyRawB) || 0);
+                                let dxB = txAbsB - b.x;
+                                let dyB = isPlayerSide ? (b.y - tyAbsB) : (tyAbsB - b.y);
+                                state.variables.angle = Math.atan2(dyB, dxB) * 180 / Math.PI;
+                                break;
+                            }
                             case 'speed_scale': {
                                 advancePC = applySpeedScaleBlock(block, state);
                                 break;
@@ -1796,6 +1806,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 case 'if':
                 case 'const_var':
                 case 'aim_at_target':
+                case 'aim_at_coord':
                 case 'move_owner':
                     return 0;
                 case 'spawn_bullet':
