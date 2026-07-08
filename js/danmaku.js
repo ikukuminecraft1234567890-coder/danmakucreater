@@ -358,8 +358,8 @@ if (y > 886) {
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
     while (true) {
-    spawnBullet("normal", "#ff3333", 150, 45, 0, 0, 100, "b_knife", "relative", "40")
-    spawnBullet("normal", "#ff3333", 150, 45 + 90 + 90, 0, 0, 100, "b_knife", "relative", "40")
+    spawnBulletResist("normal", "#ff3333", 150, 45, 0, 0, 100, "b_knife", "relative", "40")
+    spawnBulletResist("normal", "#ff3333", 150, 45 + 90 + 90, 0, 0, 100, "b_knife", "relative", "40")
     wait(200)
 }
     `,
