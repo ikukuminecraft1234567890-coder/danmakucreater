@@ -114,28 +114,40 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (state.variables.ey === undefined) {
                 state.variables.ey = state.variables.y;
             }
-            // ドット記法およびアンダーバー記法の子変数同期
-            let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
-            if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
-                state.variables['exy_x'] = curExy[0];
-                state.variables['exy_y'] = curExy[1];
-                state.variables['exy.x'] = curExy[0];
-                state.variables['exy.y'] = curExy[1];
-                // 敵本体の座標を直接 exy に合わせる（見た目も動く）
-                attacker.x = curExy[0];
-                attacker.y = curExy[1];
-                // x_offset/y_offset は 0 に保つ（発射位置は attacker.x/y 基準になる）
-                state.variables.x_offset = 0;
-                state.variables.y_offset = 0;
-            }
+            // 現在スライド移動中かどうか判定
+            const ownerKey = isPlayerSide ? 'PLAYER' : 'CPU';
+            const slideLock = (typeof customOwnerPositionLocks !== 'undefined') ? customOwnerPositionLocks[ownerKey] : null;
+            const isSliding = slideLock && slideLock.elapsed < slideLock.duration;
 
-            // ex / ey 変数による attacker 座標の更新（exy とは独立して動作）
-            if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
-                attacker.x = Number(state.variables.ex);
-            }
-            if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
-                // ey は Y軸の論理座標系（自機側なら画面下0、敵機側なら画面上0）なので画面座標に変換
-                attacker.y = isPlayerSide ? (canvas.height - Number(state.variables.ey)) : Number(state.variables.ey);
+            if (isSliding) {
+                // スライド中なら、ex / ey / exy をスライド中の現在座標にリアルタイム同期する
+                state.variables.ex = attacker.x;
+                state.variables.ey = state.variables.y;
+                state.variables.exy = `${attacker.x},${state.variables.y}`;
+            } else {
+                // ドット記法およびアンダーバー記法の子変数同期
+                let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
+                if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
+                    state.variables['exy_x'] = curExy[0];
+                    state.variables['exy_y'] = curExy[1];
+                    state.variables['exy.x'] = curExy[0];
+                    state.variables['exy.y'] = curExy[1];
+                    // 敵本体の座標を直接 exy に合わせる（見た目も動く）
+                    attacker.x = curExy[0];
+                    attacker.y = curExy[1];
+                    // x_offset/y_offset は 0 に保つ（発射位置は attacker.x/y 基準になる）
+                    state.variables.x_offset = 0;
+                    state.variables.y_offset = 0;
+                }
+
+                // ex / ey 変数による attacker 座標の更新（exy ととは独立して動作）
+                if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
+                    attacker.x = Number(state.variables.ex);
+                }
+                if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
+                    // ey は Y軸の論理座標系（自機側なら画面下0、敵機側なら画面上0）なので画面座標に変換
+                    attacker.y = isPlayerSide ? (canvas.height - Number(state.variables.ey)) : Number(state.variables.ey);
+                }
             }
             state.variables.txy = `${state.variables.tx},${state.variables.ty}`;
             state.variables['txy_x'] = state.variables.tx;

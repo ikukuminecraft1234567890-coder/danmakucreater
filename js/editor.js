@@ -1507,6 +1507,39 @@ function customCardMakerSwitchTab(tab) {
             return result;
         }
 
+        // 最外のカンマだけで引数を分割するヘルパー（括弧のネストやクォートを考慮）
+        function splitArgs(str) {
+            const args = [];
+            let current = '';
+            let depth = 0;
+            let quote = null;
+            for (let i = 0; i < str.length; i++) {
+                const ch = str[i];
+                if (quote) {
+                    if (ch === quote && str[i-1] !== '\\') {
+                        quote = null;
+                    }
+                    current += ch;
+                } else if (ch === '"' || ch === "'" || ch === '`') {
+                    quote = ch;
+                    current += ch;
+                } else if (ch === '(' || ch === '[' || ch === '{') {
+                    depth++;
+                    current += ch;
+                } else if (ch === ')' || ch === ']' || ch === '}') {
+                    depth--;
+                    current += ch;
+                } else if (ch === ',' && depth === 0) {
+                    args.push(current.trim());
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+            args.push(current.trim());
+            return args;
+        }
+
         // 波括弧スタイルのコードをブロックリストに変換するヘルパー
         // repeat(20){ spawnRing(...); } のようなスタイルに対応
         function _codeToBlocksBrace(code) {
@@ -1548,7 +1581,7 @@ function customCardMakerSwitchTab(tab) {
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
                     let mMoveOwner = trimmed.match(/^moveTo\((.*?)\)$/i);
                     if (mMoveOwner) {
-                        let args = mMoveOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mMoveOwner[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let preset = 'center';
                         if (args.length >= 2) {
                             preset = args[0] + ',' + args[1];
@@ -1559,7 +1592,7 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mSlideOwner = trimmed.match(/^slideTo\((.*?)\)$/i);
                     if (mSlideOwner) {
-                        let args = mSlideOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSlideOwner[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let preset = 'center';
                         let duration = '1.0';
                         if (args.length >= 3) {
@@ -1587,7 +1620,7 @@ function customCardMakerSwitchTab(tab) {
                     let mTween = trimmed.match(/^(tween|tweenWait)\((.*?)\)$/i);
                     if (mTween) {
                         let isWait = mTween[1].toLowerCase() === 'tweenwait';
-                        let args = mTween[2].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mTween[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let varName = args[0] || 'angle';
                         let fromVal = args[1] || '0';
                         let toVal = args[2] || '360';
@@ -1607,12 +1640,12 @@ function customCardMakerSwitchTab(tab) {
                         };
                     }
                     let mSlow = trimmed.match(/^slow\((.*?)\)$/i);
-                    if (mSlow) { let args = mSlow[1].split(',').map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'slow', effect: args[0] || '0.5', delay: args[1] || '0' }, indent }; }
+                    if (mSlow) { let args = splitArgs(mSlow[1]).map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'slow', effect: args[0] || '0.5', delay: args[1] || '0' }, indent }; }
                     let mFast = trimmed.match(/^fast\((.*?)\)$/i);
-                    if (mFast) { let args = mFast[1].split(',').map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'fast', effect: args[0] || '2', delay: args[1] || '0' }, indent }; }
+                    if (mFast) { let args = splitArgs(mFast[1]).map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'fast', effect: args[0] || '2', delay: args[1] || '0' }, indent }; }
                     let mSpawn = trimmed.match(/^spawnBullet\((.*?)\)$/i);
                     if (mSpawn) {
-                        let args = mSpawn[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSpawn[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = false;
                         if (args.length === 5) {
                             let arg3IsNumber = !isNaN(parseFloat(args[3]));
@@ -1638,7 +1671,7 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mSpawnResist = trimmed.match(/^spawnBulletResist\((.*?)\)$/i);
                     if (mSpawnResist) {
-                        let args = mSpawnResist[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSpawnResist[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = false;
                         if (args.length === 5) {
                             let arg3IsNumber = !isNaN(parseFloat(args[3]));
@@ -1664,7 +1697,7 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mSpawnRing = trimmed.match(/^spawnRing\((.*?)\)$/i);
                     if (mSpawnRing) {
-                        let args = mSpawnRing[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSpawnRing[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = args.length === 5 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
                         block = {
                             type: 'spawn_ring',
@@ -1686,7 +1719,7 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mSpawnRingResist = trimmed.match(/^spawnRingResist\((.*?)\)$/i);
                     if (mSpawnRingResist) {
-                        let args = mSpawnRingResist[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSpawnRingResist[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = args.length === 5 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
                         block = {
                             type: 'spawn_ring_resist',
@@ -1708,7 +1741,7 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mSpawnWay = trimmed.match(/^spawnWay\((.*?)\)$/i);
                     if (mSpawnWay) {
-                        let args = mSpawnWay[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSpawnWay[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = args.length === 7 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
                         block = {
                             type: 'spawn_way',
@@ -1731,7 +1764,7 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mSpawnWayResist = trimmed.match(/^spawnWayResist\((.*?)\)$/i);
                     if (mSpawnWayResist) {
-                        let args = mSpawnWayResist[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSpawnWayResist[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = args.length === 7 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
                         block = {
                             type: 'spawn_way_resist',
@@ -1754,7 +1787,7 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mSpawnMC = trimmed.match(/^spawnMagicCircle\((.*?)\)$/i);
                     if (mSpawnMC) {
-                        let args = mSpawnMC[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let args = splitArgs(mSpawnMC[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         block = {
                             type: 'spawn_magic_circle',
                             params: {
@@ -1924,7 +1957,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mMoveOwner = trimmed.match(/^moveTo\((.*?)\)$/i);
                 if (mMoveOwner) {
-                    let args = mMoveOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                    let args = splitArgs(mMoveOwner[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                     let preset = 'center';
                     if (args.length >= 2) {
                         preset = args[0] + ',' + args[1];
@@ -1935,7 +1968,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mSlideOwner = trimmed.match(/^slideTo\((.*?)\)$/i);
                 if (mSlideOwner) {
-                    let args = mSlideOwner[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                    let args = splitArgs(mSlideOwner[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                     let preset = 'center';
                     let duration = '1.0';
                     if (args.length >= 3) {
@@ -1969,7 +2002,7 @@ function customCardMakerSwitchTab(tab) {
                 let mTween = trimmed.match(/^(tween|tweenWait)\((.*?)\)$/i);
                 if (mTween) {
                     let isWait = mTween[1].toLowerCase() === 'tweenwait';
-                    let args = mTween[2].split(",").map(s => {
+                    let args = splitArgs(mTween[2]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
@@ -1995,12 +2028,12 @@ function customCardMakerSwitchTab(tab) {
                     };
                 }
                 let mSlow = trimmed.match(/^slow\((.*?)\)$/i);
-                if (mSlow) { let args = mSlow[1].split(',').map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'slow', effect: args[0] || '0.5', delay: args[1] || '0' }, indent: indent }; }
+                if (mSlow) { let args = splitArgs(mSlow[1]).map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'slow', effect: args[0] || '0.5', delay: args[1] || '0' }, indent: indent }; }
                 let mFast = trimmed.match(/^fast\((.*?)\)$/i);
-                if (mFast) { let args = mFast[1].split(',').map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'fast', effect: args[0] || '2', delay: args[1] || '0' }, indent: indent }; }
+                if (mFast) { let args = splitArgs(mFast[1]).map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'fast', effect: args[0] || '2', delay: args[1] || '0' }, indent: indent }; }
                 let mSpawn = trimmed.match(/^spawnBullet\((.*?)\)$/i);
                 if (mSpawn) {
-                    let args = mSpawn[1].split(",").map(s => {
+                    let args = splitArgs(mSpawn[1]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
@@ -2032,7 +2065,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mSpawnResist = trimmed.match(/^spawnBulletResist\((.*?)\)$/i);
                 if (mSpawnResist) {
-                    let args = mSpawnResist[1].split(",").map(s => {
+                    let args = splitArgs(mSpawnResist[1]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
@@ -2064,7 +2097,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mSpawnRing = trimmed.match(/^spawnRing\((.*?)\)$/i);
                 if (mSpawnRing) {
-                    let args = mSpawnRing[1].split(",").map(s => {
+                    let args = splitArgs(mSpawnRing[1]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
@@ -2092,7 +2125,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mSpawnRingResist = trimmed.match(/^spawnRingResist\((.*?)\)$/i);
                 if (mSpawnRingResist) {
-                    let args = mSpawnRingResist[1].split(",").map(s => {
+                    let args = splitArgs(mSpawnRingResist[1]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
@@ -2120,7 +2153,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mSpawnWay = trimmed.match(/^spawnWay\((.*?)\)$/i);
                 if (mSpawnWay) {
-                    let args = mSpawnWay[1].split(",").map(s => {
+                    let args = splitArgs(mSpawnWay[1]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
@@ -2149,7 +2182,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mSpawnWayResist = trimmed.match(/^spawnWayResist\((.*?)\)$/i);
                 if (mSpawnWayResist) {
-                    let args = mSpawnWayResist[1].split(",").map(s => {
+                    let args = splitArgs(mSpawnWayResist[1]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
@@ -2178,7 +2211,7 @@ function customCardMakerSwitchTab(tab) {
                 }
                 let mSpawnMC = trimmed.match(/^spawnMagicCircle\((.*?)\)$/i);
                 if (mSpawnMC) {
-                    let args = mSpawnMC[1].split(",").map(s => {
+                    let args = splitArgs(mSpawnMC[1]).map(s => {
                         let sTrim = s.trim();
                         if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
                             return sTrim.substring(1, sTrim.length - 1);
