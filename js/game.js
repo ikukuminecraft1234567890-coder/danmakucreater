@@ -4211,6 +4211,16 @@ function applyAbilityEffect(cardId, owner) {
                 raw = raw.substring(1, raw.length - 1);
             }
             if (variables && variables[raw] !== undefined) return String(variables[raw]);
+            // カンマ区切りの座標指定（例: x0,y0 など）の各大要素を個別に evalExpr する
+            if (raw.includes(',')) {
+                let parts = raw.split(',').map(part => {
+                    let trimmed = part.trim();
+                    if (variables && variables[trimmed] !== undefined) return variables[trimmed];
+                    let val = evalExpr(trimmed, variables);
+                    return val !== null && val !== undefined ? val : trimmed;
+                });
+                return parts.join(',');
+            }
             return raw;
         }
 
