@@ -2241,7 +2241,7 @@ function applyAbilityEffect(cardId, owner) {
                         } else {
                             distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;
                         }
-                        if (distSq < (player.hitboxRadius + bHitR) ** 2 && !(isCustomCardTesting && b.hitPlayer)) {
+                        if (distSq < (player.hitboxRadius + bHitR) ** 2) {
                             let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 2 : 50);
                             if (!b.isNormal && activeCards.length >= 2) {
                                 dmg = Math.floor(dmg / 2);
@@ -2273,10 +2273,11 @@ function applyAbilityEffect(cardId, owner) {
                             if (!player.recentHits) player.recentHits = [];
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
-                            if (isCustomCardTesting) b.hitPlayer = true; // テスト中は再当たりしない
 
-                            if (useFastRemove) { b._dead = true; continue; }
-                            bullets.splice(i, 1); continue;
+                            if (!isCustomCardTesting) {
+                                if (useFastRemove) { b._dead = true; continue; }
+                                bullets.splice(i, 1); continue;
+                            }
                         }
                         if (!b.grazed && distSq < (player.grazeRadius + bHitR) ** 2) {
                             b.grazed = true; player.grazeCount++;
