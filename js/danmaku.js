@@ -505,6 +505,141 @@ if (y > 896) {
     `,
     magicCircleScript: `
     `
+},
+{
+    name: "札と刃の境界",
+    desc: "うおっ、となるスペルです。",
+    duration: 67,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 20; i++) {
+        ys = 0
+        for (let i = 0; i < 10; i++) {
+            spawnBullet("normal", "#33ffff", 120, 0, -100, ys + 15, 23, "ohuda", "absolute", "12")
+            spawnBullet("normal", "#33ffff", 120, 0, -100, ys - 15, 23, "ohuda", "absolute", "12")
+            ys += 100
+        }
+        ys = 0
+        for (let i = 0; i < 10; i++) {
+            spawnBullet("normal", "#33ff88", 120, 180, 868, ys + 65, 23, "ohuda", "absolute", "12")
+            spawnBullet("normal", "#33ff88", 120, 180, 868, ys + 35, 23, "ohuda", "absolute", "12")
+            ys += 100
+        }
+        wait(0.7)
+    }
+    wait(1)
+    for (let i = 0; i < 20; i++) {
+        xs = 0
+        for (let i = 0; i < 10; i++) {
+            spawnBullet("normal", "#33ffff", 120, 90, xs + 15, 0, 23, "ohuda", "absolute", "12")
+            spawnBullet("normal", "#33ffff", 120, 90, xs - 15, 0, 23, "ohuda", "absolute", "12")
+            xs += 100
+        }
+        xs = 0
+        for (let i = 0; i < 10; i++) {
+            spawnBullet("normal", "#33ff88", 120, -90, xs + 15 + 50, 996, 23, "ohuda", "absolute", "12")
+            spawnBullet("normal", "#33ff88", 120, -90, xs - 15 + 50, 996, 23, "ohuda", "absolute", "12")
+            xs += 100
+        }
+        wait(0.7)
+    }
+    wait(1)
+    for (let i = 0; i < 20; i++) {
+        xs = -650
+        ys = 550
+        for (let i = 0; i < 25; i++) {
+            xs -= 11
+            ys += 11
+            spawnBullet("normal", "#33ffff", 120, 45, xs, ys, 23, "ohuda", "absolute", "12")
+            xs += 22
+            ys -= 22
+            spawnBullet("normal", "#33ffff", 120, 45, xs, ys, 23, "ohuda", "absolute", "12")
+            xs -= 11
+            ys += 11
+            xs += 71
+            ys -= 71
+        }
+        xs = 1500
+        ys = 357
+        for (let i = 0; i < 25; i++) {
+            xs += 11
+            ys -= 11
+            spawnBullet("normal", "#33ff88", 120, 225, xs, ys, 23, "ohuda", "absolute", "12")
+            xs -= 22
+            ys += 22
+            spawnBullet("normal", "#33ff88", 120, 225, xs, ys, 23, "ohuda", "absolute", "12")
+            xs += 11
+            ys -= 11
+            xs -= 71
+            ys += 71
+        }
+        wait(0.7)
+    }
+    wait(2)
+    for (let i = 0; i < 20; i++) {
+        xs = 1418
+        ys = 550
+        for (let i = 0; i < 25; i++) {
+            xs -= 11
+            ys -= 11
+            spawnBullet("normal", "#33ffff", 120, 135, xs, ys, 23, "ohuda", "absolute", "12")
+            xs += 22
+            ys += 22
+            spawnBullet("normal", "#33ffff", 120, 135, xs, ys, 23, "ohuda", "absolute", "12")
+            xs -= 11
+            ys -= 11
+            xs -= 71
+            ys -= 71
+        }
+        xs = -732
+        ys = 357
+        for (let i = 0; i < 25; i++) {
+            xs -= 11
+            ys -= 11
+            spawnBullet("normal", "#33ff88", 120, 315, xs, ys, 23, "ohuda", "absolute", "12")
+            xs += 22
+            ys += 22
+            spawnBullet("normal", "#33ff88", 120, 315, xs, ys, 23, "ohuda", "absolute", "12")
+            xs -= 11
+            ys -= 11
+            xs += 71
+            ys += 71
+        }
+        wait(0.7)
+    }
+    wait(2)
+}
+while (true) {
+    xdao = tx
+    spawnWay("normal", "#ff3333", 1, angle, 1, 20, xdao, 0, 30, "knife", "absolute", "6")
+    wait(1)
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    once {
+        x = tx
+        angle = 90
+    }
+    speed += 1
+}
+if (speed == 50..10000) {
+    speed = speed / 1.001
+}
+if (speed == 200..202) {
+    angle += random(0,0)
+}
+once {
+    speed += 40
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
@@ -513,7 +648,8 @@ if (y > 896) {
  * 
  * 弾幕を作ったら、以下のフォーマットでコピペして追加してください。
  * 
-,{
+,
+{
     name: "弾幕名",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
