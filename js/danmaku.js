@@ -856,6 +856,65 @@ if (frame = 2..3) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "秘儀「十三頭の龍」",
+    desc: "結構いい感じに作れました。下からの反射を追加したことでそこそこの難易度になったかも...",
+    duration: 30,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 1200; i++) {
+    aimAtTarget()
+    for (let i = 0; i < 12; i++) {
+        spawnp = spawnp + 1
+        for (let i = 0; i < 4; i++) {
+            spawnBullet("normal", "#ff3333", 300 + spd, angle, 0, 0, 10, "uroko", "relative", "5")
+            spawnBullet("normal", "#ff3332", 300 + spd, angle, 0, 0, 10, "uroko", "relative", "5")
+            spd += 20
+        }
+        spd = 0
+        wait(0.02)
+    }
+    for (let i = 0; i < 12; i++) {
+        spawnp = spawnp - 1
+        for (let i = 0; i < 4; i++) {
+            spawnBullet("normal", "#ff3333", 300 + spd, angle, 0, 0, 10, "uroko", "relative", "5")
+            spawnBullet("normal", "#ff3332", 300 + spd, angle, 0, 0, 10, "uroko", "relative", "5")
+            spd += 20
+        }
+        spd = 0
+        wait(0.02)
+    }
+    spawnp = -10
+    wait(0.15)
+}
+    `,
+    bulletScript: `
+if (color == #ff3333) {
+    once {
+        x = 379 + spawnp * 60
+    }
+}
+if (color == #ff3332) {
+    once {
+        x = 379 - spawnp * 60
+    }
+}
+if (y > 890) {
+    angle = -90
+}
+if (y < 10) {
+    y = -50000
+}
+if (x > 758) {
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
