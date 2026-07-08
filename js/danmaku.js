@@ -640,6 +640,148 @@ once {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "双毒「絡みつく赤大蛇」",
+    desc: "クリアチェックはしました。",
+    duration: 60,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    if (cardSecond == 0..15) {
+        xs = random(-600,600)
+        spawnBullet("normal", "#33ffff", 200, 90, 0, -200, 10, "onmyoutama", "relative", "10")
+        wait(0.1)
+    }
+}
+while (true) {
+    if (cardSecond == 15..30) {
+        xs = random(-600,600)
+        spawnBullet("normal", "#33ffff", 200, 90, 0, -200, 10, "onmyoutama", "relative", "10")
+        wait(0.06)
+    }
+}
+while (true) {
+    if (cardSecond == 30..60) {
+        xs = random(-600,600)
+        spawnBullet("normal", "#33ffff", 200, 90, 0, -200, 10, "onmyoutama", "relative", "10")
+        wait(0.04)
+    }
+}
+while (true) {
+    if (cardSecond == 15..60) {
+        xs = random(-600,600)
+        spawnBullet("normal", "#ffaa33", 200, 90, 0, -200, 30, "onmyoutama", "relative", "35")
+        wait(0.4)
+    }
+}
+while (true) {
+    if (cardSecond == 35..60) {
+        xs = random(-600,600)
+        spawnBullet("normal", "#ffaa33", 200, 90, 0, -200, 30, "onmyoutama", "relative", "35")
+        wait(0.4)
+    }
+}
+while (true) {
+    if (cardSecond == 0..15) {
+        for (let i = 0; i < 8; i++) {
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            angle += 10
+            wait(0.05)
+        }
+    }
+    if (cardSecond == 15..30) {
+        for (let i = 0; i < 16; i++) {
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            angle += 10
+            wait(0.05)
+        }
+    }
+    if (cardSecond == 30..45) {
+        for (let i = 0; i < 24; i++) {
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            angle += 10
+            wait(0.05)
+        }
+    }
+    if (cardSecond == 45..60) {
+        for (let i = 0; i < 32; i++) {
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            angle += 10
+            wait(0.05)
+        }
+    }
+    wait(0.8)
+    angle += 20
+}
+while (true) {
+    if (cardSecond == 45..60) {
+        aimAtTarget()
+        spawnWay("normal", "#ffdd33", 400, angle, 3, 30, 0, 0, 30, "onmyoutama", "relative", "35")
+        wait(1)
+    }
+}
+    `,
+    bulletScript: `
+if (color == #ff3333) {
+    if (timer == 1..1.4) {
+        speed += -7
+    }
+    if (timer == 1.4..2) {
+        speed = 300
+        once {
+            aimAtTarget()
+            if (cardSecond == 30..60) {
+                angle += random(-3,3)
+            }
+        }
+    }
+}
+if (color == #33ffff) {
+    speed = 150
+    m += 5
+    once {
+        y = 0
+        xs = random(-600,600)
+        x += xs
+    }
+}
+if (color == #ffaa33) {
+    speed = 100
+    m += 5
+    once {
+        y = 0
+        xs = random(-600,600)
+        x += xs
+    }
+}
+if (color == #ffdd33) {
+    m += 5
+}
+if (cardSecond == 15) {
+    y = -8000
+}
+if (cardSecond == 30) {
+    y = -8000
+}
+if (cardSecond == 45) {
+    y = -8000
+}
+spriteAngle = angle + m
+if (dist < 50) {
+    y = y
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
