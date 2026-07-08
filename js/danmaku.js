@@ -147,27 +147,27 @@ if (color == #ffffff) {
     while (true) {
     m = 0
     aimAtTarget()
-    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    spawnBulletResist("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
     wait(10)
     m = 0
     aimAtTarget()
-    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    spawnBulletResist("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
     wait(6)
     m = 0
     aimAtTarget()
-    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    spawnBulletResist("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
     wait(10)
     m = 0
     aimAtTarget()
-    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    spawnBulletResist("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
     wait(10)
     m = 0
     aimAtTarget()
-    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    spawnBulletResist("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
     wait(10)
     m = 0
     aimAtTarget()
-    spawnBullet("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
+    spawnBulletResist("normal", "#ffdd33", 0, angle, 0, 0, 70, "ootama", "relative", "70")
     wait(10)
 }
     `,
