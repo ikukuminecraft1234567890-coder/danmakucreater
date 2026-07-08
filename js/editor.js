@@ -92,6 +92,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.hitRadius = '';
                 block.params.bulletImage = 'none';
                 block.params.coordMode = 'relative';
+                block.params.destroyResist = '';
             } else if (type === 'spawn_ring') {
                 block.params.bulletType = 'normal';
                 block.params.color = '#ff3333';
@@ -102,6 +103,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.hitRadius = '';
                 block.params.bulletImage = 'none';
                 block.params.coordMode = 'relative';
+                block.params.destroyResist = '';
             } else if (type === 'spawn_way') {
                 block.params.bulletType = 'normal';
                 block.params.color = '#ff3333';
@@ -113,6 +115,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.hitRadius = '';
                 block.params.bulletImage = 'none';
                 block.params.coordMode = 'relative';
+                block.params.destroyResist = '';
             } else if (type === 'homing') {
                 block.params.turnSpeed = '90';
             } else if (type === 'spawn_magic_circle') {
@@ -474,6 +477,9 @@ function customCardMakerSwitchTab(tab) {
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
                                 <span>Y:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <label title="衝撃波や弾消し効果を受けない" style="cursor:pointer; color:#ffcc66; font-size:11px; white-space:nowrap;">
+                                    <input type="checkbox" ${b.params.destroyResist === '1' ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'destroyResist', this.checked ? '1' : '')" style="vertical-align:middle;"> 耐性
+                                </label>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -524,6 +530,9 @@ function customCardMakerSwitchTab(tab) {
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
                                 <span>Y:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <label title="衝撃波や弾消し効果を受けない" style="cursor:pointer; color:#ffcc66; font-size:11px; white-space:nowrap;">
+                                    <input type="checkbox" ${b.params.destroyResist === '1' ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'destroyResist', this.checked ? '1' : '')" style="vertical-align:middle;"> 耐性
+                                </label>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -576,6 +585,9 @@ function customCardMakerSwitchTab(tab) {
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
                                 <span>Y:</span>
                                 <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <label title="衝撃波や弾消し効果を受けない" style="cursor:pointer; color:#ffcc66; font-size:11px; white-space:nowrap;">
+                                    <input type="checkbox" ${b.params.destroyResist === '1' ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'destroyResist', this.checked ? '1' : '')" style="vertical-align:middle;"> 耐性
+                                </label>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -1094,10 +1106,10 @@ function customCardMakerSwitchTab(tab) {
                         let img = b.params.bulletImage || 'none';
                         let cm = b.params.coordMode || 'relative';
                         let hr = b.params.hitRadius || '';
+                        let dr = b.params.destroyResist === '1';
 
-                        if (hr !== '' || rad !== '6' || img !== 'none' || cm !== 'relative') {
-                            // hitRadiusを出力する場合はフル引数
-                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}", ${formatCodeColorArg(hr)})`;
+                        if (dr || hr !== '' || rad !== '6' || img !== 'none' || cm !== 'relative') {
+                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}", ${formatCodeColorArg(hr)}${dr ? ', "resist"' : ''})`;
                         } else if (ox !== '0' || oy !== '0') {
                             line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy})`;
                         } else {
@@ -1117,9 +1129,10 @@ function customCardMakerSwitchTab(tab) {
                         let imgRing = b.params.bulletImage || 'none';
                         let cmRing = b.params.coordMode || 'relative';
                         let hrRing = b.params.hitRadius || '';
+                        let drRing = b.params.destroyResist === '1';
 
-                        if (hrRing !== '' || radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative' || angRing !== '0') {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
+                        if (drRing || hrRing !== '' || radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative' || angRing !== '0') {
+                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)}${drRing ? ', "resist"' : ''})`;
                         } else if (oxRing !== '0' || oyRing !== '0') {
                             line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
                         } else {
@@ -1140,9 +1153,10 @@ function customCardMakerSwitchTab(tab) {
                         let imgWay = b.params.bulletImage || 'none';
                         let cmWay = b.params.coordMode || 'relative';
                         let hrWay = b.params.hitRadius || '';
+                        let drWay = b.params.destroyResist === '1';
 
-                        if (hrWay !== '' || radWay !== '6' || imgWay !== 'none' || cmWay !== 'relative') {
-                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}", ${formatCodeColorArg(hrWay)})`;
+                        if (drWay || hrWay !== '' || radWay !== '6' || imgWay !== 'none' || cmWay !== 'relative') {
+                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}", ${formatCodeColorArg(hrWay)}${drWay ? ', "resist"' : ''})`;
                         } else if (oxWay !== '0' || oyWay !== '0') {
                             line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay})`;
                         } else {
@@ -1348,6 +1362,8 @@ function customCardMakerSwitchTab(tab) {
                             let arg2IsRadius = args[2] === '6' || args[2] === '8' || args[2] === '12';
                             if (arg2IsRadius && arg3IsNumber) isLegacy = true;
                         }
+                        let lastArg = args[args.length - 1];
+                        let drSb = (lastArg === 'resist') ? '1' : '';
                         block = {
                             type: 'spawn_bullet',
                             params: {
@@ -1360,7 +1376,8 @@ function customCardMakerSwitchTab(tab) {
                                 radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
                                 bulletImage: args.length >= 8 ? args[7] : 'none',
                                 coordMode: args.length >= 9 ? args[8] : 'relative',
-                                hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
+                                hitRadius: (args.length >= 10 && args[9] !== '""' && args[9] !== 'resist') ? args[9] : '',
+                                destroyResist: drSb
                             },
                             indent
                         };
@@ -1369,6 +1386,8 @@ function customCardMakerSwitchTab(tab) {
                     if (mSpawnRing) {
                         let args = mSpawnRing[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = args.length === 5 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
+                        let lastArgR = args[args.length - 1];
+                        let drRg = (lastArgR === 'resist') ? '1' : '';
                         block = {
                             type: 'spawn_ring',
                             params: {
@@ -1382,7 +1401,8 @@ function customCardMakerSwitchTab(tab) {
                                 radius: isLegacy ? args[2] : (args.length >= 8 ? args[7] : '6'),
                                 bulletImage: args.length >= 9 ? args[8] : 'none',
                                 coordMode: args.length >= 10 ? args[9] : 'relative',
-                                hitRadius: (args.length >= 11 && args[10] !== '""') ? args[10] : ''
+                                hitRadius: (args.length >= 11 && args[10] !== '""' && args[10] !== 'resist') ? args[10] : '',
+                                destroyResist: drRg
                             },
                             indent
                         };
@@ -1391,6 +1411,8 @@ function customCardMakerSwitchTab(tab) {
                     if (mSpawnWay) {
                         let args = mSpawnWay[1].split(",").map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         let isLegacy = args.length === 7 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
+                        let lastArgW = args[args.length - 1];
+                        let drWg = (lastArgW === 'resist') ? '1' : '';
                         block = {
                             type: 'spawn_way',
                             params: {
@@ -1405,7 +1427,8 @@ function customCardMakerSwitchTab(tab) {
                                 radius: isLegacy ? args[2] : (args.length >= 9 ? args[8] : '6'),
                                 bulletImage: args.length >= 10 ? args[9] : 'none',
                                 coordMode: args.length >= 11 ? args[10] : 'relative',
-                                hitRadius: (args.length >= 12 && args[11] !== '""') ? args[11] : ''
+                                hitRadius: (args.length >= 12 && args[11] !== '""' && args[11] !== 'resist') ? args[11] : '',
+                                destroyResist: drWg
                             },
                             indent
                         };
@@ -1667,6 +1690,8 @@ function customCardMakerSwitchTab(tab) {
                         let arg2IsRadius = args[2] === '6' || args[2] === '8' || args[2] === '12';
                         if (arg2IsRadius && arg3IsNumber) isLegacy = true;
                     }
+                    let lastArgSb2 = args[args.length - 1];
+                    let drSb2 = (lastArgSb2 === 'resist') ? '1' : '';
                     block = {
                         type: 'spawn_bullet',
                         params: {
@@ -1679,7 +1704,8 @@ function customCardMakerSwitchTab(tab) {
                             radius: isLegacy ? args[2] : (args.length >= 7 ? args[6] : '6'),
                             bulletImage: args.length >= 8 ? args[7] : 'none',
                             coordMode: args.length >= 9 ? args[8] : 'relative',
-                            hitRadius: (args.length >= 10 && args[9] !== '""') ? args[9] : ''
+                            hitRadius: (args.length >= 10 && args[9] !== '""' && args[9] !== 'resist') ? args[9] : '',
+                            destroyResist: drSb2
                         },
                         indent: indent
                     };
@@ -1694,6 +1720,8 @@ function customCardMakerSwitchTab(tab) {
                         return sTrim;
                     });
                     let isLegacy = args.length === 5 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
+                    let lastArgRg2 = args[args.length - 1];
+                    let drRg2 = (lastArgRg2 === 'resist') ? '1' : '';
                     block = {
                         type: 'spawn_ring',
                         params: {
@@ -1707,7 +1735,8 @@ function customCardMakerSwitchTab(tab) {
                             radius: isLegacy ? args[2] : (args.length >= 8 ? args[7] : '6'),
                             bulletImage: args.length >= 9 ? args[8] : 'none',
                             coordMode: args.length >= 10 ? args[9] : 'relative',
-                            hitRadius: (args.length >= 11 && args[10] !== '""') ? args[10] : ''
+                            hitRadius: (args.length >= 11 && args[10] !== '""' && args[10] !== 'resist') ? args[10] : '',
+                            destroyResist: drRg2
                         },
                         indent: indent
                     };
@@ -1722,6 +1751,8 @@ function customCardMakerSwitchTab(tab) {
                         return sTrim;
                     });
                     let isLegacy = args.length === 7 && (args[2] === '6' || args[2] === '8' || args[2] === '12');
+                    let lastArgWg2 = args[args.length - 1];
+                    let drWg2 = (lastArgWg2 === 'resist') ? '1' : '';
                     block = {
                         type: 'spawn_way',
                         params: {
@@ -1736,7 +1767,8 @@ function customCardMakerSwitchTab(tab) {
                             radius: isLegacy ? args[2] : (args.length >= 9 ? args[8] : '6'),
                             bulletImage: args.length >= 10 ? args[9] : 'none',
                             coordMode: args.length >= 11 ? args[10] : 'relative',
-                            hitRadius: (args.length >= 12 && args[11] !== '""') ? args[11] : ''
+                            hitRadius: (args.length >= 12 && args[11] !== '""' && args[11] !== 'resist') ? args[11] : '',
+                            destroyResist: drWg2
                         },
                         indent: indent
                     };

@@ -385,6 +385,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (block.params.bulletType === 'laser') {
                             newBullet.isLaser = true;
                         }
+                        if (block.params.destroyResist === '1') {
+                            newBullet.destroyResist = true;
+                        }
 
                         newBullet.threatWeight = computeBulletThreatWeight(
                             spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
@@ -461,6 +464,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             
                             if (block.params.bulletType === 'laser') {
                                 newBullet.isLaser = true;
+                            }
+                            if (block.params.destroyResist === '1') {
+                                newBullet.destroyResist = true;
                             }
                             
                             newBullet.threatWeight = computeBulletThreatWeight(
@@ -542,6 +548,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             
                             if (block.params.bulletType === 'laser') {
                                 newBullet.isLaser = true;
+                            }
+                            if (block.params.destroyResist === '1') {
+                                newBullet.destroyResist = true;
                             }
                             
                             newBullet.threatWeight = computeBulletThreatWeight(
@@ -2043,9 +2052,9 @@ function stepEmitter(c, state, attacker, target, dt) {
             'aim_at_target': [],
             'move_owner': ['preset', 'duration'],
             'slide_owner': ['preset', 'duration'],
-            'spawn_bullet': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
-            'spawn_ring': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
-            'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_bullet': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius', 'destroyResist'],
+            'spawn_ring': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius', 'destroyResist'],
+            'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius', 'destroyResist'],
             'homing': ['turnSpeed'],
             'speed_add': ['value'],
             'speed_set': ['value'],

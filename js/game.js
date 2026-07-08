@@ -2460,7 +2460,7 @@ function applyAbilityEffect(cardId, owner) {
                     
                     bullets = bullets.filter(b => {
                         const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
-                        if (isLaserOrBeam) return true;
+                        if (isLaserOrBeam || b.destroyResist) return true;
                         let dist = Math.sqrt((b.x - window.miniExplosionShockwave.x) ** 2 + (b.y - window.miniExplosionShockwave.y) ** 2);
                         return dist > window.miniExplosionShockwave.r;
                     });
@@ -2552,7 +2552,7 @@ function applyAbilityEffect(cardId, owner) {
                         // 周囲の弾を即座に消去（レーザーは除く）
                         bullets = bullets.filter(b => {
                             const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
-                            if (isLaserOrBeam) return true;
+                            if (isLaserOrBeam || b.destroyResist) return true;
                             let dist = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
                             return dist > 200;
                         });
@@ -3102,6 +3102,20 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.fillStyle = color;
                         ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
                     }
+                }
+
+                // 弾消し耐性の弾にゴールドリングを描画
+                if (b.destroyResist && !b.isLaser) {
+                    let drawRadius = b.radius * 1.5;
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(255, 220, 50, 0.85)';
+                    ctx.lineWidth = 1.5;
+                    ctx.shadowColor = '#ffcc33';
+                    ctx.shadowBlur = 4;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, drawRadius + 2.5, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
                 }
 
                 // デバッグ用当たり判定の描画（Dキー押下時）
