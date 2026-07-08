@@ -1,3 +1,21 @@
+// 数学用ヘルパー関数群（度数法対応）をグローバルに展開
+window.sin = function(deg) { return Math.sin((Number(deg) || 0) * Math.PI / 180); };
+window.cos = function(deg) { return Math.cos((Number(deg) || 0) * Math.PI / 180); };
+window.tan = function(deg) { return Math.tan((Number(deg) || 0) * Math.PI / 180); };
+window.atan2 = function(y, x) { return Math.atan2(Number(y) || 0, Number(x) || 0) * 180 / Math.PI; };
+window.sqrt = Math.sqrt;
+window.abs = Math.abs;
+window.min = Math.min;
+window.max = Math.max;
+window.PI = Math.PI;
+window.PI2 = Math.PI * 2;
+window.pow = Math.pow;
+window.log = Math.log;
+window.exp = Math.exp;
+window.floor = Math.floor;
+window.round = Math.round;
+window.ceil = Math.ceil;
+
 function applyAbilityEffect(cardId, owner) {
             let user = owner === 'PLAYER' ? player : cpu;
             let target = owner === 'PLAYER' ? cpu : player;
