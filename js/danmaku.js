@@ -512,7 +512,7 @@ if (y > 896) {
     duration: 67,            // 制限時間（秒）
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    despawnTime: 10,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
 while (true) {
