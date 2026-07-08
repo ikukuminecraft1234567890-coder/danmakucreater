@@ -688,32 +688,32 @@ while (true) {
 while (true) {
     if (cardSecond == 0..15) {
         for (let i = 0; i < 8; i++) {
-            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
-            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "b_uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "b_uroko", "relative", "20")
             angle += 10
             wait(0.05)
         }
     }
     if (cardSecond == 15..30) {
         for (let i = 0; i < 16; i++) {
-            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
-            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "b_uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "b_uroko", "relative", "20")
             angle += 10
             wait(0.05)
         }
     }
     if (cardSecond == 30..45) {
         for (let i = 0; i < 24; i++) {
-            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
-            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "b_uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "b_uroko", "relative", "20")
             angle += 10
             wait(0.05)
         }
     }
     if (cardSecond == 45..60) {
         for (let i = 0; i < 32; i++) {
-            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "uroko", "relative", "20")
-            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 30, "b_uroko", "relative", "20")
+            spawnBullet("normal", "#ff3333", 300, -angle, 0, 0, 30, "b_uroko", "relative", "20")
             angle += 10
             wait(0.05)
         }
@@ -777,6 +777,41 @@ if (cardSecond == 45) {
 spriteAngle = angle + m
 if (dist < 50) {
     y = y
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    name: "旋風「ビッグトルネード」",
+    desc: "圧倒的弾速、圧倒的気合避け",
+    duration: 25,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    angle = 0
+    for (let i = 0; i < 3; i++) {
+        spawnWay("normal", "#ff3333", 1000, angle + 45, 20, 18, 0, 0, 30, "ootama", "relative", "15")
+        wait(0.08)
+    }
+    angle = 9
+    for (let i = 0; i < 3; i++) {
+        spawnWay("normal", "#ff3333", 1000, angle + 45, 20, 18, 0, 0, 30, "ootama", "relative", "15")
+        wait(0.08)
+    }
+}
+    `,
+    bulletScript: `
+once {
+    angle += random(-3,3)
+    speed += random(0,0)
+}
+if (speed == 400..100000) {
+    speed += -5
 }
     `,
     magicCircleScript: `
