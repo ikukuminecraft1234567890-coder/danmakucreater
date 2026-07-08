@@ -945,6 +945,35 @@ spriteAngle = angle
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "波符「白銀のタイダルウェーブ」",
+    desc: "気づいたら星蓮船四面ボスのアレみたいになってた。",
+    duration: 30,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    tween("ex", ex, tx, "vecstep", 0.1)
+    tween("ey", ey, ty, "vecstep", 0.1)
+    wait(1 - t)
+    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
+    wait(0.2)
+    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
+    wait(0.2)
+    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
+    wait(1 - t)
+    wait(0.2)
+    t += 0.05
+    t2 += 0.0175
+}
+    `,
+    bulletScript: `
+    `,
+    magicCircleScript: `
+    `
 }
 ];
 
