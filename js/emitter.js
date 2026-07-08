@@ -122,6 +122,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.x_offset = 0;
                 state.variables.y_offset = 0;
             }
+
+            // ex / ey 変数による attacker 座標の更新（exy とは独立して動作）
+            if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
+                attacker.x = Number(state.variables.ex);
+            }
+            if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
+                // ey は画面下を0とする論理座標系なので画面座標に変換
+                attacker.y = isPlayerSide ? Number(state.variables.ey) : canvas.height - Number(state.variables.ey);
+            }
             state.variables.txy = `${state.variables.tx},${state.variables.ty}`;
             state.variables['txy_x'] = state.variables.tx;
             state.variables['txy_y'] = state.variables.ty;
