@@ -2331,6 +2331,17 @@ function customCardMakerSwitchTab(tab) {
             renderSharedDanmakuList();
         }
 
+        let sharedDanmakuPage = 0;
+        const SHARED_PAGE_SIZE = 8;
+
+        function changeSharedDanmakuPage(delta) {
+            const total = typeof sharedDanmakuList !== 'undefined' ? sharedDanmakuList.length : 0;
+            const maxPage = Math.max(0, Math.ceil(total / SHARED_PAGE_SIZE) - 1);
+            sharedDanmakuPage = Math.max(0, Math.min(maxPage, sharedDanmakuPage + delta));
+            renderSharedDanmakuList();
+        }
+        window.changeSharedDanmakuPage = changeSharedDanmakuPage;
+
         function renderSharedDanmakuList() {
             const container = document.getElementById('shared-danmaku-list-container');
             if (!container) return;
@@ -2338,10 +2349,27 @@ function customCardMakerSwitchTab(tab) {
 
             if (typeof sharedDanmakuList === 'undefined' || sharedDanmakuList.length === 0) {
                 container.innerHTML = '<div style="color:#888; font-size:12px; text-align:center; padding:50px 0; border:1.5px dashed rgba(255,255,255,0.1); border-radius:8px;">作った弾幕がありません。「js/danmaku.js」にデータを追加してください。</div>';
+                const pageInfo = document.getElementById('shared-page-info');
+                if (pageInfo) pageInfo.textContent = '1 / 1';
                 return;
             }
 
-            sharedDanmakuList.forEach((card, idx) => {
+            const total = sharedDanmakuList.length;
+            const totalPages = Math.ceil(total / SHARED_PAGE_SIZE);
+            sharedDanmakuPage = Math.max(0, Math.min(totalPages - 1, sharedDanmakuPage));
+            const start = sharedDanmakuPage * SHARED_PAGE_SIZE;
+            const pageItems = sharedDanmakuList.slice(start, start + SHARED_PAGE_SIZE);
+
+            // ページ情報更新
+            const pageInfo = document.getElementById('shared-page-info');
+            if (pageInfo) pageInfo.textContent = `${sharedDanmakuPage + 1} / ${totalPages}`;
+            const prevBtn = document.getElementById('shared-page-prev');
+            const nextBtn = document.getElementById('shared-page-next');
+            if (prevBtn) prevBtn.disabled = sharedDanmakuPage === 0;
+            if (nextBtn) nextBtn.disabled = sharedDanmakuPage >= totalPages - 1;
+
+            pageItems.forEach((card, pageIdx) => {
+                const idx = start + pageIdx; // 元のリスト上のインデックス
                 const isCleared = isSharedDanmakuCleared(card.name);
                 
                 // 配色出し分け (クリア時は青、未クリア時は紫)
