@@ -350,48 +350,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         advancePC = executeOnceBlock(block, state);
                         break;
                     }
-                    case 'parallel': {
-                        // parallel ブロック内の直接の子をそれぞれ独立スレッドとして起動
-                        if (block.children && block.children.length > 0) {
-                            // 子ブロードを「グループ」に分割（ルートレベルのループ単位で1スレッド）
-                            const makeThread = (childBlocks) => ({
-                                type: 'inline_parallel',
-                                pc: 0,
-                                stack: [],
-                                blocks: childBlocks,
-                                variables: state.variables,
-                                finished: false,
-                                waitTimer: 0,
-                                isPlayerSide: state.isPlayerSide,
-                                isParallelThread: true,
-                                lifetimeOnce: state.lifetimeOnce,
-                                constVars: state.constVars,
-                                speedScaleApplied: state.speedScaleApplied
-                            });
-                            // 子ブロックを連続するグループ(先頭がループ系なら1スレッド)に分割
-                            const groups = [];
-                            let cur = null;
-                            const loopTypes = ['forever','while','repeat','if','once'];
-                            for (const ch of block.children) {
-                                if (loopTypes.includes(ch.type)) {
-                                    cur = [ch];
-                                    groups.push(cur);
-                                } else if (cur) {
-                                    cur.push(ch);
-                                } else {
-                                    cur = [ch];
-                                    groups.push(cur);
-                                }
-                            }
-                            if (!state.inlineThreads) state.inlineThreads = [];
-                            state.inlineThreads.push({
-                                threads: groups.map(g => makeThread(g)),
-                                done: false
-                            });
-                        }
-                        // parallel ブロックは即座に次へ進む（並列スレッドはバックグラウンドで走る）
-                        break;
-                    }
+
                     case 'const_var':
                     case 'set_var': {
                         let varName = block.params.name;
@@ -418,12 +377,32 @@ function stepEmitter(c, state, attacker, target, dt) {
                         state.variables.angle = Math.atan2(dy, dx) * 180 / Math.PI;
                         break;
                     }
+                    case 'aim_at_coord': {
+                        let txRaw = evalExpr(block.params.targetX || '0', state.variables);
+                        let tyRaw = evalExpr(block.params.targetY || '0', state.variables);
+                        let txAbs = Number(txRaw) || 0;
+                        let tyAbs = isPlayerSide ? (canvas.height - (Number(tyRaw) || 0)) : (Number(tyRaw) || 0);
+                        let dxC = txAbs - (attacker.x + (state.variables.x_offset || 0));
+                        let dyC = tyAbs - (attacker.y + (state.variables.y_offset || 0));
+                        state.variables.angle = Math.atan2(dyC, dxC) * 180 / Math.PI;
+                        break;
+                    }
                     case 'move_owner': {
                         const owner = attacker === player ? 'PLAYER' : 'CPU';
                         const preset = resolveTextParam(block.params.preset || 'center', state.variables);
                         const duration = evalExpr(block.params.duration || '0', state.variables);
                         setCustomOwnerPosition(owner, preset, duration);
                         applyCustomOwnerPositionLock(owner, 0);
+                        
+                        // 移動先の座標を取得して ex, ey, exy に即座に反映させ、古い座標への引き戻しを防ぐ
+                        if (typeof getCustomOwnerPosition !== 'undefined') {
+                            const targetPos = getCustomOwnerPosition(owner, preset);
+                            if (targetPos) {
+                                state.variables.ex = targetPos.x;
+                                state.variables.ey = isPlayerSide ? (canvas.height - targetPos.y) : targetPos.y;
+                                state.variables.exy = `${targetPos.x},${state.variables.ey}`;
+                            }
+                        }
                         break;
                     }
                     case 'spawn_bullet':
@@ -2145,6 +2124,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'tween_var_wait': ['name', 'start', 'end', 'mode', 'value'],
             'set_laser': ['warningTime', 'activeTime', 'laserWidth'],
             'aim_at_target': [],
+            'aim_at_coord': ['targetX', 'targetY'],
             'move_owner': ['preset', 'duration'],
             'slide_owner': ['preset', 'duration'],
             'spawn_bullet': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
@@ -2168,7 +2148,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'repeat': 'r', 'forever': 'f', 'wait': 'w', 'if': 'i', 'once': 'o',
             'const_var': 'v', 'set_var': 's', 'change_var': 'c',
             'tween_var': 't', 'tween_var_wait': 'tw', 'set_laser': 'sl',
-            'aim_at_target': 'a', 'move_owner': 'm', 'slide_owner': 'd',
+            'aim_at_target': 'a', 'aim_at_coord': 'ac', 'move_owner': 'm', 'slide_owner': 'd',
             'spawn_bullet': 'sb', 'spawn_bullet_resist': 'sbr', 
             'spawn_ring': 'sr', 'spawn_ring_resist': 'srr', 
             'spawn_way': 'sw', 'spawn_way_resist': 'swr',
