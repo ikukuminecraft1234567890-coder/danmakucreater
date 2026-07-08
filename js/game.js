@@ -2191,7 +2191,8 @@ function applyAbilityEffect(cardId, owner) {
                             continue;
                         }
                     } else if (b.team === 'CPU') {
-                        if (player.isInvincible || b.isWarningLaser) {
+                        let isInv = player.isInvincible || (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0);
+                        if (isInv || b.isWarningLaser) {
                             continue;
                         }
                         let distSq;
@@ -2274,10 +2275,8 @@ function applyAbilityEffect(cardId, owner) {
                             player.hitLastTurn = true; // 被弾履歴
                             if (isCustomCardTesting) b.hitPlayer = true; // テスト中は再当たりしない
 
-                            if (!isCustomCardTesting) {
-                                if (useFastRemove) { b._dead = true; continue; }
-                                bullets.splice(i, 1); continue;
-                            }
+                            if (useFastRemove) { b._dead = true; continue; }
+                            bullets.splice(i, 1); continue;
                         }
                         if (!b.grazed && distSq < (player.grazeRadius + bHitR) ** 2) {
                             b.grazed = true; player.grazeCount++;
