@@ -974,6 +974,154 @@ while (true) {
     `,
     magicCircleScript: `
     `
+},
+{
+    name: "忌符「フライングスター」",
+    desc: "全方位反射って難しいですよねぇ...",
+    duration: 30,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+cx = 384
+cy = 350
+R = 200
+bx = 0
+by = 0
+bx2 = 0
+by2 = 0
+angle = 0
+angle2 = 0
+while (true) {
+    // 1ループごとに、星全体の傾きをランダム（0〜360度）で決める
+    base_angle = random(0, 360)
+    // 決まった傾きを足して、星の頂点座標を毎回計算し直す
+    x0 = cx + R * cos(-90 + base_angle)
+    y0 = cy + R * sin(-90 + base_angle)
+    x1 = cx + R * cos(-18 + base_angle)
+    y1 = cy + R * sin(-18 + base_angle)
+    x2 = cx + R * cos(54 + base_angle)
+    y2 = cy + R * sin(54 + base_angle)
+    x3 = cx + R * cos(126 + base_angle)
+    y3 = cy + R * sin(126 + base_angle)
+    x4 = cx + R * cos(198 + base_angle)
+    y4 = cy + R * sin(198 + base_angle)
+    rx0 = cx + R * cos(90 + base_angle)
+    ry0 = cy + R * sin(90 + base_angle)
+    rx1 = cx + R * cos(162 + base_angle)
+    ry1 = cy + R * sin(162 + base_angle)
+    rx2 = cx + R * cos(234 + base_angle)
+    ry2 = cy + R * sin(234 + base_angle)
+    rx3 = cx + R * cos(306 + base_angle)
+    ry3 = cy + R * sin(306 + base_angle)
+    rx4 = cx + R * cos(18 + base_angle)
+    ry4 = cy + R * sin(18 + base_angle)
+    bx = x0
+    by = y0
+    bx2 = rx0
+    by2 = ry0
+    wait(0.3)
+    star = 1
+    t = 0
+    // ナイフの向き（進行方向）にも傾きを足して、綺麗に星の辺に沿わせる
+    angle = 72 + base_angle
+    angle2 = -108 + base_angle
+    tween("bx", x0, x2, "seconds", 0.3)
+    tween("by", y0, y2, "seconds", 0.3)
+    tween("bx2", rx0, rx2, "seconds", 0.3)
+    tween("by2", ry0, ry2, "seconds", 0.3)
+    wait(0.3)
+    angle = -144 + base_angle
+    angle2 = 36 + base_angle
+    tween("bx", x2, x4, "seconds", 0.3)
+    tween("by", y2, y4, "seconds", 0.3)
+    tween("bx2", rx2, rx4, "seconds", 0.3)
+    tween("by2", ry2, ry4, "seconds", 0.3)
+    wait(0.3)
+    angle = 0 + base_angle
+    angle2 = 180 + base_angle
+    tween("bx", x4, x1, "seconds", 0.3)
+    tween("by", y4, y1, "seconds", 0.3)
+    tween("bx2", rx4, rx1, "seconds", 0.3)
+    tween("by2", ry4, ry1, "seconds", 0.3)
+    wait(0.3)
+    angle = 144 + base_angle
+    angle2 = -36 + base_angle
+    tween("bx", x1, x3, "seconds", 0.3)
+    tween("by", y1, y3, "seconds", 0.3)
+    tween("bx2", rx1, rx3, "seconds", 0.3)
+    tween("by2", ry1, ry3, "seconds", 0.3)
+    wait(0.3)
+    angle = -72 + base_angle
+    angle2 = 108 + base_angle
+    tween("bx", x3, x0, "seconds", 0.3)
+    tween("by", y3, y0, "seconds", 0.3)
+    tween("bx2", rx3, rx0, "seconds", 0.3)
+    tween("by2", ry3, ry0, "seconds", 0.3)
+    wait(0.3)
+    star = 0
+    angle = 90 + base_angle
+    angle2 = -90 + base_angle
+    tween("bx", x0, cx, "seconds", 0.3)
+    tween("by", y0, cy, "seconds", 0.3)
+    tween("bx2", rx0, cx, "seconds", 0.3)
+    tween("by2", ry0, cy, "seconds", 0.3)
+    wait(0.3)
+    wait(0.1)
+    t = 1
+    wait(0.3)
+}
+while (true) {
+    if (star == 1) {
+        spawnBullet("normal", "#ff3366", 0, angle, bx, by, 20, "b_star", "absolute", "15")
+        spawnBullet("normal", "#ff3366", 0, angle2, bx2, by2, 20, "b_star", "absolute", "15")
+    }
+    wait(0.00005)
+}
+    `,
+    bulletScript: `
+if (e_t==1) {
+    once {
+        flag = 1
+    }
+}
+if (flag=1) {
+    if (speed==0..400) {
+        speed += 2
+    }
+    if (x < 10) {
+        once {
+            speed = 0
+            angle = -angle
+            angle = angle - 180
+        }
+    }
+    if (x > 758) {
+        once {
+            speed = 0
+            angle = -angle
+            angle = angle - 180
+        }
+    }
+    if (y < 10) {
+        once {
+            speed = 0
+            angle = -angle
+        }
+    }
+    if (y > 886) {
+        once {
+            speed = 0
+            angle = -angle
+        }
+    }
+}
+spriteAngle = spriteAngle + 3
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
