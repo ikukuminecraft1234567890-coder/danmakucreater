@@ -160,6 +160,26 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.finished = allFinished;
                 return;
             }
+
+            // インラインのparallel{}ブロックのスレッドを毎フレーム実行
+            if (state.inlineThreads && state.inlineThreads.length > 0) {
+                for (const group of state.inlineThreads) {
+                    if (group.done) continue;
+                    let allDone = true;
+                    for (const thread of group.threads) {
+                        if (thread.finished) continue;
+                        thread.variables = state.variables;
+                        thread.isPlayerSide = state.isPlayerSide;
+                        thread.constVars = state.constVars;
+                        thread.lifetimeOnce = state.lifetimeOnce;
+                        thread.speedScaleApplied = state.speedScaleApplied;
+                        stepEmitter(c, thread, attacker, target, dt);
+                        if (!thread.finished) allDone = false;
+                    }
+                    if (allDone) group.done = true;
+                }
+                state.inlineThreads = state.inlineThreads.filter(g => !g.done);
+            }
             
             if (state.finished) return;
             
@@ -310,6 +330,48 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                     case 'once': {
                         advancePC = executeOnceBlock(block, state);
+                        break;
+                    }
+                    case 'parallel': {
+                        // parallel ブロック内の直接の子をそれぞれ独立スレッドとして起動
+                        if (block.children && block.children.length > 0) {
+                            // 子ブロードを「グループ」に分割（ルートレベルのループ単位で1スレッド）
+                            const makeThread = (childBlocks) => ({
+                                type: 'inline_parallel',
+                                pc: 0,
+                                stack: [],
+                                blocks: childBlocks,
+                                variables: state.variables,
+                                finished: false,
+                                waitTimer: 0,
+                                isPlayerSide: state.isPlayerSide,
+                                isParallelThread: true,
+                                lifetimeOnce: state.lifetimeOnce,
+                                constVars: state.constVars,
+                                speedScaleApplied: state.speedScaleApplied
+                            });
+                            // 子ブロックを連続するグループ(先頭がループ系なら1スレッド)に分割
+                            const groups = [];
+                            let cur = null;
+                            const loopTypes = ['forever','while','repeat','if','once'];
+                            for (const ch of block.children) {
+                                if (loopTypes.includes(ch.type)) {
+                                    cur = [ch];
+                                    groups.push(cur);
+                                } else if (cur) {
+                                    cur.push(ch);
+                                } else {
+                                    cur = [ch];
+                                    groups.push(cur);
+                                }
+                            }
+                            if (!state.inlineThreads) state.inlineThreads = [];
+                            state.inlineThreads.push({
+                                threads: groups.map(g => makeThread(g)),
+                                done: false
+                            });
+                        }
+                        // parallel ブロックは即座に次へ進む（並列スレッドはバックグラウンドで走る）
                         break;
                     }
                     case 'const_var':

@@ -352,6 +352,14 @@ function customCardMakerSwitchTab(tab) {
                                 ${renderBlockControls(idx)}
                             `;
                             break;
+                        case 'parallel':
+                            blockDiv.className = 'maker-block color-control';
+                            blockDiv.style.borderLeft = '3px solid #00ccff';
+                            html = `
+                                <span>[制御] <span style="color:#00ccff;font-weight:bold;">parallel</span> 並列実行</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
                         case 'if': {
                             let cond = b.params.cond || 'isBounced';
                             let normalizedCond = cond.replace(/\s+/g, '');
@@ -1248,6 +1256,9 @@ function customCardMakerSwitchTab(tab) {
                     case 'while':
                         line = `while (${b.params.cond || 'true'})`;
                         break;
+                    case 'parallel':
+                        line = `parallel`;
+                        break;
                     case 'const_var':
                         line = `const ${b.params.name || 'angle'} = ${b.params.value || '0'}`;
                         break;
@@ -1531,6 +1542,8 @@ function customCardMakerSwitchTab(tab) {
                     if (mForRepeat) block = { type: 'repeat', params: { count: mForRepeat[2].trim(), indexVar: mForRepeat[1].trim() }, indent };
                     let mIf = trimmed.match(/^if\s*\((.*?)\)$/i);
                     if (mIf) block = { type: 'if', params: { cond: mIf[1].trim() }, indent };
+                    let mParallel = trimmed.match(/^parallel\s*(?:\(\))?$/i);
+                    if (mParallel) block = { type: 'parallel', params: {}, indent };
                     let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
                     let mMoveOwner = trimmed.match(/^moveTo\((.*?)\)$/i);
@@ -1900,6 +1913,10 @@ function customCardMakerSwitchTab(tab) {
                 let mIf = trimmed.match(/^if\s*\((.*?)\)$/i);
                 if (mIf) {
                     block = { type: 'if', params: { cond: mIf[1].trim() }, indent: indent };
+                }
+                let mParallel = trimmed.match(/^parallel\s*(?:\(\))?$/i);
+                if (mParallel) {
+                    block = { type: 'parallel', params: {}, indent: indent };
                 }
                 let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                 if (mAim) {
