@@ -817,6 +817,45 @@ if (speed == 400..100000) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "偽符「ダブルスパイル」",
+    desc: "攻略法が分かると簡単なタイプ。",
+    duration: 25,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 7,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 10; i++) {
+        spawnWay("normal", "#ff3333", 35000, angle, 10, 36, 384, 448, 10, "marutama", "absolute", "4")
+        wait(0.05)
+        angle += 2
+    }
+    for (let i = 0; i < 10; i++) {
+        spawnWay("normal", "#ff3333", 35000, angle, 10, 36, 384, 448, 10, "marutama", "absolute", "4")
+        wait(0.05)
+        angle -= 9
+    }
+}
+    `,
+    bulletScript: `
+if (frame = 30..30000) {
+    if (x == 374..394) {
+        if (y == 438..458) {
+            color = #3333ff
+        }
+    }
+}
+if (frame = 2..3) {
+    angle += 180
+    speed = 200
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
