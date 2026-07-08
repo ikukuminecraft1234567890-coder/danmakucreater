@@ -726,6 +726,10 @@ function customCardMakerSwitchTab(tab) {
             currentTestPlaySource = 'maker';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            window.playerMissCount = 0;
+            window.playerInvincibleTimer = 0;
+            window.miniExplosionEffect = null;
+            window.miniExplosionShockwave = null;
             
             setCardMakerScreenActive(false);
             document.getElementById('titleScreen').style.display = 'none';
@@ -2010,6 +2014,10 @@ function customCardMakerSwitchTab(tab) {
             currentTestPlaySource = 'shared';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            window.playerMissCount = 0;
+            window.playerInvincibleTimer = 0;
+            window.miniExplosionEffect = null;
+            window.miniExplosionShockwave = null;
 
             setCardMakerScreenActive(false);
             document.getElementById('titleScreen').style.display = 'none';

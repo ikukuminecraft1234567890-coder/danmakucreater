@@ -2435,6 +2435,41 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             if (isCustomCardTesting) {
+                // 被弾無敵時間の更新
+                if (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) {
+                    window.playerInvincibleTimer -= dt;
+                    player.pendingDamage = 0; // 無敵中はダメージを無効化
+                }
+
+                // 耐えた時の小さな爆発パーティクルの更新
+                if (window.miniExplosionEffect) {
+                    window.miniExplosionEffect.forEach(p => {
+                        p.x += p.vx * dt;
+                        p.y += p.vy * dt;
+                        p.life -= dt;
+                        p.alpha = Math.max(0, p.life / p.maxLife);
+                    });
+                    window.miniExplosionEffect = window.miniExplosionEffect.filter(p => p.life > 0);
+                    if (window.miniExplosionEffect.length === 0) window.miniExplosionEffect = null;
+                }
+
+                // 衝撃波（波紋）の更新と当たり判定による弾消去
+                if (window.miniExplosionShockwave) {
+                    window.miniExplosionShockwave.r += window.miniExplosionShockwave.speed * dt;
+                    window.miniExplosionShockwave.life -= dt;
+                    
+                    bullets = bullets.filter(b => {
+                        const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
+                        if (isLaserOrBeam) return true;
+                        let dist = Math.sqrt((b.x - window.miniExplosionShockwave.x) ** 2 + (b.y - window.miniExplosionShockwave.y) ** 2);
+                        return dist > window.miniExplosionShockwave.r;
+                    });
+                    
+                    if (window.miniExplosionShockwave.life <= 0) {
+                        window.miniExplosionShockwave = null;
+                    }
+                }
+
                 // クリアエフェクト進行中はタイマーを減らして待つ
                 if (window.customCardClearEffect) {
                     window.customCardClearEffect.elapsed = (window.customCardClearEffect.elapsed || 0) + dt;
@@ -2477,23 +2512,69 @@ function applyAbilityEffect(cardId, owner) {
                 }
 
                 if (player.pendingDamage > 0) {
-                    // 死亡エフェクト開始（3秒）
-                    let particles = [];
-                    for (let i = 0; i < 60; i++) {
-                        let angle = Math.random() * Math.PI * 2;
-                        let speed = 80 + Math.random() * 300;
-                        particles.push({
-                            x: player.x, y: player.y,
-                            vx: Math.cos(angle) * speed,
-                            vy: Math.sin(angle) * speed - 150,
-                            life: 0.8 + Math.random() * 1.5,
-                            maxLife: 0.8 + Math.random() * 1.5,
-                            alpha: 1,
-                            r: 3 + Math.random() * 6,
-                            hue: Math.random() * 60 // 赤〜オレンジ
-                        });
+                    if (typeof window.playerMissCount !== 'number') {
+                        window.playerMissCount = 0;
                     }
-                    customCardDeathEffect = { timer: 3.0, particles };
+                    
+                    if (window.playerMissCount < 2) {
+                        window.playerMissCount++;
+                        player.pendingDamage = 0;
+                        window.playerInvincibleTimer = 0.5; // 無敵時間0.5秒
+                        
+                        // 小さな爆発エフェクトの生成
+                        let particles = [];
+                        for (let i = 0; i < 30; i++) {
+                            let angle = Math.random() * Math.PI * 2;
+                            let speed = 50 + Math.random() * 180;
+                            particles.push({
+                                x: player.x, y: player.y,
+                                vx: Math.cos(angle) * speed,
+                                vy: Math.sin(angle) * speed,
+                                life: 0.3 + Math.random() * 0.3,
+                                maxLife: 0.3 + Math.random() * 0.3,
+                                alpha: 1,
+                                r: 2 + Math.random() * 4,
+                                color: '#00ffff' // シアン色の火花
+                            });
+                        }
+                        window.miniExplosionEffect = particles;
+                        
+                        // 衝撃波（波紋）の生成 (半径 200px まで広がる)
+                        window.miniExplosionShockwave = {
+                            x: player.x,
+                            y: player.y,
+                            r: 10,
+                            maxR: 200,
+                            speed: 380, // 約0.5秒で最大
+                            life: 0.5
+                        };
+                        
+                        // 周囲の弾を即座に消去（レーザーは除く）
+                        bullets = bullets.filter(b => {
+                            const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
+                            if (isLaserOrBeam) return true;
+                            let dist = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
+                            return dist > 200;
+                        });
+                    } else {
+                        // 3回目で死亡エフェクト開始（3秒）
+                        let particles = [];
+                        for (let i = 0; i < 60; i++) {
+                            let angle = Math.random() * Math.PI * 2;
+                            let speed = 80 + Math.random() * 300;
+                            particles.push({
+                                x: player.x, y: player.y,
+                                vx: Math.cos(angle) * speed,
+                                vy: Math.sin(angle) * speed - 150,
+                                life: 0.8 + Math.random() * 1.5,
+                                maxLife: 0.8 + Math.random() * 1.5,
+                                alpha: 1,
+                                r: 3 + Math.random() * 6,
+                                hue: Math.random() * 60 // 赤〜オレンジ
+                            });
+                        }
+                        customCardDeathEffect = { timer: 3.0, particles };
+                    }
                 }
                 // actionTimer が切れたら即座に全弾を消去してクリアエフェクトを開始
                 if (actionTimer <= 0 && !customCardDeathEffect && !window.customCardClearEffect) {
@@ -3114,32 +3195,39 @@ function applyAbilityEffect(cardId, owner) {
             // 自機の描画
             let pImg = reimuImg_idle;
             let pFlipX = false;
-
+ 
             if (inputState.left) { pImg = reimuImg_left; }
             else if (inputState.right) { pImg = reimuImg_left; pFlipX = true; }
             else { pImg = reimuImg_idle; } // 待機または上下移動
-
+ 
             const animIndex = Math.floor(performance.now() / 150) % 4;
             const drawW = 48, drawH = 48;
-
-            ctx.save();
-            ctx.translate(player.x, player.y);
-            if (pFlipX) ctx.scale(-1, 1);
-            if (pImg && pImg.complete && pImg.naturalWidth > 0 && pImg.src.indexOf("dummy") === -1) {
-                let spriteW = pImg.naturalWidth >= 192 ? 48 : pImg.naturalWidth;
-                let spriteH = pImg.naturalHeight >= 48 ? 48 : pImg.naturalHeight;
-                let srcX = (pImg.naturalWidth >= 192) ? animIndex * 48 : 0;
-                ctx.drawImage(pImg, srcX, 0, spriteW, spriteH, -drawW / 2, -drawH / 2, drawW, drawH);
-            } else {
-                ctx.fillStyle = '#888888';
-                ctx.fillRect(-12, -16, 24, 32);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 12px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText("自機", 0, 0);
+ 
+            let showPlayer = true;
+            if (isCustomCardTesting && typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) {
+                showPlayer = (Math.floor(performance.now() / 80) % 2 === 0);
             }
-            ctx.restore();
+ 
+            if (showPlayer) {
+                ctx.save();
+                ctx.translate(player.x, player.y);
+                if (pFlipX) ctx.scale(-1, 1);
+                if (pImg && pImg.complete && pImg.naturalWidth > 0 && pImg.src.indexOf("dummy") === -1) {
+                    let spriteW = pImg.naturalWidth >= 192 ? 48 : pImg.naturalWidth;
+                    let spriteH = pImg.naturalHeight >= 48 ? 48 : pImg.naturalHeight;
+                    let srcX = (pImg.naturalWidth >= 192) ? animIndex * 48 : 0;
+                    ctx.drawImage(pImg, srcX, 0, spriteW, spriteH, -drawW / 2, -drawH / 2, drawW, drawH);
+                } else {
+                    ctx.fillStyle = '#888888';
+                    ctx.fillRect(-12, -16, 24, 32);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText("自機", 0, 0);
+                }
+                ctx.restore();
+            }
 
             // 霊撃（ボム）の描画
             activeReigekis.forEach(r => {
@@ -3254,14 +3342,45 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             // 自機の当たり判定（白と枠線の色の逆転＆赤・青切り替え）
-            let outerColor = (window.hitboxColorSetting === 'blue') ? '#0088ff' : 'red';
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, player.hitboxRadius + 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = 'white';
-            ctx.fill();
-            ctx.strokeStyle = outerColor;
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            if (showPlayer) {
+                let outerColor = (window.hitboxColorSetting === 'blue') ? '#0088ff' : 'red';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.hitboxRadius + 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+                ctx.strokeStyle = outerColor;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // 耐えた時の小さな爆発エフェクトの描画
+            if (isCustomCardTesting && window.miniExplosionEffect) {
+                window.miniExplosionEffect.forEach(p => {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color || 'white';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+            }
+
+            // 耐えた時の衝撃波（波紋）の描画
+            if (isCustomCardTesting && window.miniExplosionShockwave) {
+                ctx.save();
+                let sw = window.miniExplosionShockwave;
+                let alpha = Math.max(0, sw.life / 0.5);
+                ctx.globalAlpha = alpha;
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#00ffff';
+                ctx.beginPath();
+                ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
 
             // 敵機の描画
             let cImg;
@@ -3427,6 +3546,30 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.font = 'bold 26px monospace';
                 ctx.fillText(t.toFixed(1) + 's', PLAY_WIDTH - 10, 10);
                 ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+
+            // ── ライフ（被弾耐性）を右上に表示 ──────────────────────────────
+            if (isCustomCardTesting && !customCardTestEmitterDone) {
+                let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
+                let lives = Math.max(0, 2 - missCount);
+                
+                ctx.save();
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                
+                // 背景パネル
+                ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                ctx.fillRect(PLAY_WIDTH - 90, 48, 84, 24);
+                
+                // 文字
+                ctx.fillStyle = lives === 0 ? '#ff4444' : '#ff99bb';
+                ctx.font = 'bold 14px sans-serif';
+                let starText = '';
+                for (let li = 0; li < lives; li++) starText += '★';
+                if (starText === '') starText = '無残機';
+                ctx.fillText(starText, PLAY_WIDTH - 12, 53);
+                
                 ctx.restore();
             }
 
