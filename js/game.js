@@ -2274,7 +2274,7 @@ function applyAbilityEffect(cardId, owner) {
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
 
-                            if (!isCustomCardTesting) {
+                            if (!isCustomCardTesting && !b.destroyResist) {
                                 if (useFastRemove) { b._dead = true; continue; }
                                 bullets.splice(i, 1); continue;
                             }
