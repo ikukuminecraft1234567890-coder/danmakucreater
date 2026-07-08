@@ -3652,6 +3652,15 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.fillText('SPELL CARD', PLAY_WIDTH / 2, canvas.height / 2 - 30);
                     ctx.font = "italic bold 56px sans-serif";
                     ctx.fillText('CLEAR!', PLAY_WIDTH / 2, canvas.height / 2 + 25);
+
+                    // ミス数（被弾数）の表示
+                    let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
+                    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                    ctx.font = 'bold 20px sans-serif';
+                    ctx.fillText('Miss: ' + missCount, PLAY_WIDTH / 2 + 1.5, canvas.height / 2 + 70 + 1.5);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 20px sans-serif';
+                    ctx.fillText('Miss: ' + missCount, PLAY_WIDTH / 2, canvas.height / 2 + 70);
                     
                     // タップ数インジケーター（5回でエディタに戻る）
                     let tapCount = window.customCardClearEffect.tapCount || 0;
