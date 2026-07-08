@@ -334,7 +334,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                         applyCustomOwnerPositionLock(owner, 0);
                         break;
                     }
-                    case 'spawn_bullet': {
+                    case 'spawn_bullet':
+                    case 'spawn_bullet_resist': {
                         let speed = evalExpr(block.params.speed, state.variables);
                         let angle = evalExpr(block.params.angle, state.variables);
                         let bColor = resolveColorParam(block.params.color, state.variables);
@@ -385,7 +386,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (block.params.bulletType === 'laser') {
                             newBullet.isLaser = true;
                         }
-                        if (block.params.destroyResist === '1') {
+                        if (block.type === 'spawn_bullet_resist') {
                             newBullet.destroyResist = true;
                         }
 
@@ -411,7 +412,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                         bullets.push(newBullet);
                         break;
                     }
-                    case 'spawn_ring': {
+                    case 'spawn_ring':
+                    case 'spawn_ring_resist': {
                         let speed = evalExpr(block.params.speed, state.variables);
                         let bColor = resolveColorParam(block.params.color, state.variables);
                         let count = Math.max(3, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(block.params.count || '12', state.variables))));
@@ -465,7 +467,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             if (block.params.bulletType === 'laser') {
                                 newBullet.isLaser = true;
                             }
-                            if (block.params.destroyResist === '1') {
+                            if (block.type === 'spawn_ring_resist') {
                                 newBullet.destroyResist = true;
                             }
                             
@@ -492,7 +494,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         break;
                     }
-                    case 'spawn_way': {
+                    case 'spawn_way':
+                    case 'spawn_way_resist': {
                         let speed = evalExpr(block.params.speed, state.variables);
                         let centerAngle = evalExpr(block.params.angle || 'angle', state.variables);
                         let bColor = resolveColorParam(block.params.color, state.variables);
@@ -549,7 +552,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             if (block.params.bulletType === 'laser') {
                                 newBullet.isLaser = true;
                             }
-                            if (block.params.destroyResist === '1') {
+                            if (block.type === 'spawn_way_resist') {
                                 newBullet.destroyResist = true;
                             }
                             
@@ -2052,9 +2055,12 @@ function stepEmitter(c, state, attacker, target, dt) {
             'aim_at_target': [],
             'move_owner': ['preset', 'duration'],
             'slide_owner': ['preset', 'duration'],
-            'spawn_bullet': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius', 'destroyResist'],
-            'spawn_ring': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius', 'destroyResist'],
-            'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius', 'destroyResist'],
+            'spawn_bullet': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_bullet_resist': ['type', 'color', 'speed', 'angle', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_ring': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_ring_resist': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
+            'spawn_way_resist': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
             'homing': ['turnSpeed'],
             'speed_add': ['value'],
             'speed_set': ['value'],
@@ -2071,7 +2077,9 @@ function stepEmitter(c, state, attacker, target, dt) {
             'const_var': 'v', 'set_var': 's', 'change_var': 'c',
             'tween_var': 't', 'tween_var_wait': 'tw', 'set_laser': 'sl',
             'aim_at_target': 'a', 'move_owner': 'm', 'slide_owner': 'd',
-            'spawn_bullet': 'sb', 'spawn_ring': 'sr', 'spawn_way': 'sw',
+            'spawn_bullet': 'sb', 'spawn_bullet_resist': 'sbr', 
+            'spawn_ring': 'sr', 'spawn_ring_resist': 'srr', 
+            'spawn_way': 'sw', 'spawn_way_resist': 'swr',
             'homing': 'h', 'speed_add': 'sa', 'speed_set': 'ss',
             'angle_add': 'aa', 'angle_set': 'as', 'color_set': 'cs',
             'speed_scale_slow': 'sls', 'speed_scale_fast': 'ssf', 'bounce': 'b'

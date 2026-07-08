@@ -3104,20 +3104,6 @@ function applyAbilityEffect(cardId, owner) {
                     }
                 }
 
-                // 弾消し耐性の弾にゴールドリングを描画
-                if (b.destroyResist && !b.isLaser) {
-                    let drawRadius = b.radius * 1.5;
-                    ctx.save();
-                    ctx.strokeStyle = 'rgba(255, 220, 50, 0.85)';
-                    ctx.lineWidth = 1.5;
-                    ctx.shadowColor = '#ffcc33';
-                    ctx.shadowBlur = 4;
-                    ctx.beginPath();
-                    ctx.arc(b.x, b.y, drawRadius + 2.5, 0, Math.PI * 2);
-                    ctx.stroke();
-                    ctx.restore();
-                }
-
                 // デバッグ用当たり判定の描画（Dキー押下時）
                 if (window.debugShowHitboxes) {
                     let bHitR = b.isLaser ? getLaserWidth(b) / 2 : (b.hitRadius !== undefined ? b.hitRadius : b.radius);
