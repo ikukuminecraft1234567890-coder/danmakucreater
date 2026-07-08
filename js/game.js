@@ -4447,8 +4447,8 @@ function applyAbilityEffect(cardId, owner) {
 
 
                 // 5. a == b / a != b を誤差許容関数呼び出しに置換
-                s = s.replace(/([^&|?,:=]+)\s*==\s*([^&|?,:=]+)/g, '__fuzzyEqual($1,$2)');
-                s = s.replace(/([^&|?,:=]+)\s*!=\s*([^&|?,:=]+)/g, '__fuzzyNotEqual($1,$2)');
+                s = s.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, '__fuzzyEqual($1,$2)');
+                s = s.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, '__fuzzyNotEqual($1,$2)');
 
                 // 6. 退避した厳密比較演算子を復元
                 s = s.replace(/___STRICT_EQ_(\d+)___/g, function(match, index) {
