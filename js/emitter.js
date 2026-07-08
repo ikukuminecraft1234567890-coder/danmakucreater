@@ -388,7 +388,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         if (block.type === 'spawn_bullet_resist') {
                             newBullet.destroyResist = true;
-                            console.log(`[DEBUG-RESIST] Spawned bullet: type=${block.type}, destroyResist=${newBullet.destroyResist}`);
                         }
 
                         newBullet.threatWeight = computeBulletThreatWeight(
@@ -470,7 +469,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             if (block.type === 'spawn_ring_resist') {
                                 newBullet.destroyResist = true;
-                                console.log(`[DEBUG-RESIST] Spawned ring bullet: type=${block.type}, destroyResist=${newBullet.destroyResist}`);
                             }
                             
                             newBullet.threatWeight = computeBulletThreatWeight(
@@ -556,7 +554,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             if (block.type === 'spawn_way_resist') {
                                 newBullet.destroyResist = true;
-                                console.log(`[DEBUG-RESIST] Spawned way bullet: type=${block.type}, destroyResist=${newBullet.destroyResist}`);
                             }
                             
                             newBullet.threatWeight = computeBulletThreatWeight(

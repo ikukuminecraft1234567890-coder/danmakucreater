@@ -2242,7 +2242,6 @@ function applyAbilityEffect(cardId, owner) {
                             distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;
                         }
                         if (distSq < (player.hitboxRadius + bHitR) ** 2) {
-                            console.log(`[DEBUG-RESIST] Collision detected: team=${b.team}, destroyResist=${b.destroyResist}, isCustom=${b.isCustom}, b.type=${b.bulletState ? b.bulletState.blocks[0]?.type : 'unknown'}`);
                             let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 2 : 50);
                             if (!b.isNormal && activeCards.length >= 2) {
                                 dmg = Math.floor(dmg / 2);
@@ -2553,16 +2552,8 @@ function applyAbilityEffect(cardId, owner) {
                         // 周囲の弾を即座に消去（レーザーは除く）
                         bullets = bullets.filter(b => {
                             const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
-                            if (isLaserOrBeam || b.destroyResist) {
-                                if (b.destroyResist) {
-                                    console.log(`[DEBUG-RESIST] Keeping resistant bullet in filter:`, b);
-                                }
-                                return true;
-                            }
+                            if (isLaserOrBeam || b.destroyResist) return true;
                             let dist = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
-                            if (dist <= 200) {
-                                console.log(`[DEBUG-RESIST] Filtering out bullet: dist=${dist.toFixed(1)}, destroyResist=${b.destroyResist}`);
-                            }
                             return dist > 200;
                         });
                     } else {
