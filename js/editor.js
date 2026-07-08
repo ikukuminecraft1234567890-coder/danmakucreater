@@ -1001,7 +1001,8 @@ function customCardMakerSwitchTab(tab) {
             document.getElementById('titleScreen').style.display = 'flex';
             
             if (success && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared' && typeof currentSharedDanmakuName !== 'undefined' && currentSharedDanmakuName) {
-                saveClearedSharedDanmaku(currentSharedDanmakuName);
+                let isNoMiss = typeof window.playerMissCount === 'number' && window.playerMissCount === 0;
+                saveClearedSharedDanmaku(currentSharedDanmakuName, isNoMiss);
             }
             
             if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared') {
@@ -2265,7 +2266,7 @@ function customCardMakerSwitchTab(tab) {
         // -------------------------------------------------------------
         let currentSharedDanmakuName = null;
 
-        function saveClearedSharedDanmaku(name) {
+        function saveClearedSharedDanmaku(name, isNoMiss) {
             let clearedList = [];
             try {
                 const saved = localStorage.getItem('touhou_kyoukaisen_cleared_shared');
@@ -2279,6 +2280,22 @@ function customCardMakerSwitchTab(tab) {
                     localStorage.setItem('touhou_kyoukaisen_cleared_shared', JSON.stringify(clearedList));
                 } catch(e) {}
             }
+
+            if (isNoMiss) {
+                let noMissList = [];
+                try {
+                    const savedNoMiss = localStorage.getItem('touhou_kyoukaisen_nomiss_shared');
+                    if (savedNoMiss) {
+                        noMissList = JSON.parse(savedNoMiss);
+                    }
+                } catch(e) {}
+                if (!noMissList.includes(name)) {
+                    noMissList.push(name);
+                    try {
+                        localStorage.setItem('touhou_kyoukaisen_nomiss_shared', JSON.stringify(noMissList));
+                    } catch(e) {}
+                }
+            }
         }
 
         function isSharedDanmakuCleared(name) {
@@ -2287,6 +2304,17 @@ function customCardMakerSwitchTab(tab) {
                 if (saved) {
                     const clearedList = JSON.parse(saved);
                     return clearedList.includes(name);
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function isSharedDanmakuNoMiss(name) {
+            try {
+                const saved = localStorage.getItem('touhou_kyoukaisen_nomiss_shared');
+                if (saved) {
+                    const noMissList = JSON.parse(saved);
+                    return noMissList.includes(name);
                 }
             } catch(e) {}
             return false;
@@ -2337,6 +2365,14 @@ function customCardMakerSwitchTab(tab) {
                     clearBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
                     clearBadge.textContent = '★CLEARED';
                     titleSpan.appendChild(clearBadge);
+
+                    const isNoMiss = isSharedDanmakuNoMiss(card.name);
+                    if (isNoMiss) {
+                        const noMissBadge = document.createElement('span');
+                        noMissBadge.style.cssText = 'margin-left: 4px; font-size: 9px; color: #ffbb00; background: rgba(255,187,0,0.15); border: 1px solid rgba(255,187,0,0.4); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
+                        noMissBadge.textContent = '★NoMiss';
+                        titleSpan.appendChild(noMissBadge);
+                    }
                 }
                 
                 const timeSpan = document.createElement('span');
