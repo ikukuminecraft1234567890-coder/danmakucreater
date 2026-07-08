@@ -108,6 +108,12 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (state.variables.exy === undefined) {
                 state.variables.exy = `${attacker.x},${state.variables.y}`;
             }
+            if (state.variables.ex === undefined) {
+                state.variables.ex = attacker.x;
+            }
+            if (state.variables.ey === undefined) {
+                state.variables.ey = state.variables.y;
+            }
             // ドット記法およびアンダーバー記法の子変数同期
             let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
             if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
@@ -128,8 +134,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                 attacker.x = Number(state.variables.ex);
             }
             if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
-                // ey は画面下を0とする論理座標系なので画面座標に変換
-                attacker.y = isPlayerSide ? Number(state.variables.ey) : canvas.height - Number(state.variables.ey);
+                // ey は Y軸の論理座標系（自機側なら画面下0、敵機側なら画面上0）なので画面座標に変換
+                attacker.y = isPlayerSide ? (canvas.height - Number(state.variables.ey)) : Number(state.variables.ey);
             }
             state.variables.txy = `${state.variables.tx},${state.variables.ty}`;
             state.variables['txy_x'] = state.variables.tx;
