@@ -971,7 +971,7 @@ while (true) {
 }
     `,
     bulletScript: `
-    speed += 0.1
+    speed += 1
     `,
     magicCircleScript: `
     `
@@ -1271,6 +1271,40 @@ if (timer == 0.1) {
     speed = 1
 }
 spriteAngle = angle
+    `
+},
+{
+    name: "「完全自動殺戮マシン」",
+    desc: "弾から弾が出るスペルを作るのが楽しいんだよなあ！！",
+    duration: 35,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnBulletResist("normal", "#ff3333", 400, -15, 0, 0, 50, "ootama", "relative", "40")
+    spawnBulletResist("normal", "#ff3333", 400, 195, 0, 0, 50, "ootama", "relative", "40")
+    wait(1)
+    spawnBulletResist("normal", "#ff3333", 400, -15, 0, 0, 50, "ootama", "relative", "40")
+    spawnBulletResist("normal", "#ff3333", 400, 195, 0, 0, 50, "ootama", "relative", "40")
+    wait(7)
+}
+    `,
+    bulletScript: `
+while (true) {
+    bounce()
+    m += 1
+    if (m==12..20) {
+        spawnBullet("normal", "#ff3333", spd, 90 + r, 0, 0, 30, "b_knife", "relative", "5")
+        spd = random(150,250)
+        r = rand(-5,5)
+        m = random(0,6)
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
     `
 }
 ];
