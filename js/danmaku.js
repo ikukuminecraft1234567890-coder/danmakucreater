@@ -1346,6 +1346,59 @@ while (true) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "鋒符「尾を噛む龍」",
+    desc: "万物は流転する。自らの尾を喰らう龍のように、終わりなき円環を描く。",
+    duration: 35,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnRingResist("normal", "#ffffff", 500, spangle, 16, 0, 0, 0, "ohuda", "relative", "0")
+    wait(4 - w)
+    wait(2)
+    w += 0.6
+    w2 += 0.1
+    w3 += 10
+    spangle += random(0,360)
+}
+    `,
+    bulletScript: `
+if (timer > 0.2) {
+    wait(0.04)
+    spawnRing("normal", "#ffffff", 0, angle, 1, 0, 0, 20, "kome", "relative", "6")
+    angle += kaku
+    spriteAngle = angle
+}
+speed = 200
+if (flag != 1) {
+    kaku += 2
+}
+if (kaku == 11..500) {
+    flag = 1
+}
+if (flag == 1) {
+    kaku -= 2
+}
+if (kaku == -500..-11) {
+    flag = 0
+}
+    `,
+    magicCircleScript: `
+if (timer == 1) {
+    speed = 50 + random(-10,50) + w3
+    angle += random(-180,180)
+    color = #ff3333
+    hitRadius = 6
+}
+spriteAngle = angle
+if (timer == 3 - w2) {
+    y = -546546456
+}
+    `
 }
 ];
 
