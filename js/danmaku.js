@@ -917,36 +917,6 @@ if (x > 758) {
     `
 },
 {
-    name: "熱符「真紅たる太陽風」",
-    desc: "交差する弾って...楽しいですよね。",
-    duration: 20,            // 制限時間（秒）
-    x_offset: 0,             // 出現位置の横オフセット
-    y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
-    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
-    emitterScript: `
-for (let i = 0; i < 1200; i++) {
-    spawnRingResist("normal", "#ff3333", 300, angle, 36, 0, 0, 10, "b_marutama", "relative", "6")
-    spawnRingResist("normal", "#ff3332", 300, angle, 36, 0, 0, 10, "b_marutama", "relative", "6")
-    angle += random(-5,5)
-    wait(0.3)
-}
-    `,
-    bulletScript: `
-if (color == #ff3333) {
-    angle += 0.2 - m
-}
-if (color == #ff3332) {
-    angle -= 0.2 - m
-}
-m += 0.0003
-spriteAngle = angle
-    `,
-    magicCircleScript: `
-        // 子弾挙動の独自コード（任意）
-    `
-},
-{
     name: "波符「白銀のタイダルウェーブ」",
     desc: "気づいたら星蓮船四面ボスのアレみたいになってた。",
     duration: 30,            // 制限時間（秒）
@@ -974,6 +944,76 @@ while (true) {
     speed += 1
     `,
     magicCircleScript: `
+    `
+},
+{
+    name: "白銀のタルタルソース",
+    desc: "",
+    duration: 20,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 1200000000; i++) {
+    spawnBullet("normal", "#ffffff", 200, -90 + angle, 0, 0, 30, "b_marutama", "relative", "20")
+    angle = random(-50,50)
+    wait(0.02)
+}
+while (true) {
+    r = random(-100,100)
+    r2 = random(-100,100)
+    tween("ex", ex, 384 + r, "seconds", 0.4)
+    tween("ey", ey, 370 + r2, "seconds", 0.4)
+    wait(5)
+}
+    `,
+    bulletScript: `
+once {
+    yp = -40
+}
+y += yp / 10
+yp += 0.4
+if (yp = -5..5) {
+    SpriteAngle = 90
+}
+wait(0.00001)
+if (yp = -5..5) {
+    SpriteAngle = 90
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    name: "熱符「真紅たる太陽風」",
+    desc: "交差する弾って...楽しいですよね。",
+    duration: 20,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 1200; i++) {
+    spawnRingResist("normal", "#ff3333", 300, angle, 36, 0, 0, 10, "b_marutama", "relative", "6")
+    spawnRingResist("normal", "#ff3332", 300, angle, 36, 0, 0, 10, "b_marutama", "relative", "6")
+    angle += random(-5,5)
+    wait(0.3)
+}
+    `,
+    bulletScript: `
+if (color == #ff3333) {
+    angle += 0.2 - m
+}
+if (color == #ff3332) {
+    angle -= 0.2 - m
+}
+m += 0.0003
+spriteAngle = angle
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
     `
 },
 {
