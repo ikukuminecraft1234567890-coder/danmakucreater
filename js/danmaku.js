@@ -971,6 +971,7 @@ while (true) {
 }
     `,
     bulletScript: `
+    speed += 0.1
     `,
     magicCircleScript: `
     `
