@@ -1122,6 +1122,68 @@ spriteAngle = spriteAngle + 3
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "恕符「血濡れのアナザーディメンション」",
+    desc: "どう見ても輝針城モチーフ。",
+    duration: 30,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnRingResist("normal", "#ff3333", 200, angleg, 8, 0, 0, 6, "ootama", "relative", "6")
+    angleg += 16
+    wait(0.6)
+}
+while (true) {
+    offset = 0
+    spawnBulletResist("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
+    spawnBulletResist("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
+    offset = 30
+    spawnBulletResist("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
+    spawnBulletResist("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
+    offset = -30
+    spawnBulletResist("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
+    spawnBulletResist("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
+    aimAtTarget()
+    wait(0.6)
+}
+    `,
+    bulletScript: `
+while (true) {
+    if (color==#ff3333) {
+        radius += 0.8
+        hitRadius += 0.7
+        speed += 2
+    }
+    if (color==#dddddd) {
+        radius += 1
+        hitRadius += 0.2
+        speed += 2
+        once {
+            aimAtTarget()
+            angle += offset
+        }
+    }
+    if (color==#ddddde) {
+        radius += 1
+        hitRadius += 0.2
+        speed += 2
+        once {
+            aimAtTarget()
+            angle += offset
+        }
+    }
+    spriteAngle = angle
+    wait(0.01)
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
