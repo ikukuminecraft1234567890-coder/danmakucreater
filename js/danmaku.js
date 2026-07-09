@@ -1184,6 +1184,93 @@ while (true) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "真実「静焔のレプティリアン」",
+    desc: "作ってる途中、赤色の幻想郷とレプティリアンインテリジェンスを行ったり来たりしてました。",
+    duration: 35,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    angle = random(0,360)
+    for (let i = 0; i < 9; i++) {
+        spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 40, "ootama", "relative", "30")
+        angle += 40
+    }
+    wait(5)
+    angle = random(0,360)
+    for (let i = 0; i < 9; i++) {
+        spawnBullet("normal", "#3333ff", 300, angle, 0, 0, 40, "ootama", "relative", "30")
+        angle += 40
+    }
+    wait(5)
+    angle = random(0,360)
+    for (let i = 0; i < 9; i++) {
+        spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 40, "ootama", "relative", "30")
+        angle += 40
+    }
+    wait(5)
+    angle = random(0,360)
+    for (let i = 0; i < 9; i++) {
+        spawnBullet("normal", "#3333ff", 300, angle, 0, 0, 40, "ootama", "relative", "30")
+        angle += 40
+    }
+    wait(5)
+    angle = random(0,360)
+    for (let i = 0; i < 9; i++) {
+        spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 40, "ootama", "relative", "30")
+        angle += 40
+    }
+    wait(5)
+    angle = random(0,360)
+    for (let i = 0; i < 9; i++) {
+        spawnBullet("normal", "#3333ff", 300, angle, 0, 0, 40, "ootama", "relative", "30")
+        angle += 40
+    }
+    wait(50)
+}
+    `,
+    bulletScript: `
+if (timer < 3) {
+    if (color==#ff3333) {
+        angle += 0.1
+    }
+    if (color==#3333ff) {
+        angle += -0.1
+    }
+}
+g += 1
+if (g == 40) {
+    g = 0
+}
+if (g == 10) {
+    if (color==#ff3333) {
+        spawnRing("normal", "#ff3333", 250, 0, 5, 0, 0, 10, "uroko", "relative", "4")
+    }
+    if (color==#3333ff) {
+        spawnRing("normal", "#3333ff", 250, 0, 5, 0, 0, 10, "uroko", "relative", "4")
+    }
+}
+    `,
+    magicCircleScript: `
+if (timer == 3..4) {
+    homing(90)
+    angle += random(-1,1)
+}
+if (timer == 4) {
+    angle += random(-5,5)
+}
+if (timer == 3..5) {
+    speed += random(0.5,1.5)
+}
+if (timer == 0.1) {
+    speed = 1
+}
+spriteAngle = angle
+    `
 }
 ];
 
