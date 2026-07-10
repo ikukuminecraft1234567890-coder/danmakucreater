@@ -929,12 +929,13 @@ while (true) {
     tween("ex", ex, tx, "vecstep", 0.1)
     tween("ey", ey, ty, "vecstep", 0.1)
     wait(1 - t)
-    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
-    wait(0.2)
-    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
-    wait(0.2)
-    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
     wait(1 - t)
+    wait(0.5)
+    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
+    wait(0.2)
+    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
+    wait(0.2)
+    spawnRing("normal", "#ffffff", 200, 0, 72, 0, 0, 10, "b_uroko", "relative", "5")
     wait(0.2)
     t += 0.05
     t2 += 0.0175
