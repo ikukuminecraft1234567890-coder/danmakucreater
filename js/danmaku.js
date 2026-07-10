@@ -1492,6 +1492,115 @@ m += 5
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "ドパ符「ドーパミンの極致」",
+    desc: "ドーパドパドパドパｗｗｗｗｗドーパミンの放出は楽しいドパねぇｗｗｗｗｗｗｗｗ",
+    duration: 10,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 100; i++) {
+        spawnRing("normal", "#ff3333", 600, angle, 4, 0, 0, 15, "b_uroko", "relative", "10")
+        angle += random(0,360)
+        wait(0.01)
+    }
+    for (let i = 0; i < 50; i++) {
+        spawnRing("normal", "#ffaa33", 700, angle, 2, 0, 0, 40, "ootama", "relative", "30")
+        angle += 12.2
+        wait(0.02)
+    }
+    for (let i = 0; i < 50; i++) {
+        aimAtTarget()
+        angle += random(-7,7)
+        spawnWay("normal", "#ffdd33", 700, angle, 5, 25, 0, 0, 20, "b_ohuda", "relative", "10")
+        wait(0.02)
+    }
+    for (let i = 0; i < 50; i++) {
+        angle += 25
+        w = 0
+        sp = 0
+        for (let i = 0; i < 7; i++) {
+            spawnWay("normal", "#33ff88", 300 + sp, angle, 1 + w, 2, 0, 0, 20, "b_poihuru", "relative", "20")
+            w += 1
+            sp += 30
+        }
+        wait(0.04)
+    }
+    for (let i = 0; i < 20; i++) {
+        angle = random(-80,80)
+        spawnWay("normal", "#3388ff", 700, -90 + angle, 3, 10, 0, 0, 30, "b_star", "relative", "20")
+        wait(0.05)
+    }
+    for (let i = 0; i < 50; i++) {
+        xsp = random(0,768)
+        spawnWay("normal", "#9E76B4", 700, 90, 1, 10, 0, 0, 10, "poihuru", "relative", "6")
+        wait(0.02)
+    }
+    for (let i = 0; i < 500000; i++) {
+        for (let i = 0; i < 10; i++) {
+            spawnRing("normal", "#ff3333", 600, angle, 4, 0, 0, 15, "b_uroko", "relative", "10")
+            angle += random(0,360)
+            wait(0.01)
+        }
+        for (let i = 0; i < 10; i++) {
+            spawnRing("normal", "#ffaa33", 700, angle, 2, 0, 0, 40, "ootama", "relative", "30")
+            angle += 12.2
+            wait(0.02)
+        }
+        for (let i = 0; i < 10; i++) {
+            aimAtTarget()
+            angle += random(-7,7)
+            spawnWay("normal", "#ffdd33", 700, angle, 5, 25, 0, 0, 20, "b_ohuda", "relative", "10")
+            wait(0.02)
+        }
+        for (let i = 0; i < 10; i++) {
+            angle += 25
+            w = 0
+            sp = 0
+            for (let i = 0; i < 7; i++) {
+                spawnWay("normal", "#33ff88", 300 + sp, angle, 1 + w, 2, 0, 0, 20, "b_poihuru", "relative", "20")
+                w += 1
+                sp += 30
+            }
+            wait(0.04)
+        }
+        for (let i = 0; i < 10; i++) {
+            angle = random(-80,80)
+            spawnWay("normal", "#3388ff", 700, -90 + angle, 3, 10, 0, 0, 30, "b_star", "relative", "20")
+            wait(0.05)
+        }
+        for (let i = 0; i < 10; i++) {
+            xsp = random(0,768)
+            spawnWay("normal", "#9E76B4", 700, 90, 1, 10, 0, 0, 10, "poihuru", "relative", "6")
+            wait(0.02)
+        }
+    }
+}
+    `,
+    bulletScript: `
+if (color==#3388ff) {
+    if (y < 10) {
+        angle = 90
+    }
+    spriteAngle += 5
+}
+if (color==#9E76B4) {
+    once {
+        xsp = random(-200,968)
+        x = xsp
+        y = 0
+    }
+    homing(10)
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
