@@ -1456,6 +1456,41 @@ if (timer > 1) {
     y = -8000
 }
     `
+},
+{
+    name: "獄符「スターアンドプリズン」",
+    desc: "上下で挟んでくるタイプの弾幕。ちなみにガチで苦手。",
+    duration: 35,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 448
+    wait(0.5)
+    for (let i = 0; i < 1000000000000; i++) {
+        spawnRing("normal", "#ffff66", 35000, angle, 6, 0, 0, 30, "b_star", "relative", "20")
+        spawnRing("normal", "#ffff66", 35000, -angle, 6, 0, 0, 30, "b_star", "relative", "20")
+        angle += 6
+        wait(0.5)
+    }
+}
+if (x < 10) {
+}
+    `,
+    bulletScript: `
+once {
+    wait(0.02)
+    speed = 200
+    angle += 180
+}
+spriteAngle = angle + m
+m += 5
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
