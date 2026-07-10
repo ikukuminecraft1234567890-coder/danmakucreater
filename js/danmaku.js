@@ -628,7 +628,7 @@ if (color==#ff3333) {
     speed += 1
 }
 if (speed == 50..10000) {
-    speed = speed / 1.001
+    speed = speed / 1.0005
 }
 if (speed == 200..202) {
     angle += random(0,0)
