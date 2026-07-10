@@ -1175,20 +1175,20 @@ spriteAngle = spriteAngle + 3
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
 while (true) {
-    spawnRingResist("normal", "#ff3333", 200, angleg, 8, 0, 0, 6, "ootama", "relative", "6")
+    spawnRing("normal", "#ff3333", 200, angleg, 8, 0, 0, 6, "ootama", "relative", "6")
     angleg += 16
     wait(0.6)
 }
 while (true) {
     offset = 0
-    spawnBulletResist("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
-    spawnBulletResist("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
+    spawnBullet("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
+    spawnBullet("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
     offset = 30
-    spawnBulletResist("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
-    spawnBulletResist("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
+    spawnBullet("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
+    spawnBullet("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
     offset = -30
-    spawnBulletResist("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
-    spawnBulletResist("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
+    spawnBullet("normal", "#dddddd", 200, angle, 300, 0, 30, "b_knife", "relative", "6")
+    spawnBullet("normal", "#ddddde", 200, angle, -300, 0, 30, "b_knife", "relative", "6")
     aimAtTarget()
     wait(0.6)
 }
