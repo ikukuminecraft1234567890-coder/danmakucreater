@@ -1399,6 +1399,63 @@ if (timer == 3 - w2) {
     y = -546546456
 }
     `
+},
+{
+    name: "蛇符「人間殺しの大白蛇」",
+    desc: "最近こういうスペルしか作ってないｗ",
+    duration: 35,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 15; i++) {
+        spawnBullet("normal", "#ffffff", 400, 90, spx, 0, 20, "b_uroko", "absolute", "12")
+        spx += 60
+        wait(0.2)
+    }
+    for (let i = 0; i < 15; i++) {
+        spawnBullet("normal", "#ffffff", 400, 90, spx, 0, 20, "b_uroko", "absolute", "12")
+        spx -= 60
+        wait(0.2)
+    }
+}
+while (true) {
+    for (let i = 0; i < 5; i++) {
+        aimAtTarget()
+        spawnWayResist("normal", "#ff3333", 300, angle, 1 + wa, 5, 0, 0, 15, "b_poihuru", "relative", "7")
+        wait(0.3)
+    }
+    wait(2)
+    wa += 1
+}
+    `,
+    bulletScript: `
+if (color == #ffffff) {
+    period = 60
+    amp = 30
+    baseAngle = 90
+    frame2 = 0
+    y = random(-200,0)
+    x += random(-30,30)
+    while (true) {
+        frame2 += 1
+        l += 1
+        angle = baseAngle - amp * sin(frame2 * 360 / period)
+        spriteAngle = angle
+        if (l == 3) {
+            spawnRing("normal", "#ffffff", 0, angle + 180, 1, 0, 0, 12, "b_marutama", "relative", "12")
+            l = 0
+        }
+    }
+}
+    `,
+    magicCircleScript: `
+if (timer > 1) {
+    y = -8000
+}
+    `
 }
 ];
 
