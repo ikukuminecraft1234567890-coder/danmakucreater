@@ -76,6 +76,10 @@ function customCardMakerSwitchTab(tab) {
                 block.type = 'set_var';
                 block.params.name = 'color';
                 block.params.value = '#33ffff';
+            } else if (type === 'bullet_image_set') {
+                block.type = 'set_var';
+                block.params.name = 'bulletImage';
+                block.params.value = "'star'";
             } else if (type === 'move_owner') {
                 block.params.preset = 'center';
                 block.params.duration = '0';
@@ -278,6 +282,7 @@ function customCardMakerSwitchTab(tab) {
             document.getElementById('palette-btn-angle-add').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-angle-set').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-color-set').style.display = (tab === 'bullet') ? 'block' : 'none';
+            document.getElementById('palette-btn-bullet-image-set').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-slow').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-fast').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-bounce').style.display = (tab === 'bullet') ? 'block' : 'none';
@@ -427,7 +432,7 @@ function customCardMakerSwitchTab(tab) {
                                 <span>[変数]</span>
                                 <input type="text" list="var-suggestions" style="width:75px;" value="${b.params.name}" onchange="customCardMakerUpdateParam(${idx}, 'name', this.value)">
                                 <span>を</span>
-                                <input type="text" list="${b.params.name === 'color' ? 'color-suggestions' : 'val-suggestions'}" style="width:70px;" value="${b.params.value}" onchange="customCardMakerUpdateParam(${idx}, 'value', this.value)">
+                                <input type="text" list="${b.params.name === 'bulletImage' ? 'image-suggestions' : (b.params.name === 'color' ? 'color-suggestions' : 'val-suggestions')}" style="width:70px;" value="${b.params.value}" onchange="customCardMakerUpdateParam(${idx}, 'value', this.value)">
                                 <span>にする</span>
                                 ${renderBlockControls(idx)}
                             `;

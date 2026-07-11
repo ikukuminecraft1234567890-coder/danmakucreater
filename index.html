@@ -94,6 +94,7 @@
                         <option value="touchX">touched bullet X (touchX)</option>
                         <option value="touchY">touched bullet Y (touchY)</option>
                         <option value="color">弾の色 (color)</option>
+                        <option value="bulletImage">弾の画像 (bulletImage)</option>
                     </datalist>
                     <datalist id="val-suggestions">
                         <option value="angle">現在の角度 (angle)</option>
@@ -137,6 +138,25 @@
                         <option value="#000000">black</option>
                         <option value="#888888">gray</option>
                         <option value="#ffaa33">orange</option>
+                    </datalist>
+                    <datalist id="image-suggestions">
+                        <option value="'none'">丸（ドロー）</option>
+                        <option value="'marutama'">丸弾</option>
+                        <option value="'kome'">米弾</option>
+                        <option value="'ootama'">大玉</option>
+                        <option value="'ohuda'">お札</option>
+                        <option value="'star'">星</option>
+                        <option value="'knife'">ナイフ</option>
+                        <option value="'uroko'">鱗弾</option>
+                        <option value="'poihuru'">ポイフル</option>
+                        <option value="'virus'">ウイルス</option>
+                        <option value="'onmyoutama'">陰陽弾</option>
+                        <option value="'b_marutama'">巨大丸弾</option>
+                        <option value="'b_ohuda'">巨大お札</option>
+                        <option value="'b_star'">巨大星弾</option>
+                        <option value="'b_knife'">巨大ナイフ</option>
+                        <option value="'b_poihuru'">巨大ポイフル</option>
+                        <option value="'b_uroko'">巨大鱗弾</option>
                     </datalist>
                     <div class="maker-header">
                         <h3 id="card-editor-title" style="margin: 0; font-size: 20px;">スペルカード編集</h3>
@@ -209,6 +229,7 @@
                             <button class="palette-btn color-motion" id="palette-btn-angle-add" onclick="customCardMakerAddBlock('angle_add')">angle += value</button>
                             <button class="palette-btn color-motion" id="palette-btn-angle-set" onclick="customCardMakerAddBlock('angle_set')">angle = value</button>
                             <button class="palette-btn color-motion" id="palette-btn-color-set" onclick="customCardMakerAddBlock('color_set')">color = value</button>
+                            <button class="palette-btn color-motion" id="palette-btn-bullet-image-set" onclick="customCardMakerAddBlock('bullet_image_set')">bulletImage = value</button>
                             <button class="palette-btn color-motion" id="palette-btn-slow" onclick="customCardMakerAddBlock('speed_scale_slow')">slow(e, f)</button>
                             <button class="palette-btn color-motion" id="palette-btn-fast" onclick="customCardMakerAddBlock('speed_scale_fast')">fast(e, f)</button>
                             <button class="palette-btn color-motion" id="palette-btn-bounce" onclick="customCardMakerAddBlock('bounce')">壁で反射する</button>

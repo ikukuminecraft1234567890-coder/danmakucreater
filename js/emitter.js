@@ -472,6 +472,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         newBullet.bulletState.variables.color = bColor;
                         newBullet.bulletState.variables.radius = bRadius;
                         newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                        newBullet.bulletState.variables.bulletImage = bImg;
                         newBullet.sharedEmitterState = state;
                         newBullet.update = (b, bdt) => {
                             runCustomBulletScript(b, bdt, attacker, target);
@@ -553,6 +554,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.color = bColor;
                             newBullet.bulletState.variables.radius = bRadius;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.bulletImage = bImg;
                             newBullet.sharedEmitterState = state;
                             newBullet.update = (b, bdt) => {
                                 runCustomBulletScript(b, bdt, attacker, target);
@@ -638,6 +640,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.color = bColor;
                             newBullet.bulletState.variables.radius = bRadius;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.bulletImage = bImg;
                             newBullet.sharedEmitterState = state;
                             newBullet.update = (b, bdt) => {
                                 runCustomBulletScript(b, bdt, attacker, target);
@@ -1380,6 +1383,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.bulletState.variables.color = bColor;
                                 newBullet.bulletState.variables.radius = bRadius;
                                 newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                                newBullet.bulletState.variables.bulletImage = bImg;
                                 newBullet.sharedEmitterState = state.sharedEmitterState || state;
                                 newBullet.update = (childB, childBDT) => {
                                     runCustomBulletScript(childB, childBDT, attacker, target);
@@ -1454,6 +1458,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.color = bColor;
                                     newBullet.bulletState.variables.radius = bRadius;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                                    newBullet.bulletState.variables.bulletImage = bImg;
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
                                     newBullet.update = (childB, childBDT) => {
                                         runCustomBulletScript(childB, childBDT, attacker, target);
@@ -1533,6 +1538,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.color = bColor;
                                     newBullet.bulletState.variables.radius = bRadius;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                                    newBullet.bulletState.variables.bulletImage = bImg;
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
                                     newBullet.update = (childB, childBDT) => {
                                         runCustomBulletScript(childB, childBDT, attacker, target);
@@ -1709,6 +1715,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                 b.isLaser = true;
             } else if (state.variables.bulletType === 'normal') {
                 b.isLaser = false;
+            }
+            if (state.variables.bulletImage !== undefined) {
+                b.bulletImage = state.variables.bulletImage;
             }
             if (state.variables.color !== undefined) {
                 b.color = state.variables.color;
