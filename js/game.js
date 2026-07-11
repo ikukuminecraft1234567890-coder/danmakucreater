@@ -1538,28 +1538,10 @@ function applyAbilityEffect(cardId, owner) {
             // 毎フレーム入力を更新（ゲームパッド ＆ キーコンフィグ）
             updateInputState();
 
-            // スマホ用：最高速度制限 ＆ 超滑らかイージング吸い付き物理
+            // スマホ用：遅延・速度制限なしで完全同期
             if (gameState === 'BATTLE' && mobileTargetX !== null && mobileTargetY !== null) {
-                let diffX = mobileTargetX - player.x;
-                let diffY = mobileTargetY - player.y;
-                let distance = Math.hypot(diffX, diffY);
-                if (distance > 0.05) {
-                    let lerpFactor = 22; // 追従の滑らかさと応答性を極限まで高めた黄金比係数
-                    let moveX = diffX * lerpFactor * dt;
-                    let moveY = diffY * lerpFactor * dt;
-                    let moveDistance = Math.hypot(moveX, moveY);
-
-                    let currentSpeed = player.speed; // 通常速度 player.speed (350)
-                    let maxMove = currentSpeed * dt;
-
-                    if (moveDistance > maxMove) {
-                        player.x += (diffX / distance) * maxMove;
-                        player.y += (diffY / distance) * maxMove;
-                    } else {
-                        player.x += moveX;
-                        player.y += moveY;
-                    }
-                }
+                player.x = mobileTargetX;
+                player.y = mobileTargetY;
             }
 
             if (gameState === 'BATTLE') {
@@ -3861,8 +3843,6 @@ function applyAbilityEffect(cardId, owner) {
 
                 touchStartX = clientX;
                 touchStartY = clientY;
-                touchStartPlayerX = player.x;
-                touchStartPlayerY = player.y;
                 mobileTargetX = player.x;
                 mobileTargetY = player.y;
                 isDragging = true;
@@ -3872,16 +3852,28 @@ function applyAbilityEffect(cardId, owner) {
                 if (!isGameRunning || gameState !== 'BATTLE' || !isDragging) return;
                 if (battlePhase === 'PLANNING') return;
 
+                // 前フレームからのタッチ位置の移動差分（delta）を計算
                 const deltaX = clientX - touchStartX;
                 const deltaY = clientY - touchStartY;
+
+                // 次フレームのためにタッチ位置を更新
+                touchStartX = clientX;
+                touchStartY = clientY;
 
                 const scaleX = PLAY_WIDTH / canvas.clientWidth;
                 const scaleY = canvas.height / canvas.clientHeight;
 
+                // 操作感度の係数
                 const sensitivity = 1.28;
-                const newX = touchStartPlayerX + deltaX * scaleX * sensitivity;
-                const newY = touchStartPlayerY + deltaY * scaleY * sensitivity;
 
+                // 現在の移動ターゲットに対して差分を加算
+                const baseTargetX = (mobileTargetX !== null) ? mobileTargetX : player.x;
+                const baseTargetY = (mobileTargetY !== null) ? mobileTargetY : player.y;
+
+                const newX = baseTargetX + deltaX * scaleX * sensitivity;
+                const newY = baseTargetY + deltaY * scaleY * sensitivity;
+
+                // 移動範囲制限（画面外に出ないようにクリップ）
                 mobileTargetX = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, newX));
                 mobileTargetY = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, newY));
             };
