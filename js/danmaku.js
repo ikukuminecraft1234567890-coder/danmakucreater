@@ -1601,7 +1601,87 @@ if (color==#9E76B4) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "奇跡「九字切り」",
+    desc: "どうみても早苗のパクリです。本当にありがとうございました。",
+    duration: 60,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 10,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    xp = 0
+    for (let i = 0; i < 30; i++) {
+        xp += 60
+        spawnWayResist("normal", "#ff3333", 100, -90, 1, 0, xp + ex - 700, ey, 10, "none", "absolute", "10")
+        spawnWayResist("normal", "#ff3333", 100, 90, 1, 0, xp + ex - 700, ey, 10, "none", "absolute", "10")
+        wait(0.01)
+    }
+    wait(0.4)
+    yp = 0
+    for (let i = 0; i < 30; i++) {
+        yp += 60
+        spawnWayResist("normal", "#ff3333", 100, 0, 1, 0, ex, ey + yp - 700, 10, "none", "absolute", "10")
+        spawnWayResist("normal", "#ff3333", 100, 180, 1, 0, ex, ey + yp - 700, 10, "none", "absolute", "10")
+        wait(0.01)
+    }
+    wait(2)
+    mx = random(200,568)
+    tween("ex", ex, mx, "seconds", 1)
+    my = random(100,443)
+    tween("ey", ey, my, "seconds", 1)
+    wait(1.2)
 }
+once {
+    w = 0.5
+}
+while (true) {
+    spawnRing("normal", "#ffffff", 200, fff, 36, 0, 0, 10, "b_uroko", "relative", "6")
+    fff += 5
+    wait(0.2)
+    wait(w)
+    w -= 0.005
+}
+    `,
+    bulletScript: `
+if (color == #ff3333) {
+    speed = 0
+    warningTime = 1
+    activeTime = 2
+    laserWidth = 12
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    name: "威符「完全無欠の幾何学牢」",
+    desc: "こいしのアレのパクリ",
+    duration: 50,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnWay("normal", "#ff3333", 100, 0 + m, 3, 60, 0, ty, 20, "b_knife", "absolute", "4")
+    spawnWay("normal", "#3388ff", 100, 180 + m, 3, 60, 768, ty, 20, "b_knife", "absolute", "4")
+    spawnWay("normal", "#ffdd33", 100, 90 + m, 3, 60, tx, 0, 20, "b_knife", "absolute", "4")
+    spawnWay("normal", "#33ff88", 100, -90 + m, 3, 60, tx, 896, 20, "b_knife", "absolute", "4")
+    wait(0.07)
+}
+    `,
+    bulletScript: `
+        // 弾挙動の独自コード
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+}
+
 ];
 
 /**
