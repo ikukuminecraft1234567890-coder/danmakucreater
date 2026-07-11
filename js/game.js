@@ -3863,8 +3863,8 @@ function applyAbilityEffect(cardId, owner) {
                 const scaleX = PLAY_WIDTH / canvas.clientWidth;
                 const scaleY = canvas.height / canvas.clientHeight;
 
-                // 操作感度の係数
-                const sensitivity = 1.28;
+                // 操作感度の係数（等倍に変更）
+                const sensitivity = 1.0;
 
                 // 現在の移動ターゲットに対して差分を加算
                 const baseTargetX = (mobileTargetX !== null) ? mobileTargetX : player.x;
