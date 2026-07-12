@@ -807,7 +807,7 @@ while (true) {
     `,
     bulletScript: `
 once {
-    angle += random(-3,3)
+    angle += random(-2,2)
     speed += random(0,0)
 }
 if (speed == 400..100000) {
