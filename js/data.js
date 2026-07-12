@@ -2322,8 +2322,10 @@
             if (!variables) return undefined;
             let lowerName = name.toLowerCase();
             for (let key in variables) {
-                if (key.toLowerCase() === lowerName) {
-                    return variables[key];
+                if (Object.prototype.hasOwnProperty.call(variables, key)) {
+                    if (key.toLowerCase() === lowerName) {
+                        return variables[key];
+                    }
                 }
             }
             return undefined;
@@ -2333,9 +2335,11 @@
             if (!variables) return;
             let lowerName = name.toLowerCase();
             for (let key in variables) {
-                if (key.toLowerCase() === lowerName) {
-                    variables[key] = value;
-                    return;
+                if (Object.prototype.hasOwnProperty.call(variables, key)) {
+                    if (key.toLowerCase() === lowerName) {
+                        variables[key] = value;
+                        return;
+                    }
                 }
             }
             variables[name] = value;
@@ -2345,8 +2349,10 @@
             if (!variables) return false;
             let lowerName = name.toLowerCase();
             for (let key in variables) {
-                if (key.toLowerCase() === lowerName) {
-                    return true;
+                if (Object.prototype.hasOwnProperty.call(variables, key)) {
+                    if (key.toLowerCase() === lowerName) {
+                        return true;
+                    }
                 }
             }
             return false;

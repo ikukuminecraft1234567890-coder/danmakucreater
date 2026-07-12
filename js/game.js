@@ -4198,12 +4198,14 @@ function applyAbilityEffect(cardId, owner) {
                     compiledParams: {}
                 };
                 for (let key in b.params) {
-                    let val = b.params[key];
-                    if (typeof val === 'string' && val.trim() !== '' && keysToCompile.has(key)) {
-                        if (key === 'cond') {
-                            b.compiledParams[key] = compileCondition(val);
-                        } else {
-                            b.compiledParams[key] = compileNumericExpr(val);
+                    if (Object.prototype.hasOwnProperty.call(b.params, key)) {
+                        let val = b.params[key];
+                        if (typeof val === 'string' && val.trim() !== '' && keysToCompile.has(key)) {
+                            if (key === 'cond') {
+                                b.compiledParams[key] = compileCondition(val);
+                            } else {
+                                b.compiledParams[key] = compileNumericExpr(val);
+                            }
                         }
                     }
                 }

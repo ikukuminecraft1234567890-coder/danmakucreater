@@ -908,8 +908,25 @@ function stepEmitter(c, state, attacker, target, dt) {
         function checkBulletTouchRequirement() {
             try {
                 let allScripts = [];
-                if (typeof customCards !== 'undefined') allScripts.push(JSON.stringify(customCards));
-                if (typeof activeCards !== 'undefined') allScripts.push(JSON.stringify(activeCards));
+                if (typeof activeCards !== 'undefined' && Array.isArray(activeCards)) {
+                    activeCards.forEach(c => {
+                        if (!c) return;
+                        if (c.emitterScript) {
+                            if (typeof c.emitterScript === 'string') {
+                                allScripts.push(c.emitterScript);
+                            } else {
+                                allScripts.push(JSON.stringify(c.emitterScript));
+                            }
+                        }
+                        if (c.bulletScript) {
+                            if (typeof c.bulletScript === 'string') {
+                                allScripts.push(c.bulletScript);
+                            } else {
+                                allScripts.push(JSON.stringify(c.bulletScript));
+                            }
+                        }
+                    });
+                }
                 const codeStr = allScripts.join(' ');
                 window.needsBulletTouchDetection = (
                     codeStr.includes('isTouchBullet') ||
@@ -942,6 +959,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     codeStr.includes('xy')
                 );
             } catch (e) {
+                console.error("Error in checkBulletTouchRequirement:", e);
                 window.needsBulletTouchDetection = true;
                 window.needsWallTouchDetection = true;
                 window.needsEmitterSync = true;
@@ -1146,8 +1164,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (window.needsEmitterSync && b.sharedEmitterState && b.sharedEmitterState.variables) {
                     const vars = b.sharedEmitterState.variables;
                     for (let key in vars) {
-                        state.variables['e_' + key] = vars[key];
-                        state.variables['emitter_' + key] = vars[key];
+                        if (Object.prototype.hasOwnProperty.call(vars, key)) {
+                            state.variables['e_' + key] = vars[key];
+                            state.variables['emitter_' + key] = vars[key];
+                        }
                     }
                 }
             } else if (b.sharedEmitterState && b.sharedEmitterState.variables) {
@@ -1158,8 +1178,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (window.needsEmitterSync) {
                     const vars = b.sharedEmitterState.variables;
                     for (let key in vars) {
-                        state.variables['e_' + key] = vars[key];
-                        state.variables['emitter_' + key] = vars[key];
+                        if (Object.prototype.hasOwnProperty.call(vars, key)) {
+                            state.variables['e_' + key] = vars[key];
+                            state.variables['emitter_' + key] = vars[key];
+                        }
                     }
                 }
             } else {
