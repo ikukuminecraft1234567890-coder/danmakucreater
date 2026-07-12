@@ -2712,9 +2712,21 @@ function applyAbilityEffect(cardId, owner) {
                     let time = performance.now();
                     // 弾ごとに異なる揺らぎを作るためのシード値
                     let seed = b.x * 0.05 + b.y * 0.05;
+
+                    // 変数から光の範囲 (auraRange) と強さ (auraIntensity) を取得できるようにする
+                    let auraRangeVal = 2.75;
+                    let auraIntensityVal = 1.0;
+                    if (b.bulletState && b.bulletState.variables) {
+                        if (b.bulletState.variables.auraRange !== undefined && b.bulletState.variables.auraRange !== null) {
+                            auraRangeVal = parseFloat(b.bulletState.variables.auraRange) || 0;
+                        }
+                        if (b.bulletState.variables.auraIntensity !== undefined && b.bulletState.variables.auraIntensity !== null) {
+                            auraIntensityVal = parseFloat(b.bulletState.variables.auraIntensity) || 0;
+                        }
+                    }
                     
-                    // オーラのサイズはほぼ一定にし、非常に微弱かつゆっくりとうねるように調整 (2.7倍〜2.83倍)
-                    let auraRadius = b.radius * (2.75 + 0.08 * Math.sin(time * 0.002 + seed));
+                    // オーラのサイズは auraRangeVal を基準にし、非常に微弱かつゆっくりとうねるように調整
+                    let auraRadius = b.radius * (auraRangeVal + 0.08 * Math.sin(time * 0.002 + seed));
                     let coreRadius = b.radius * 1.2;
                     let auraColor = b.color || '#ff3333';
                     
@@ -2759,11 +2771,15 @@ function applyAbilityEffect(cardId, owner) {
                         if (names[norm]) [r, g, bVal] = names[norm];
                     }
                     
-                    // 全体の一部（オーラの半透明部分）が微弱に明滅・強弱するようにアルファ値をゆっくり揺らす
-                    let glowAlpha = 0.35 + 0.05 * Math.sin(time * 0.0015 + seed);
+                    // 全体の一部（オーラの半透明部分）が微弱に明滅・強弱するようにアルファ値をゆっくり揺らし、auraIntensityValを乗算する
+                    let glowAlpha = (0.35 + 0.05 * Math.sin(time * 0.0015 + seed)) * auraIntensityVal;
+                    glowAlpha = Math.max(0, Math.min(1.0, glowAlpha));
+
+                    let a0 = Math.max(0, Math.min(1.0, 1.0 * auraIntensityVal));
+                    let a2 = Math.max(0, Math.min(1.0, 0.9 * auraIntensityVal));
                     
-                    grad.addColorStop(0, `rgba(${r}, ${g}, ${bVal}, 1.0)`);
-                    grad.addColorStop(0.2, `rgba(${r}, ${g}, ${bVal}, 0.9)`);
+                    grad.addColorStop(0, `rgba(${r}, ${g}, ${bVal}, ${a0})`);
+                    grad.addColorStop(0.2, `rgba(${r}, ${g}, ${bVal}, ${a2})`);
                     grad.addColorStop(0.55, `rgba(${r}, ${g}, ${bVal}, ${glowAlpha})`);
                     grad.addColorStop(1.0, `rgba(${r}, ${g}, ${bVal}, 0.0)`);
                     
