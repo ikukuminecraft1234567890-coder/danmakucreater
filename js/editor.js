@@ -499,6 +499,7 @@ function customCardMakerSwitchTab(tab) {
                                 <span>画像:</span>
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
                                     <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
                                     <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
                                     <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
                                     <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
@@ -549,6 +550,7 @@ function customCardMakerSwitchTab(tab) {
                                 <span>画像:</span>
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
                                     <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
                                     <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
                                     <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
                                     <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
@@ -598,6 +600,7 @@ function customCardMakerSwitchTab(tab) {
                                 <span>画像:</span>
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
                                     <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
                                     <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
                                     <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
                                     <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
@@ -650,6 +653,7 @@ function customCardMakerSwitchTab(tab) {
                                 <span>画像:</span>
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
                                     <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
                                     <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
                                     <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
                                     <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
@@ -701,6 +705,7 @@ function customCardMakerSwitchTab(tab) {
                                 <span>画像:</span>
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
                                     <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
                                     <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
                                     <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
                                     <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
@@ -755,6 +760,7 @@ function customCardMakerSwitchTab(tab) {
                                 <span>画像:</span>
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
                                     <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
+                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
                                     <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
                                     <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
                                     <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>

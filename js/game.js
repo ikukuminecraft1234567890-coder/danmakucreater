@@ -2700,6 +2700,78 @@ function applyAbilityEffect(cardId, owner) {
 
             const blurScale = 0; // shadowBlur is disabled for performance
             let tDrawBStart = performance.now();
+
+            // ── 光弾のオーラ（グロー）を先行して描画（加算合成＋揺らぎエフェクト） ──
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter'; // 加算合成で光っぽく繋げる
+            bullets.forEach(b => {
+                // 画面外カリング（オーラ分を考慮して通常より広い範囲でカリング判定）
+                if (b.x < -b.radius - 35 || b.x > PLAY_WIDTH + b.radius + 35 || b.y < -b.radius - 35 || b.y > canvas.height + b.radius + 35) return;
+                
+                if (b.bulletImage === 'light') {
+                    let time = performance.now();
+                    // 弾ごとに異なる揺らぎを作るためのシード値
+                    let seed = b.x * 0.05 + b.y * 0.05;
+                    
+                    // オーラの半径がゆらゆら揺れる (2.4倍〜3.0倍)
+                    let auraRadius = b.radius * (2.7 + 0.3 * Math.sin(time * 0.015 + seed));
+                    let coreRadius = b.radius * 1.2;
+                    let auraColor = b.color || '#ff3333';
+                    
+                    // オーラ自体の中心位置もわずかに揺らめかせる (最大1.2px)
+                    let waveX = b.x + Math.sin(time * 0.02 + seed) * 1.2;
+                    let waveY = b.y + Math.cos(time * 0.018 + seed) * 1.2;
+
+                    // 径方向グラデーションを作成
+                    let grad = ctx.createRadialGradient(waveX, waveY, coreRadius * 0.5, waveX, waveY, auraRadius);
+                    
+                    // 色相やRGBA変換
+                    let r = 255, g = 51, bVal = 51;
+                    let colorStr = auraColor;
+                    if (colorStr.startsWith('#')) {
+                        let hex = colorStr.substring(1);
+                        if (hex.length === 3) {
+                            r = parseInt(hex[0] + hex[0], 16);
+                            g = parseInt(hex[1] + hex[1], 16);
+                            bVal = parseInt(hex[2] + hex[2], 16);
+                        } else if (hex.length === 6) {
+                            r = parseInt(hex.substring(0, 2), 16);
+                            g = parseInt(hex.substring(2, 4), 16);
+                            bVal = parseInt(hex.substring(4, 6), 16);
+                        }
+                    } else if (colorStr.startsWith('rgb')) {
+                        let m = colorStr.match(/\d+/g);
+                        if (m && m.length >= 3) {
+                            r = parseInt(m[0]);
+                            g = parseInt(m[1]);
+                            bVal = parseInt(m[2]);
+                        }
+                    } else {
+                        const names = {
+                            red: [255, 0, 0], green: [0, 255, 0], blue: [0, 0, 255],
+                            yellow: [255, 255, 0], purple: [128, 0, 128], cyan: [0, 255, 255],
+                            magenta: [255, 0, 255], orange: [255, 165, 0],
+                            white: [255, 255, 255], black: [0, 0, 0],
+                            gray: [128, 128, 128], grey: [128, 128, 128],
+                            silver: [192, 192, 192], darkgray: [169, 169, 169]
+                        };
+                        let norm = colorStr.toLowerCase().trim();
+                        if (names[norm]) [r, g, bVal] = names[norm];
+                    }
+                    
+                    grad.addColorStop(0, `rgba(${r}, ${g}, ${bVal}, 1.0)`);
+                    grad.addColorStop(0.2, `rgba(${r}, ${g}, ${bVal}, 0.9)`);
+                    grad.addColorStop(0.55, `rgba(${r}, ${g}, ${bVal}, 0.35)`);
+                    grad.addColorStop(1.0, `rgba(${r}, ${g}, ${bVal}, 0.0)`);
+                    
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(waveX, waveY, auraRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            ctx.restore();
+
             bullets.forEach(b => {
                 // 画面外カリング（通常弾のみ）
                 // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
@@ -2990,6 +3062,15 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath(); ctx.arc(0, 0, drawRadius * 0.3, 0, Math.PI * 2); ctx.fill();
 
+                    ctx.restore();
+                } else if (b.bulletImage === 'light') {
+                    // 光弾の実体（白い円、コア）の描画
+                    let drawRadius = b.radius * 1.2;
+                    ctx.save();
+                    ctx.fillStyle = '#ffffff'; // 中央は白固定
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2);
+                    ctx.fill();
                     ctx.restore();
                 } else {
                     let drawRadius = b.radius * 1.5;
