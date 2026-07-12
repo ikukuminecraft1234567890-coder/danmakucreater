@@ -2765,66 +2765,27 @@ function applyAbilityEffect(cardId, owner) {
                     
                     // オーラのサイズは auraRangeVal を基準にし、非常に微弱かつゆっくりとうねるように調整
                     let auraRadius = b.radius * (auraRangeVal + 0.08 * Math.sin(time * 0.002 + seed));
-                    let coreRadius = b.radius * 1.2;
                     let auraColor = b.color || '#ff3333';
                     
                     // 位置の揺れもごくわずかに抑え、ゆっくりと浮遊する程度にする (最大0.3px)
                     let waveX = b.x + Math.sin(time * 0.003 + seed) * 0.3;
                     let waveY = b.y + Math.cos(time * 0.0025 + seed) * 0.3;
 
-                    // 径方向グラデーションを作成
-                    let grad = ctx.createRadialGradient(waveX, waveY, coreRadius * 0.5, waveX, waveY, auraRadius);
-                    
-                    // 色相やRGBA変換
-                    let r = 255, g = 51, bVal = 51;
-                    let colorStr = auraColor;
-                    if (colorStr.startsWith('#')) {
-                        let hex = colorStr.substring(1);
-                        if (hex.length === 3) {
-                            r = parseInt(hex[0] + hex[0], 16);
-                            g = parseInt(hex[1] + hex[1], 16);
-                            bVal = parseInt(hex[2] + hex[2], 16);
-                        } else if (hex.length === 6) {
-                            r = parseInt(hex.substring(0, 2), 16);
-                            g = parseInt(hex.substring(2, 4), 16);
-                            bVal = parseInt(hex.substring(4, 6), 16);
-                        }
-                    } else if (colorStr.startsWith('rgb')) {
-                        let m = colorStr.match(/\d+/g);
-                        if (m && m.length >= 3) {
-                            r = parseInt(m[0]);
-                            g = parseInt(m[1]);
-                            bVal = parseInt(m[2]);
-                        }
-                    } else {
-                        const names = {
-                            red: [255, 0, 0], green: [0, 255, 0], blue: [0, 0, 255],
-                            yellow: [255, 255, 0], purple: [128, 0, 128], cyan: [0, 255, 255],
-                            magenta: [255, 0, 255], orange: [255, 165, 0],
-                            white: [255, 255, 255], black: [0, 0, 0],
-                            gray: [128, 128, 128], grey: [128, 128, 128],
-                            silver: [192, 192, 192], darkgray: [169, 169, 169]
-                        };
-                        let norm = colorStr.toLowerCase().trim();
-                        if (names[norm]) [r, g, bVal] = names[norm];
-                    }
-                    
-                    // 全体の一部（オーラの半透明部分）が微弱に明滅・強弱するようにアルファ値をゆっくり揺らし、auraIntensityValを乗算する
-                    let glowAlpha = (0.35 + 0.05 * Math.sin(time * 0.0015 + seed)) * auraIntensityVal;
-                    glowAlpha = Math.max(0, Math.min(1.0, glowAlpha));
+                    // キャッシュからテクスチャを取得して描画
+                    let tex = window.getLightBulletTexture(auraColor, b.radius);
+                    let scale = auraRadius / tex.baseAuraRadius;
+                    let drawSize = tex.size * scale;
 
-                    let a0 = Math.max(0, Math.min(1.0, 1.0 * auraIntensityVal));
-                    let a2 = Math.max(0, Math.min(1.0, 0.9 * auraIntensityVal));
-                    
-                    grad.addColorStop(0, `rgba(${r}, ${g}, ${bVal}, ${a0})`);
-                    grad.addColorStop(0.2, `rgba(${r}, ${g}, ${bVal}, ${a2})`);
-                    grad.addColorStop(0.55, `rgba(${r}, ${g}, ${bVal}, ${glowAlpha})`);
-                    grad.addColorStop(1.0, `rgba(${r}, ${g}, ${bVal}, 0.0)`);
-                    
-                    ctx.fillStyle = grad;
-                    ctx.beginPath();
-                    ctx.arc(waveX, waveY, auraRadius, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, Math.min(1.0, auraIntensityVal));
+                    ctx.drawImage(
+                        tex.canvas,
+                        waveX - drawSize / 2,
+                        waveY - drawSize / 2,
+                        drawSize,
+                        drawSize
+                    );
+                    ctx.restore();
                 }
             });
             ctx.restore();
@@ -3148,40 +3109,9 @@ function applyAbilityEffect(cardId, owner) {
                                 const oCtx = offscreen.getContext('2d');
                                 
                                 // 色相計算
-                                let hue = 0;
                                 let colorStr = b.color || '#ff3333';
-                                let r = 255, g = 0, bVal = 0;
-                                if (colorStr.startsWith('#')) {
-                                    let hex = colorStr.substring(1);
-                                    if (hex.length === 3) {
-                                        r = parseInt(hex[0] + hex[0], 16);
-                                        g = parseInt(hex[1] + hex[1], 16);
-                                        bVal = parseInt(hex[2] + hex[2], 16);
-                                    } else if (hex.length === 6) {
-                                        r = parseInt(hex.substring(0, 2), 16);
-                                        g = parseInt(hex.substring(2, 4), 16);
-                                        bVal = parseInt(hex.substring(4, 6), 16);
-                                    }
-                                } else if (colorStr.startsWith('rgb')) {
-                                    let m = colorStr.match(/\d+/g);
-                                    if (m && m.length >= 3) {
-                                        r = parseInt(m[0]);
-                                        g = parseInt(m[1]);
-                                        bVal = parseInt(m[2]);
-                                    }
-                                } else {
-                                    const names = {
-                                        red: [255, 0, 0], green: [0, 255, 0], blue: [0, 0, 255],
-                                        yellow: [255, 255, 0], purple: [128, 0, 128], cyan: [0, 255, 255],
-                                        magenta: [255, 0, 255], orange: [255, 165, 0],
-                                        white: [255, 255, 255], black: [0, 0, 0],
-                                        gray: [128, 128, 128], grey: [128, 128, 128],
-                                        silver: [192, 192, 192], darkgray: [169, 169, 169]
-                                    };
-                                    let norm = colorStr.toLowerCase().trim();
-                                    if (names[norm]) [r, g, bVal] = names[norm];
-                                }
-                                r /= 255; g /= 255; bVal /= 255;
+                                let [rInt, gInt, bInt] = parseColorToRgb(colorStr);
+                                let r = rInt / 255, g = gInt / 255, bVal = bInt / 255;
                                 
                                 let isMonochrome = (Math.abs(r - g) < 0.05 && Math.abs(g - bVal) < 0.05);
                                 if (isMonochrome) {
@@ -4254,12 +4184,29 @@ function applyAbilityEffect(cardId, owner) {
                 }
             }
 
+            const keysToCompile = new Set([
+                'speed', 'angle', 'duration', 'delay', 'effect', 'count', 'spread', 
+                'offsetX', 'offsetY', 'radius', 'hitRadius', 'value', 'cond', 
+                'warningTime', 'activeTime', 'laserWidth', 'targetX', 'targetY'
+            ]);
+
             for (let block of flatBlocks) {
                 let b = {
                     type: block.type,
                     params: { ...block.params },
-                    children: []
+                    children: [],
+                    compiledParams: {}
                 };
+                for (let key in b.params) {
+                    let val = b.params[key];
+                    if (typeof val === 'string' && val.trim() !== '' && keysToCompile.has(key)) {
+                        if (key === 'cond') {
+                            b.compiledParams[key] = compileCondition(val);
+                        } else {
+                            b.compiledParams[key] = compileNumericExpr(val);
+                        }
+                    }
+                }
                 if (block.type === 'once') {
                     b.onceId = 'once_' + (onceCounter++);
                 }
@@ -4341,7 +4288,7 @@ function applyAbilityEffect(cardId, owner) {
             thread.speedScaleApplied = parent.speedScaleApplied;
         }
 
-        function evalValue(expr, variables) {
+        function evalValue(expr, variables, block, key) {
             if (typeof expr === 'number') return expr;
             let s = String(expr).trim();
             if (s === '') return 0;
@@ -4350,7 +4297,7 @@ function applyAbilityEffect(cardId, owner) {
             if (isCssColorLiteral(s)) return s;
             // "12,522" のようなコンマ区切り座標リテラルは数式評価せずそのまま文字列として返す
             if (/^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?$/.test(s)) return s;
-            return evalExpr(expr, variables || {});
+            return evalExpr(expr, variables || {}, block, key);
         }
 
         function resolveTextParam(textParam, variables) {
@@ -4498,7 +4445,10 @@ function applyAbilityEffect(cardId, owner) {
             return fallbackFn;
         }
 
-        function evalCondition(cond, variables) {
+        function evalCondition(cond, variables, block, key) {
+            if (block && block.compiledParams && block.compiledParams[key]) {
+                return !!block.compiledParams[key](variables || EMPTY_OBJECT);
+            }
             const fn = compileCondition(cond);
             return fn(variables || EMPTY_OBJECT);
         }
@@ -4620,8 +4570,25 @@ function applyAbilityEffect(cardId, owner) {
                     return literals[parseInt(index, 10)];
                 });
 
+                // cardSecond == 5 * n や cardFrame == 60 * n などの等式を O(1) にトランスパイル
+                let optimized = false;
+                let optMatch = expr.trim().match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*(===|==)\s*([\d.]+)\s*\*\s*n$/);
+                if (!optMatch) {
+                    optMatch = expr.trim().match(/^([\d.]+)\s*\*\s*n\s*(===|==)\s*([a-zA-Z_][a-zA-Z0-9_]*)$/);
+                }
+                if (optMatch) {
+                    let varName = optMatch[1];
+                    let coeff = parseFloat(optMatch[3]);
+                    if (isNaN(coeff)) {
+                        varName = optMatch[3];
+                        coeff = parseFloat(optMatch[1]);
+                    }
+                    s = `(__v.n !== undefined ? (__v.${varName} === ${coeff} * __v.n) : (Math.round(__v.${varName} / ${coeff}) >= 1 && Math.round(__v.${varName} / ${coeff}) <= 1000 && Math.abs(__v.${varName} - ${coeff} * Math.round(__v.${varName} / ${coeff})) < 0.017))`;
+                    optimized = true;
+                }
+
                 // 4.8. 特殊変数 n が数式に含まれているか確認
-                const hasN = /\bn\b/.test(expr);
+                const hasN = !optimized && /\bn\b/.test(expr);
 
                 let functionBody = 
                     'const __rand = (a, b) => {' +
@@ -4643,10 +4610,15 @@ function applyAbilityEffect(cardId, owner) {
 
                 if (hasN) {
                     functionBody += 
-                        'for (let n = 1; n <= 1000; n++) {' +
-                        '  if (' + s + ') return true;' +
-                        '}' +
-                        'return false;';
+                        'if (__v.n !== undefined) {' +
+                        '  const n = __v.n;' +
+                        '  return (' + s + ');' +
+                        '} else {' +
+                        '  for (let n = 1; n <= 1000; n++) {' +
+                        '    if (' + s + ') return true;' +
+                        '  }' +
+                        '  return false;' +
+                        '}';
                 } else {
                     functionBody += 
                         'return (' + s + ');';
@@ -4656,7 +4628,9 @@ function applyAbilityEffect(cardId, owner) {
                 numericExprCache.set(expr, fn);
                 return fn;
             } catch(e) {
-                console.warn('Failed to compile expression:', expr, e);
+                if (window.showDebugProfiler) {
+                    console.warn('Failed to compile expression:', expr, e);
+                }
                 numericExprCache.set(expr, null);
                 return null;
             }
@@ -4674,8 +4648,86 @@ function applyAbilityEffect(cardId, owner) {
             }
         }
 
-        function evalExpr(expr, variables) {
+        function parseColorToRgb(colorStr) {
+            let r = 255, g = 51, bVal = 51;
+            let c = String(colorStr || '#ff3333').trim();
+            if (c.startsWith('#')) {
+                let hex = c.substring(1);
+                if (hex.length === 3) {
+                    r = parseInt(hex[0] + hex[0], 16);
+                    g = parseInt(hex[1] + hex[1], 16);
+                    bVal = parseInt(hex[2] + hex[2], 16);
+                } else if (hex.length === 6) {
+                    r = parseInt(hex.substring(0, 2), 16);
+                    g = parseInt(hex.substring(2, 4), 16);
+                    bVal = parseInt(hex.substring(4, 6), 16);
+                }
+            } else if (c.startsWith('rgb')) {
+                let m = c.match(/\d+/g);
+                if (m && m.length >= 3) {
+                    r = parseInt(m[0]);
+                    g = parseInt(m[1]);
+                    bVal = parseInt(m[2]);
+                }
+            } else {
+                const names = {
+                    red: [255, 0, 0], green: [0, 255, 0], blue: [0, 0, 255],
+                    yellow: [255, 255, 0], purple: [128, 0, 128], cyan: [0, 255, 255],
+                    magenta: [255, 0, 255], orange: [255, 165, 0],
+                    white: [255, 255, 255], black: [0, 0, 0],
+                    gray: [128, 128, 128], grey: [128, 128, 128],
+                    silver: [192, 192, 192], darkgray: [169, 169, 169]
+                };
+                let norm = c.toLowerCase();
+                if (names[norm]) [r, g, bVal] = names[norm];
+            }
+            return [r, g, bVal];
+        }
+
+        window.getLightBulletTexture = function(color, radius) {
+            if (!window.lightBulletTextureCache) window.lightBulletTextureCache = {};
+            const cacheKey = `${color}_${radius}`;
+            let cached = window.lightBulletTextureCache[cacheKey];
+            if (cached) return cached;
+
+            const size = Math.ceil(radius * 8);
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            const center = size / 2;
+            const baseAuraRadius = radius * 3.5;
+            const coreRadius = radius * 1.2;
+
+            let grad = ctx.createRadialGradient(center, center, coreRadius * 0.5, center, center, baseAuraRadius);
+            let [r, g, bVal] = parseColorToRgb(color);
+
+            grad.addColorStop(0, `rgba(${r}, ${g}, ${bVal}, 1.0)`);
+            grad.addColorStop(0.2, `rgba(${r}, ${g}, ${bVal}, 0.9)`);
+            grad.addColorStop(0.55, `rgba(${r}, ${g}, ${bVal}, 0.35)`);
+            grad.addColorStop(1.0, `rgba(${r}, ${g}, ${bVal}, 0.0)`);
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(center, center, baseAuraRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            window.lightBulletTextureCache[cacheKey] = {
+                canvas: canvas,
+                size: size,
+                center: center,
+                baseAuraRadius: baseAuraRadius
+            };
+            return window.lightBulletTextureCache[cacheKey];
+        };
+
+        function evalExpr(expr, variables, block, key) {
             if (typeof expr === 'number') return expr;
+            if (block && block.compiledParams && block.compiledParams[key]) {
+                const val = block.compiledParams[key](variables || EMPTY_OBJECT, Math.random);
+                return Number.isNaN(val) ? 0 : val;
+            }
             const vars = variables || EMPTY_OBJECT;
             let s = String(expr).trim();
             if (s === '') return 0;

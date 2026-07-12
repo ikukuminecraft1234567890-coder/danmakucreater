@@ -283,13 +283,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                 
                 switch (block.type) {
                     case 'wait': {
-                        let dur = evalExpr(block.params.duration, state.variables);
+                        let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
                         state.waitTimer = Math.max(0.001, dur);
                         brokeToWait = true;
                         break;
                     }
                     case 'repeat': {
-                        let count = Math.round(evalExpr(block.params.count, state.variables));
+                        let count = Math.round(evalExpr(block.params.count, state.variables, block, 'count'));
                         let loopCount = Math.max(1, count);
                         if (block.params.indexVar) state.variables[block.params.indexVar] = 0;
                         state.stack.push({
@@ -318,7 +318,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                     case 'while': {
                         let condStr = block.params.cond || 'false';
-                        if (evalCondition(condStr, state.variables) && block.children && block.children.length > 0) {
+                        if (evalCondition(condStr, state.variables, block, 'cond') && block.children && block.children.length > 0) {
                             state.stack.push({
                                 type: 'while',
                                 pc: 0,
@@ -333,7 +333,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                     case 'if': {
                         let condStr = block.params.cond || 'x < 10';
-                        let isTrue = evalCondition(condStr, state.variables);
+                        let isTrue = evalCondition(condStr, state.variables, block, 'cond');
                         if (isTrue && block.children && block.children.length > 0) {
                             state.stack.push({
                                 type: 'if',
@@ -903,6 +903,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         window.needsWallTouchDetection = false;
         window.needsEmitterSync = false;
         window.needsDistanceCalc = false;
+        window.needsXyCoord = false;
 
         function checkBulletTouchRequirement() {
             try {
@@ -928,8 +929,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     codeStr.includes('Edge')
                 );
                 window.needsEmitterSync = (
-                    codeStr.includes('e_') ||
-                    codeStr.includes('emitter_')
+                    /\be_[a-zA-Z0-9_]+/i.test(codeStr) ||
+                    /\bemitter_[a-zA-Z0-9_]+/i.test(codeStr)
                 );
                 window.needsDistanceCalc = (
                     codeStr.includes('dist') ||
@@ -937,11 +938,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                     codeStr.includes('aim') ||
                     codeStr.includes('homing')
                 );
+                window.needsXyCoord = (
+                    codeStr.includes('xy')
+                );
             } catch (e) {
                 window.needsBulletTouchDetection = true;
                 window.needsWallTouchDetection = true;
                 window.needsEmitterSync = true;
                 window.needsDistanceCalc = true;
+                window.needsXyCoord = true;
             }
         }
 
@@ -968,21 +973,60 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
 
             const len = candidates.length;
+            if (len === 0) return;
+
+            // 簡易空間分割法 (Grid Spatial Partitioning) の導入
+            const cellSize = 64;
+            const grid = new Map();
+
+            // 弾をセルに登録
+            for (let i = 0; i < len; i++) {
+                const b = candidates[i];
+                b._candidateId = i;
+                const col = Math.floor(b.x / cellSize);
+                const row = Math.floor(b.y / cellSize);
+                const key = `${col}_${row}`;
+                let list = grid.get(key);
+                if (!list) {
+                    list = [];
+                    grid.set(key, list);
+                }
+                list.push(b);
+            }
+
+            // 近傍セルの弾同士のみで当たり判定
             for (let i = 0; i < len; i++) {
                 const a = candidates[i];
                 const ax = a.x;
                 const ay = a.y;
                 const ar = a._cachedRadius;
                 const aTeam = a.team;
-                for (let j = i + 1; j < len; j++) {
-                    const b = candidates[j];
-                    if (aTeam !== b.team) continue;
-                    const rr = ar + b._cachedRadius;
-                    const dx = ax - b.x;
-                    const dy = ay - b.y;
-                    if (dx * dx + dy * dy <= rr * rr) {
-                        if (!a.pendingTouchBullet) a.pendingTouchBullet = b;
-                        if (!b.pendingTouchBullet) b.pendingTouchBullet = a;
+                const aId = a._candidateId;
+
+                const col = Math.floor(ax / cellSize);
+                const row = Math.floor(ay / cellSize);
+
+                // 自身と周囲8セルの計9セルを調べる
+                for (let dCol = -1; dCol <= 1; dCol++) {
+                    for (let dRow = -1; dRow <= 1; dRow++) {
+                        const targetKey = `${col + dCol}_${row + dRow}`;
+                        const cellBullets = grid.get(targetKey);
+                        if (!cellBullets) continue;
+
+                        const cellLen = cellBullets.length;
+                        for (let j = 0; j < cellLen; j++) {
+                            const b = cellBullets[j];
+                            // aId < b._candidateId で重複判定を完全に防ぐ
+                            if (aId >= b._candidateId || aTeam !== b.team) continue;
+
+                            const rr = ar + b._cachedRadius;
+                            const dx = ax - b.x;
+                            const dy = ay - b.y;
+                            if (dx * dx + dy * dy <= rr * rr) {
+                                if (!a.pendingTouchBullet) a.pendingTouchBullet = b;
+                                if (!b.pendingTouchBullet) b.pendingTouchBullet = a;
+                            }
+                        }
                     }
                 }
             }
@@ -1100,10 +1144,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                 
                 // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
                 if (window.needsEmitterSync && b.sharedEmitterState && b.sharedEmitterState.variables) {
-                    Object.keys(b.sharedEmitterState.variables).forEach(key => {
-                        state.variables['e_' + key] = b.sharedEmitterState.variables[key];
-                        state.variables['emitter_' + key] = b.sharedEmitterState.variables[key];
-                    });
+                    const vars = b.sharedEmitterState.variables;
+                    for (let key in vars) {
+                        state.variables['e_' + key] = vars[key];
+                        state.variables['emitter_' + key] = vars[key];
+                    }
                 }
             } else if (b.sharedEmitterState && b.sharedEmitterState.variables) {
                 state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
@@ -1111,10 +1156,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                 
                 // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
                 if (window.needsEmitterSync) {
-                    Object.keys(b.sharedEmitterState.variables).forEach(key => {
-                        state.variables['e_' + key] = b.sharedEmitterState.variables[key];
-                        state.variables['emitter_' + key] = b.sharedEmitterState.variables[key];
-                    });
+                    const vars = b.sharedEmitterState.variables;
+                    for (let key in vars) {
+                        state.variables['e_' + key] = vars[key];
+                        state.variables['emitter_' + key] = vars[key];
+                    }
                 }
             } else {
                 state.variables.cardSecond = state.variables.second;
@@ -1123,12 +1169,15 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             state.variables.x = b.x;
             state.variables.y = isPlayerSide ? (canvas.height - b.y) : b.y;
-            state.variables.xy = `${state.variables.x},${state.variables.y}`;
-            let initXY = state.variables.xy;
-            state.variables['xy_x'] = state.variables.x;
-            state.variables['xy_y'] = state.variables.y;
-            state.variables['xy.x'] = state.variables.x;
-            state.variables['xy.y'] = state.variables.y;
+            let initXY = undefined;
+            if (window.needsXyCoord) {
+                state.variables.xy = `${state.variables.x},${state.variables.y}`;
+                initXY = state.variables.xy;
+                state.variables['xy_x'] = state.variables.x;
+                state.variables['xy_y'] = state.variables.y;
+                state.variables['xy.x'] = state.variables.x;
+                state.variables['xy.y'] = state.variables.y;
+            }
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
 
@@ -1176,27 +1225,30 @@ function stepEmitter(c, state, attacker, target, dt) {
                     
                     let safetyCounter = 0;
                     let brokeToWait = false;
+                    const stack = state.stack;
+                    const vars = state.variables;
                     while (safetyCounter < 1000) {
                         safetyCounter++;
-                        let currentBlocks = state.stack.length > 0 ? state.stack[state.stack.length - 1].blocks : state.blocks;
-                        let currentPC = state.stack.length > 0 ? state.stack[state.stack.length - 1].pc : state.pc;
+                        const stackLen = stack.length;
+                        const currentBlocks = stackLen > 0 ? stack[stackLen - 1].blocks : state.blocks;
+                        const currentPC = stackLen > 0 ? stack[stackLen - 1].pc : state.pc;
                         
                         if (currentPC >= currentBlocks.length) {
-                            if (state.stack.length > 0) {
-                                let loopState = state.stack[state.stack.length - 1];
+                            if (stackLen > 0) {
+                                let loopState = stack[stackLen - 1];
                                 if (loopState.forever) {
                                     loopState.pc = 0;
                                     state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
                                     break;
                                 } else if (loopState.type === 'while') {
-                                    if (evalCondition(loopState.cond || 'false', state.variables)) {
+                                    if (evalCondition(loopState.cond || 'false', vars)) {
                                         loopState.pc = 0;
                                         state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
                                         break;
                                     }
-                                    state.stack.pop();
-                                    if (state.stack.length > 0) {
-                                        state.stack[state.stack.length - 1].pc++;
+                                    stack.pop();
+                                    if (stack.length > 0) {
+                                        stack[stack.length - 1].pc++;
                                     } else {
                                         state.pc++;
                                     }
@@ -1241,13 +1293,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let advancePC = true;
                         switch (block.type) {
                             case 'wait': {
-                                let dur = evalExpr(block.params.duration, state.variables);
+                                let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
                                 state.waitTimer = Math.max(0.001, dur);
                                 brokeToWait = true;
                                 break;
                             }
                             case 'repeat': {
-                                let count = Math.round(evalExpr(block.params.count, state.variables));
+                                let count = Math.round(evalExpr(block.params.count, state.variables, block, 'count'));
                                 let loopCount = Math.max(1, count);
                                 if (block.params.indexVar) state.variables[block.params.indexVar] = 0;
                                 state.stack.push({
@@ -1276,7 +1328,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             case 'while': {
                                 let condStr = block.params.cond || 'false';
-                                if (evalCondition(condStr, state.variables) && block.children && block.children.length > 0) {
+                                if (evalCondition(condStr, state.variables, block, 'cond') && block.children && block.children.length > 0) {
                                     state.stack.push({
                                         type: 'while',
                                         pc: 0,
@@ -1291,7 +1343,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             case 'if': {
                                 let condStr = block.params.cond || 'x < 10';
-                                let isTrue = evalCondition(condStr, state.variables);
+                                let isTrue = evalCondition(condStr, state.variables, block, 'cond');
                                 
                                 if (isTrue && block.children && block.children.length > 0) {
                                     state.stack.push({
@@ -1310,9 +1362,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'set_laser': {
-                                state.variables.warningTime = evalExpr(block.params.warningTime || '1.0', state.variables);
-                                state.variables.activeTime = evalExpr(block.params.activeTime || '1.5', state.variables);
-                                state.variables.laserWidth = evalExpr(block.params.laserWidth || '12', state.variables);
+                                state.variables.warningTime = evalExpr(block.params.warningTime || '1.0', state.variables, block, 'warningTime');
+                                state.variables.activeTime = evalExpr(block.params.activeTime || '1.5', state.variables, block, 'activeTime');
+                                state.variables.laserWidth = evalExpr(block.params.laserWidth || '12', state.variables, block, 'laserWidth');
                                 if (state.variables.laserStartTime === null || state.variables.laserStartTime === undefined) {
                                     state.variables.laserStartTime = state.variables.timer;
                                     b.laserStartX = b.x;
@@ -1321,11 +1373,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'spawn_bullet': {
-                                let speed = evalExpr(block.params.speed, state.variables);
-                                let angle = evalExpr(block.params.angle || 'angle', state.variables);
+                                let speed = evalExpr(block.params.speed, state.variables, block, 'speed');
+                                let angle = evalExpr(block.params.angle || 'angle', state.variables, block, 'angle');
                                 let bColor = resolveColorParam(block.params.color, state.variables);
-                                let ox = evalExpr(block.params.offsetX || '0', state.variables);
-                                let oy = evalExpr(block.params.offsetY || '0', state.variables);
+                                let ox = evalExpr(block.params.offsetX || '0', state.variables, block, 'offsetX');
+                                let oy = evalExpr(block.params.offsetY || '0', state.variables, block, 'offsetY');
 
                                 let coordMode = block.params.coordMode || 'relative';
                                 let spawnX, spawnY;
@@ -1337,8 +1389,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                                 }
                                 
-                                let bRadius = evalExpr(block.params.radius || '6', state.variables);
-                                let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
+                                let bRadius = evalExpr(block.params.radius || '6', state.variables, block, 'radius');
+                                let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables, block, 'hitRadius') : undefined;
                                 if (bHitRadius !== undefined) {
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
@@ -1393,11 +1445,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'spawn_ring': {
-                                let speed = evalExpr(block.params.speed, state.variables);
+                                let speed = evalExpr(block.params.speed, state.variables, block, 'speed');
                                 let bColor = resolveColorParam(block.params.color, state.variables);
-                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(block.params.count || '12', state.variables))));
-                                let ox = evalExpr(block.params.offsetX || '0', state.variables);
-                                let oy = evalExpr(block.params.offsetY || '0', state.variables);
+                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(block.params.count || '12', state.variables, block, 'count'))));
+                                let ox = evalExpr(block.params.offsetX || '0', state.variables, block, 'offsetX');
+                                let oy = evalExpr(block.params.offsetY || '0', state.variables, block, 'offsetY');
 
                                 let coordMode = block.params.coordMode || 'relative';
                                 let spawnX, spawnY;
@@ -1409,14 +1461,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                                 }
                                 
-                                let bRadius = evalExpr(block.params.radius || '6', state.variables);
-                                let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
+                                let bRadius = evalExpr(block.params.radius || '6', state.variables, block, 'radius');
+                                let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables, block, 'hitRadius') : undefined;
                                 if (bHitRadius !== undefined) {
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
                                 let bImg = block.params.bulletImage || 'none';
-                                let centerAngle = evalExpr(block.params.angle || '0', state.variables);
+                                let centerAngle = evalExpr(block.params.angle || '0', state.variables, block, 'angle');
 
                                 for (let k = 0; k < count; k++) {
                                     let angle = centerAngle + (360 / count) * k;
@@ -1469,14 +1521,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'spawn_way': {
-                                let speed = evalExpr(block.params.speed, state.variables);
-                                let centerAngle = evalExpr(block.params.angle || 'angle', state.variables);
+                                let speed = evalExpr(block.params.speed, state.variables, block, 'speed');
+                                let centerAngle = evalExpr(block.params.angle || 'angle', state.variables, block, 'angle');
                                 let bColor = resolveColorParam(block.params.color, state.variables);
-                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(block.params.count || '3', state.variables))));
-                                let spread = evalExpr(block.params.spread || '15', state.variables);
+                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(block.params.count || '3', state.variables, block, 'count'))));
+                                let spread = evalExpr(block.params.spread || '15', state.variables, block, 'spread');
                                 
-                                let ox = evalExpr(block.params.offsetX || '0', state.variables);
-                                let oy = evalExpr(block.params.offsetY || '0', state.variables);
+                                let ox = evalExpr(block.params.offsetX || '0', state.variables, block, 'offsetX');
+                                let oy = evalExpr(block.params.offsetY || '0', state.variables, block, 'offsetY');
 
                                 let coordMode = block.params.coordMode || 'relative';
                                 let spawnX, spawnY;
@@ -1488,8 +1540,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                                 }
                                 
-                                let bRadius = evalExpr(block.params.radius || '6', state.variables);
-                                let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables) : undefined;
+                                let bRadius = evalExpr(block.params.radius || '6', state.variables, block, 'radius');
+                                let bHitRadius = block.params.hitRadius ? evalExpr(block.params.hitRadius, state.variables, block, 'hitRadius') : undefined;
                                 if (bHitRadius !== undefined) {
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
@@ -1551,14 +1603,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                             case 'const_var':
                     case 'set_var': {
                                 let varName = block.params.name;
-                                let val = evalValue(block.params.value, state.variables);
+                                let val = evalValue(block.params.value, state.variables, block, 'value');
                                 if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} set_var: ${varName} = ${val} (raw: ${block.params.value})`);
                         setScriptVariable(state, varName, val, block.type === 'const_var');
                                 break;
                             }
                             case 'change_var': {
                                 let varName = block.params.name;
-                                let val = evalExpr(block.params.value, state.variables);
+                                let val = evalExpr(block.params.value, state.variables, block, 'value');
                                 let delta = block.params.op === '-' ? -val : val;
                                 let before = state.variables[varName];
                                 if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
@@ -1573,8 +1625,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'aim_at_coord': {
-                                let txRawB = evalExpr(block.params.targetX || '0', state.variables);
-                                let tyRawB = evalExpr(block.params.targetY || '0', state.variables);
+                                let txRawB = evalExpr(block.params.targetX || '0', state.variables, block, 'targetX');
+                                let tyRawB = evalExpr(block.params.targetY || '0', state.variables, block, 'targetY');
                                 let txAbsB = Number(txRawB) || 0;
                                 let tyAbsB = isPlayerSide ? (canvas.height - (Number(tyRawB) || 0)) : (Number(tyRawB) || 0);
                                 let dxB = txAbsB - b.x;
@@ -1587,7 +1639,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'homing': {
-                                let turnSpeed = evalExpr(block.params.turnSpeed || '90', state.variables);
+                                let turnSpeed = evalExpr(block.params.turnSpeed || '90', state.variables, block, 'turnSpeed');
                                 let dx = target.x - b.x;
                                 let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
                                 let targetAngle = Math.atan2(dy, dx) * 180 / Math.PI;
