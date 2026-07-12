@@ -1836,6 +1836,94 @@ spriteAngle += 3
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "彩符「天使の光輪」",
+    desc: "結構面白く作れたと思う。難易度はしらん。",
+    duration: 30,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 7,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 50000; i++) {
+    ey = 350
+    for (let i = 0; i < 72; i++) {
+        spawnBullet("normal", "#ff33aa", 200, angle, 0, 0, 8, "light", "relative", "6")
+        spawnBullet("normal", "#33ff88", 200, angle, 0, 0, 8, "light", "relative", "6")
+        henkat = random(1.5,2)
+        spawnBullet("normal", "#3388ff", 200, angle, 0, 0, 8, "light", "relative", "6")
+        henkat = random(0.5,1)
+        spawnBullet("normal", "#ffdd33", 200, angle, 0, 0, 8, "light", "relative", "6")
+        henkat = random(0.5,1)
+        spawnBullet("normal", "#ffaa33", 200, angle, 0, 0, 8, "light", "relative", "6")
+        henkat = random(1.5,2)
+        spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 8, "light", "relative", "6")
+        angle += 5
+    }
+    wait(5)
+}
+    `,
+    bulletScript: `
+if (timer == henkat) {
+    if (color == #ff3333) {
+        once {
+            aimAtTarget()
+        }
+    }
+}
+if (color==#ffdd33) {
+    if (timer == henkat..henkat+3) {
+        angle += 1
+    }
+}
+if (color==#ffaa33) {
+    if (timer == henkat..henkat+3) {
+        angle -= 1
+    }
+}
+if (color==#33ff88) {
+    if (isTouchEdge) {
+        once {
+            bounce()
+        }
+    }
+}
+if (color==#ff33aa) {
+    if (dist < 150) {
+        speed = 100
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    name: "「処刑人の剣」",
+    desc: "気合避けスペルを作った。",
+    duration: 40,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnRing("normal", "#ff3333", 200, angle, 8, 0, 0, 30, "sword", "relative", "6")
+    spawnRing("normal", "#ff3333", 200, -angle, 8, 0, 0, 30, "sword", "relative", "6")
+    angle += 5.2
+    wait(0.05)
+}
+while (true) {
+    ex = tx
+}
+    `,
+    bulletScript: `
+speed += 1
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
