@@ -1680,6 +1680,94 @@ while (true) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "フラッシュアンドブラスト",
+    desc: "マインブラストみたいなのが作ってみたくて...",
+    duration: 44,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 448
+    aimAtTarget()
+    for (let i = 0; i < 25; i++) {
+        angle += random(-20,20)
+        spawnBulletResist("normal", "#ffdd33", 200, angle, 0, 0, 30, "light", "relative", "30")
+        wait(0.04)
+    }
+    wait(6)
+}
+if (x < 10) {
+}
+    `,
+    bulletScript: `
+if (color==#ffdd33) {
+    if (isTouchEdge) {
+        for (let i = 0; i < 2; i++) {
+            spd = random(100,400)
+            ang = random(0,360)
+            wa = random(3,16)
+            sz = random(5,20)
+            spawnRing("normal", "#ffaa33", spd, ang, wa, 0, 0, sz, "light", "relative", sz)
+        }
+        speed = 0
+        auraIntensity = 2.5
+        for (let i = 0; i < 20; i++) {
+            auraRange += 1
+            auraIntensity -= 0.1
+            hitRadius += 12
+            wait(0.03)
+        }
+        for (let i = 0; i < 10; i++) {
+            auraRange += 1
+            auraIntensity -= 0.1
+            hitRadius -= 8
+            radius -= 2
+            wait(0.03)
+        }
+        y = -8000
+    }
+}
+if (color==#ff3333) {
+    angle += 5
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    name: "輝く双炎の地",
+    desc: "光弾を使ってみたかった。",
+    duration: 35,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 12000; i++) {
+    spawnBullet("normal", "#ff3333", 200, angle2, 0, 0, 25, "light", "relative", "25")
+    angle2 += 6
+    wait(0.02 - t)
+    wait(0.01)
+    t += 0.00001
+}
+for (let i = 0; i < 12000; i++) {
+    aimAtTarget()
+    spawnBullet("normal", "#33ffff", 200, angle, 0, 0, 30, "light", "relative", "30")
+    wait(0.8)
+}
+    `,
+    bulletScript: `
+        // 弾挙動の独自コード
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
