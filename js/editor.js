@@ -1337,6 +1337,7 @@ function customCardMakerSwitchTab(tab) {
                                 : `slideTo("${preset}", ${duration})`;
                         }
                         break;
+                    }
                     case 'play_sound': {
                         let name = b.params.soundName || 'shot';
                         line = `playSound("${name}")`;
