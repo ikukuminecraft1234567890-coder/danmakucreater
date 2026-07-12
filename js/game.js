@@ -2238,6 +2238,24 @@ function applyAbilityEffect(cardId, owner) {
                                 yy = y1 + param * D;
                             }
                             distSq = (player.x - xx) ** 2 + (player.y - yy) ** 2;
+                        } else if (b.bulletImage === 'sword') {
+                            // 剣弾の5点マルチサークル判定（プレイヤー）
+                            let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                            let dx = b.vx / (speed || 1);
+                            let dy = b.vy / (speed || 1);
+                            let step = bHitR * 1.3;
+                            
+                            let isSwordHit = false;
+                            let isSwordGraze = false;
+                            for (let k = -1; k <= 3; k++) {
+                                let cx = b.x + dx * (k * step);
+                                let cy = b.y + dy * (k * step);
+                                let dSq = (player.x - cx) ** 2 + (player.y - cy) ** 2;
+                                if (dSq < (player.hitboxRadius + bHitR) ** 2) isSwordHit = true;
+                                if (!b.grazed && dSq < (player.grazeRadius + bHitR) ** 2) isSwordGraze = true;
+                            }
+                            
+                            distSq = isSwordHit ? 0 : (isSwordGraze ? (player.hitboxRadius + bHitR) ** 2 + 1 : Infinity);
                         } else {
                             distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;
                         }
@@ -2352,6 +2370,24 @@ function applyAbilityEffect(cardId, owner) {
                                 yy = y1 + param * D;
                             }
                             distSq = (cpu.x - xx) ** 2 + (cpu.y - yy) ** 2;
+                        } else if (b.bulletImage === 'sword') {
+                            // 剣弾 of 5点マルチサークル判定（CPU）
+                            let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                            let dx = b.vx / (speed || 1);
+                            let dy = b.vy / (speed || 1);
+                            let step = bHitR * 1.3;
+                            
+                            let isSwordHit = false;
+                            for (let k = -1; k <= 3; k++) {
+                                let cx = b.x + dx * (k * step);
+                                let cy = b.y + dy * (k * step);
+                                let dSq = (cpu.x - cx) ** 2 + (cpu.y - cy) ** 2;
+                                if (dSq < (cpu.hitboxRadius + bHitR) ** 2) {
+                                    isSwordHit = true;
+                                    break;
+                                }
+                            }
+                            distSq = isSwordHit ? 0 : Infinity;
                         } else {
                             distSq = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
                         }
@@ -3233,6 +3269,24 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.lineWidth = bHitR * 2;
                         ctx.strokeStyle = 'rgba(0, 255, 0, 0.4)';
                         ctx.stroke();
+                    } else if (b.bulletImage === 'sword') {
+                        ctx.strokeStyle = '#00ff00';
+                        ctx.lineWidth = 1.5;
+                        ctx.fillStyle = 'rgba(0, 255, 0, 0.35)';
+                        
+                        let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                        let dx = b.vx / (speed || 1);
+                        let dy = b.vy / (speed || 1);
+                        let step = bHitR * 1.3;
+                        
+                        for (let k = -1; k <= 3; k++) {
+                            let cx = b.x + dx * (k * step);
+                            let cy = b.y + dy * (k * step);
+                            ctx.beginPath();
+                            ctx.arc(cx, cy, bHitR, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
                     } else {
                         ctx.strokeStyle = '#00ff00';
                         ctx.lineWidth = 1.5;
