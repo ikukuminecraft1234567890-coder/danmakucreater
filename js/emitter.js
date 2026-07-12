@@ -1716,20 +1716,24 @@ function stepEmitter(c, state, attacker, target, dt) {
             } else if (state.variables.bulletType === 'normal') {
                 b.isLaser = false;
             }
-            if (state.variables.bulletImage !== undefined) {
-                b.bulletImage = state.variables.bulletImage;
+            let vBulletImage = window.getBulletVar(state.variables, 'bulletImage');
+            if (vBulletImage !== undefined) {
+                b.bulletImage = vBulletImage;
             }
-            if (state.variables.color !== undefined) {
-                b.color = state.variables.color;
+            let vColor = window.getBulletVar(state.variables, 'color');
+            if (vColor !== undefined) {
+                b.color = vColor;
             }
-            if (state.variables.radius !== undefined) {
-                let rNum = parseFloat(evalExpr(state.variables.radius, state.variables));
+            let vRadius = window.getBulletVar(state.variables, 'radius');
+            if (vRadius !== undefined) {
+                let rNum = parseFloat(evalExpr(vRadius, state.variables));
                 if (!isNaN(rNum)) {
                     b.radius = rNum;
                 }
             }
-            if (state.variables.hitRadius !== undefined) {
-                let hrVal = state.variables.hitRadius;
+            let vHitRadius = window.getBulletVar(state.variables, 'hitRadius');
+            if (vHitRadius !== undefined) {
+                let hrVal = vHitRadius;
                 if (hrVal === '' || hrVal === 'none' || hrVal === '""' || hrVal === "''" || hrVal === undefined || hrVal === null) {
                     b.hitRadius = undefined;
                 } else {
@@ -1737,7 +1741,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     if (!isNaN(hrNum)) {
                         if (hrNum < 0.1) hrNum = 0;
                         b.hitRadius = hrNum;
-                        state.variables.hitRadius = hrNum;
+                        window.setBulletVar(state.variables, 'hitRadius', hrNum);
                     }
                 }
             }

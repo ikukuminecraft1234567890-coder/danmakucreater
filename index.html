@@ -93,6 +93,9 @@
                         <option value="touchColor">touched bullet color (touchColor)</option>
                         <option value="touchX">touched bullet X (touchX)</option>
                         <option value="touchY">touched bullet Y (touchY)</option>
+                        <option value="auraRange">光弾のオーラ範囲 (auraRange)</option>
+                        <option value="auraIntensity">光弾のオーラ強さ (auraIntensity)</option>
+                        <option value="hitRadius">当たり判定半径 (hitRadius)</option>
                         <option value="color">弾の色 (color)</option>
                         <option value="bulletImage">弾の画像 (bulletImage)</option>
                     </datalist>
@@ -377,6 +380,9 @@ e_ex, e_ey     // コア側エミッターの「最新のリアルタイム位�
 e_変数名       // コア側のカスタム変数 (例: e_xspa)
 color          // 弾の色コード
 laserWidth     // レーザーの現在の太さ
+hitRadius      // 弾の当たり判定半径 (px)
+auraRange      // 【光弾専用】オーラの範囲倍率 (初期値: 2.75)
+auraIntensity  // 【光弾専用】オーラの強さ倍率 (初期値: 1.0)
 
 // --- 条件用特殊変数 ---
 n              // 自然数 (1, 2, 3...) (例: cardSecond == 5 * n で5秒おきに判定)
@@ -401,7 +407,7 @@ touchX, touchY // 接触した弾の位置</pre>
                                     <section>
                                         <h5>パラメータの選択肢 &amp; 組み込み関数</h5>
                                         <pre>// 【画像の種類】
-"none" (丸ドロー), "marutama" (丸弾), "kome" (米弾), "ootama" (大玉), 
+"none" (丸ドロー), "light" (光弾), "marutama" (丸弾), "kome" (米弾), "ootama" (大玉), 
 "poihuru" (ポイフル), "star" (星), "uroko" (鱗), "virus" (ウイルス), 
 "onmyoutama" (陰陽玉), "knife" (ナイフ), "ohuda" (お札)
 

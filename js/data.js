@@ -2316,3 +2316,38 @@
                 }
             }
         }
+
+        // 変数の大文字小文字を区別せずに取得・設定するグローバルヘルパー
+        window.getBulletVar = function(variables, name) {
+            if (!variables) return undefined;
+            let lowerName = name.toLowerCase();
+            for (let key in variables) {
+                if (key.toLowerCase() === lowerName) {
+                    return variables[key];
+                }
+            }
+            return undefined;
+        };
+
+        window.setBulletVar = function(variables, name, value) {
+            if (!variables) return;
+            let lowerName = name.toLowerCase();
+            for (let key in variables) {
+                if (key.toLowerCase() === lowerName) {
+                    variables[key] = value;
+                    return;
+                }
+            }
+            variables[name] = value;
+        };
+
+        window.hasBulletVar = function(variables, name) {
+            if (!variables) return false;
+            let lowerName = name.toLowerCase();
+            for (let key in variables) {
+                if (key.toLowerCase() === lowerName) {
+                    return true;
+                }
+            }
+            return false;
+        };

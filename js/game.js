@@ -2713,15 +2713,17 @@ function applyAbilityEffect(cardId, owner) {
                     // 弾ごとに異なる揺らぎを作るためのシード値
                     let seed = b.x * 0.05 + b.y * 0.05;
 
-                    // 変数から光の範囲 (auraRange) と強さ (auraIntensity) を取得できるようにする
+                    // 変数から光の範囲 (auraRange) と強さ (auraIntensity) を取得できるようにする（大文字小文字無視）
                     let auraRangeVal = 2.75;
                     let auraIntensityVal = 1.0;
                     if (b.bulletState && b.bulletState.variables) {
-                        if (b.bulletState.variables.auraRange !== undefined && b.bulletState.variables.auraRange !== null) {
-                            auraRangeVal = parseFloat(b.bulletState.variables.auraRange) || 0;
+                        let vRange = window.getBulletVar(b.bulletState.variables, 'auraRange');
+                        if (vRange !== undefined && vRange !== null) {
+                            auraRangeVal = parseFloat(vRange) || 0;
                         }
-                        if (b.bulletState.variables.auraIntensity !== undefined && b.bulletState.variables.auraIntensity !== null) {
-                            auraIntensityVal = parseFloat(b.bulletState.variables.auraIntensity) || 0;
+                        let vIntensity = window.getBulletVar(b.bulletState.variables, 'auraIntensity');
+                        if (vIntensity !== undefined && vIntensity !== null) {
+                            auraIntensityVal = parseFloat(vIntensity) || 0;
                         }
                     }
                     
