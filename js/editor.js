@@ -507,6 +507,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="boon00" ${b.params.soundName === 'boon00' ? 'selected' : ''}>アビリティ音 (se_boon00)</option>
                                     <option value="boon01" ${b.params.soundName === 'boon01' ? 'selected' : ''}>回復/警告音 (se_boon01)</option>
                                 </select>
+                                <button class="menu-btn" style="min-width:32px; height:24px; padding:0 6px; margin:0 0 0 6px; line-height:22px; vertical-align:middle; background:linear-gradient(135deg, #005544 0%, #002211 100%); border-color:#00ffcc; color:#00ffcc; font-weight:bold; cursor:pointer;" onclick="playSound('${b.params.soundName || 'shot'}')">試聴 ▶</button>
                                 <span>を鳴らす</span>
                                 ${renderBlockControls(idx)}
                             `;
