@@ -1635,12 +1635,12 @@ while (true) {
     wait(1.2)
 }
 once {
-    w = 0.5
+    w = 0.6
 }
 while (true) {
     spawnRing("normal", "#ffffff", 200, fff, 36, 0, 0, 10, "b_uroko", "relative", "6")
     fff += 5
-    wait(0.2)
+    wait(0.4)
     wait(w)
     w -= 0.005
 }
