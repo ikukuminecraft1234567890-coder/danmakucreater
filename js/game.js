@@ -2247,7 +2247,7 @@ function applyAbilityEffect(cardId, owner) {
                             
                             let isSwordHit = false;
                             let isSwordGraze = false;
-                            for (let k = -1; k <= 3; k++) {
+                            for (let k = 0; k <= 4; k++) {
                                 let cx = b.x + dx * (k * step);
                                 let cy = b.y + dy * (k * step);
                                 let dSq = (player.x - cx) ** 2 + (player.y - cy) ** 2;
@@ -2378,7 +2378,7 @@ function applyAbilityEffect(cardId, owner) {
                             let step = bHitR * 1.3;
                             
                             let isSwordHit = false;
-                            for (let k = -1; k <= 3; k++) {
+                            for (let k = 0; k <= 4; k++) {
                                 let cx = b.x + dx * (k * step);
                                 let cy = b.y + dy * (k * step);
                                 let dSq = (cpu.x - cx) ** 2 + (cpu.y - cy) ** 2;
@@ -3279,7 +3279,7 @@ function applyAbilityEffect(cardId, owner) {
                         let dy = b.vy / (speed || 1);
                         let step = bHitR * 1.3;
                         
-                        for (let k = -1; k <= 3; k++) {
+                        for (let k = 0; k <= 4; k++) {
                             let cx = b.x + dx * (k * step);
                             let cy = b.y + dy * (k * step);
                             ctx.beginPath();
