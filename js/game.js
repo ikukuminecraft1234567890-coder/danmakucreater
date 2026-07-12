@@ -2713,14 +2713,14 @@ function applyAbilityEffect(cardId, owner) {
                     // 弾ごとに異なる揺らぎを作るためのシード値
                     let seed = b.x * 0.05 + b.y * 0.05;
                     
-                    // オーラの半径がゆらゆら揺れる (2.4倍〜3.0倍)
-                    let auraRadius = b.radius * (2.7 + 0.3 * Math.sin(time * 0.015 + seed));
+                    // オーラのサイズはほぼ一定にし、非常に微弱かつゆっくりとうねるように調整 (2.7倍〜2.83倍)
+                    let auraRadius = b.radius * (2.75 + 0.08 * Math.sin(time * 0.002 + seed));
                     let coreRadius = b.radius * 1.2;
                     let auraColor = b.color || '#ff3333';
                     
-                    // オーラ自体の中心位置もわずかに揺らめかせる (最大1.2px)
-                    let waveX = b.x + Math.sin(time * 0.02 + seed) * 1.2;
-                    let waveY = b.y + Math.cos(time * 0.018 + seed) * 1.2;
+                    // 位置の揺れもごくわずかに抑え、ゆっくりと浮遊する程度にする (最大0.3px)
+                    let waveX = b.x + Math.sin(time * 0.003 + seed) * 0.3;
+                    let waveY = b.y + Math.cos(time * 0.0025 + seed) * 0.3;
 
                     // 径方向グラデーションを作成
                     let grad = ctx.createRadialGradient(waveX, waveY, coreRadius * 0.5, waveX, waveY, auraRadius);
@@ -2759,9 +2759,12 @@ function applyAbilityEffect(cardId, owner) {
                         if (names[norm]) [r, g, bVal] = names[norm];
                     }
                     
+                    // 全体の一部（オーラの半透明部分）が微弱に明滅・強弱するようにアルファ値をゆっくり揺らす
+                    let glowAlpha = 0.35 + 0.05 * Math.sin(time * 0.0015 + seed);
+                    
                     grad.addColorStop(0, `rgba(${r}, ${g}, ${bVal}, 1.0)`);
                     grad.addColorStop(0.2, `rgba(${r}, ${g}, ${bVal}, 0.9)`);
-                    grad.addColorStop(0.55, `rgba(${r}, ${g}, ${bVal}, 0.35)`);
+                    grad.addColorStop(0.55, `rgba(${r}, ${g}, ${bVal}, ${glowAlpha})`);
                     grad.addColorStop(1.0, `rgba(${r}, ${g}, ${bVal}, 0.0)`);
                     
                     ctx.fillStyle = grad;
