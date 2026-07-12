@@ -5,6 +5,7 @@ class SoundManager {
         this.buffers = {};
         this.files = {
             'bomb': 'se/bomb.wav',
+            'bomb2': 'se/bomb2.wav',
             'change': 'se/change.wav',
             'boon00': 'se/se_boon00.wav',
             'boon01': 'se/se_boon01.wav',
@@ -17,16 +18,24 @@ class SoundManager {
         };
         // 既存コードやブロックコマンド用のエイリアスマッピング
         this.aliases = {
+            'shot': 'tan00',            // 通常ショット音
+            'laser_heavy': 'gun00',      // 太レーザー音
+            'laser': 'lazer00',          // 細レーザー音
+            'charge': 'ch00',            // チャージ音1
+            'charge2': 'ch02',           // チャージ音2
+            'maspa_short': 'bomb',       // マスパ短
+            'maspa_long': 'bomb2',       // マスパ長
+            'boon00': 'boon00',          // アビリティ音
+            'boon01': 'boon01',          // 被弾/回復音？
+            'don00': 'don00',            // ドン音
+            'change': 'change',          // 切り替え音
+            
+            // 互換性のための古いエイリアス
             'bomb_explode': 'bomb',
             'kawaru': 'change',
-            'charge': 'ch00',
             'cast': 'ch02',
-            'shot': 'tan00',
             'player_shot': 'gun00',
-            'laser': 'lazer00',
-            'hit': 'bomb',
-            'ability': 'boon00',
-            'turn_start': 'don00'
+            'hit': 'bomb'
         };
         this.volume = 0.3; // デフォルト30%
         this.initialized = false;

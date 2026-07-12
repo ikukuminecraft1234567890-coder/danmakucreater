@@ -494,16 +494,18 @@ function customCardMakerSwitchTab(tab) {
                             blockDiv.className = 'maker-block color-action';
                             html = `
                                 <span>[効果音]</span>
-                                <select style="min-width:150px;" onchange="customCardMakerUpdateParam(${idx}, 'soundName', this.value)">
+                                <select style="min-width:180px;" onchange="customCardMakerUpdateParam(${idx}, 'soundName', this.value)">
                                     <option value="shot" ${(b.params.soundName || 'shot') === 'shot' ? 'selected' : ''}>ショット音 (se_tan00)</option>
-                                    <option value="player_shot" ${b.params.soundName === 'player_shot' ? 'selected' : ''}>自機ショット音 (se_gun00)</option>
-                                    <option value="laser" ${b.params.soundName === 'laser' ? 'selected' : ''}>レーザー音 (se_lazer00)</option>
-                                    <option value="charge" ${b.params.soundName === 'charge' ? 'selected' : ''}>チャージ音 (se_ch00)</option>
-                                    <option value="cast" ${b.params.soundName === 'cast' ? 'selected' : ''}>決定音 (se_ch02)</option>
-                                    <option value="turn_start" ${b.params.soundName === 'turn_start' ? 'selected' : ''}>ドン音 (se_don00)</option>
-                                    <option value="bomb_explode" ${b.params.soundName === 'bomb_explode' ? 'selected' : ''}>爆発音 (bomb)</option>
-                                    <option value="kawaru" ${b.params.soundName === 'kawaru' ? 'selected' : ''}>切り替え音 (change)</option>
-                                    <option value="ability" ${b.params.soundName === 'ability' ? 'selected' : ''}>アビリティ音 (se_boon00)</option>
+                                    <option value="laser" ${b.params.soundName === 'laser' ? 'selected' : ''}>細レーザー音 (se_lazer00)</option>
+                                    <option value="laser_heavy" ${b.params.soundName === 'laser_heavy' ? 'selected' : ''}>太レーザー音 (se_gun00)</option>
+                                    <option value="charge" ${b.params.soundName === 'charge' ? 'selected' : ''}>チャージ音1 (se_ch00)</option>
+                                    <option value="charge2" ${b.params.soundName === 'charge2' ? 'selected' : ''}>チャージ音2 (se_ch02)</option>
+                                    <option value="maspa_short" ${b.params.soundName === 'maspa_short' ? 'selected' : ''}>マスパ短 (bomb)</option>
+                                    <option value="maspa_long" ${b.params.soundName === 'maspa_long' ? 'selected' : ''}>マスパ長 (bomb2)</option>
+                                    <option value="don00" ${b.params.soundName === 'don00' ? 'selected' : ''}>ドン音 (se_don00)</option>
+                                    <option value="change" ${b.params.soundName === 'change' ? 'selected' : ''}>切り替え音 (change)</option>
+                                    <option value="boon00" ${b.params.soundName === 'boon00' ? 'selected' : ''}>アビリティ音 (se_boon00)</option>
+                                    <option value="boon01" ${b.params.soundName === 'boon01' ? 'selected' : ''}>回復/警告音 (se_boon01)</option>
                                 </select>
                                 <span>を鳴らす</span>
                                 ${renderBlockControls(idx)}
