@@ -262,8 +262,8 @@ function customCardMakerSwitchTab(tab) {
             document.getElementById('palette-btn-setconst').style.display = 'block';
             document.getElementById('palette-btn-setvar').style.display = 'block';
             document.getElementById('palette-btn-changevar').style.display = 'block';
-            document.getElementById('palette-btn-tweenvar').style.display = (tab === 'emitter') ? 'block' : 'none';
-            document.getElementById('palette-btn-tweenvarwait').style.display = (tab === 'emitter') ? 'block' : 'none';
+            document.getElementById('palette-btn-tweenvar').style.display = 'block';
+            document.getElementById('palette-btn-tweenvarwait').style.display = 'block';
             document.getElementById('palette-btn-setlaser').style.display = (tab === 'bullet') ? 'block' : 'none';
             
             // 動作グループ

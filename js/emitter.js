@@ -1060,6 +1060,95 @@ function stepEmitter(c, state, attacker, target, dt) {
         function runCustomBulletScript(b, dt, attacker, target) {
             let state = b.bulletState;
             if (!state) return;
+            
+            // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
+            if (state.tweens && state.tweens.length > 0) {
+                state.tweens = state.tweens.filter(tw => {
+                    if (tw.isCoordPair) {
+                        let nextX, nextY;
+                        let isDone = false;
+                        
+                        if (tw.isStep) {
+                            let curX, curY;
+                            if (tw.name.includes(',')) {
+                                let varNames = tw.name.split(',').map(n => n.trim());
+                                curX = Number(state.variables[varNames[0]]) || tw.fromX;
+                                curY = Number(state.variables[varNames[1]]) || tw.fromY;
+                            } else {
+                                curX = Number(state.variables[tw.name + '_x']) || tw.fromX;
+                                curY = Number(state.variables[tw.name + '_y']) || tw.fromY;
+                            }
+                            
+                            if (tw.isVecStep) {
+                                let dx = tw.toX - curX;
+                                let dy = tw.toY - curY;
+                                let dist = Math.sqrt(dx * dx + dy * dy);
+                                
+                                if (dist <= tw.stepVal || dist === 0) {
+                                    nextX = tw.toX;
+                                    nextY = tw.toY;
+                                    isDone = true;
+                                } else {
+                                    nextX = curX + (dx / dist) * tw.stepVal;
+                                    nextY = curY + (dy / dist) * tw.stepVal;
+                                    isDone = false;
+                                }
+                            } else {
+                                nextX = curX + tw.stepX;
+                                nextY = curY + tw.stepY;
+                                
+                                let xDone = false;
+                                if ((tw.stepX > 0 && nextX >= tw.toX) || (tw.stepX < 0 && nextX <= tw.toX) || tw.stepX === 0) {
+                                    nextX = tw.toX;
+                                    xDone = true;
+                                }
+                                let yDone = false;
+                                if ((tw.stepY > 0 && nextY >= tw.toY) || (tw.stepY < 0 && nextY <= tw.toY) || tw.stepY === 0) {
+                                    nextY = tw.toY;
+                                    yDone = true;
+                                }
+                                isDone = xDone && yDone;
+                            }
+                        } else {
+                            tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
+                            let t = Math.min(1, tw.elapsed / tw.total);
+                            nextX = tw.fromX + (tw.toX - tw.fromX) * t;
+                            nextY = tw.fromY + (tw.toY - tw.fromY) * t;
+                            isDone = (t >= 1);
+                        }
+                        
+                        // 変数へ書き戻し
+                        if (tw.name.includes(',')) {
+                            let varNames = tw.name.split(',').map(n => n.trim());
+                            state.variables[varNames[0]] = nextX;
+                            state.variables[varNames[1]] = nextY;
+                        } else {
+                            state.variables[tw.name] = `${nextX},${nextY}`;
+                            state.variables[tw.name + '_x'] = nextX;
+                            state.variables[tw.name + '_y'] = nextY;
+                            state.variables[tw.name + '.x'] = nextX;
+                            state.variables[tw.name + '.y'] = nextY;
+                        }
+                        return !isDone;
+                    }
+                    if (tw.mode === 'step') {
+                        let cur = Number(state.variables[tw.name]) || 0;
+                        let step = tw.stepVal;
+                        let next = cur + step;
+                        if ((step > 0 && next >= tw.to) || (step < 0 && next <= tw.to)) {
+                            state.variables[tw.name] = tw.to;
+                            return false; // done
+                        }
+                        state.variables[tw.name] = next;
+                        return true;
+                    } else {
+                        tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
+                        let t = Math.min(1, tw.elapsed / tw.total);
+                        state.variables[tw.name] = tw.from + (tw.to - tw.from) * t;
+                        return t < 1; // done if t==1
+                    }
+                });
+            }
             if (window.bulletDebugCount === undefined) window.bulletDebugCount = 0;
             if (b.bulletDebugId === undefined) {
                 b.bulletDebugId = window.bulletDebugCount++;
@@ -1243,6 +1332,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                             dtRemaining = 0;
                             break;
                         }
+                    }
+                    if (state.waitingTweenName) {
+                        if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
+                            break;
+                        }
+                        state.waitingTweenName = null;
                     }
                     
                     let safetyCounter = 0;
@@ -1701,6 +1796,116 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 break;
                             }
+                            case 'tween_var':
+                            case 'tween_var_wait': {
+                                let varName = block.params.name || 'angle';
+                                let isMultiVar = varName.includes(',');
+                                
+                                let fromVal, toVal;
+                                if (isMultiVar) {
+                                    let fromParts = (block.params.from || '').split(',').map(p => evalExpr(p.trim(), state.variables, block, 'from'));
+                                    let toParts = (block.params.to || '').split(',').map(p => evalExpr(p.trim(), state.variables, block, 'to'));
+                                    fromVal = `${fromParts[0] || 0},${fromParts[1] || 0}`;
+                                    toVal = `${toParts[0] || 0},${toParts[1] || 0}`;
+                                } else {
+                                    fromVal = evalExpr(block.params.from, state.variables, block, 'from');
+                                    toVal   = evalExpr(block.params.to,   state.variables, block, 'to');
+                                }
+
+                                let mode    = block.params.mode || 'seconds';
+                                if (!state.tweens) state.tweens = [];
+                                state.tweens = state.tweens.filter(t => t.name !== varName);
+
+                                if (typeof toVal === 'string' && toVal.includes(',')) {
+                                    let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
+                                    let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
+                                    if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
+                                        state.variables[varName] = fromVal;
+                                        if (mode === 'step' || mode === 'vecstep') {
+                                            let stepVal = evalExpr(block.params.stepVal || block.params.value || '5', state.variables, block, 'stepVal');
+                                            if (mode === 'vecstep') {
+                                                state.tweens.push({
+                                                    name: varName,
+                                                    isCoordPair: true,
+                                                    isStep: true,
+                                                    isVecStep: true,
+                                                    fromX: fromParts[0],
+                                                    toX: toParts[0],
+                                                    fromY: fromParts[1],
+                                                    toY: toParts[1],
+                                                    stepVal: stepVal,
+                                                    mode,
+                                                    total: 1,
+                                                    elapsed: 0
+                                                });
+                                            } else {
+                                                let stepX = stepVal;
+                                                let stepY = stepVal;
+                                                if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
+                                                if (fromParts[1] > toParts[1] && stepY > 0) stepY = -stepY;
+                                                if (fromParts[0] === toParts[0]) stepX = 0;
+                                                if (fromParts[1] === toParts[1]) stepY = 0;
+
+                                                state.tweens.push({
+                                                    name: varName,
+                                                    isCoordPair: true,
+                                                    isStep: true,
+                                                    isVecStep: false,
+                                                    fromX: fromParts[0],
+                                                    toX: toParts[0],
+                                                    fromY: fromParts[1],
+                                                    toY: toParts[1],
+                                                    stepX: stepX,
+                                                    stepY: stepY,
+                                                    mode,
+                                                    total: 1,
+                                                    elapsed: 0
+                                                });
+                                            }
+                                        } else {
+                                            let total = evalExpr(block.params.duration || '1', state.variables, block, 'duration');
+                                            if (mode === 'frames') total = Math.max(1, total);
+                                            else total = Math.max(0.001, total);
+                                            state.tweens.push({
+                                                name: varName,
+                                                isCoordPair: true,
+                                                isStep: false,
+                                                fromX: fromParts[0],
+                                                toX: toParts[0],
+                                                fromY: fromParts[1],
+                                                toY: toParts[1],
+                                                mode,
+                                                total,
+                                                elapsed: 0
+                                            });
+                                        }
+                                        state.variables[varName + '_x'] = fromParts[0];
+                                        state.variables[varName + '_y'] = fromParts[1];
+                                        state.variables[varName + '.x'] = fromParts[0];
+                                        state.variables[varName + '.y'] = fromParts[1];
+                                        if (block.type === 'tween_var_wait') {
+                                            state.waitingTweenName = varName;
+                                        }
+                                    }
+                                } else {
+                                    if (mode === 'step') {
+                                        let stepVal = evalExpr(block.params.stepVal || '5', state.variables, block, 'stepVal');
+                                        if (fromVal > toVal && stepVal > 0) stepVal = -stepVal;
+                                        state.variables[varName] = fromVal;
+                                        state.tweens.push({ name: varName, to: toVal, mode: 'step', stepVal });
+                                    } else {
+                                        let total = evalExpr(block.params.duration || '1', state.variables, block, 'duration');
+                                        if (mode === 'frames') total = Math.max(1, total);
+                                        else total = Math.max(0.001, total);
+                                        state.variables[varName] = fromVal;
+                                        state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0 });
+                                    }
+                                    if (block.type === 'tween_var_wait') {
+                                        state.waitingTweenName = varName;
+                                    }
+                                }
+                                break;
+                            }
                         }
                         
                         if (advancePC) {
@@ -1711,7 +1916,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                         }
                         
-                        if (state.waitTimer > 0) {
+                        if (state.waitTimer > 0 || state.waitingTweenName) {
                             break;
                         }
                     } // 内側ループ
