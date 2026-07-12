@@ -390,10 +390,18 @@
 
         // ローカルストレージからキー設定・ゲームパッド設定・当たり判定色設定ロード
         window.hitboxColorSetting = 'red';
+        window.seVolumeSetting = 30; // デフォルト30%
         try {
             const savedKeys = localStorage.getItem('touhou_kyoukaisen_keys');
             if (savedKeys) {
                 keyConfig = Object.assign(keyConfig, JSON.parse(savedKeys));
+            }
+            const savedSEVolume = localStorage.getItem('touhou_kyoukaisen_se_volume');
+            if (savedSEVolume !== null) {
+                window.seVolumeSetting = parseInt(savedSEVolume, 10);
+            }
+            if (window.soundManager) {
+                window.soundManager.setVolume(window.seVolumeSetting / 100);
             }
             const savedGamepad = localStorage.getItem('touhou_kyoukaisen_gamepad');
             if (savedGamepad) {
@@ -553,6 +561,16 @@
                     localStorage.setItem('touhou_kyoukaisen_hitbox_color', window.hitboxColorSetting);
                 } catch (e) {}
             }
+            const volumeSlider = document.getElementById('setting-se-volume');
+            if (volumeSlider) {
+                window.seVolumeSetting = parseInt(volumeSlider.value, 10);
+                try {
+                    localStorage.setItem('touhou_kyoukaisen_se_volume', window.seVolumeSetting.toString());
+                } catch (e) {}
+                if (window.soundManager) {
+                    window.soundManager.setVolume(window.seVolumeSetting / 100);
+                }
+            }
             try {
                 localStorage.setItem('touhou_kyoukaisen_keys', JSON.stringify(keyConfig));
                 localStorage.setItem('touhou_kyoukaisen_gamepad', JSON.stringify(gamepadConfig));
@@ -562,12 +580,24 @@
                 alert('保存に失敗しました。');
             }
         }
+        function updateSEVolumeDisplay(value) {
+            const display = document.getElementById('se-volume-value');
+            if (display) {
+                display.textContent = value + '%';
+            }
+        }
+        window.updateSEVolumeDisplay = updateSEVolumeDisplay;
         window.saveKeyConfigAndSettings = saveKeyConfigAndSettings;
 
         function openConfigScreen() {
             showScreen('screen-config');
             renderKeyConfig();
             renderGamepadConfig();
+            const volumeSlider = document.getElementById('setting-se-volume');
+            if (volumeSlider) {
+                volumeSlider.value = window.seVolumeSetting;
+            }
+            updateSEVolumeDisplay(window.seVolumeSetting);
             const select = document.getElementById('setting-hitbox-color');
             if (select) {
                 select.value = window.hitboxColorSetting || 'red';
@@ -604,6 +634,19 @@
                 activeConfiguringGamepadAction = null;
                 renderKeyConfig();
                 renderGamepadConfig();
+
+                window.seVolumeSetting = 30;
+                try {
+                    localStorage.setItem('touhou_kyoukaisen_se_volume', '30');
+                } catch (e) {}
+                if (window.soundManager) {
+                    window.soundManager.setVolume(0.3);
+                }
+                const volumeSlider = document.getElementById('setting-se-volume');
+                if (volumeSlider) {
+                    volumeSlider.value = 30;
+                }
+                updateSEVolumeDisplay(30);
             }
         }
 

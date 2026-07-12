@@ -226,6 +226,7 @@
                             <button class="palette-btn color-action" id="palette-btn-spawn-way" onclick="customCardMakerAddBlock('spawn_way')">Way弾を発射</button>
                             <button class="palette-btn color-action" id="palette-btn-spawn-way-resist" onclick="customCardMakerAddBlock('spawn_way_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">Way弾を発射(耐性)</button>
                             <button class="palette-btn color-action" id="palette-btn-magic-circle" onclick="customCardMakerAddBlock('spawn_magic_circle')">子弾(魔法陣)を発射</button>
+                            <button class="palette-btn color-action" id="palette-btn-play-sound" onclick="customCardMakerAddBlock('play_sound')">サウンドを鳴らす</button>
                             <button class="palette-btn color-motion" id="palette-btn-homing" onclick="customCardMakerAddBlock('homing')">相手を追尾する</button>
                             <button class="palette-btn color-motion" id="palette-btn-speed-add" onclick="customCardMakerAddBlock('speed_add')">speed += value</button>
                             <button class="palette-btn color-motion" id="palette-btn-speed-set" onclick="customCardMakerAddBlock('speed_set')">speed = value</button>
@@ -481,6 +482,15 @@ while (true) {
                     </select>
                 </div>
                 
+                <!-- 音量設定 -->
+                <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 8px; padding: 10px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; box-sizing: border-box; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span style="font-size: 13px; color: #e0e0e8;">効果音量 (SE Volume)</span>
+                        <span id="se-volume-value" style="font-size: 13px; color: #00ffcc; font-weight: bold;">30%</span>
+                    </div>
+                    <input type="range" id="setting-se-volume" min="0" max="100" value="30" style="width: 100%; cursor: pointer;" oninput="updateSEVolumeDisplay(this.value)">
+                </div>
+                
                 <h4 style="margin: 5px 0 2px 0; color: #00ffcc; font-size: 13px;">キーボード設定 (クリックしてキー入力)</h4>
                 <div id="key-config-container" style="display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 320px; max-height: 180px; overflow-y: auto; padding: 6px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(0,255,200,0.2); box-sizing: border-box;">
                 </div>
@@ -508,6 +518,7 @@ while (true) {
 
 
     <!-- Modular Game Scripts -->
+    <script src="js/sound.js?v=1.3.9"></script>
     <script>
         document.write('<script src="js/danmaku.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
     </script>

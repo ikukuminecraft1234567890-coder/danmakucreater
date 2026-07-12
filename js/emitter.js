@@ -282,6 +282,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                 let advancePC = true;
                 
                 switch (block.type) {
+                    case 'play_sound': {
+                        let name = block.params.soundName || 'shot';
+                        if (typeof playSound === 'function') {
+                            playSound(name);
+                        }
+                        break;
+                    }
                     case 'wait': {
                         let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
                         state.waitTimer = Math.max(0.001, dur);

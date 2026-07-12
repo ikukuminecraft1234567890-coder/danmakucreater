@@ -90,6 +90,8 @@ function customCardMakerSwitchTab(tab) {
                 block.type = 'move_owner';
                 block.params.preset = 'right';
                 block.params.duration = '1.0';
+            } else if (type === 'play_sound') {
+                block.params.soundName = 'shot';
             } else if (type === 'spawn_bullet') {
                 block.params.bulletType = 'normal';
                 block.params.color = '#ff3333';
@@ -485,6 +487,25 @@ function customCardMakerSwitchTab(tab) {
                                 <span>へ</span><span>時間</span>
                                 <input type="text" list="val-suggestions" style="width:70px; min-width:70px;" value="${b.params.duration || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">
                                 <span>秒</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'play_sound':
+                            blockDiv.className = 'maker-block color-action';
+                            html = `
+                                <span>[効果音]</span>
+                                <select style="min-width:150px;" onchange="customCardMakerUpdateParam(${idx}, 'soundName', this.value)">
+                                    <option value="shot" ${(b.params.soundName || 'shot') === 'shot' ? 'selected' : ''}>ショット音 (se_tan00)</option>
+                                    <option value="player_shot" ${b.params.soundName === 'player_shot' ? 'selected' : ''}>自機ショット音 (se_gun00)</option>
+                                    <option value="laser" ${b.params.soundName === 'laser' ? 'selected' : ''}>レーザー音 (se_lazer00)</option>
+                                    <option value="charge" ${b.params.soundName === 'charge' ? 'selected' : ''}>チャージ音 (se_ch00)</option>
+                                    <option value="cast" ${b.params.soundName === 'cast' ? 'selected' : ''}>決定音 (se_ch02)</option>
+                                    <option value="turn_start" ${b.params.soundName === 'turn_start' ? 'selected' : ''}>ドン音 (se_don00)</option>
+                                    <option value="bomb_explode" ${b.params.soundName === 'bomb_explode' ? 'selected' : ''}>爆発音 (bomb)</option>
+                                    <option value="kawaru" ${b.params.soundName === 'kawaru' ? 'selected' : ''}>切り替え音 (change)</option>
+                                    <option value="ability" ${b.params.soundName === 'ability' ? 'selected' : ''}>アビリティ音 (se_boon00)</option>
+                                </select>
+                                <span>を鳴らす</span>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -1316,6 +1337,10 @@ function customCardMakerSwitchTab(tab) {
                                 : `slideTo("${preset}", ${duration})`;
                         }
                         break;
+                    case 'play_sound': {
+                        let name = b.params.soundName || 'shot';
+                        line = `playSound("${name}")`;
+                        break;
                     }
                     case 'spawn_bullet': {
                         let bt = b.params.bulletType || 'normal';
@@ -1591,6 +1616,17 @@ function customCardMakerSwitchTab(tab) {
 
                 const makeBlock = (trimmed, indent) => {
                     let block = null;
+                    let mPlaySound = trimmed.match(/^playSound\((.*?)\)$/i);
+                    if (mPlaySound) {
+                        let args = splitArgs(mPlaySound[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: 'play_sound',
+                            params: {
+                                soundName: args[0] || 'shot'
+                            },
+                            indent
+                        };
+                    }
                     let mWait = trimmed.match(/^wait\((.*?)\)$/i);
                     if (mWait) block = { type: 'wait', params: { duration: mWait[1].trim() }, indent };
                     let mRepeat = trimmed.match(/^repeat\((.*?)\)$/i);
@@ -1952,6 +1988,23 @@ function customCardMakerSwitchTab(tab) {
                 
                 let block = null;
                 
+                let mPlaySound = trimmed.match(/^playSound\((.*?)\)$/i);
+                if (mPlaySound) {
+                    let args = splitArgs(mPlaySound[1]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    block = {
+                        type: 'play_sound',
+                        params: {
+                            soundName: args[0] || 'shot'
+                        },
+                        indent: indent
+                    };
+                }
                 let mWait = trimmed.match(/^wait\((.*?)\)$/i);
                 if (mWait) {
                     block = { type: 'wait', params: { duration: mWait[1].trim() }, indent: indent };
