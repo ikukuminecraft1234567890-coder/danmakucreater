@@ -1924,6 +1924,35 @@ speed += 1
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "橙藍",
+    desc: "とても好み。",
+    duration: 40,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+once {
+    t = 1.5
+}
+for (let i = 0; i < 1200; i++) {
+    spawnRingResist("normal", "#ff5100", 200, angle, 36, 0, 0, 20, "light", "relative", "15")
+    angle = random(0,360)
+    wait(0.5)
+    wait(t)
+    t -= 0.05
+}
+    `,
+    bulletScript: `
+wait(2)
+spawnRing("normal", "#6200ff", 120, angle, 4, 0, 0, 6, "light", "relative", "6")
+wait(2)
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
