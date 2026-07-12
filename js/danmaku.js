@@ -1768,6 +1768,74 @@ for (let i = 0; i < 12000; i++) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "雷符「ライトニングスパーク」",
+    desc: "どうみてもマスパ",
+    duration: 30,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    playSound("charge")
+    aimAtTarget()
+    for (let i = 0; i < 150; i++) {
+        spd = random(8500,14000)
+        angle2 += random(0,360)
+        spawnBullet("normal", "#fffffe", spd, angle2, 0, 0, 10, "light", "relative", "10")
+        wait(0.01)
+    }
+    wait(0.5)
+    playSound("maspa_long")
+    sp = 1
+    for (let i = 0; i < 5000; i++) {
+        ang = angle
+        ag = angle
+        ang += random(-40,40)
+        spawnBulletResist("normal", "#ffff99", 1500, ang, 0, 0, 30, "light", "relative", "20")
+        wait(0.000005)
+        angle += 0.001
+    }
+    sp = 0
+    wait(2)
+}
+while (true) {
+    if (cardSecond == 3..757575757) {
+        angle2 += random(0,360)
+        spawnRing("normal", "#ffdd33", 300, angle2, 10, 0, 0, 15, "b_star", "relative", "7")
+        wait(0.2)
+        )
+    }
+}
+    `,
+    bulletScript: `
+if (color==#fffffe) {
+    if (frame == 2..3) {
+        speed = 320
+        once {
+            angle += 180
+        }
+    }
+    if (frame == 20..3000) {
+        if (x == 374..394) {
+            y = -8000
+        }
+    }
+}
+if (color==#ffff99) {
+    once {
+        tween("angle", angle, ag, "seconds", 0.6)
+        auraRange = 5.5
+        auraIntensity = 0.1
+    }
+}
+spriteAngle += 3
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
