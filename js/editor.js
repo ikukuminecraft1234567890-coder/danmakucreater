@@ -176,6 +176,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.mode = 'seconds';
                 block.params.duration = '1';
                 block.params.stepVal = '5';
+                block.params.easing = 'linear';
             } else if (type === 'once') {
                 block.params = {};
             }
@@ -880,6 +881,7 @@ function customCardMakerSwitchTab(tab) {
                         case 'tween_var_wait': {
                             let mode = b.params.mode || 'seconds';
                             let isWait = b.type === 'tween_var_wait';
+                            let easing = b.params.easing || 'linear';
                             blockDiv.className = 'maker-block color-vars';
                             html = `
                                 <span>[変数] ${isWait ? 'スムーズ移行して待つ' : 'スムーズ移行'}</span>
@@ -895,7 +897,17 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="step"    ${mode === 'step'    ? 'selected' : ''}>ずつ（毎フレーム）</option>
                                     <option value="vecstep" ${mode === 'vecstep' ? 'selected' : ''}>等速（ベクトル）で</option>
                                 </select>
-                                ${(mode !== 'step' && mode !== 'vecstep') ? `<input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '1'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">` : `<input type="text" list="val-suggestions" style="width:50px;" value="${b.params.stepVal || '5'}" onchange="customCardMakerUpdateParam(${idx}, 'stepVal', this.value)">`}
+                                ${(mode !== 'step' && mode !== 'vecstep') ? `
+                                    <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '1'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">
+                                    <select onchange="customCardMakerUpdateParam(${idx}, 'easing', this.value)">
+                                        <option value="linear" ${easing === 'linear' ? 'selected' : ''}>等速</option>
+                                        <option value="easeIn" ${easing === 'easeIn' ? 'selected' : ''}>加速</option>
+                                        <option value="easeOut" ${easing === 'easeOut' ? 'selected' : ''}>減速</option>
+                                        <option value="easeInOut" ${easing === 'easeInOut' ? 'selected' : ''}>加減速</option>
+                                    </select>
+                                ` : `
+                                    <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.stepVal || '5'}" onchange="customCardMakerUpdateParam(${idx}, 'stepVal', this.value)">
+                                `}
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -1503,10 +1515,11 @@ function customCardMakerSwitchTab(tab) {
                         let nameStr = JSON.stringify(b.params.name || 'angle');
                         let fromVal = b.params.from || '0';
                         let toVal = b.params.to || '360';
+                        let easingStr = b.params.easing && b.params.easing !== 'linear' ? `, "${b.params.easing}"` : '';
                         if (mode === 'step' || mode === 'vecstep') {
                             line = `${fnName}(${nameStr}, ${fromVal}, ${toVal}, "${mode}", ${b.params.stepVal || '5'})`;
                         } else {
-                            line = `${fnName}(${nameStr}, ${fromVal}, ${toVal}, "${mode}", ${b.params.duration || '1'})`;
+                            line = `${fnName}(${nameStr}, ${fromVal}, ${toVal}, "${mode}", ${b.params.duration || '1'}${easingStr})`;
                         }
                         break;
                     }
@@ -1699,6 +1712,7 @@ function customCardMakerSwitchTab(tab) {
                         let toVal = args[2] || '360';
                         let mode = args[3] || 'seconds';
                         let modeVal = args[4] || '1';
+                        let easing = args[5] || 'linear';
                         block = {
                             type: isWait ? 'tween_var_wait' : 'tween_var',
                             params: {
@@ -1707,7 +1721,8 @@ function customCardMakerSwitchTab(tab) {
                                 to: toVal,
                                 mode: mode,
                                 duration: (mode !== 'step' && mode !== 'vecstep') ? modeVal : '1',
-                                stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5'
+                                stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5',
+                                easing: easing
                             },
                             indent
                         };
@@ -2105,6 +2120,7 @@ function customCardMakerSwitchTab(tab) {
                     let toVal = args[2] || '360';
                     let mode = args[3] || 'seconds';
                     let modeVal = args[4] || '1';
+                    let easing = args[5] || 'linear';
                     block = {
                         type: isWait ? 'tween_var_wait' : 'tween_var',
                         params: {
@@ -2113,7 +2129,8 @@ function customCardMakerSwitchTab(tab) {
                             to: toVal,
                             mode: mode,
                             duration: (mode !== 'step' && mode !== 'vecstep') ? modeVal : '1',
-                            stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5'
+                            stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5',
+                            easing: easing
                         },
                         indent: indent
                     };

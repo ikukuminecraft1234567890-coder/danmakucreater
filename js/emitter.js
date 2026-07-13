@@ -1,3 +1,14 @@
+function applyEasing(t, easing) {
+    if (easing === 'easeIn') {
+        return t * t;
+    } else if (easing === 'easeOut') {
+        return t * (2 - t);
+    } else if (easing === 'easeInOut') {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+    return t; // linear
+}
+
 function stepEmitter(c, state, attacker, target, dt) {
             if (!state) return;
             
@@ -56,8 +67,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                         } else {
                             tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                             let t = Math.min(1, tw.elapsed / tw.total);
-                            nextX = tw.fromX + (tw.toX - tw.fromX) * t;
-                            nextY = tw.fromY + (tw.toY - tw.fromY) * t;
+                            let easedT = applyEasing(t, tw.easing);
+                            nextX = tw.fromX + (tw.toX - tw.fromX) * easedT;
+                            nextY = tw.fromY + (tw.toY - tw.fromY) * easedT;
                             isDone = (t >= 1);
                         }
                         
@@ -90,7 +102,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                         // 時間 / フレーム制御の線形補間
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                         let t = Math.min(1, tw.elapsed / tw.total);
-                        state.variables[tw.name] = tw.from + (tw.to - tw.from) * t;
+                        let easedT = applyEasing(t, tw.easing);
+                        state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
                         return t < 1; // done if t==1
                     }
                 });
@@ -770,7 +783,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         toY: toParts[1],
                                         mode,
                                         total,
-                                        elapsed: 0
+                                        elapsed: 0,
+                                        easing: block.params.easing || 'linear'
                                     });
                                 }
                                 // 子変数を即座に初期化
@@ -795,7 +809,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             if (mode === 'frames') total = Math.max(1, total);
                             else total = Math.max(0.001, total);
                             state.variables[varName] = fromVal;
-                            state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0 });
+                            state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
                         }
                         if (block.type === 'tween_var_wait') {
                             state.waitingTweenName = varName;
@@ -1119,8 +1133,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                         } else {
                             tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                             let t = Math.min(1, tw.elapsed / tw.total);
-                            nextX = tw.fromX + (tw.toX - tw.fromX) * t;
-                            nextY = tw.fromY + (tw.toY - tw.fromY) * t;
+                            let easedT = applyEasing(t, tw.easing);
+                            nextX = tw.fromX + (tw.toX - tw.fromX) * easedT;
+                            nextY = tw.fromY + (tw.toY - tw.fromY) * easedT;
                             isDone = (t >= 1);
                         }
                         
@@ -1151,7 +1166,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     } else {
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                         let t = Math.min(1, tw.elapsed / tw.total);
-                        state.variables[tw.name] = tw.from + (tw.to - tw.from) * t;
+                        let easedT = applyEasing(t, tw.easing);
+                        state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
                         return t < 1; // done if t==1
                     }
                 });
@@ -1883,7 +1899,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                                 toY: toParts[1],
                                                 mode,
                                                 total,
-                                                elapsed: 0
+                                                elapsed: 0,
+                                                easing: block.params.easing || 'linear'
                                             });
                                         }
                                         state.variables[varName + '_x'] = fromParts[0];
@@ -1905,7 +1922,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         if (mode === 'frames') total = Math.max(1, total);
                                         else total = Math.max(0.001, total);
                                         state.variables[varName] = fromVal;
-                                        state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0 });
+                                        state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
                                     }
                                     if (block.type === 'tween_var_wait') {
                                         state.waitingTweenName = varName;
