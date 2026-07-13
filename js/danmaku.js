@@ -7,6 +7,7 @@
     name: "弾幕名",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -27,6 +28,7 @@ const sharedDanmakuList = [
         name: "【サンプル】スパイラルレイン",
         desc: "全方位に螺旋を描く弾を発射します（サンプル）",
         duration: 15,
+        maxMisses: 2,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
@@ -52,6 +54,7 @@ if (isBounced) {
         name: "華符「大輪舞転」",
         desc: "とにかく綺麗に作った。",
         duration: 30,
+        maxMisses: 2,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 2.0,
@@ -139,6 +142,7 @@ if (color == #ffffff) {
     name: "サンライトインパクト~Normal~",
     desc: "ルナティックインパクトのパク...オマージュ。",
     duration: 50,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -201,6 +205,7 @@ if (m === 1) {
     name: "サンライトインパクト",
     desc: "ルナティックインパクトのパク...オマージュ。",
     duration: 50,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -263,6 +268,7 @@ if (m === 1) {
     name: "弾幕の檻",
     desc: "自機狙いと自機外しの弾が発射され、壁に当たるとレーザーを放つ。もちろん殺意の百合のオマージュ",
     duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -322,6 +328,7 @@ if (m === 1) {
     name: "超絶気合符「インフィニットスパイラル」",
     desc: "楽しい！好き！",
     duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -352,6 +359,7 @@ if (y > 886) {
     name: "技符「陰陽掃除機」",
     desc: "完全パターンスペル。そこそこ作るのに苦労しました",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -403,6 +411,7 @@ if (shotTimer >= 12) {
     name: "上は洪水下は大火事",
     desc: "普通にお気に入りのスペル！楽しい！",
     duration: 32,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -449,6 +458,7 @@ spriteAngle = angle
     name: "フラッシュレートレイン",
     desc: "雨と巨大レーザー！",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -510,6 +520,7 @@ if (y > 896) {
     name: "札と刃の境界",
     desc: "うおっ、となるスペルです。",
     duration: 65,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 10,        // 画面外に弾が出てから消滅するまでの時間
@@ -645,6 +656,7 @@ once {
     name: "双毒「絡みつく赤大蛇」",
     desc: "クリアチェックはしました。",
     duration: 60,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -787,6 +799,7 @@ if (dist < 50) {
     name: "旋風「ビッグトルネード」",
     desc: "圧倒的弾速、圧倒的気合避け",
     duration: 25,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -822,6 +835,7 @@ if (speed == 400..100000) {
     name: "偽符「ダブルスパイル」",
     desc: "攻略法が分かると簡単なタイプ。",
     duration: 25,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 7,        // 画面外に弾が出てから消滅するまでの時間
@@ -861,6 +875,7 @@ if (frame = 2..3) {
     name: "秘儀「十三頭の龍」",
     desc: "結構いい感じに作れました。下からの反射を追加したことでそこそこの難易度になったかも...",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -920,6 +935,7 @@ if (x > 758) {
     name: "波符「白銀のタイダルウェーブ」",
     desc: "気づいたら星蓮船四面ボスのアレみたいになってた。",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -951,6 +967,7 @@ while (true) {
     name: "白銀のタルタルソース",
     desc: "",
     duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 5,        // 画面外に弾が出てから消滅するまでの時間
@@ -991,6 +1008,7 @@ if (yp = -5..5) {
     name: "熱符「真紅たる太陽風」",
     desc: "交差する弾って...楽しいですよね。",
     duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1021,6 +1039,7 @@ spriteAngle = angle
     name: "忌符「フライングスター」",
     desc: "全方位反射って難しいですよねぇ...",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1169,6 +1188,7 @@ spriteAngle = spriteAngle + 3
     name: "恕符「血濡れのアナザーディメンション」",
     desc: "どう見ても輝針城モチーフ。",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1231,6 +1251,7 @@ while (true) {
     name: "真実「静焔のレプティリアン」",
     desc: "作ってる途中、赤色の幻想郷とレプティリアンインテリジェンスを行ったり来たりしてました。",
     duration: 35,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1318,6 +1339,7 @@ spriteAngle = angle
     name: "「完全自動殺戮マシン」",
     desc: "弾から弾が出るスペルを作るのが楽しいんだよなあ！！",
     duration: 35,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1352,6 +1374,7 @@ while (true) {
     name: "鋒符「尾を噛む龍」",
     desc: "万物は流転する。自らの尾を喰らう龍のように、終わりなき円環を描く。",
     duration: 35,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1405,6 +1428,7 @@ if (timer == 3 - w2) {
     name: "蛇符「人間殺しの大白蛇」",
     desc: "最近こういうスペルしか作ってないｗ",
     duration: 35,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1462,6 +1486,7 @@ if (timer > 1) {
     name: "獄符「スターアンドプリズン」",
     desc: "上下で挟んでくるタイプの弾幕。ちなみにガチで苦手。",
     duration: 35,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1497,6 +1522,7 @@ m += 5
     name: "ドパ符「ドーパミンの極致」",
     desc: "ドーパドパドパドパｗｗｗｗｗドーパミンの放出は楽しいドパねぇｗｗｗｗｗｗｗｗ",
     duration: 10,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1606,6 +1632,7 @@ if (color==#9E76B4) {
     name: "奇跡「九字切り」",
     desc: "どうみても早苗のパクリです。本当にありがとうございました。",
     duration: 60,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 10,        // 画面外に弾が出てから消滅するまでの時間
@@ -1661,6 +1688,7 @@ if (color == #ff3333) {
     name: "威符「完全無欠の幾何学牢」",
     desc: "こいしのアレのパクリ",
     duration: 50,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1685,6 +1713,7 @@ while (true) {
     name: "フラッシュアンドブラスト",
     desc: "マインブラストみたいなのが作ってみたくて...",
     duration: 44,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1744,6 +1773,7 @@ if (color==#ff3333) {
     name: "輝く双炎の地",
     desc: "光弾を使ってみたかった。",
     duration: 35,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1773,6 +1803,7 @@ for (let i = 0; i < 12000; i++) {
     name: "雷符「ライトニングスパーク」",
     desc: "どうみてもマスパ",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1841,6 +1872,7 @@ spriteAngle += 3
     name: "彩符「天使の光輪」",
     desc: "結構面白く作れたと思う。難易度はしらん。",
     duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 7,        // 画面外に弾が出てから消滅するまでの時間
@@ -1903,6 +1935,7 @@ if (color==#ff33aa) {
     name: "「処刑人の剣」",
     desc: "気合避けスペルを作った。",
     duration: 40,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1929,6 +1962,7 @@ speed += 1
     name: "橙藍",
     desc: "とても好み。",
     duration: 40,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1958,6 +1992,7 @@ wait(2)
     name: "流符「弾幕の川」",
     desc: "軌道意味不明！",
     duration: 25,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -1997,6 +2032,7 @@ if (color == #ffffff) {
     name: "核熱「核分裂」",
     desc: "弾幕作りあるある。最初に作る弾幕を決めるんじゃなくて適当に作ってそれっぽい名前にする",
     duration: 33,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
@@ -2046,6 +2082,7 @@ if (timer == 0.2..1) {
     name: "弾幕名",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間

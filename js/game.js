@@ -2552,7 +2552,8 @@ function applyAbilityEffect(cardId, owner) {
                         window.playerMissCount = 0;
                     }
                     
-                    if (window.playerMissCount < 2) {
+                    let maxMisses = (typeof window.playerMaxMisses === 'number') ? window.playerMaxMisses : 2;
+                    if (window.playerMissCount < maxMisses) {
                         window.playerMissCount++;
                         player.pendingDamage = 0;
                         window.playerInvincibleTimer = 1.5; // 無敵時間1.5秒

@@ -235,6 +235,10 @@
                 cc.despawnTime = 1.5;
                 changed = true;
             }
+            if (cc.maxMisses === undefined) {
+                cc.maxMisses = 2;
+                changed = true;
+            }
             if (changed) {
                 applyCustomCardCosts(cc);
             }

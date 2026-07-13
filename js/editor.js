@@ -970,6 +970,7 @@ function customCardMakerSwitchTab(tab) {
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
+                maxMisses: document.getElementById('custom-card-max-misses') ? parseInt(document.getElementById('custom-card-max-misses').value, 10) : 2,
                 pattern: 'custom_test',
                 interval: 0.1,
                 rawCost: 0,
@@ -993,6 +994,7 @@ function customCardMakerSwitchTab(tab) {
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
             window.playerMissCount = 0;
+            window.playerMaxMisses = tempCustomCard.maxMisses;
             window.playerInvincibleTimer = 0;
             window.miniExplosionEffect = null;
             window.miniExplosionShockwave = null;
@@ -1137,6 +1139,7 @@ function customCardMakerSwitchTab(tab) {
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
+                maxMisses: document.getElementById('custom-card-max-misses') ? parseInt(document.getElementById('custom-card-max-misses').value, 10) : 2,
                 rawCost: cost,
                 cost: getCustomCardPlayCost(cost),
                 isCustom: true,
@@ -2630,6 +2633,7 @@ function customCardMakerSwitchTab(tab) {
                 x_offset: xOffset,
                 y_offset: yOffset,
                 despawnTime: despawnTime,
+                maxMisses: sharedCard.maxMisses !== undefined ? parseInt(sharedCard.maxMisses, 10) : 2,
                 pattern: 'custom_test_shared_' + idx,
                 interval: 0.1,
                 rawCost: 0,
@@ -2654,6 +2658,7 @@ function customCardMakerSwitchTab(tab) {
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
             window.playerMissCount = 0;
+            window.playerMaxMisses = tempCustomCard.maxMisses;
             window.playerInvincibleTimer = 0;
             window.miniExplosionEffect = null;
             window.miniExplosionShockwave = null;

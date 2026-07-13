@@ -2880,6 +2880,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 x_offset: document.getElementById('custom-card-x-offset') ? document.getElementById('custom-card-x-offset').value : "0",
                 y_offset: document.getElementById('custom-card-y-offset') ? document.getElementById('custom-card-y-offset').value : "0",
                 despawnTime: document.getElementById('custom-card-despawn-time') ? document.getElementById('custom-card-despawn-time').value : "1.5",
+                maxMisses: document.getElementById('custom-card-max-misses') ? document.getElementById('custom-card-max-misses').value : "2",
                 codeText: document.getElementById('workspace-code-textarea').value
             };
             
@@ -2906,6 +2907,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.name = draftData.name || 'カスタムスペル';
                 customCardMaker.desc = draftData.desc || 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = getCustomCardDuration(draftData.duration);
+                customCardMaker.maxMisses = draftData.maxMisses !== undefined ? Number(draftData.maxMisses) : 2;
                 customCardMaker.activeTab = draftData.activeTab || 'emitter';
                 customCardMaker.emitterScript = draftData.emitterScript || [];
                 customCardMaker.bulletScript = draftData.bulletScript || [];
@@ -2923,6 +2925,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset;
                 if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset;
                 if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime;
+                if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses;
                 
                 document.getElementById('tab-btn-emitter').className = customCardMaker.activeTab === 'emitter' ? 'tab-btn active' : 'tab-btn';
                 document.getElementById('tab-btn-bullet').className = customCardMaker.activeTab === 'bullet' ? 'tab-btn active' : 'tab-btn';
@@ -3004,6 +3007,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.bulletScript = JSON.parse(JSON.stringify(migratedCard.bulletScript || []));
                 customCardMaker.magicCircleScript = JSON.parse(JSON.stringify(migratedCard.magicCircleScript || []));
                 customCardMaker.despawnTime = migratedCard.despawnTime !== undefined ? migratedCard.despawnTime : 1.5;
+                customCardMaker.maxMisses = migratedCard.maxMisses !== undefined ? migratedCard.maxMisses : 2;
                 customCardMaker.testPassed = true;
                 document.getElementById('card-editor-title').textContent = "スペルカード編集";
             } else {
@@ -3012,6 +3016,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.desc = 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = 15;
                 customCardMaker.despawnTime = 1.5;
+                customCardMaker.maxMisses = 2;
                 customCardMaker.emitterScript = [
                     { type: 'repeat', params: { count: '12' }, indent: 0 },
                     { type: 'spawn_bullet', params: { bulletType: 'normal', color: '#ff3333', radius: '6', speed: '200', angle: 'angle' }, indent: 1 },
@@ -3034,6 +3039,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset || 0;
             if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset || 0;
             if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime !== undefined ? customCardMaker.despawnTime : 1.5;
+            if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses !== undefined ? customCardMaker.maxMisses : 2;
             
             renderCardMaker();
         }
