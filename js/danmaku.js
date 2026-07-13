@@ -2066,6 +2066,101 @@ if (timer == 0.2..1) {
     hitRadius -= 0.2
 }
     `
+},
+{
+    name: "四季符「完全な四種の季節」",
+    desc: "6個も残機あるなら、55秒の超激ムズスペルでも許されますよね...?",
+    duration: 55,            // 制限時間（秒）
+    maxMisses: 6,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnBullet("normal", "#3388ff", 200, angle, 0, 0, 8, "light", "relative", "6")
+    spawnBullet("normal", "#ffdd33", 200, angle, 0, 0, 8, "light", "relative", "6")
+    spawnBullet("normal", "#33ff88", 200, angle, 0, 0, 8, "light", "relative", "6")
+    spawnBullet("normal", "#ff33aa", 200, angle, 0, 0, 8, "light", "relative", "6")
+    angle = random(40,140)
+    wait(0.05)
+}
+while (true) {
+    wait(1)
+    r = random(-50,100)
+    tween("ex", ex, 100 + r, "seconds", 0.5, "easeOut")
+    r = random(-50,100)
+    tween("ey", ey, 100 + r, "seconds", 0.5, "easeOut")
+    if (cardSecond == 20..60) {
+        spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
+    }
+    wait(0.5)
+    r = random(-50,100)
+    tween("ex", ex, 700 + r, "seconds", 0.5, "easeOut")
+    r = random(-50,100)
+    tween("ey", ey, 100 + r, "seconds", 0.5, "easeOut")
+    if (cardSecond == 20..60) {
+        spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
+    }
+    wait(0.5)
+    r = random(-50,100)
+    tween("ex", ex, 100 + r, "seconds", 0.5, "easeOut")
+    r = random(-50,100)
+    tween("ey", ey, 400 + r, "seconds", 0.5, "easeOut")
+    if (cardSecond == 20..60) {
+        spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
+    }
+    wait(0.5)
+    r = random(-50,100)
+    tween("ex", ex, 700 + r, "seconds", 0.5, "easeOut")
+    r = random(-50,100)
+    tween("ey", ey, 400 + r, "seconds", 0.5, "easeOut")
+    if (cardSecond == 20..60) {
+        spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
+    }
+    wait(0.5)
+    tween("ex", ex, 384, "seconds", 0.5, "easeOut")
+    tween("ey", ey, 224, "seconds", 0.5, "easeOut")
+    if (cardSecond == 20..60) {
+        spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
+    }
+    wait(4)
+}
+while (true) {
+    spawnWayResist("normal", "#ff3333", 1000, -90, 25, 7, 0, 0, 30, "b_knife", "relative", "15")
+    wait(0.05)
+}
+while (true) {
+    if (cardSecond == 40..60) {
+        aimAtTarget()
+        spawnWay("normal", "#ffffff", 300, angle, 8, 12, 0, 0, 12, "uroko", "relative", "6")
+        wait(0.7)
+    }
+}
+while (true) {
+    if (cardSecond == 50..60) {
+        aimAtTarget()
+        spawnRing("normal", "#ffffff", 300, 0, 36, 0, 0, 8, "light", "relative", "6")
+        wait(0.3)
+    }
+}
+    `,
+    bulletScript: `
+if (timer == 0.8) {
+    if (color == #3388ff) {
+        angle += random(10,15)
+    }
+    if (color == #33ff88) {
+        angle -= random(10,15)
+    }
+    if (color == #ffdd33) {
+        angle += random(-15,15)
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
