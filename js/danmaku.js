@@ -1992,6 +1992,41 @@ if (color == #ffffff) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "核熱「核分裂」",
+    desc: "弾幕作りあるある。最初に作る弾幕を決めるんじゃなくて適当に作ってそれっぽい名前にする",
+    duration: 33,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 6; i++) {
+    ey = 448
+    playSound("charge2")
+    wait(1.15)
+    spawnRingResist("normal", "#ff3333", 50, -90, 4 + w, 0, 0, 10, "light", "relative", "10")
+    playSound("don00")
+    wait(3.5)
+    w += 1
+}
+    `,
+    bulletScript: `
+if (timer == 0..0.9) {
+    radius += 1
+    hitRadius += 1
+    speed += 1
+    auraIntensity += 0.2
+}
+if (isTouchEdge) {
+    spawnRing("normal", "#ff8811", 200, angle + 5, 36, 0, 0, 30, "light", "relative", "25")
+    y = -80000
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
