@@ -2161,6 +2161,55 @@ if (timer == 0.8) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "華符「白銀の結晶」",
+    desc: "たまには展開される系の弾幕も作る。",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 8,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    playSound("shot")
+    ang = 10
+    for (let i = 0; i < 20; i++) {
+        spawnRing("normal", "#ffffff", 100 + spdd, 95, 35, 0, 0, 15, "b_uroko", "relative", "1")
+        spdd += 10
+        ang -= 1
+    }
+    spdd = 0
+    ang = 0
+    wait(1.5)
+    playSound("boon01")
+    wait(1.5)
+    playSound("shot")
+    ang = -10
+    for (let i = 0; i < 20; i++) {
+        spawnRing("normal", "#ffffff", 100 + spdd, 95, 35, 0, 0, 15, "uroko", "relative", "1")
+        spdd += 10
+        ang += 1
+    }
+    spdd = 0
+    wait(1.5)
+    playSound("boon01")
+    wait(1.5)
+}
+    `,
+    bulletScript: `
+if (timer ==1.5..1.65) {
+    angle += ang
+}
+if (timer ==0.3) {
+    tween("hitRadius", 1, 8, "seconds", 6)
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
