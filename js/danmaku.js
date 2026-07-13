@@ -1953,6 +1953,45 @@ wait(2)
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "流符「弾幕の川」",
+    desc: "軌道意味不明！",
+    duration: 25,            // 制限時間（秒）
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 12000; i++) {
+    spawnBullet("normal", "#ffffff", 300, ang, 0, 0, 20, "light", "relative", "15")
+    spawnBullet("normal", "#ffffff", 300, ang + 180, 0, 0, 20, "light", "relative", "15")
+    spawnBullet("normal", "#ffffff", 300, ang + 90, 0, 0, 20, "light", "relative", "15")
+    spawnBullet("normal", "#ffffff", 300, ang + 180 + 90, 0, 0, 20, "light", "relative", "15")
+    ang += 4 + random(1,6)
+    wait(0.06)
+}
+    `,
+    bulletScript: `
+if (color == #ffffff) {
+    period = 120
+    amp = 60
+    baseAngle = angle
+    frame2 = 0
+    while (true) {
+        frame2 += 1
+        l += 1
+        angle = baseAngle - amp * sin(frame2 * 360 / period)
+        spriteAngle = angle
+        if (l == 3) {
+            l = 0
+        }
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
