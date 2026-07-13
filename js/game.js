@@ -2555,7 +2555,7 @@ function applyAbilityEffect(cardId, owner) {
                     if (window.playerMissCount < 2) {
                         window.playerMissCount++;
                         player.pendingDamage = 0;
-                        window.playerInvincibleTimer = 0.5; // 無敵時間0.5秒
+                        window.playerInvincibleTimer = 1.5; // 無敵時間1.5秒
                         
                         // 小さな爆発エフェクトの生成
                         let particles = [];
