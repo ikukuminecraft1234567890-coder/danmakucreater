@@ -3639,23 +3639,29 @@ function applyAbilityEffect(cardId, owner) {
             // ── ライフ（被弾耐性）を右上に表示 ──────────────────────────────
             if (isCustomCardTesting && !customCardTestEmitterDone) {
                 let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
-                let lives = Math.max(0, 2 - missCount);
+                let maxMisses = typeof window.playerMaxMisses === 'number' ? window.playerMaxMisses : 2;
+                let lives = Math.max(0, maxMisses - missCount);
                 
                 ctx.save();
                 ctx.textAlign = 'right';
                 ctx.textBaseline = 'top';
                 
-                // 背景パネル
-                ctx.fillStyle = 'rgba(0,0,0,0.45)';
-                ctx.fillRect(PLAY_WIDTH - 90, 48, 84, 24);
-                
-                // 文字
-                ctx.fillStyle = lives === 0 ? '#ff4444' : '#ff99bb';
-                ctx.font = 'bold 14px sans-serif';
+                // 文字の準備
                 let starText = '';
                 for (let li = 0; li < lives; li++) starText += '★';
                 if (starText === '') starText = '無残機';
-                ctx.fillText(starText, PLAY_WIDTH - 12, 53);
+                
+                ctx.font = 'bold 14px sans-serif';
+                let textWidth = ctx.measureText(starText).width;
+                let panelWidth = Math.max(84, textWidth + 16);
+                
+                // 背景パネル
+                ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                ctx.fillRect(PLAY_WIDTH - panelWidth - 8, 48, panelWidth, 24);
+                
+                // 文字
+                ctx.fillStyle = lives === 0 ? '#ff4444' : '#ff99bb';
+                ctx.fillText(starText, PLAY_WIDTH - 16, 53);
                 
                 ctx.restore();
             }
