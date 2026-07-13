@@ -2025,7 +2025,10 @@ if (isTouchEdge) {
 }
     `,
     magicCircleScript: `
-        // 子弾挙動の独自コード（任意）
+if (timer == 0.2..1) {
+    radius -= 0.2
+    hitRadius -= 0.2
+}
     `
 }
 
