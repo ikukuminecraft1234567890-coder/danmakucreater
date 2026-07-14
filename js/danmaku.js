@@ -2321,6 +2321,59 @@ if (color == #ffaa33) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "上は洪水、下は大火事(リメイク)",
+    desc: "光弾が実装されたのでリメイク。",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    xsp = random(0,768)
+    spawnBulletResist("normal", "#ff661f", 200, angle, xsp, 896, 10, "light", "absolute", "10")
+    wait(0.02)
+}
+    `,
+    bulletScript: `
+if (isTouchEdge) {
+    a = random(-20,20)
+    spawnWay("normal", "#ff3333", 200, -90 + a, 1, 30, 0, 0, 6, "light", "relative", "6")
+    speed = 0
+    auraIntensity = 2.5
+    for (let i = 0; i < 20; i++) {
+        auraRange += 2.5
+        auraIntensity -= 0.1
+        hitRadius += 12
+        wait(0.03)
+    }
+    for (let i = 0; i < 20; i++) {
+        auraRange += 1.5
+        auraIntensity -= 0.01
+        hitRadius -= 4
+        radius -= 1
+        wait(0.03)
+    }
+    y = -8000
+}
+    `,
+    magicCircleScript: `
+if (color == #ff3333) {
+    if (y < 0) {
+        angle = 90 + random(-5,5)
+        speed = 5
+        color = #33ffff
+        y = 5
+    }
+}
+if (color == #33ffff) {
+    speed += 1.5
+}
+spriteAngle = angle
+    `
 }
 
 ];
