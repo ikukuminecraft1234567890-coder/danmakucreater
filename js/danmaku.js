@@ -2247,6 +2247,73 @@ while (true) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "枝符「囚人の牢獄」",
+    desc: "回転＆列抜け",
+    duration: 40,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    playSound("shot")
+    playSound("laser")
+    spawnRing("normal", "#ffaa33", 200, 0, 6, 384, 448, 6, "none", "absolute", "#ff3333")
+    wait(2)
+    while (true) {
+        for (let i = 0; i < 38; i++) {
+            spawnBulletResist("normal", "#ff3333", 300, 90, xp, 0, 20, "b_knife", "absolute", "4")
+            xp += 20
+            wait(0.16)
+            playSound("shot")
+        }
+        for (let i = 0; i < 38; i++) {
+            spawnBulletResist("normal", "#ff3333", 300, 90, xp, 0, 20, "b_knife", "absolute", "4")
+            xp -= 20
+            wait(0.16)
+            playSound("shot")
+        }
+        while (true) {
+            for (let i = 0; i < 38; i++) {
+                spawnBulletResist("normal", "#ff3333", 300, 90, xp, 0, 20, "b_knife", "absolute", "4")
+                spawnBulletResist("normal", "#ff3333", 300, -90, 768 - xp, 896, 20, "b_knife", "absolute", "4")
+                spawnBulletResist("normal", "#ff3333", 300, 0, 0, yp, 20, "b_knife", "absolute", "4")
+                spawnBulletResist("normal", "#ff3333", 300, 180, 768, 896 - yp, 20, "b_knife", "absolute", "4")
+                xp += 20
+                yp += 23.5789473684
+                wait(0.16)
+                playSound("shot")
+            }
+            for (let i = 0; i < 38; i++) {
+                spawnBulletResist("normal", "#ff3333", 300, 90, xp, 0, 20, "b_knife", "absolute", "4")
+                spawnBulletResist("normal", "#ff3333", 300, -90, 768 - xp, 896, 20, "b_knife", "absolute", "4")
+                spawnBulletResist("normal", "#ff3333", 300, 0, 0, yp, 20, "b_knife", "absolute", "4")
+                spawnBulletResist("normal", "#ff3333", 300, 180, 768, 896 - yp, 20, "b_knife", "absolute", "4")
+                xp -= 20
+                yp -= 23.5789473684
+                wait(0.16)
+                playSound("shot")
+            }
+        }
+    }
+}
+if (y > 886) {
+}
+while (true) {
+    if (cardSecond == 15) {
+        playSound("boon01")
+    }
+}
+    `,
+    bulletScript: `
+        // 弾挙動の独自コード
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
