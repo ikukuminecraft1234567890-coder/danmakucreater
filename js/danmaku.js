@@ -2215,6 +2215,38 @@ spriteAngle = angle
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "純符「純粋な光の粒子」",
+    desc: "説明文や作成者名など",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 0,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnRingResist("normal", "#ffdd33", 200, angle, 36, 0, 0, 20, "light", "relative", "20")
+    spawnRingResist("normal", "#ffdd33", 200, angle + 5, 18, 0, 0, 20, "light", "relative", "20")
+    spawnRingResist("normal", "#ffdd33", 200, angle + 2.5, 18, 0, 0, 20, "light", "relative", "20")
+    spawnRingResist("normal", "#ffdd33", 200, angle + 7.5, 18, 0, 0, 20, "light", "relative", "20")
+    playSound("shot")
+    wait(0.5)
+    spawnRingResist("normal", "#ac008f", 200, angle, 36, 0, 0, 20, "light", "relative", "20")
+    spawnRingResist("normal", "#ac008f", 200, angle - 5, 18, 0, 0, 20, "light", "relative", "20")
+    spawnRingResist("normal", "#ac008f", 200, angle - 2.5, 18, 0, 0, 20, "light", "relative", "20")
+    spawnRingResist("normal", "#ac008f", 200, angle - 7.5, 18, 0, 0, 20, "light", "relative", "20")
+    playSound("shot")
+    wait(0.5)
+}
+    `,
+    bulletScript: `
+        // 弾挙動の独自コード
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
