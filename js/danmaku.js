@@ -2309,7 +2309,14 @@ while (true) {
 }
     `,
     bulletScript: `
-        // 弾挙動の独自コード
+if (color == #ffaa33) {
+    warningTime = 0
+    activeTime = 150
+    laserWidth = 20
+    if (cardSecond == 15..40) {
+        angle += 0.2
+    }
+}
     `,
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
