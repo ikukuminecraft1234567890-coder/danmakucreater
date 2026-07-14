@@ -2742,6 +2742,7 @@ function applyAbilityEffect(cardId, owner) {
             ctx.save();
             ctx.globalCompositeOperation = 'lighter'; // 加算合成で光っぽく繋げる
             bullets.forEach(b => {
+                if (b.radius <= 0) return;
                 // 画面外カリング（オーラ分を考慮して通常より広い範囲でカリング判定）
                 if (b.x < -b.radius - 35 || b.x > PLAY_WIDTH + b.radius + 35 || b.y < -b.radius - 35 || b.y > canvas.height + b.radius + 35) return;
                 
@@ -2796,6 +2797,7 @@ function applyAbilityEffect(cardId, owner) {
             ctx.restore();
 
             bullets.forEach(b => {
+                if (b.radius <= 0) return;
                 // 画面外カリング（通常弾のみ）
                 // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
                 if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece) {
