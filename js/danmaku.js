@@ -2374,6 +2374,54 @@ if (color == #33ffff) {
 }
 spriteAngle = angle
     `
+},
+{
+    name: "封符「停滞するレッドマジック」",
+    desc: "直近でやった作品の弾幕っぽく作っちゃう病",
+    duration: 40,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 8,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    playSound("boon01")
+    tween("ey", 180, 448, "seconds", 3, "easeOut")
+    wait(3)
+    playSound("charge2")
+    wait(1.5)
+    while (true) {
+        playSound("shot")
+        for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 2; i++) {
+                spawnBulletResist("normal", "#ff3333", 34000, angle, 0, 0, 8, "b_marutama", "relative", "5")
+            }
+            angle += 6
+            wait(0.025)
+        }
+    }
+}
+    `,
+    bulletScript: `
+if (frame == 2..4) {
+    once {
+        speed = 80
+        angle += 180
+        angle += random(-10,10)
+        speed += random(-5,5)
+    }
+}
+if (timer == 7.5) {
+    once {
+        speed = 30
+        color = #dddddd
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
