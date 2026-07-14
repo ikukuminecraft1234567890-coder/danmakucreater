@@ -2091,6 +2091,7 @@ while (true) {
     tween("ex", ex, 100 + r, "seconds", 0.5, "easeOut")
     r = random(-50,100)
     tween("ey", ey, 100 + r, "seconds", 0.5, "easeOut")
+    playSound("shot")
     if (cardSecond == 20..60) {
         spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
     }
@@ -2099,6 +2100,7 @@ while (true) {
     tween("ex", ex, 700 + r, "seconds", 0.5, "easeOut")
     r = random(-50,100)
     tween("ey", ey, 100 + r, "seconds", 0.5, "easeOut")
+    playSound("shot")
     if (cardSecond == 20..60) {
         spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
     }
@@ -2107,6 +2109,7 @@ while (true) {
     tween("ex", ex, 100 + r, "seconds", 0.5, "easeOut")
     r = random(-50,100)
     tween("ey", ey, 400 + r, "seconds", 0.5, "easeOut")
+    playSound("shot")
     if (cardSecond == 20..60) {
         spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
     }
@@ -2115,12 +2118,14 @@ while (true) {
     tween("ex", ex, 700 + r, "seconds", 0.5, "easeOut")
     r = random(-50,100)
     tween("ey", ey, 400 + r, "seconds", 0.5, "easeOut")
+    playSound("shot")
     if (cardSecond == 20..60) {
         spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
     }
     wait(0.5)
     tween("ex", ex, 384, "seconds", 0.5, "easeOut")
     tween("ey", ey, 224, "seconds", 0.5, "easeOut")
+    playSound("shot")
     if (cardSecond == 20..60) {
         spawnRing("normal", "#ffffff", 200, 0, 36, 0, 0, 8, "light", "relative", "6")
     }
