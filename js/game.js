@@ -2774,19 +2774,23 @@ function applyAbilityEffect(cardId, owner) {
 
                     // キャッシュからテクスチャを取得して描画
                     let tex = window.getLightBulletTexture(auraColor, b.radius);
-                    let scale = auraRadius / tex.baseAuraRadius;
-                    let drawSize = tex.size * scale;
+                    if (tex && tex.canvas && tex.canvas.width > 0 && tex.canvas.height > 0) {
+                        let scale = auraRadius / tex.baseAuraRadius;
+                        let drawSize = tex.size * scale;
 
-                    ctx.save();
-                    ctx.globalAlpha = Math.max(0, Math.min(1.0, auraIntensityVal));
-                    ctx.drawImage(
-                        tex.canvas,
-                        waveX - drawSize / 2,
-                        waveY - drawSize / 2,
-                        drawSize,
-                        drawSize
-                    );
-                    ctx.restore();
+                        if (drawSize > 0) {
+                            ctx.save();
+                            ctx.globalAlpha = Math.max(0, Math.min(1.0, auraIntensityVal));
+                            ctx.drawImage(
+                                tex.canvas,
+                                waveX - drawSize / 2,
+                                waveY - drawSize / 2,
+                                drawSize,
+                                drawSize
+                            );
+                            ctx.restore();
+                        }
+                    }
                 }
             });
             ctx.restore();
@@ -4695,19 +4699,25 @@ function applyAbilityEffect(cardId, owner) {
 
         window.getLightBulletTexture = function(color, radius) {
             if (!window.lightBulletTextureCache) window.lightBulletTextureCache = {};
-            const cacheKey = `${color}_${radius}`;
+            
+            let rVal = parseFloat(radius);
+            if (isNaN(rVal) || rVal <= 0) {
+                rVal = 1;
+            }
+
+            const cacheKey = `${color}_${rVal}`;
             let cached = window.lightBulletTextureCache[cacheKey];
             if (cached) return cached;
 
-            const size = Math.ceil(radius * 8);
+            const size = Math.max(1, Math.ceil(rVal * 8));
             const canvas = document.createElement('canvas');
             canvas.width = size;
             canvas.height = size;
             const ctx = canvas.getContext('2d');
 
             const center = size / 2;
-            const baseAuraRadius = radius * 3.5;
-            const coreRadius = radius * 1.2;
+            const baseAuraRadius = rVal * 3.5;
+            const coreRadius = rVal * 1.2;
 
             let grad = ctx.createRadialGradient(center, center, coreRadius * 0.5, center, center, baseAuraRadius);
             let [r, g, bVal] = parseColorToRgb(color);
