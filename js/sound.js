@@ -39,7 +39,11 @@ class SoundManager {
         };
         this.volume = 0.3; // デフォルト30%
         this.initialized = false;
+        
+        // 連続再生管理用のプロパティ
         this.lastPlayTime = {};
+        this.consecutivePlays = {};
+        this.compressor = null;
     }
 
     init() {
@@ -48,6 +52,19 @@ class SoundManager {
         if (!AudioContextClass) return;
         this.ctx = new AudioContextClass();
         this.initialized = true;
+
+        // 音割れ（クリッピング）防止用のダイナミクス・コンプレッサーの作成
+        try {
+            this.compressor = this.ctx.createDynamicsCompressor();
+            this.compressor.threshold.setValueAtTime(-24, this.ctx.currentTime);
+            this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
+            this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
+            this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+            this.compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
+            this.compressor.connect(this.ctx.destination);
+        } catch (e) {
+            console.error('Failed to create DynamicsCompressor:', e);
+        }
 
         // 音声ファイルの事前ロードとデコード
         Object.entries(this.files).forEach(([key, path]) => {
@@ -95,24 +112,41 @@ class SoundManager {
         const buffer = this.buffers[key];
         if (!buffer) return;
 
-        // 頻繁に重なる弾発射音や被弾音のクールダウン制御（50ms）
+        // 連続再生による音量飽和の緩和
         const now = performance.now();
-        if (this.lastPlayTime[key] && (now - this.lastPlayTime[key] < 50)) {
-            if (key === 'tan00' || key === 'gun00' || key === 'bomb') {
-                return;
-            }
+        const lastTime = this.lastPlayTime[key] || 0;
+        const diff = now - lastTime;
+
+        if (diff < 150) {
+            // 150ms以内の連続再生であれば連続カウントをインクリメント
+            this.consecutivePlays[key] = (this.consecutivePlays[key] || 0) + 1;
+        } else {
+            // 150ms以上の間隔が空けば連続数をリセット
+            this.consecutivePlays[key] = 0;
         }
         this.lastPlayTime[key] = now;
+
+        // 連続して再生されるごとに、音量を段階的に（0.75倍ずつ）減衰させる
+        // ただし、完全に音が消えないように元の設定音量の20%を下限とする
+        const decay = Math.max(0.2, Math.pow(0.75, this.consecutivePlays[key]));
+        const playVolume = this.volume * decay;
 
         try {
             const source = this.ctx.createBufferSource();
             source.buffer = buffer;
 
             const gainNode = this.ctx.createGain();
-            gainNode.gain.value = this.volume;
+            gainNode.gain.value = playVolume;
 
             source.connect(gainNode);
-            gainNode.connect(this.ctx.destination);
+            
+            // コンプレッサーノードが作成できていれば接続し、そうでなければ直接スピーカーへ
+            if (this.compressor) {
+                gainNode.connect(this.compressor);
+            } else {
+                gainNode.connect(this.ctx.destination);
+            }
+            
             source.start(0);
         } catch (e) {
             console.error('Error playing sound:', name, e);
