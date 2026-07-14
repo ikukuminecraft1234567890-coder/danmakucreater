@@ -39,10 +39,6 @@ class SoundManager {
         };
         this.volume = 0.3; // デフォルト30%
         this.initialized = false;
-        
-        // 連続再生管理用のプロパティ
-        this.lastPlayTime = {};
-        this.consecutivePlays = {};
         this.compressor = null;
     }
 
@@ -112,31 +108,12 @@ class SoundManager {
         const buffer = this.buffers[key];
         if (!buffer) return;
 
-        // 連続再生による音量飽和の緩和
-        const now = performance.now();
-        const lastTime = this.lastPlayTime[key] || 0;
-        const diff = now - lastTime;
-
-        if (diff < 150) {
-            // 150ms以内の連続再生であれば連続カウントをインクリメント
-            this.consecutivePlays[key] = (this.consecutivePlays[key] || 0) + 1;
-        } else {
-            // 150ms以上の間隔が空けば連続数をリセット
-            this.consecutivePlays[key] = 0;
-        }
-        this.lastPlayTime[key] = now;
-
-        // 連続して再生されるごとに、音量を段階的に（0.75倍ずつ）減衰させる
-        // ただし、完全に音が消えないように元の設定音量の20%を下限とする
-        const decay = Math.max(0.2, Math.pow(0.75, this.consecutivePlays[key]));
-        const playVolume = this.volume * decay;
-
         try {
             const source = this.ctx.createBufferSource();
             source.buffer = buffer;
 
             const gainNode = this.ctx.createGain();
-            gainNode.gain.value = playVolume;
+            gainNode.gain.value = this.volume;
 
             source.connect(gainNode);
             
