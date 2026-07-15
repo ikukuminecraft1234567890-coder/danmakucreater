@@ -40,6 +40,9 @@ class SoundManager {
         this.volume = 0.3; // デフォルト30%
         this.initialized = false;
         this.compressor = null;
+        this.balances = {
+            'tan00': 0.35 // ショット音のみを個別に小さく調整
+        };
     }
 
     init() {
@@ -113,7 +116,8 @@ class SoundManager {
             source.buffer = buffer;
 
             const gainNode = this.ctx.createGain();
-            gainNode.gain.value = this.volume;
+            const balance = this.balances[key] !== undefined ? this.balances[key] : 1.0;
+            gainNode.gain.value = this.volume * balance;
 
             source.connect(gainNode);
             
