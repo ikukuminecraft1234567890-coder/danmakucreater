@@ -496,7 +496,8 @@ function customCardMakerSwitchTab(tab) {
                             html = `
                                 <span>[効果音]</span>
                                 <select style="min-width:180px;" onchange="customCardMakerUpdateParam(${idx}, 'soundName', this.value)">
-                                    <option value="shot" ${(b.params.soundName || 'shot') === 'shot' ? 'selected' : ''}>ショット音 (se_tan00)</option>
+                                    <option value="shot" ${(b.params.soundName || 'shot') === 'shot' ? 'selected' : ''}>ショット音 (se_tan00/小)</option>
+                                    <option value="shot_raw" ${b.params.soundName === 'shot_raw' ? 'selected' : ''}>等倍ショット音 (se_tan00/大)</option>
                                     <option value="laser" ${b.params.soundName === 'laser' ? 'selected' : ''}>細レーザー音 (se_lazer00)</option>
                                     <option value="laser_heavy" ${b.params.soundName === 'laser_heavy' ? 'selected' : ''}>太レーザー音 (se_gun00)</option>
                                     <option value="charge" ${b.params.soundName === 'charge' ? 'selected' : ''}>チャージ音1 (se_ch00)</option>

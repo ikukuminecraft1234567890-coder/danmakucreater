@@ -14,11 +14,13 @@ class SoundManager {
             'don00': 'se/se_don00.wav',
             'gun00': 'se/se_gun00.wav',
             'lazer00': 'se/se_lazer00.wav',
-            'tan00': 'se/se_tan00.wav'
+            'tan00': 'se/se_tan00.wav',
+            'tan00_raw': 'se/se_tan00.wav'
         };
         // 既存コードやブロックコマンド用のエイリアスマッピング
         this.aliases = {
             'shot': 'tan00',            // 通常ショット音
+            'shot_raw': 'tan00_raw',     // 等倍ショット音
             'laser_heavy': 'gun00',      // 太レーザー音
             'laser': 'lazer00',          // 細レーザー音
             'charge': 'ch00',            // チャージ音1
