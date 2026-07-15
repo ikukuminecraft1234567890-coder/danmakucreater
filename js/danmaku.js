@@ -2422,6 +2422,175 @@ if (timer == 7.5) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    name: "奥義「弾幕結界・陽」",
+    desc: "説明文や作成者名など",
+    duration: 78,            // 制限時間（秒）
+    maxMisses: 3,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 20,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    if (cardSecond == 0.1 + 10 * n) {
+        offset = 0
+        spawnBullet("normal", "#ffaa33", 200, agg, 0, 0, 6, "none", "relative", "3")
+        offset = 72 * 1
+        spawnBullet("normal", "#ffaa33", 200, agg, 0, 0, 6, "none", "relative", "3")
+        offset = 72 * 2
+        spawnBullet("normal", "#ffaa33", 200, agg, 0, 0, 6, "none", "relative", "3")
+        offset = 72 * 3
+        spawnBullet("normal", "#ffaa33", 200, agg, 0, 0, 6, "none", "relative", "3")
+        offset = 72 * 4
+        spawnBullet("normal", "#ffaa33", 200, agg, 0, 0, 6, "none", "relative", "3")
+    }
+}
+while (true) {
+    ey = 448
+    if (cardSecond == 1..50000) {
+        if (cardSecond == 0..15) {
+            spawnRingResist("normal", "#ff3333", 260, -agg, 5, 0, 0, 20, "b_ohuda", "relative", "6")
+            playSound("shot")
+            wait(0.15)
+        }
+        if (cardSecond == 5) {
+            playSound("change")
+        }
+        if (cardSecond == 10) {
+            playSound("change")
+        }
+        if (cardSecond == 15) {
+            playSound("change")
+        }
+        if (cardSecond == 20) {
+            playSound("boon01")
+        }
+        if (cardSecond == 25..40) {
+            spawnRingResist("normal", "#ff3333", 200, agg, 5, 0, 0, 20, "b_ohuda", "relative", "6")
+            playSound("shot")
+            wait(0.15)
+        }
+        if (cardSecond == 30) {
+            playSound("change")
+        }
+        if (cardSecond == 35) {
+            playSound("change")
+        }
+        if (cardSecond == 40) {
+            playSound("change")
+        }
+        if (cardSecond == 45) {
+            playSound("boon01")
+        }
+        if (cardSecond == 50..65) {
+            spawnRingResist("normal", "#ff3332", 160, agg * -10, 5, 0, 0, 20, "b_ohuda", "relative", "6")
+            playSound("shot")
+            wait(0.08)
+        }
+        if (cardSecond == 55) {
+            playSound("change")
+        }
+        if (cardSecond == 60) {
+            playSound("change")
+        }
+        if (cardSecond == 65) {
+            playSound("change")
+        }
+        if (cardSecond == 70) {
+            playSound("boon01")
+        }
+    }
+}
+while (true) {
+    tween("agg", 0, 360, "seconds", 15)
+    wait(15)
+}
+    `,
+    bulletScript: `
+if (color==#ffaa33) {
+    warningTime = 1
+    activeTime = 4
+    laserWidth = 60
+    angle = e_agg + offset
+}
+if (color !=#ffaa33) {
+    if (cardSecond == 5) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 10) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 15) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 20) {
+        aimAt(ex, ey)
+        color = #ff3333
+        hitRadius = 6
+    }
+    if (cardSecond == 20..25) {
+        speed += 1.5
+    }
+    if (cardSecond == 30) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 35) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 40) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 45) {
+        aimAt(ex, ey)
+        color = #ff3333
+        hitRadius = 6
+    }
+    if (cardSecond == 45..50) {
+        speed += 1.5
+    }
+    if (cardSecond == 55) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 60) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 65) {
+        speed = 0
+        color = #ffffff
+        hitRadius = 0
+    }
+    if (cardSecond == 70) {
+        aimAt(ex, ey)
+        color = #ff3333
+        hitRadius = 6
+    }
+    if (cardSecond == 70..73) {
+        speed += 0.5
+    }
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
