@@ -2691,6 +2691,56 @@ if (timer == 3..6) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "神「暗殺神」",
+    desc: "全方位反射+弾から出る+自機狙い←神すぎる",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 448
+    wait(1)
+    spawnRingResist("normal", "#ff3333", 200, 0, 6, 0, 0, 45, "ootama", "relative", "20")
+    wait(9)
+}
+    `,
+    bulletScript: `
+if (cardFrame == 30 * n) {
+    l = angle
+    aimAtTarget()
+    spawnRing("normal", "#ff3333", 200, angle, 3, 0, 0, 6, "light", "relative", "3")
+    angle = l
+}
+if (x < 10) {
+    once {
+        bounce()
+    }
+}
+if (x > 758) {
+    once {
+        bounce()
+    }
+}
+if (y < 10) {
+    once {
+        bounce()
+    }
+}
+if (y > 886) {
+    once {
+        angle = -angle
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
