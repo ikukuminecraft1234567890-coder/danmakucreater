@@ -2817,12 +2817,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                 item.className = 'custom-card-item';
                 
                 let descText = card.desc ? card.desc.replace('【自作カード】', '') : '';
-                const diff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(card.difficulty) : (card.difficulty || 'NORMAL');
-                const badgeClass = `difficulty-badge difficulty-${diff.toLowerCase()}`;
-                const badgeChar = diff.charAt(0).toUpperCase();
                 
                 item.innerHTML = `
-                    <div class="${badgeClass}">${badgeChar}</div>
                     <div class="custom-card-info">
                         <span class="custom-card-title">${card.name.replace('【A】', '')}</span>
                         <span class="custom-card-desc">${descText}</span>
