@@ -1854,3 +1854,25 @@ html,
                 grid-template-columns: repeat(2, minmax(120px, 1fr));
             }
         }
+
+        /* 難易度バッジスタイル */
+        .difficulty-badge {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 22px;
+            font-family: 'Cinzel', 'Noto Serif JP', serif;
+            color: #000000 !important;
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-right: 12px;
+            text-shadow: none !important;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        .difficulty-easy { background-color: #00ff00 !important; }
+        .difficulty-normal { background-color: #00ffff !important; }
+        .difficulty-hard { background-color: #ff0000 !important; }
+        .difficulty-lunatic { background-color: #ff00ff !important; }

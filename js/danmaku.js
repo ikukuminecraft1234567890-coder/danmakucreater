@@ -4,6 +4,7 @@
  * 弾幕を作ったら、以下のフォーマットでコピペして追加してください。
  * 
 ,{
+    difficulty: "NORMAL",
     name: "弾幕名",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
@@ -25,6 +26,7 @@
  */
 const sharedDanmakuList = [
     {
+        difficulty: "NORMAL",
         name: "【サンプル】スパイラルレイン",
         desc: "全方位に螺旋を描く弾を発射します（サンプル）",
         duration: 15,
@@ -51,6 +53,7 @@ if (isBounced) {
         magicCircleScript: ``
     },
     {
+        difficulty: "EASY",
         name: "華符「大輪舞転」",
         desc: "とにかく綺麗に作った。",
         duration: 30,
@@ -139,6 +142,7 @@ if (color == #ffffff) {
         magicCircleScript: ``
     },
     {
+    difficulty: "HARD",
     name: "サンライトインパクト~Normal~",
     desc: "ルナティックインパクトのパク...オマージュ。",
     duration: 50,            // 制限時間（秒）
@@ -202,6 +206,7 @@ if (m === 1) {
     `
     },
     {
+    difficulty: "LUNATIC",
     name: "サンライトインパクト",
     desc: "ルナティックインパクトのパク...オマージュ。",
     duration: 50,            // 制限時間（秒）
@@ -265,6 +270,7 @@ if (m === 1) {
     `
     },
     {
+    difficulty: "NORMAL",
     name: "弾幕の檻",
     desc: "自機狙いと自機外しの弾が発射され、壁に当たるとレーザーを放つ。もちろん殺意の百合のオマージュ",
     duration: 15,            // 制限時間（秒）
@@ -325,6 +331,7 @@ if (m === 1) {
     `
     },
     {
+    difficulty: "EASY",
     name: "超絶気合符「インフィニットスパイラル」",
     desc: "楽しい！好き！",
     duration: 15,            // 制限時間（秒）
@@ -356,6 +363,7 @@ if (y > 886) {
     `
     },
     {
+    difficulty: "HARD",
     name: "技符「陰陽掃除機」",
     desc: "完全パターンスペル。そこそこ作るのに苦労しました",
     duration: 30,            // 制限時間（秒）
@@ -408,6 +416,7 @@ if (shotTimer >= 12) {
     `
     },
     {
+    difficulty: "HARD",
     name: "上は洪水下は大火事",
     desc: "普通にお気に入りのスペル！楽しい！",
     duration: 32,            // 制限時間（秒）
@@ -455,6 +464,7 @@ spriteAngle = angle
     magicCircleScript: `
     `
     },{
+    difficulty: "NORMAL",
     name: "フラッシュレートレイン",
     desc: "雨と巨大レーザー！",
     duration: 30,            // 制限時間（秒）
@@ -517,6 +527,7 @@ if (y > 896) {
     `
 },
 {
+    difficulty: "Lunatic",
     name: "札と刃の境界",
     desc: "うおっ、となるスペルです。",
     duration: 65,            // 制限時間（秒）
@@ -653,6 +664,7 @@ once {
     `
 },
 {
+    difficulty: "Hard",
     name: "双毒「絡みつく赤大蛇」",
     desc: "クリアチェックはしました。",
     duration: 60,            // 制限時間（秒）
@@ -796,6 +808,7 @@ if (dist < 50) {
     `
 },
 {
+    difficulty: "LUNATIC",
     name: "旋風「ビッグトルネード」",
     desc: "圧倒的弾速、圧倒的気合避け",
     duration: 25,            // 制限時間（秒）
@@ -832,6 +845,7 @@ if (speed == 400..100000) {
     `
 },
 {
+    difficulty: "NORMAL",
     name: "偽符「ダブルスパイル」",
     desc: "攻略法が分かると簡単なタイプ。",
     duration: 25,            // 制限時間（秒）
@@ -872,6 +886,7 @@ if (frame = 2..3) {
     `
 },
 {
+    difficulty: "EASY",
     name: "秘儀「十三頭の龍」",
     desc: "結構いい感じに作れました。下からの反射を追加したことでそこそこの難易度になったかも...",
     duration: 30,            // 制限時間（秒）
@@ -932,6 +947,7 @@ if (x > 758) {
     `
 },
 {
+    difficulty: "EASY",
     name: "波符「白銀のタイダルウェーブ」",
     desc: "気づいたら星蓮船四面ボスのアレみたいになってた。",
     duration: 30,            // 制限時間（秒）
@@ -964,6 +980,7 @@ while (true) {
     `
 },
 {
+    difficulty: "EASY",
     name: "白銀のタルタルソース",
     desc: "",
     duration: 20,            // 制限時間（秒）
@@ -1005,6 +1022,7 @@ if (yp = -5..5) {
     `
 },
 {
+    difficulty: "Hard",
     name: "熱符「真紅たる太陽風」",
     desc: "交差する弾って...楽しいですよね。",
     duration: 20,            // 制限時間（秒）
@@ -1036,6 +1054,7 @@ spriteAngle = angle
     `
 },
 {
+    difficulty: "NORMAL",
     name: "忌符「フライングスター」",
     desc: "全方位反射って難しいですよねぇ...",
     duration: 30,            // 制限時間（秒）
@@ -1185,6 +1204,7 @@ spriteAngle = spriteAngle + 3
     `
 },
 {
+    difficulty: "NORMAL",
     name: "恕符「血濡れのアナザーディメンション」",
     desc: "どう見ても輝針城モチーフ。",
     duration: 30,            // 制限時間（秒）
@@ -1248,6 +1268,7 @@ while (true) {
     `
 },
 {
+    difficulty: "HARD",
     name: "真実「静焔のレプティリアン」",
     desc: "作ってる途中、赤色の幻想郷とレプティリアンインテリジェンスを行ったり来たりしてました。",
     duration: 35,            // 制限時間（秒）
@@ -1336,6 +1357,7 @@ spriteAngle = angle
     `
 },
 {
+    difficulty: "EASY",
     name: "「完全自動殺戮マシン」",
     desc: "弾から弾が出るスペルを作るのが楽しいんだよなあ！！",
     duration: 35,            // 制限時間（秒）
@@ -1371,6 +1393,7 @@ while (true) {
     `
 },
 {
+    difficulty: "NORMAL",
     name: "鋒符「尾を噛む龍」",
     desc: "万物は流転する。自らの尾を喰らう龍のように、終わりなき円環を描く。",
     duration: 35,            // 制限時間（秒）
@@ -1425,6 +1448,7 @@ if (timer == 3 - w2) {
     `
 },
 {
+    difficulty: "Lunatic",
     name: "蛇符「人間殺しの大白蛇」",
     desc: "最近こういうスペルしか作ってないｗ",
     duration: 35,            // 制限時間（秒）
@@ -1483,6 +1507,7 @@ if (timer > 1) {
     `
 },
 {
+    difficulty: "EASY",
     name: "獄符「スターアンドプリズン」",
     desc: "上下で挟んでくるタイプの弾幕。ちなみにガチで苦手。",
     duration: 35,            // 制限時間（秒）
@@ -1519,6 +1544,7 @@ m += 5
     `
 },
 {
+    difficulty: "NORMAL",
     name: "ドパ符「ドーパミンの極致」",
     desc: "ドーパドパドパドパｗｗｗｗｗドーパミンの放出は楽しいドパねぇｗｗｗｗｗｗｗｗ",
     duration: 10,            // 制限時間（秒）
@@ -1629,6 +1655,7 @@ if (color==#9E76B4) {
     `
 },
 {
+    difficulty: "LUNATIC",
     name: "奇跡「九字切り」",
     desc: "どうみても早苗のパクリです。本当にありがとうございました。",
     duration: 60,            // 制限時間（秒）
@@ -1685,6 +1712,7 @@ if (color == #ff3333) {
     `
 },
 {
+    difficulty: "LUNATIC",
     name: "威符「完全無欠の幾何学牢」",
     desc: "こいしのアレのパクリ",
     duration: 50,            // 制限時間（秒）
@@ -1710,6 +1738,7 @@ while (true) {
     `
 },
 {
+    difficulty: "NORMAL",
     name: "フラッシュアンドブラスト",
     desc: "マインブラストみたいなのが作ってみたくて...",
     duration: 44,            // 制限時間（秒）
@@ -1770,6 +1799,7 @@ if (color==#ff3333) {
     `
 },
 {
+    difficulty: "EASY",
     name: "輝く双炎の地",
     desc: "光弾を使ってみたかった。",
     duration: 35,            // 制限時間（秒）
@@ -1800,6 +1830,7 @@ for (let i = 0; i < 12000; i++) {
     `
 },
 {
+    difficulty: "NORMAL",
     name: "雷符「ライトニングスパーク」",
     desc: "どうみてもマスパ",
     duration: 30,            // 制限時間（秒）
@@ -1869,6 +1900,7 @@ spriteAngle += 3
     `
 },
 {
+    difficulty: "NORMAL",
     name: "彩符「天使の光輪」",
     desc: "結構面白く作れたと思う。難易度はしらん。",
     duration: 30,            // 制限時間（秒）
@@ -1932,6 +1964,7 @@ if (color==#ff33aa) {
     `
 },
 {
+    difficulty: "NORMAL",
     name: "「処刑人の剣」",
     desc: "気合避けスペルを作った。",
     duration: 40,            // 制限時間（秒）
@@ -1959,6 +1992,7 @@ speed += 1
     `
 },
 {
+    difficulty: "NORMAL",
     name: "橙藍",
     desc: "とても好み。",
     duration: 40,            // 制限時間（秒）
@@ -1989,6 +2023,7 @@ wait(2)
     `
 },
 {
+    difficulty: "Easy",
     name: "流符「弾幕の川」",
     desc: "軌道意味不明！",
     duration: 25,            // 制限時間（秒）
@@ -2029,6 +2064,7 @@ if (color == #ffffff) {
     `
 },
 {
+    difficulty: "Hard",
     name: "核熱「核分裂」",
     desc: "弾幕作りあるある。最初に作る弾幕を決めるんじゃなくて適当に作ってそれっぽい名前にする",
     duration: 33,            // 制限時間（秒）
@@ -2068,6 +2104,7 @@ if (timer == 0.2..1) {
     `
 },
 {
+    difficulty: "EASY",
     name: "四季符「完全な四種の季節」",
     desc: "6個も残機あるなら、55秒の超激ムズスペルでも許されますよね...?",
     duration: 55,            // 制限時間（秒）
@@ -2168,6 +2205,7 @@ if (timer == 0.8) {
     `
 },
 {
+    difficulty: "Normal",
     name: "華符「白銀の結晶」",
     desc: "たまには展開される系の弾幕も作る。",
     duration: 30,            // 制限時間（秒）
@@ -2217,6 +2255,7 @@ spriteAngle = angle
     `
 },
 {
+    difficulty: "EASY",
     name: "純符「純粋な光の粒子」",
     desc: "説明文や作成者名など",
     duration: 20,            // 制限時間（秒）
@@ -2249,6 +2288,7 @@ while (true) {
     `
 },
 {
+    difficulty: "Hard",
     name: "枝符「囚人の牢獄」",
     desc: "回転＆列抜け",
     duration: 40,            // 制限時間（秒）
@@ -2323,6 +2363,7 @@ if (color == #ffaa33) {
     `
 },
 {
+    difficulty: "NORMAL",
     name: "上は洪水、下は大火事(リメイク)",
     desc: "光弾が実装されたのでリメイク。",
     duration: 20,            // 制限時間（秒）
@@ -2376,6 +2417,7 @@ spriteAngle = angle
     `
 },
 {
+    difficulty: "Easy",
     name: "封符「停滞するレッドマジック」",
     desc: "直近でやった作品の弾幕っぽく作っちゃう病",
     duration: 40,            // 制限時間（秒）
@@ -2424,8 +2466,9 @@ if (timer == 7.5) {
     `
 },
 {
+    difficulty: "hard",
     name: "奥義「弾幕結界・陽」",
-    desc: "説明文や作成者名など",
+    desc: "白くなった奴には当たり判定ありません",
     duration: 78,            // 制限時間（秒）
     maxMisses: 3,
     x_offset: 0,             // 出現位置の横オフセット
@@ -2604,6 +2647,7 @@ spriteAngle = angle
 
 ,
 {
+    difficulty: "NORMAL",
     name: "弾幕名",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）

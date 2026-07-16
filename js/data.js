@@ -239,6 +239,10 @@
                 cc.maxMisses = 2;
                 changed = true;
             }
+            if (cc.difficulty === undefined) {
+                cc.difficulty = 'NORMAL';
+                changed = true;
+            }
             if (changed) {
                 applyCustomCardCosts(cc);
             }
@@ -276,6 +280,7 @@
                 rawCost: migrated.rawCost || migrated.cost,
                 desc: migrated.desc,
                 isCustom: true,
+                difficulty: migrated.difficulty || 'NORMAL',
                 emitterScript: migrated.emitterScript,
                 bulletScript: migrated.bulletScript,
                 magicCircleScript: migrated.magicCircleScript || []
@@ -296,6 +301,7 @@
                         cost: migrated.cost,
                         desc: migrated.desc,
                         isCustom: true,
+                        difficulty: migrated.difficulty || 'NORMAL',
                         emitterScript: JSON.parse(JSON.stringify(migrated.emitterScript || [])),
                         bulletScript: JSON.parse(JSON.stringify(migrated.bulletScript || [])),
                         magicCircleScript: JSON.parse(JSON.stringify(migrated.magicCircleScript || []))

@@ -1141,6 +1141,7 @@ function customCardMakerSwitchTab(tab) {
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
                 maxMisses: document.getElementById('custom-card-max-misses') ? parseInt(document.getElementById('custom-card-max-misses').value, 10) : 2,
+                difficulty: document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : 'NORMAL',
                 rawCost: cost,
                 cost: getCustomCardPlayCost(cost),
                 isCustom: true,
@@ -2589,6 +2590,12 @@ function customCardMakerSwitchTab(tab) {
                 playBtn.textContent = 'プレイ';
                 playBtn.onclick = () => playSharedDanmaku(idx);
                 
+                const diff = card.difficulty || 'NORMAL';
+                const badge = document.createElement('div');
+                badge.className = `difficulty-badge difficulty-${diff.toLowerCase()}`;
+                badge.textContent = diff.charAt(0);
+                
+                cardDiv.appendChild(badge);
                 cardDiv.appendChild(infoDiv);
                 cardDiv.appendChild(playBtn);
                 container.appendChild(cardDiv);

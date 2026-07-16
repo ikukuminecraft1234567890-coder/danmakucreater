@@ -2526,7 +2526,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         function parseSharedCard(decompressed) {
             const parsed = JSON.parse(decompressed);
             
-            let name, cost, desc, duration, emitterData, bulletData, magicCircleData, despawnTime;
+            let name, cost, desc, duration, emitterData, bulletData, magicCircleData, despawnTime, difficulty;
             
             if (Array.isArray(parsed)) {
                 // 配列形式のデシリアライズ (新フォーマット)
@@ -2538,6 +2538,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 bulletData = parsed[5] || [];
                 magicCircleData = parsed[6] || [];
                 despawnTime = parsed[7] !== undefined ? parsed[7] : 1.5;
+                difficulty = parsed[8] || 'NORMAL';
             } else {
                 // オブジェクト形式のデシリアライズ (旧フォーマット)
                 name = parsed.n || parsed.name || '無名カード';
@@ -2545,6 +2546,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 desc = parsed.d || parsed.desc || '';
                 duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
                 despawnTime = parsed.despawnTime !== undefined ? parsed.despawnTime : 1.5;
+                difficulty = parsed.difficulty || 'NORMAL';
                 
                 emitterData = parsed.e !== undefined ? parsed.e : parsed.emitterScript;
                 bulletData = parsed.b !== undefined ? parsed.b : parsed.bulletScript;
@@ -2595,6 +2597,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 desc: desc,
                 duration: duration,
                 despawnTime: despawnTime,
+                difficulty: difficulty,
                 emitterScript: emitterScript,
                 bulletScript: bulletScript,
                 magicCircleScript: magicCircleScript
@@ -2614,7 +2617,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     serializeBlocks(card.emitterScript || []),
                     serializeBlocks(card.bulletScript || []),
                     serializeBlocks(card.magicCircleScript || []),
-                    card.despawnTime !== undefined ? card.despawnTime : 1.5
+                    card.despawnTime !== undefined ? card.despawnTime : 1.5,
+                    card.difficulty || 'NORMAL'
                 ];
 
                 const jsonStr = JSON.stringify(miniCard);
@@ -2813,8 +2817,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                 item.className = 'custom-card-item';
                 
                 let descText = card.desc ? card.desc.replace('【自作カード】', '') : '';
+                const diff = card.difficulty || 'NORMAL';
+                const badgeClass = `difficulty-badge difficulty-${diff.toLowerCase()}`;
+                const badgeChar = diff.charAt(0);
                 
                 item.innerHTML = `
+                    <div class="${badgeClass}">${badgeChar}</div>
                     <div class="custom-card-info">
                         <span class="custom-card-title">${card.name.replace('【A】', '')}</span>
                         <span class="custom-card-desc">${descText}</span>
@@ -2853,6 +2861,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             let descVal = document.getElementById('custom-card-desc').value;
             let durationVal = document.getElementById('custom-card-duration') ? document.getElementById('custom-card-duration').value : customCardMaker.duration;
             customCardMaker.duration = getCustomCardDuration(durationVal);
+            let difficultyVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : (customCardMaker.difficulty || 'NORMAL');
+            customCardMaker.difficulty = difficultyVal;
             
             if (customCardMakerMode === 'code' && !skipCodeParse) {
                 let code = document.getElementById('workspace-code-textarea').value;
@@ -2871,6 +2881,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 name: nameVal,
                 desc: descVal,
                 duration: durationVal,
+                difficulty: difficultyVal,
                 activeTab: customCardMaker.activeTab,
                 customCardMakerMode: customCardMakerMode,
                 emitterScript: customCardMaker.emitterScript,
@@ -2908,6 +2919,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.desc = draftData.desc || 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = getCustomCardDuration(draftData.duration);
                 customCardMaker.maxMisses = draftData.maxMisses !== undefined ? Number(draftData.maxMisses) : 2;
+                customCardMaker.difficulty = draftData.difficulty || 'NORMAL';
                 customCardMaker.activeTab = draftData.activeTab || 'emitter';
                 customCardMaker.emitterScript = draftData.emitterScript || [];
                 customCardMaker.bulletScript = draftData.bulletScript || [];
@@ -2926,6 +2938,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset;
                 if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime;
                 if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses;
+                if (document.getElementById('custom-card-difficulty')) document.getElementById('custom-card-difficulty').value = customCardMaker.difficulty;
                 
                 document.getElementById('tab-btn-emitter').className = customCardMaker.activeTab === 'emitter' ? 'tab-btn active' : 'tab-btn';
                 document.getElementById('tab-btn-bullet').className = customCardMaker.activeTab === 'bullet' ? 'tab-btn active' : 'tab-btn';
@@ -3008,6 +3021,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.magicCircleScript = JSON.parse(JSON.stringify(migratedCard.magicCircleScript || []));
                 customCardMaker.despawnTime = migratedCard.despawnTime !== undefined ? migratedCard.despawnTime : 1.5;
                 customCardMaker.maxMisses = migratedCard.maxMisses !== undefined ? migratedCard.maxMisses : 2;
+                customCardMaker.difficulty = migratedCard.difficulty || 'NORMAL';
                 customCardMaker.testPassed = true;
                 document.getElementById('card-editor-title').textContent = "スペルカード編集";
             } else {
@@ -3017,6 +3031,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.duration = 15;
                 customCardMaker.despawnTime = 1.5;
                 customCardMaker.maxMisses = 2;
+                customCardMaker.difficulty = 'NORMAL';
                 customCardMaker.emitterScript = [
                     { type: 'repeat', params: { count: '12' }, indent: 0 },
                     { type: 'spawn_bullet', params: { bulletType: 'normal', color: '#ff3333', radius: '6', speed: '200', angle: 'angle' }, indent: 1 },
@@ -3040,6 +3055,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset || 0;
             if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime !== undefined ? customCardMaker.despawnTime : 1.5;
             if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses !== undefined ? customCardMaker.maxMisses : 2;
+            if (document.getElementById('custom-card-difficulty')) document.getElementById('custom-card-difficulty').value = customCardMaker.difficulty;
             
             renderCardMaker();
         }

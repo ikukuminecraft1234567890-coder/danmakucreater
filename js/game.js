@@ -3601,18 +3601,46 @@ function applyAbilityEffect(cardId, owner) {
             // ── スペルカード名を左上に表示 ──────────────────────────────
             if (gameState === 'BATTLE' && activeCards && activeCards[0]) {
                 ctx.save();
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'top';
-                ctx.font = "italic bold 16px 'Noto Serif JP', sans-serif";
-                // テキストのシャドウ（視認性向上）
+                
+                let card = activeCards[0];
+                let cardDiff = card.difficulty || 'NORMAL';
+                let diffChar = cardDiff.charAt(0).toUpperCase();
+                let diffColor = '#00ffff';
+                if (cardDiff === 'EASY') diffColor = '#00ff00';
+                else if (cardDiff === 'HARD') diffColor = '#ff0000';
+                else if (cardDiff === 'LUNATIC') diffColor = '#ff00ff';
+                
+                // 1. 難易度マークの正方形を描画
+                // シャドウ
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillText(activeCards[0].name, 12, 12);
-                // 金〜白のグラデーション
-                let grad = ctx.createLinearGradient(10, 10, 10, 26);
+                ctx.fillRect(11, 11, 24, 24);
+                // 本体
+                ctx.fillStyle = diffColor;
+                ctx.fillRect(10, 10, 24, 24);
+                
+                // 難易度文字
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = "bold 18px 'Cinzel', monospace";
+                ctx.fillStyle = '#000000';
+                ctx.fillText(diffChar, 22, 22);
+                
+                // 2. スペルカード名を描画
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.font = "italic bold 16px 'Noto Serif JP', sans-serif";
+                
+                // カード名シャドウ
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillText(card.name, 46, 24);
+                
+                // カード名本体（金〜白のグラデーション）
+                let grad = ctx.createLinearGradient(44, 14, 44, 30);
                 grad.addColorStop(0, '#ffffff');
                 grad.addColorStop(1, '#ffe066');
                 ctx.fillStyle = grad;
-                ctx.fillText(activeCards[0].name, 10, 10);
+                ctx.fillText(card.name, 44, 22);
+                
                 ctx.restore();
             }
 
