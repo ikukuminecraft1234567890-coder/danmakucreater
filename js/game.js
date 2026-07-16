@@ -4260,7 +4260,8 @@ function applyAbilityEffect(cardId, owner) {
             const keysToCompile = new Set([
                 'speed', 'angle', 'duration', 'delay', 'effect', 'count', 'spread', 
                 'offsetX', 'offsetY', 'radius', 'hitRadius', 'value', 'cond', 
-                'warningTime', 'activeTime', 'laserWidth', 'targetX', 'targetY'
+                'warningTime', 'activeTime', 'laserWidth', 'targetX', 'targetY',
+                'distance'
             ]);
 
             for (let block of flatBlocks) {

@@ -1819,6 +1819,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 break;
                             }
+                            case 'advance': {
+                                let dist = evalExpr(block.params.distance || '50', state.variables, block, 'distance');
+                                let rad = (Number(state.variables.angle) || 0) * Math.PI / 180;
+                                state.variables.x = (Number(state.variables.x) || 0) + Math.cos(rad) * dist;
+                                state.variables.y = (Number(state.variables.y) || 0) + Math.sin(rad) * dist;
+                                break;
+                            }
                             case 'tween_var':
                             case 'tween_var_wait': {
                                 let varName = block.params.name || 'angle';
@@ -2127,6 +2134,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     return 0;
                 case 'spawn_bullet':
                 case 'bounce':
+                case 'advance':
                     return 1;
                 case 'speed_scale':
                     return 1;
@@ -2468,7 +2476,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             'color_set': ['value'],
             'speed_scale_slow': ['effect', 'delay'],
             'speed_scale_fast': ['effect', 'delay'],
-            'bounce': []
+            'bounce': [],
+            'advance': ['distance']
         };
 
         const BLOCK_TYPE_MAP = {
@@ -2481,7 +2490,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             'spawn_way': 'sw', 'spawn_way_resist': 'swr',
             'homing': 'h', 'speed_add': 'sa', 'speed_set': 'ss',
             'angle_add': 'aa', 'angle_set': 'as', 'color_set': 'cs',
-            'speed_scale_slow': 'sls', 'speed_scale_fast': 'ssf', 'bounce': 'b'
+            'speed_scale_slow': 'sls', 'speed_scale_fast': 'ssf', 'bounce': 'b',
+            'advance': 'ad'
         };
 
         const BLOCK_TYPE_REVERSE_MAP = {};

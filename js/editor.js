@@ -177,6 +177,8 @@ function customCardMakerSwitchTab(tab) {
                 block.params.duration = '1';
                 block.params.stepVal = '5';
                 block.params.easing = 'linear';
+            } else if (type === 'advance') {
+                block.params.distance = '50';
             } else if (type === 'once') {
                 block.params = {};
             }
@@ -289,6 +291,7 @@ function customCardMakerSwitchTab(tab) {
             document.getElementById('palette-btn-slow').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-fast').style.display = (tab === 'bullet') ? 'block' : 'none';
             document.getElementById('palette-btn-bounce').style.display = (tab === 'bullet') ? 'block' : 'none';
+            document.getElementById('palette-btn-advance').style.display = (tab === 'bullet') ? 'block' : 'none';
             
             let container = document.getElementById('workspace-blocks-container');
             container.innerHTML = '';
@@ -920,6 +923,15 @@ function customCardMakerSwitchTab(tab) {
                                 ${renderBlockControls(idx)}
                             `;
                             break;
+                        case 'advance':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] 進行方向に </span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.distance || '50'}" onchange="customCardMakerUpdateParam(${idx}, 'distance', this.value)">
+                                <span> px進める</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
                     }
                     
                     blockDiv.innerHTML = html;
@@ -1531,6 +1543,9 @@ function customCardMakerSwitchTab(tab) {
                     case 'bounce':
                         line = `bounce()`;
                         break;
+                    case 'advance':
+                        line = `advance(${b.params.distance || '50'})`;
+                        break;
                     case 'set_laser':
                         line = `warningTime = ${b.params.warningTime || '1.0'}\n${indentStr}activeTime = ${b.params.activeTime || '1.5'}\n${indentStr}laserWidth = ${b.params.laserWidth || '12'}`;
                         break;
@@ -1704,6 +1719,8 @@ function customCardMakerSwitchTab(tab) {
                     }
                     let mBounce = trimmed.match(/^bounce\(\)$/i);
                     if (mBounce) block = { type: 'bounce', params: {}, indent };
+                    let mAdvance = trimmed.match(/^advance\((.*?)\)$/i);
+                    if (mAdvance) block = { type: 'advance', params: { distance: mAdvance[1].trim() }, indent };
                     let mOnce = trimmed.match(/^once(\(\))?$/i);
                     if (mOnce) block = { type: 'once', params: {}, indent };
                     let mHoming = trimmed.match(/^homing\((.*?)\)$/i);
@@ -2101,6 +2118,10 @@ function customCardMakerSwitchTab(tab) {
                 let mBounce = trimmed.match(/^bounce\(\)$/i);
                 if (mBounce) {
                     block = { type: 'bounce', params: {}, indent: indent };
+                }
+                let mAdvance = trimmed.match(/^advance\((.*?)\)$/i);
+                if (mAdvance) {
+                    block = { type: 'advance', params: { distance: mAdvance[1].trim() }, indent: indent };
                 }
                 let mOnce = trimmed.match(/^once(\(\))?$/i);
                 if (mOnce) {
