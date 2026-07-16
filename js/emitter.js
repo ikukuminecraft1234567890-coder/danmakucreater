@@ -2817,9 +2817,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                 item.className = 'custom-card-item';
                 
                 let descText = card.desc ? card.desc.replace('【自作カード】', '') : '';
-                const diff = card.difficulty || 'NORMAL';
+                const diff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(card.difficulty) : (card.difficulty || 'NORMAL');
                 const badgeClass = `difficulty-badge difficulty-${diff.toLowerCase()}`;
-                const badgeChar = diff.charAt(0);
+                const badgeChar = diff.charAt(0).toUpperCase();
                 
                 item.innerHTML = `
                     <div class="${badgeClass}">${badgeChar}</div>
@@ -2862,6 +2862,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             let durationVal = document.getElementById('custom-card-duration') ? document.getElementById('custom-card-duration').value : customCardMaker.duration;
             customCardMaker.duration = getCustomCardDuration(durationVal);
             let difficultyVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : (customCardMaker.difficulty || 'NORMAL');
+            difficultyVal = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(difficultyVal) : difficultyVal.toUpperCase();
             customCardMaker.difficulty = difficultyVal;
             
             if (customCardMakerMode === 'code' && !skipCodeParse) {

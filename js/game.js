@@ -3599,12 +3599,11 @@ function applyAbilityEffect(cardId, owner) {
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
             // ── スペルカード名を左上に表示 ──────────────────────────────
-            // ── スペルカード名を左上に表示 ──────────────────────────────
             if (gameState === 'BATTLE' && activeCards && activeCards[0]) {
                 ctx.save();
                 
                 let card = activeCards[0];
-                let cardDiff = card.difficulty || 'NORMAL';
+                let cardDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(card.difficulty) : (card.difficulty || 'NORMAL');
                 let diffChar = cardDiff.charAt(0).toUpperCase();
                 
                 // グラデーションの定義

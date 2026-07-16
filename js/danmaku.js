@@ -2466,7 +2466,7 @@ if (timer == 7.5) {
     `
 },
 {
-    difficulty: "hard",
+    difficulty: "Hard",
     name: "奥義「弾幕結界・陽」",
     desc: "白くなった奴には当たり判定ありません",
     duration: 78,            // 制限時間（秒）

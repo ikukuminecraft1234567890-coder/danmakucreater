@@ -1,3 +1,20 @@
+        function normalizeDifficulty(diff) {
+            if (!diff) return 'NORMAL';
+            let d = diff.toString().toUpperCase().trim();
+            if (d === 'E' || d === 'EASY') return 'EASY';
+            if (d === 'N' || d === 'NORMAL') return 'NORMAL';
+            if (d === 'H' || d === 'HARD') return 'HARD';
+            if (d === 'L' || d === 'LUNATIC') return 'LUNATIC';
+            
+            if (d.includes('EASY')) return 'EASY';
+            if (d.includes('HARD')) return 'HARD';
+            if (d.includes('LUNATIC')) return 'LUNATIC';
+            if (d.includes('NORMAL')) return 'NORMAL';
+            
+            return 'NORMAL';
+        }
+        window.normalizeDifficulty = normalizeDifficulty;
+
         window.showDebugProfiler = false;
         let currentEditingDeck = null;
         let isGameRunning = false;
@@ -242,6 +259,12 @@
             if (cc.difficulty === undefined) {
                 cc.difficulty = 'NORMAL';
                 changed = true;
+            } else {
+                let normalized = normalizeDifficulty(cc.difficulty);
+                if (normalized !== cc.difficulty) {
+                    cc.difficulty = normalized;
+                    changed = true;
+                }
             }
             if (changed) {
                 applyCustomCardCosts(cc);
