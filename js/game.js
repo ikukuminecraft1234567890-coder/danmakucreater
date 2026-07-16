@@ -3646,7 +3646,16 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.font = "bold 20px 'Permanent Marker', sans-serif";
+                
+                // 黒の輪郭線シャドウ
                 ctx.fillStyle = '#000000';
+                ctx.fillText(diffChar, 21, 23.5);
+                ctx.fillText(diffChar, 23, 23.5);
+                ctx.fillText(diffChar, 22, 22.5);
+                ctx.fillText(diffChar, 22, 24.5);
+                
+                // 文字本体（白）
+                ctx.fillStyle = '#ffffff';
                 ctx.fillText(diffChar, 22, 23.5); // 微妙に下げることで中央揃えを完璧にする
                 
                 // 2. スペルカード名を描画

@@ -1867,11 +1867,11 @@ html,
             font-weight: bold;
             font-size: 28px;
             font-family: 'Permanent Marker', cursive, sans-serif;
-            color: #000000 !important;
+            color: #ffffff !important;
             border-radius: 6px;
             flex-shrink: 0;
             margin-right: 12px;
-            text-shadow: none !important;
+            text-shadow: 0px 2px 3px rgba(0, 0, 0, 0.9), -1px -1px 0 rgba(0,0,0,0.8), 1px -1px 0 rgba(0,0,0,0.8), -1px 1px 0 rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.8) !important;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             line-height: 1;
             padding-bottom: 2px; /* 垂直方向の表示微調整 */
