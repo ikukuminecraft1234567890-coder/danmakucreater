@@ -2634,6 +2634,63 @@ spriteAngle = angle
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "否符「生命搾取」",
+    desc: "タッチだと簡単です。",
+    duration: 32,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置否横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 0,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 2; i++) {
+        wait(1.5)
+        sp = 550
+        ll = 4
+        for (let i = 0; i < 120; i++) {
+            sp -= 5
+            angle += 6 + ll
+            spawnRingResist("normal", "#ff3333", 0, angle, 12, 0, 0, 6, "light", "relative", "3")
+            //spawnRingResist("normal", "#ffffff", 0, angle, 20, 0, 0, 4, "none", "relative", "3")
+            wait(0.03)
+            ll -= 0.02
+        }
+        wait(2)
+        wait(1.5)
+        sp = 550
+        ll = 4
+        for (let i = 0; i < 120; i++) {
+            sp -= 5
+            angle -= 6 + ll
+            spawnRingResist("normal", "#3333ff", 0, angle, 12, 0, 0, 6, "light", "relative", "3")
+            //spawnRingResist("normal", "#ffffff", 0, angle, 20, 0, 0, 4, "none", "relative", "3")
+            wait(0.03)
+            ll -= 0.02
+        }
+        wait(2)
+    }
+    wait(20)
+}
+    `,
+    bulletScript: `
+once {
+    hitRadius = 0
+    advance(sp / 4)
+    speed = 50
+    wait(0.5)
+    hitRadius = 3
+}
+if (timer == 3..6) {
+    speed += 1
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 ];
