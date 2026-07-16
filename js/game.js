@@ -3599,31 +3599,55 @@ function applyAbilityEffect(cardId, owner) {
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
             // ── スペルカード名を左上に表示 ──────────────────────────────
+            // ── スペルカード名を左上に表示 ──────────────────────────────
             if (gameState === 'BATTLE' && activeCards && activeCards[0]) {
                 ctx.save();
                 
                 let card = activeCards[0];
                 let cardDiff = card.difficulty || 'NORMAL';
                 let diffChar = cardDiff.charAt(0).toUpperCase();
-                let diffColor = '#00ffff';
-                if (cardDiff === 'EASY') diffColor = '#00ff00';
-                else if (cardDiff === 'HARD') diffColor = '#ff0000';
-                else if (cardDiff === 'LUNATIC') diffColor = '#ff00ff';
+                
+                // グラデーションの定義
+                let badgeGrad = ctx.createLinearGradient(10, 10, 34, 34);
+                if (cardDiff === 'EASY') {
+                    badgeGrad.addColorStop(0, '#00b09b');
+                    badgeGrad.addColorStop(1, '#96c93d');
+                } else if (cardDiff === 'HARD') {
+                    badgeGrad.addColorStop(0, '#ff416c');
+                    badgeGrad.addColorStop(1, '#ff4b2b');
+                } else if (cardDiff === 'LUNATIC') {
+                    badgeGrad.addColorStop(0, '#f80759');
+                    badgeGrad.addColorStop(1, '#bc4e9c');
+                } else {
+                    badgeGrad.addColorStop(0, '#00c6ff');
+                    badgeGrad.addColorStop(1, '#0072ff');
+                }
+                
+                // 角丸四角形描画用の簡易ヘルパー
+                const drawRoundRect = (x, y, w, h, r) => {
+                    if (ctx.roundRect) {
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, w, h, r);
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(x, y, w, h);
+                    }
+                };
                 
                 // 1. 難易度マークの正方形を描画
                 // シャドウ
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(11, 11, 24, 24);
+                drawRoundRect(11, 11, 24, 24, 4);
                 // 本体
-                ctx.fillStyle = diffColor;
-                ctx.fillRect(10, 10, 24, 24);
+                ctx.fillStyle = badgeGrad;
+                drawRoundRect(10, 10, 24, 24, 4);
                 
                 // 難易度文字
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.font = "bold 18px 'Cinzel', monospace";
+                ctx.font = "bold 20px 'Permanent Marker', sans-serif";
                 ctx.fillStyle = '#000000';
-                ctx.fillText(diffChar, 22, 22);
+                ctx.fillText(diffChar, 22, 23.5); // 微妙に下げることで中央揃えを完璧にする
                 
                 // 2. スペルカード名を描画
                 ctx.textAlign = 'left';
