@@ -2636,7 +2636,7 @@ spriteAngle = angle
     `
 },
 {
-    difficulty: "Hard",
+    difficulty: "NORMAL",
     name: "「常闇幻朧月睨」",
     desc: "説明文や作成者名など",
     duration: 30,            // 制限時間（秒）
