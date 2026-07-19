@@ -161,6 +161,79 @@ function customCardMakerSwitchTab(tab) {
                 block.params.color = '#00ffff';
                 block.params.offsetX = '50';
                 block.params.offsetY = '-50';
+            } else if (type === 'spawn_trail' || type === 'spawn_trail_resist') {
+                block.type = type;
+                block.params.bulletType = 'trail';
+                block.params.color = '#00ffff';
+                block.params.speed = '200';
+                block.params.angle = 'angle';
+                block.params.offsetX = '0';
+                block.params.offsetY = '0';
+                block.params.radius = '8';
+                block.params.growTime = '0.2';
+                block.params.keepTime = '0.3';
+                block.params.shrinkTime = '0.5';
+                block.params.round = 'true';
+                block.params.coordMode = 'relative';
+                block.params.hitRadius = '';
+            } else if (type === 'spawn_laser_way' || type === 'spawn_laser_way_resist') {
+                block.type = type;
+                block.params.bulletType = 'laser';
+                block.params.color = '#ff3333';
+                block.params.speed = '200';
+                block.params.angle = 'angle';
+                block.params.count = '3';
+                block.params.spread = '45';
+                block.params.offsetX = '0';
+                block.params.offsetY = '0';
+                block.params.radius = '6';
+                block.params.coordMode = 'relative';
+                block.params.hitRadius = '';
+            } else if (type === 'spawn_laser_ring' || type === 'spawn_laser_ring_resist') {
+                block.type = type;
+                block.params.bulletType = 'laser';
+                block.params.color = '#ff3333';
+                block.params.speed = '200';
+                block.params.angle = 'angle';
+                block.params.count = '12';
+                block.params.offsetX = '0';
+                block.params.offsetY = '0';
+                block.params.radius = '6';
+                block.params.coordMode = 'relative';
+                block.params.hitRadius = '';
+            } else if (type === 'spawn_beam' || type === 'spawn_beam_resist') {
+                block.type = type;
+                block.params.warningTime = '1.0';
+                block.params.activeTime = '1.5';
+                block.params.laserWidth = '12';
+                block.params.angle = 'angle';
+                block.params.offsetX = '0';
+                block.params.offsetY = '0';
+                block.params.coordMode = 'relative';
+                block.params.hitRadius = '';
+            } else if (type === 'spawn_beam_way' || type === 'spawn_beam_way_resist') {
+                block.type = type;
+                block.params.warningTime = '1.0';
+                block.params.activeTime = '1.5';
+                block.params.laserWidth = '12';
+                block.params.angle = 'angle';
+                block.params.count = '3';
+                block.params.spread = '45';
+                block.params.offsetX = '0';
+                block.params.offsetY = '0';
+                block.params.coordMode = 'relative';
+                block.params.hitRadius = '';
+            } else if (type === 'spawn_beam_ring' || type === 'spawn_beam_ring_resist') {
+                block.type = type;
+                block.params.warningTime = '1.0';
+                block.params.activeTime = '1.5';
+                block.params.laserWidth = '12';
+                block.params.angle = 'angle';
+                block.params.count = '12';
+                block.params.offsetX = '0';
+                block.params.offsetY = '0';
+                block.params.coordMode = 'relative';
+                block.params.hitRadius = '';
             } else if (type === 'speed_scale_slow') {
                 block.type = 'speed_scale'; block.params.mode = 'slow'; block.params.effect = '0.5'; block.params.delay = '0';
             } else if (type === 'speed_scale_fast') {
@@ -838,6 +911,219 @@ function customCardMakerSwitchTab(tab) {
                                 ${renderBlockControls(idx)}
                             `;
                             break;
+                        case 'spawn_trail':
+                        case 'spawn_trail_resist': {
+                            let isRes = b.type === 'spawn_trail_resist';
+                            blockDiv.className = 'maker-block color-action';
+                            if (isRes) blockDiv.style.border = '1.5px dashed #ffb833';
+                            html = `
+                                <span style="${isRes ? 'color:#ffcc66; font-weight:bold;' : ''}">[発射] 軌跡弾${isRes ? '(耐性)' : ''} - 色:</span>
+                                <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#00ffff'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
+                                <span>速度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed || '200'}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
+                                <span>角度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle || 'angle'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>半径:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '8'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <span>発生:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.growTime || '0.2'}" onchange="customCardMakerUpdateParam(${idx}, 'growTime', this.value)">
+                                <span>持続:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.keepTime || '0.3'}" onchange="customCardMakerUpdateParam(${idx}, 'keepTime', this.value)">
+                                <span>縮小:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.shrinkTime || '0.5'}" onchange="customCardMakerUpdateParam(${idx}, 'shrinkTime', this.value)">
+                                <span>丸み:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'round', this.value)">
+                                    <option value="true" ${b.params.round !== 'false' && b.params.round !== false ? 'selected' : ''}>あり</option>
+                                    <option value="false" ${b.params.round === 'false' || b.params.round === false ? 'selected' : ''}>なし</option>
+                                </select>
+                                <span>X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        }
+                        case 'spawn_laser_way':
+                        case 'spawn_laser_way_resist': {
+                            let isRes = b.type === 'spawn_laser_way_resist';
+                            blockDiv.className = 'maker-block color-action';
+                            if (isRes) blockDiv.style.border = '1.5px dashed #ffb833';
+                            html = `
+                                <span style="${isRes ? 'color:#ffcc66; font-weight:bold;' : ''}">[発射] 軌跡弾Way${isRes ? '(耐性)' : ''} - 色:</span>
+                                <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
+                                <span>速度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed || '200'}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
+                                <span>中心角:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle || 'angle'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>弾数:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count || '3'}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
+                                <span>分散角:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.spread || '45'}" onchange="customCardMakerUpdateParam(${idx}, 'spread', this.value)">
+                                <span>半径:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <span>発生:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.growTime || '0.2'}" onchange="customCardMakerUpdateParam(${idx}, 'growTime', this.value)">
+                                <span>持続:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.keepTime || '0.3'}" onchange="customCardMakerUpdateParam(${idx}, 'keepTime', this.value)">
+                                <span>縮小:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.shrinkTime || '0.5'}" onchange="customCardMakerUpdateParam(${idx}, 'shrinkTime', this.value)">
+                                <span>丸み:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'round', this.value)">
+                                    <option value="true" ${b.params.round !== 'false' && b.params.round !== false ? 'selected' : ''}>あり</option>
+                                    <option value="false" ${b.params.round === 'false' || b.params.round === false ? 'selected' : ''}>なし</option>
+                                </select>
+                                <span>X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        }
+                        case 'spawn_laser_ring':
+                        case 'spawn_laser_ring_resist': {
+                            let isRes = b.type === 'spawn_laser_ring_resist';
+                            blockDiv.className = 'maker-block color-action';
+                            if (isRes) blockDiv.style.border = '1.5px dashed #ffb833';
+                            html = `
+                                <span style="${isRes ? 'color:#ffcc66; font-weight:bold;' : ''}">[発射] 軌跡弾Ring${isRes ? '(耐性)' : ''} - 色:</span>
+                                <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
+                                <span>速度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed || '200'}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
+                                <span>角度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>弾数:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count || '12'}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
+                                <span>半径:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <span>発生:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.growTime || '0.2'}" onchange="customCardMakerUpdateParam(${idx}, 'growTime', this.value)">
+                                <span>持続:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.keepTime || '0.3'}" onchange="customCardMakerUpdateParam(${idx}, 'keepTime', this.value)">
+                                <span>縮小:</span>
+                                <input type="text" list="val-suggestions" style="width:35px;" value="${b.params.shrinkTime || '0.5'}" onchange="customCardMakerUpdateParam(${idx}, 'shrinkTime', this.value)">
+                                <span>丸み:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'round', this.value)">
+                                    <option value="true" ${b.params.round !== 'false' && b.params.round !== false ? 'selected' : ''}>あり</option>
+                                    <option value="false" ${b.params.round === 'false' || b.params.round === false ? 'selected' : ''}>なし</option>
+                                </select>
+                                <span>X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        }
+                        case 'spawn_beam':
+                        case 'spawn_beam_resist': {
+                            let isRes = b.type === 'spawn_beam_resist';
+                            blockDiv.className = 'maker-block color-action';
+                            if (isRes) blockDiv.style.border = '1.5px dashed #ffb833';
+                            html = `
+                                <span style="${isRes ? 'color:#ffcc66; font-weight:bold;' : ''}">[発射] 設置レーザー${isRes ? '(耐性)' : ''} - 予告:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.warningTime || '1.0'}" onchange="customCardMakerUpdateParam(${idx}, 'warningTime', this.value)">
+                                <span>秒, 照射:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.activeTime || '1.5'}" onchange="customCardMakerUpdateParam(${idx}, 'activeTime', this.value)">
+                                <span>秒, 太さ:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.laserWidth || '12'}" onchange="customCardMakerUpdateParam(${idx}, 'laserWidth', this.value)">
+                                <span>角度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle || 'angle'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        }
+                        case 'spawn_beam_way':
+                        case 'spawn_beam_way_resist': {
+                            let isRes = b.type === 'spawn_beam_way_resist';
+                            blockDiv.className = 'maker-block color-action';
+                            if (isRes) blockDiv.style.border = '1.5px dashed #ffb833';
+                            html = `
+                                <span style="${isRes ? 'color:#ffcc66; font-weight:bold;' : ''}">[発射] 設置レーザーWay${isRes ? '(耐性)' : ''} - 予告:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.warningTime || '1.0'}" onchange="customCardMakerUpdateParam(${idx}, 'warningTime', this.value)">
+                                <span>秒, 照射:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.activeTime || '1.5'}" onchange="customCardMakerUpdateParam(${idx}, 'activeTime', this.value)">
+                                <span>秒, 太さ:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.laserWidth || '12'}" onchange="customCardMakerUpdateParam(${idx}, 'laserWidth', this.value)">
+                                <span>中心角:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle || 'angle'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>本数:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count || '3'}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
+                                <span>分散角:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.spread || '45'}" onchange="customCardMakerUpdateParam(${idx}, 'spread', this.value)">
+                                <span>X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        }
+                        case 'spawn_beam_ring':
+                        case 'spawn_beam_ring_resist': {
+                            let isRes = b.type === 'spawn_beam_ring_resist';
+                            blockDiv.className = 'maker-block color-action';
+                            if (isRes) blockDiv.style.border = '1.5px dashed #ffb833';
+                            html = `
+                                <span style="${isRes ? 'color:#ffcc66; font-weight:bold;' : ''}">[発射] 設置レーザーRing${isRes ? '(耐性)' : ''} - 予告:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.warningTime || '1.0'}" onchange="customCardMakerUpdateParam(${idx}, 'warningTime', this.value)">
+                                <span>秒, 照射:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.activeTime || '1.5'}" onchange="customCardMakerUpdateParam(${idx}, 'activeTime', this.value)">
+                                <span>秒, 太さ:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.laserWidth || '12'}" onchange="customCardMakerUpdateParam(${idx}, 'laserWidth', this.value)">
+                                <span>角度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>本数:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.count || '12'}" onchange="customCardMakerUpdateParam(${idx}, 'count', this.value)">
+                                <span>X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${b.params.coordMode === 'relative' ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${b.params.coordMode === 'absolute' ? 'selected' : ''}>絶対座標</option>
+                                </select>
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        }
                         case 'spawn_magic_circle':
                             blockDiv.className = 'maker-block color-action';
                             html = `
@@ -1003,6 +1289,9 @@ function customCardMakerSwitchTab(tab) {
             }
             
             isCustomCardTesting = true;
+            if (typeof checkBulletTouchRequirement === 'function') {
+                checkBulletTouchRequirement();
+            }
             currentTestPlaySource = 'maker';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
@@ -1507,6 +1796,100 @@ function customCardMakerSwitchTab(tab) {
                         }
                         break;
                     }
+                    case 'spawn_trail':
+                    case 'spawn_trail_resist': {
+                        let fnName = b.type === 'spawn_trail_resist' ? 'spawnTrailResist' : 'spawnTrail';
+                        let col = b.params.color || '#00ffff';
+                        let spd = b.params.speed || '200';
+                        let ang = b.params.angle || 'angle';
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        let rad = b.params.radius || '8';
+                        let gt = b.params.growTime || '0.2';
+                        let kt = b.params.keepTime || '0.3';
+                        let st = b.params.shrinkTime || '0.5';
+                        let rnd = b.params.round || 'true';
+                        let cm = b.params.coordMode || 'relative';
+                        let hr = b.params.hitRadius || '';
+                        line = `${fnName}(${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, ${gt}, ${kt}, ${st}, "${rnd}", "${cm}", ${formatCodeColorArg(hr)})`;
+                        break;
+                    }
+                    case 'spawn_laser_way':
+                    case 'spawn_laser_way_resist': {
+                        let fnName = b.type === 'spawn_laser_way_resist' ? 'spawnLaserWayResist' : 'spawnLaserWay';
+                        let col = b.params.color || '#ff3333';
+                        let rad = b.params.radius || '6';
+                        let spd = b.params.speed || '200';
+                        let ang = b.params.angle || 'angle';
+                        let cnt = b.params.count || '3';
+                        let spr = b.params.spread || '45';
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        let cm = b.params.coordMode || 'relative';
+                        let hr = b.params.hitRadius || '';
+                        line = `${fnName}(${formatCodeColorArg(col)}, ${rad}, ${spd}, ${ang}, ${cnt}, ${spr}, ${ox}, ${oy}, "${cm}", ${formatCodeColorArg(hr)})`;
+                        break;
+                    }
+                    case 'spawn_laser_ring':
+                    case 'spawn_laser_ring_resist': {
+                        let fnName = b.type === 'spawn_laser_ring_resist' ? 'spawnLaserRingResist' : 'spawnLaserRing';
+                        let col = b.params.color || '#ff3333';
+                        let rad = b.params.radius || '6';
+                        let spd = b.params.speed || '200';
+                        let ang = b.params.angle || '0';
+                        let cnt = b.params.count || '12';
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        let cm = b.params.coordMode || 'relative';
+                        let hr = b.params.hitRadius || '';
+                        line = `${fnName}(${formatCodeColorArg(col)}, ${rad}, ${spd}, ${ang}, ${cnt}, ${ox}, ${oy}, "${cm}", ${formatCodeColorArg(hr)})`;
+                        break;
+                    }
+                    case 'spawn_beam':
+                    case 'spawn_beam_resist': {
+                        let fnName = b.type === 'spawn_beam_resist' ? 'spawnBeamResist' : 'spawnBeam';
+                        let wt = b.params.warningTime || '1.0';
+                        let at = b.params.activeTime || '1.5';
+                        let lw = b.params.laserWidth || '12';
+                        let ang = b.params.angle || 'angle';
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        let cm = b.params.coordMode || 'relative';
+                        let hr = b.params.hitRadius || '';
+                        line = `${fnName}(${wt}, ${at}, ${lw}, ${ang}, ${ox}, ${oy}, "${cm}", ${formatCodeColorArg(hr)})`;
+                        break;
+                    }
+                    case 'spawn_beam_way':
+                    case 'spawn_beam_way_resist': {
+                        let fnName = b.type === 'spawn_beam_way_resist' ? 'spawnBeamWayResist' : 'spawnBeamWay';
+                        let wt = b.params.warningTime || '1.0';
+                        let at = b.params.activeTime || '1.5';
+                        let lw = b.params.laserWidth || '12';
+                        let ang = b.params.angle || 'angle';
+                        let cnt = b.params.count || '3';
+                        let spr = b.params.spread || '45';
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        let cm = b.params.coordMode || 'relative';
+                        let hr = b.params.hitRadius || '';
+                        line = `${fnName}(${wt}, ${at}, ${lw}, ${ang}, ${cnt}, ${spr}, ${ox}, ${oy}, "${cm}", ${formatCodeColorArg(hr)})`;
+                        break;
+                    }
+                    case 'spawn_beam_ring':
+                    case 'spawn_beam_ring_resist': {
+                        let fnName = b.type === 'spawn_beam_ring_resist' ? 'spawnBeamRingResist' : 'spawnBeamRing';
+                        let wt = b.params.warningTime || '1.0';
+                        let at = b.params.activeTime || '1.5';
+                        let lw = b.params.laserWidth || '12';
+                        let ang = b.params.angle || '0';
+                        let cnt = b.params.count || '12';
+                        let ox = b.params.offsetX || '0';
+                        let oy = b.params.offsetY || '0';
+                        let cm = b.params.coordMode || 'relative';
+                        let hr = b.params.hitRadius || '';
+                        line = `${fnName}(${wt}, ${at}, ${lw}, ${ang}, ${cnt}, ${ox}, ${oy}, "${cm}", ${formatCodeColorArg(hr)})`;
+                        break;
+                    }
                     case 'spawn_magic_circle': {
                         let col = b.params.color || '#00ffff';
                         let ox = b.params.offsetX || '0';
@@ -1908,6 +2291,133 @@ function customCardMakerSwitchTab(tab) {
                             indent
                         };
                     }
+                    let mSpawnTrail = trimmed.match(/^spawnTrail(Resist)?\((.*?)\)$/i);
+                    if (mSpawnTrail) {
+                        let isRes = !!mSpawnTrail[1];
+                        let args = splitArgs(mSpawnTrail[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: isRes ? 'spawn_trail_resist' : 'spawn_trail',
+                            params: {
+                                bulletType: 'trail',
+                                color: args[0] || '#00ffff',
+                                speed: args[1] || '200',
+                                angle: args[2] || 'angle',
+                                offsetX: args[3] || '0',
+                                offsetY: args[4] || '0',
+                                radius: args[5] || '8',
+                                growTime: args[6] || '0.2',
+                                keepTime: args[7] || '0.3',
+                                shrinkTime: args[8] || '0.5',
+                                round: args[9] || 'true',
+                                coordMode: args[10] || 'relative',
+                                hitRadius: (args[11] !== undefined && args[11] !== '""') ? args[11] : ''
+                            },
+                            indent
+                        };
+                    }
+                    let mSpawnBeam = trimmed.match(/^spawnBeam(Resist)?\((.*?)\)$/i);
+                    if (mSpawnBeam) {
+                        let isRes = !!mSpawnBeam[1];
+                        let args = splitArgs(mSpawnBeam[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: isRes ? 'spawn_beam_resist' : 'spawn_beam',
+                            params: {
+                                warningTime: args[0] || '1.0',
+                                activeTime: args[1] || '1.5',
+                                laserWidth: args[2] || '12',
+                                angle: args[3] || 'angle',
+                                offsetX: args[4] || '0',
+                                offsetY: args[5] || '0',
+                                coordMode: args[6] || 'relative',
+                                hitRadius: (args[7] !== undefined && args[7] !== '""') ? args[7] : ''
+                            },
+                            indent
+                        };
+                    }
+                    let mSpawnLaserWay = trimmed.match(/^spawnLaserWay(Resist)?\((.*?)\)$/i);
+                    if (mSpawnLaserWay) {
+                        let isRes = !!mSpawnLaserWay[1];
+                        let args = splitArgs(mSpawnLaserWay[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: isRes ? 'spawn_laser_way_resist' : 'spawn_laser_way',
+                            params: {
+                                bulletType: 'laser',
+                                color: args[0] || '#ff3333',
+                                radius: args[1] || '6',
+                                speed: args[2] || '200',
+                                angle: args[3] || 'angle',
+                                count: args[4] || '3',
+                                spread: args[5] || '45',
+                                offsetX: args[6] || '0',
+                                offsetY: args[7] || '0',
+                                coordMode: args[8] || 'relative',
+                                hitRadius: (args[9] !== undefined && args[9] !== '""') ? args[9] : ''
+                            },
+                            indent
+                        };
+                    }
+                    let mSpawnLaserRing = trimmed.match(/^spawnLaserRing(Resist)?\((.*?)\)$/i);
+                    if (mSpawnLaserRing) {
+                        let isRes = !!mSpawnLaserRing[1];
+                        let args = splitArgs(mSpawnLaserRing[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: isRes ? 'spawn_laser_ring_resist' : 'spawn_laser_ring',
+                            params: {
+                                bulletType: 'laser',
+                                color: args[0] || '#ff3333',
+                                radius: args[1] || '6',
+                                speed: args[2] || '200',
+                                angle: args[3] || '0',
+                                count: args[4] || '12',
+                                offsetX: args[5] || '0',
+                                offsetY: args[6] || '0',
+                                coordMode: args[7] || 'relative',
+                                hitRadius: (args[8] !== undefined && args[8] !== '""') ? args[8] : ''
+                            },
+                            indent
+                        };
+                    }
+                    let mSpawnBeamWay = trimmed.match(/^spawnBeamWay(Resist)?\((.*?)\)$/i);
+                    if (mSpawnBeamWay) {
+                        let isRes = !!mSpawnBeamWay[1];
+                        let args = splitArgs(mSpawnBeamWay[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: isRes ? 'spawn_beam_way_resist' : 'spawn_beam_way',
+                            params: {
+                                warningTime: args[0] || '1.0',
+                                activeTime: args[1] || '1.5',
+                                laserWidth: args[2] || '12',
+                                angle: args[3] || 'angle',
+                                count: args[4] || '3',
+                                spread: args[5] || '45',
+                                offsetX: args[6] || '0',
+                                offsetY: args[7] || '0',
+                                coordMode: args[8] || 'relative',
+                                hitRadius: (args[9] !== undefined && args[9] !== '""') ? args[9] : ''
+                            },
+                            indent
+                        };
+                    }
+                    let mSpawnBeamRing = trimmed.match(/^spawnBeamRing(Resist)?\((.*?)\)$/i);
+                    if (mSpawnBeamRing) {
+                        let isRes = !!mSpawnBeamRing[1];
+                        let args = splitArgs(mSpawnBeamRing[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: isRes ? 'spawn_beam_ring_resist' : 'spawn_beam_ring',
+                            params: {
+                                warningTime: args[0] || '1.0',
+                                activeTime: args[1] || '1.5',
+                                laserWidth: args[2] || '12',
+                                angle: args[3] || '0',
+                                count: args[4] || '12',
+                                offsetX: args[5] || '0',
+                                offsetY: args[6] || '0',
+                                coordMode: args[7] || 'relative',
+                                hitRadius: (args[8] !== undefined && args[8] !== '""') ? args[8] : ''
+                            },
+                            indent
+                        };
+                    }
                     if (!block) {
                         let mChange = trimmed.match(/^(\w+)\s*([+\-])=\s*(.+)$/);
                         if (mChange) block = { type: 'change_var', params: { name: mChange[1], op: mChange[2], value: mChange[3] }, indent };
@@ -2165,6 +2675,200 @@ function customCardMakerSwitchTab(tab) {
                 if (mSlow) { let args = splitArgs(mSlow[1]).map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'slow', effect: args[0] || '0.5', delay: args[1] || '0' }, indent: indent }; }
                 let mFast = trimmed.match(/^fast\((.*?)\)$/i);
                 if (mFast) { let args = splitArgs(mFast[1]).map(s => s.trim()); block = { type: 'speed_scale', params: { mode: 'fast', effect: args[0] || '2', delay: args[1] || '0' }, indent: indent }; }
+                let mSpawnTrail = trimmed.match(/^spawnTrail\((.*?)\)$/i);
+                if (mSpawnTrail) {
+                    let args = splitArgs(mSpawnTrail[1]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    let hasNewArgs = args.length >= 11;
+                    block = {
+                        type: 'spawn_trail',
+                        params: {
+                            bulletType: 'trail',
+                            color: args[0] || '#00ffff',
+                            speed: args[1] || '200',
+                            angle: args[2] || 'angle',
+                            offsetX: args[3] || '0',
+                            offsetY: args[4] || '0',
+                            radius: args[5] || '8',
+                            growTime: args[6] || '0.2',
+                            keepTime: hasNewArgs ? args[7] : '0.3',
+                            shrinkTime: hasNewArgs ? args[8] : (args[7] || '0.5'),
+                            round: hasNewArgs ? args[9] : 'true',
+                            coordMode: hasNewArgs ? args[10] : (args.length >= 9 ? args[8] : 'relative'),
+                            hitRadius: hasNewArgs ? ((args[11] !== undefined && args[11] !== '""') ? args[11] : '') : ((args.length >= 10 && args[9] !== '""') ? args[9] : '')
+                        },
+                        indent: indent
+                    };
+                }
+                let mSpawnTrailResist = trimmed.match(/^spawnTrailResist\((.*?)\)$/i);
+                if (mSpawnTrailResist) {
+                    let args = splitArgs(mSpawnTrailResist[1]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    let hasNewArgs = args.length >= 11;
+                    block = {
+                        type: 'spawn_trail_resist',
+                        params: {
+                            bulletType: 'trail',
+                            color: args[0] || '#00ffff',
+                            speed: args[1] || '200',
+                            angle: args[2] || 'angle',
+                            offsetX: args[3] || '0',
+                            offsetY: args[4] || '0',
+                            radius: args[5] || '8',
+                            growTime: args[6] || '0.2',
+                            keepTime: hasNewArgs ? args[7] : '0.3',
+                            shrinkTime: hasNewArgs ? args[8] : (args[7] || '0.5'),
+                            round: hasNewArgs ? args[9] : 'true',
+                            coordMode: hasNewArgs ? args[10] : (args.length >= 9 ? args[8] : 'relative'),
+                            hitRadius: hasNewArgs ? ((args[11] !== undefined && args[11] !== '""') ? args[11] : '') : ((args.length >= 10 && args[9] !== '""') ? args[9] : '')
+                        },
+                        indent: indent
+                    };
+                }
+                let mSpawnBeam = trimmed.match(/^spawnBeam(Resist)?\((.*?)\)$/i);
+                if (mSpawnBeam) {
+                    let isRes = !!mSpawnBeam[1];
+                    let args = splitArgs(mSpawnBeam[2]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    block = {
+                        type: isRes ? 'spawn_beam_resist' : 'spawn_beam',
+                        params: {
+                            warningTime: args[0] || '1.0',
+                            activeTime: args[1] || '1.5',
+                            laserWidth: args[2] || '12',
+                            angle: args[3] || 'angle',
+                            offsetX: args[4] || '0',
+                            offsetY: args[5] || '0',
+                            coordMode: args[6] || 'relative',
+                            hitRadius: (args[7] !== undefined && args[7] !== '""') ? args[7] : ''
+                        },
+                        indent: indent
+                    };
+                }
+                let mSpawnLaserWay = trimmed.match(/^spawnLaserWay(Resist)?\((.*?)\)$/i);
+                if (mSpawnLaserWay) {
+                    let isRes = !!mSpawnLaserWay[1];
+                    let args = splitArgs(mSpawnLaserWay[2]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    block = {
+                        type: isRes ? 'spawn_laser_way_resist' : 'spawn_laser_way',
+                        params: {
+                            bulletType: 'laser',
+                            color: args[0] || '#ff3333',
+                            radius: args[1] || '6',
+                            speed: args[2] || '200',
+                            angle: args[3] || 'angle',
+                            count: args[4] || '3',
+                            spread: args[5] || '45',
+                            offsetX: args[6] || '0',
+                            offsetY: args[7] || '0',
+                            coordMode: args[8] || 'relative',
+                            hitRadius: (args[9] !== undefined && args[9] !== '""') ? args[9] : ''
+                        },
+                        indent: indent
+                    };
+                }
+                let mSpawnLaserRing = trimmed.match(/^spawnLaserRing(Resist)?\((.*?)\)$/i);
+                if (mSpawnLaserRing) {
+                    let isRes = !!mSpawnLaserRing[1];
+                    let args = splitArgs(mSpawnLaserRing[2]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    block = {
+                        type: isRes ? 'spawn_laser_ring_resist' : 'spawn_laser_ring',
+                        params: {
+                            bulletType: 'laser',
+                            color: args[0] || '#ff3333',
+                            radius: args[1] || '6',
+                            speed: args[2] || '200',
+                            angle: args[3] || 'angle',
+                            count: args[4] || '12',
+                            offsetX: args[5] || '0',
+                            offsetY: args[6] || '0',
+                            coordMode: args[7] || 'relative',
+                            hitRadius: (args[8] !== undefined && args[8] !== '""') ? args[8] : ''
+                        },
+                        indent: indent
+                    };
+                }
+                let mSpawnBeamWay = trimmed.match(/^spawnBeamWay(Resist)?\((.*?)\)$/i);
+                if (mSpawnBeamWay) {
+                    let isRes = !!mSpawnBeamWay[1];
+                    let args = splitArgs(mSpawnBeamWay[2]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    block = {
+                        type: isRes ? 'spawn_beam_way_resist' : 'spawn_beam_way',
+                        params: {
+                            warningTime: args[0] || '1.0',
+                            activeTime: args[1] || '1.5',
+                            laserWidth: args[2] || '12',
+                            angle: args[3] || 'angle',
+                            count: args[4] || '3',
+                            spread: args[5] || '45',
+                            offsetX: args[6] || '0',
+                            offsetY: args[7] || '0',
+                            coordMode: args[8] || 'relative',
+                            hitRadius: (args[9] !== undefined && args[9] !== '""') ? args[9] : ''
+                        },
+                        indent: indent
+                    };
+                }
+                let mSpawnBeamRing = trimmed.match(/^spawnBeamRing(Resist)?\((.*?)\)$/i);
+                if (mSpawnBeamRing) {
+                    let isRes = !!mSpawnBeamRing[1];
+                    let args = splitArgs(mSpawnBeamRing[2]).map(s => {
+                        let sTrim = s.trim();
+                        if ((sTrim.startsWith('"') && sTrim.endsWith('"')) || (sTrim.startsWith("'") && sTrim.endsWith("'"))) {
+                            return sTrim.substring(1, sTrim.length - 1);
+                        }
+                        return sTrim;
+                    });
+                    block = {
+                        type: isRes ? 'spawn_beam_ring_resist' : 'spawn_beam_ring',
+                        params: {
+                            warningTime: args[0] || '1.0',
+                            activeTime: args[1] || '1.5',
+                            laserWidth: args[2] || '12',
+                            angle: args[3] || 'angle',
+                            count: args[4] || '12',
+                            offsetX: args[5] || '0',
+                            offsetY: args[6] || '0',
+                            coordMode: args[7] || 'relative',
+                            hitRadius: (args[8] !== undefined && args[8] !== '""') ? args[8] : ''
+                        },
+                        indent: indent
+                    };
+                }
+
                 let mSpawn = trimmed.match(/^spawnBullet\((.*?)\)$/i);
                 if (mSpawn) {
                     let args = splitArgs(mSpawn[1]).map(s => {
@@ -2683,6 +3387,9 @@ function customCardMakerSwitchTab(tab) {
             }
 
             isCustomCardTesting = true;
+            if (typeof checkBulletTouchRequirement === 'function') {
+                checkBulletTouchRequirement();
+            }
             currentTestPlaySource = 'shared';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;

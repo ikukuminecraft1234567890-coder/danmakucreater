@@ -281,6 +281,9 @@ function applyAbilityEffect(cardId, owner) {
 
             activeCards = selectedCards;
             if (activeCards.length === 0) return;
+            if (typeof checkBulletTouchRequirement === 'function') {
+                checkBulletTouchRequirement();
+            }
             actionTimer = Math.max(...activeCards.map(c => c.duration));
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
@@ -2166,7 +2169,9 @@ function applyAbilityEffect(cardId, owner) {
                         bullets.splice(i, 1);
                         continue;
                     }
-                    b.x += b.vx * dt; b.y += b.vy * dt;
+                    if (!b.isHeadDead) {
+                        b.x += b.vx * dt; b.y += b.vy * dt;
+                    }
 
                     let isOff = (b.x < 0 || b.x > PLAY_WIDTH || b.y < 0 || b.y > canvas.height);
                     if (isOff) {
@@ -2191,6 +2196,32 @@ function applyAbilityEffect(cardId, owner) {
                     } else {
                         // Default spells and normal shots: despawn immediately when offscreen (with a small 30px visual margin)
                         if (b.x < -30 || b.x > PLAY_WIDTH + 30 || b.y < -30 || b.y > canvas.height + 30) {
+                            shouldDespawn = true;
+                        }
+                    }
+
+                    if (b.isTrail) {
+                        if (!b.trailHistory) b.trailHistory = [];
+                        if (!b.isHeadDead) {
+                            b.trailHistory.unshift({ x: b.x, y: b.y, age: 0 });
+                        }
+                        let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
+                        let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
+                        let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
+                        let totalLife = Math.max(0.01, gT + kT + sT);
+
+                        for (let k = b.trailHistory.length - 1; k >= 0; k--) {
+                            b.trailHistory[k].age += dt;
+                            if (b.trailHistory[k].age >= totalLife) {
+                                b.trailHistory.splice(k, 1);
+                            }
+                        }
+
+                        if (shouldDespawn) {
+                            b.isHeadDead = true;
+                            shouldDespawn = false;
+                        }
+                        if (b.isHeadDead && b.trailHistory.length === 0) {
                             shouldDespawn = true;
                         }
                     }
@@ -2231,7 +2262,68 @@ function applyAbilityEffect(cardId, owner) {
                             continue;
                         }
                         let distSq;
-                        if (b.isLaser) {
+                        if (b.isTrail) {
+                            let history = b.trailHistory || [];
+                            let hitR = b.hitRadius !== undefined ? Number(b.hitRadius) : ((b.radius || 8) * 0.60);
+                            let grazeR = b.radius || 8;
+                            let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
+                            let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
+                            let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
+
+                            function getTNRadius(age, baseR) {
+                                if (gT > 0 && age < gT) {
+                                    let t = age / gT;
+                                    return baseR * Math.sin(t * Math.PI / 2);
+                                } else if (age < gT + kT) {
+                                    return baseR;
+                                } else if (sT > 0 && age < gT + kT + sT) {
+                                    let t = (age - (gT + kT)) / sT;
+                                    return baseR * Math.cos(t * Math.PI / 2);
+                                }
+                                return 0;
+                            }
+
+                            let isHit = false;
+                            let isGraze = false;
+                            for (let k = 0; k < history.length; k++) {
+                                let node = history[k];
+                                let rHit = getTNRadius(node.age, hitR);
+                                let rGraze = getTNRadius(node.age, grazeR);
+                                if (rGraze <= 0.1) continue;
+                                let dSq = (player.x - node.x) ** 2 + (player.y - node.y) ** 2;
+                                if (rHit > 0.1 && dSq < (_pHitR + rHit) ** 2) { isHit = true; break; }
+                                if (!b.grazed && dSq < (_pGrazeR + rGraze) ** 2) { isGraze = true; }
+                            }
+                            if (!isHit && history.length > 1) {
+                                for (let k = 0; k < history.length - 1; k++) {
+                                    let p1 = history[k];
+                                    let p2 = history[k + 1];
+                                    let r1Hit = getTNRadius(p1.age, hitR);
+                                    let r2Hit = getTNRadius(p2.age, hitR);
+                                    let r1Graze = getTNRadius(p1.age, grazeR);
+                                    let r2Graze = getTNRadius(p2.age, grazeR);
+                                    if (r1Graze <= 0.1 && r2Graze <= 0.1) continue;
+
+                                    let A = player.x - p1.x;
+                                    let B = player.y - p1.y;
+                                    let C = p2.x - p1.x;
+                                    let D = p2.y - p1.y;
+                                    let dot = A * C + B * D;
+                                    let lenSq = C * C + D * D;
+                                    let param = lenSq !== 0 ? dot / lenSq : -1;
+                                    if (param >= 0 && param <= 1) {
+                                        let cx = p1.x + param * C;
+                                        let cy = p1.y + param * D;
+                                        let rClosestHit = r1Hit + param * (r2Hit - r1Hit);
+                                        let rClosestGraze = r1Graze + param * (r2Graze - r1Graze);
+                                        let dSq = (player.x - cx) ** 2 + (player.y - cy) ** 2;
+                                        if (rClosestHit > 0.1 && dSq < (_pHitR + rClosestHit) ** 2) { isHit = true; break; }
+                                        if (!b.grazed && dSq < (_pGrazeR + rClosestGraze) ** 2) { isGraze = true; }
+                                    }
+                                }
+                            }
+                            distSq = isHit ? 0 : (isGraze ? (_pGrazeR * 0.5) ** 2 : Infinity);
+                        } else if (b.isLaser) {
                             let x1 = b.x;
                             let y1 = b.y;
                             let x2, y2;
@@ -2351,7 +2443,59 @@ function applyAbilityEffect(cardId, owner) {
                             continue;
                         }
                         let distSq;
-                        if (b.isLaser) {
+                        if (b.isTrail) {
+                            let history = b.trailHistory || [];
+                            let baseR = b.hitRadius !== undefined ? Number(b.hitRadius) : ((b.radius || 8) * 0.60);
+                            let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
+                            let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
+                            let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
+
+                            function getTNRadiusCPU(age) {
+                                if (gT > 0 && age < gT) {
+                                    let t = age / gT;
+                                    return baseR * Math.sin(t * Math.PI / 2);
+                                } else if (age < gT + kT) {
+                                    return baseR;
+                                } else if (sT > 0 && age < gT + kT + sT) {
+                                    let t = (age - (gT + kT)) / sT;
+                                    return baseR * Math.cos(t * Math.PI / 2);
+                                }
+                                return 0;
+                            }
+
+                            let isHit = false;
+                            for (let k = 0; k < history.length; k++) {
+                                let node = history[k];
+                                let r = getTNRadiusCPU(node.age);
+                                if (r <= 0.1) continue;
+                                let dSq = (cpu.x - node.x) ** 2 + (cpu.y - node.y) ** 2;
+                                if (dSq < (_cHitR + r) ** 2) { isHit = true; break; }
+                            }
+                            if (!isHit && history.length > 1) {
+                                for (let k = 0; k < history.length - 1; k++) {
+                                    let p1 = history[k];
+                                    let p2 = history[k + 1];
+                                    let r1 = getTNRadiusCPU(p1.age);
+                                    let r2 = getTNRadiusCPU(p2.age);
+                                    if (r1 <= 0.1 && r2 <= 0.1) continue;
+                                    let A = cpu.x - p1.x;
+                                    let B = cpu.y - p1.y;
+                                    let C = p2.x - p1.x;
+                                    let D = p2.y - p1.y;
+                                    let dot = A * C + B * D;
+                                    let lenSq = C * C + D * D;
+                                    let param = lenSq !== 0 ? dot / lenSq : -1;
+                                    if (param >= 0 && param <= 1) {
+                                        let cx = p1.x + param * C;
+                                        let cy = p1.y + param * D;
+                                        let rClosest = r1 + param * (r2 - r1);
+                                        let dSq = (cpu.x - cx) ** 2 + (cpu.y - cy) ** 2;
+                                        if (dSq < (_cHitR + rClosest) ** 2) { isHit = true; break; }
+                                    }
+                                }
+                            }
+                            distSq = isHit ? 0 : Infinity;
+                        } else if (b.isLaser) {
                             let x1 = b.x;
                             let y1 = b.y;
                             let x2, y2;
@@ -2811,7 +2955,7 @@ function applyAbilityEffect(cardId, owner) {
                 if (b.radius <= 0) return;
                 // 画面外カリング（通常弾のみ）
                 // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
-                if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece) {
+                if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece && !b.isTrail) {
                     if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) return;
                 }
 
@@ -2840,6 +2984,139 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('B', 0, 0);
+                    ctx.restore();
+                } else if (b.isTrail) {
+                    ctx.save();
+                    let history = b.trailHistory || [];
+                    if (history.length > 0) {
+                        let baseR = b.radius || 8;
+                        let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
+                        let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
+                        let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
+
+                        function getTrailNodeRadius(age) {
+                            if (gT > 0 && age < gT) {
+                                let t = age / gT;
+                                return baseR * Math.sin(t * Math.PI / 2);
+                            } else if (age < gT + kT) {
+                                return baseR;
+                            } else if (sT > 0 && age < gT + kT + sT) {
+                                let t = (age - (gT + kT)) / sT;
+                                return baseR * Math.cos(t * Math.PI / 2);
+                            }
+                            return 0;
+                        }
+
+                        let mainColor = b.color || '#00ffff';
+
+                        // 1. 外側（メインカラー）
+                        ctx.fillStyle = mainColor;
+                        ctx.strokeStyle = mainColor;
+
+                        for (let k = 0; k < history.length - 1; k++) {
+                            let p1 = history[k];
+                            let p2 = history[k + 1];
+                            let r1 = getTrailNodeRadius(p1.age);
+                            let r2 = getTrailNodeRadius(p2.age);
+
+                            if (r1 <= 0.1 && r2 <= 0.1) continue;
+
+                            let dx = p2.x - p1.x;
+                            let dy = p2.y - p1.y;
+                            let dist = Math.hypot(dx, dy);
+
+                            if (dist > 0.1) {
+                                let angle = Math.atan2(dy, dx);
+                                let nx = -Math.sin(angle);
+                                let ny = Math.cos(angle);
+
+                                let ax = p1.x + nx * r1;
+                                let ay = p1.y + ny * r1;
+                                let bx = p1.x - nx * r1;
+                                let by = p1.y - ny * r1;
+                                let cx = p2.x + nx * r2;
+                                let cy = p2.y + ny * r2;
+                                let dxPt = p2.x - nx * r2;
+                                let dyPt = p2.y - ny * r2;
+
+                                ctx.beginPath();
+                                ctx.moveTo(ax, ay);
+                                ctx.lineTo(cx, cy);
+                                ctx.lineTo(dxPt, dyPt);
+                                ctx.lineTo(bx, by);
+                                ctx.closePath();
+                                ctx.fill();
+                            }
+
+                            if (b.round !== false) {
+                                ctx.beginPath();
+                                ctx.arc(p1.x, p1.y, Math.max(0.1, r1), 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        }
+                        if (history.length > 0 && b.round !== false) {
+                            let lastP = history[history.length - 1];
+                            let lastR = getTrailNodeRadius(lastP.age);
+                            if (lastR > 0.1) {
+                                ctx.beginPath();
+                                ctx.arc(lastP.x, lastP.y, Math.max(0.1, lastR), 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        }
+
+                        // 2. 内側（コアの白帯）
+                        ctx.fillStyle = '#ffffff';
+                        for (let k = 0; k < history.length - 1; k++) {
+                            let p1 = history[k];
+                            let p2 = history[k + 1];
+                            let r1 = getTrailNodeRadius(p1.age) * 0.45;
+                            let r2 = getTrailNodeRadius(p2.age) * 0.45;
+
+                            if (r1 <= 0.1 && r2 <= 0.1) continue;
+
+                            let dx = p2.x - p1.x;
+                            let dy = p2.y - p1.y;
+                            let dist = Math.hypot(dx, dy);
+
+                            if (dist > 0.1) {
+                                let angle = Math.atan2(dy, dx);
+                                let nx = -Math.sin(angle);
+                                let ny = Math.cos(angle);
+
+                                let ax = p1.x + nx * r1;
+                                let ay = p1.y + ny * r1;
+                                let bx = p1.x - nx * r1;
+                                let by = p1.y - ny * r1;
+                                let cx = p2.x + nx * r2;
+                                let cy = p2.y + ny * r2;
+                                let dxPt = p2.x - nx * r2;
+                                let dyPt = p2.y - ny * r2;
+
+                                ctx.beginPath();
+                                ctx.moveTo(ax, ay);
+                                ctx.lineTo(cx, cy);
+                                ctx.lineTo(dxPt, dyPt);
+                                ctx.lineTo(bx, by);
+                                ctx.closePath();
+                                ctx.fill();
+                            }
+
+                            if (b.round !== false) {
+                                ctx.beginPath();
+                                ctx.arc(p1.x, p1.y, Math.max(0.1, r1), 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        }
+                        if (history.length > 0 && b.round !== false) {
+                            let lastP = history[history.length - 1];
+                            let lastR = getTrailNodeRadius(lastP.age) * 0.45;
+                            if (lastR > 0.1) {
+                                ctx.beginPath();
+                                ctx.arc(lastP.x, lastP.y, Math.max(0.1, lastR), 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        }
+                    }
                     ctx.restore();
                 } else if (b.isBeam) {
                     if (b.isResting) return;
@@ -2965,7 +3242,7 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.strokeStyle = b.color || '#ff3333';
                         ctx.lineWidth = Math.max(0.1, laserWidth * widthFactor);
                         ctx.globalAlpha = 0.5;
-                        ctx.lineCap = 'butt';
+                        ctx.lineCap = 'round';
                         ctx.beginPath();
                         ctx.moveTo(b.x, b.y);
                         ctx.lineTo(x2, y2);
@@ -2977,6 +3254,7 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.strokeStyle = '#ffffff';
                         ctx.lineWidth = Math.max(0.1, laserWidth * 0.42 * widthFactor);
                         ctx.globalAlpha = 1.0;
+                        ctx.lineCap = 'round';
                         ctx.beginPath();
                         ctx.moveTo(b.x, b.y);
                         ctx.lineTo(x2, y2);
@@ -2990,19 +3268,27 @@ function applyAbilityEffect(cardId, owner) {
                         let dx = b.vx / (speed || 1);
                         let dy = b.vy / (speed || 1);
                         let len = 80;
+                        let laserW = Math.max(0.1, getLaserWidth(b) * 0.5);
                         
+                        // 外側：弾の色で描画
                         ctx.shadowBlur = 12 * blurScale;
                         ctx.shadowColor = b.color || '#00ffff';
-                        ctx.strokeStyle = '#ffffff';
-                        ctx.lineWidth = Math.max(0.1, getLaserWidth(b) * 0.5); // 移動レーザーは少し細め
+                        ctx.strokeStyle = b.color || '#00ffff';
+                        ctx.lineWidth = laserW;
                         ctx.lineCap = 'round';
-                        
                         ctx.beginPath();
                         ctx.moveTo(b.x, b.y);
                         ctx.lineTo(b.x - dx * len, b.y - dy * len);
                         ctx.stroke();
                         
+                        // 内側：細い白コア
                         ctx.shadowBlur = 0;
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = Math.max(0.1, laserW * 0.45);
+                        ctx.beginPath();
+                        ctx.moveTo(b.x, b.y);
+                        ctx.lineTo(b.x - dx * len, b.y - dy * len);
+                        ctx.stroke();
                     }
                     ctx.restore();
                 } else if (b.isGungnir) {
@@ -3217,6 +3503,78 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.lineWidth = bHitR * 2;
                         ctx.strokeStyle = 'rgba(0, 255, 0, 0.4)';
                         ctx.stroke();
+                    } else if (b.isTrail) {
+                        let history = b.trailHistory || [];
+                        if (history.length > 0) {
+                            let baseR = b.hitRadius !== undefined ? Number(b.hitRadius) : ((b.radius || 8) * 0.60);
+                            let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
+                            let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
+                            let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
+
+                            function getTNRadiusDB(age) {
+                                if (gT > 0 && age < gT) {
+                                    let t = age / gT;
+                                    return baseR * Math.sin(t * Math.PI / 2);
+                                } else if (age < gT + kT) {
+                                    return baseR;
+                                } else if (sT > 0 && age < gT + kT + sT) {
+                                    let t = (age - (gT + kT)) / sT;
+                                    return baseR * Math.cos(t * Math.PI / 2);
+                                }
+                                return 0;
+                            }
+
+                            ctx.strokeStyle = '#00ff00';
+                            ctx.lineWidth = 1.5;
+                            ctx.fillStyle = 'rgba(0, 255, 0, 0.35)';
+
+                            ctx.beginPath();
+                            // ノードを適度にサンプリングしてポリゴンパスをバッチ構築
+                            let step = Math.max(1, Math.floor(history.length / 12));
+                            for (let k = 0; k < history.length - 1; k += step) {
+                                let kNext = Math.min(history.length - 1, k + step);
+                                let p1 = history[k];
+                                let p2 = history[kNext];
+                                let r1 = getTNRadiusDB(p1.age);
+                                let r2 = getTNRadiusDB(p2.age);
+                                if (r1 <= 0.1 && r2 <= 0.1) continue;
+
+                                let dx = p2.x - p1.x;
+                                let dy = p2.y - p1.y;
+                                let dist = Math.hypot(dx, dy);
+
+                                if (dist > 0.1) {
+                                    let angle = Math.atan2(dy, dx);
+                                    let nx = -Math.sin(angle);
+                                    let ny = Math.cos(angle);
+
+                                    let ax = p1.x + nx * r1;
+                                    let ay = p1.y + ny * r1;
+                                    let bx = p1.x - nx * r1;
+                                    let by = p1.y - ny * r1;
+                                    let cx = p2.x + nx * r2;
+                                    let cy = p2.y + ny * r2;
+                                    let dxPt = p2.x - nx * r2;
+                                    let dyPt = p2.y - ny * r2;
+
+                                    ctx.moveTo(ax, ay);
+                                    ctx.lineTo(cx, cy);
+                                    ctx.lineTo(dxPt, dyPt);
+                                    ctx.lineTo(bx, by);
+                                    ctx.closePath();
+                                }
+                            }
+                            if (history.length > 0) {
+                                let pHead = history[0];
+                                let rHead = getTNRadiusDB(pHead.age);
+                                if (rHead > 0.1) {
+                                    ctx.moveTo(pHead.x + rHead, pHead.y);
+                                    ctx.arc(pHead.x, pHead.y, rHead, 0, Math.PI * 2);
+                                }
+                            }
+                            ctx.fill();
+                            ctx.stroke();
+                        }
                     } else if (b.bulletImage === 'sword') {
                         ctx.strokeStyle = '#00ff00';
                         ctx.lineWidth = 1.5;

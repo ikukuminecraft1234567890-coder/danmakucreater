@@ -45,10 +45,15 @@ class SoundManager {
         this.balances = {
             'tan00': 0.35 // ショット音のみを個別に小さく調整
         };
+        this.useHtml5Audio = (window.location.protocol === 'file:');
     }
 
     init() {
         if (this.initialized) return;
+        if (this.useHtml5Audio) {
+            this.initialized = true;
+            return;
+        }
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) return;
         this.ctx = new AudioContextClass();
@@ -101,9 +106,29 @@ class SoundManager {
         this.volume = Math.max(0, Math.min(1, vol));
     }
 
+    playHtml5(name) {
+        let key = this.aliases[name] || name;
+        let path = this.files[key];
+        if (!path) return;
+        try {
+            let audio = new Audio(path);
+            let balance = this.balances[key] !== undefined ? this.balances[key] : 1.0;
+            audio.volume = this.volume * balance;
+            audio.play().catch(e => {
+                // 自動再生ポリシーなどの一時的なエラーは無視
+            });
+        } catch (e) {
+            console.error('HTML5 audio play error:', e);
+        }
+    }
+
     play(name) {
         if (!this.initialized) {
             this.init();
+        }
+        if (this.useHtml5Audio) {
+            this.playHtml5(name);
+            return;
         }
         if (this.ctx && this.ctx.state === 'suspended') {
             this.ctx.resume();

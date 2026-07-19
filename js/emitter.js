@@ -808,7 +808,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 color: bColor,
                                 customDmg: 20,
                                 isCustom: true,
-                                isLaser: true,
+                                isTrail: true,
+                                trailHistory: [],
+                                growTime: evalExpr(block.params.growTime || '0.2', state.variables),
+                                keepTime: evalExpr(block.params.keepTime || '0.3', state.variables),
+                                shrinkTime: evalExpr(block.params.shrinkTime || '0.5', state.variables),
+                                round: block.params.round !== 'false',
                                 update: null
                             };
                             if (block.type === 'spawn_laser_way_resist') {
@@ -872,7 +877,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 color: bColor,
                                 customDmg: 20,
                                 isCustom: true,
-                                isLaser: true,
+                                isTrail: true,
+                                trailHistory: [],
+                                growTime: evalExpr(block.params.growTime || '0.2', state.variables),
+                                keepTime: evalExpr(block.params.keepTime || '0.3', state.variables),
+                                shrinkTime: evalExpr(block.params.shrinkTime || '0.5', state.variables),
+                                round: block.params.round !== 'false',
                                 update: null
                             };
                             if (block.type === 'spawn_laser_ring_resist') {
@@ -2254,7 +2264,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         color: bColor,
                                         customDmg: 20,
                                         isCustom: true,
-                                        isLaser: true,
+                                        isTrail: true,
+                                        trailHistory: [],
+                                        growTime: evalExpr(block.params.growTime || '0.2', state.variables, block, 'growTime'),
+                                        keepTime: evalExpr(block.params.keepTime || '0.3', state.variables, block, 'keepTime'),
+                                        shrinkTime: evalExpr(block.params.shrinkTime || '0.5', state.variables, block, 'shrinkTime'),
+                                        round: block.params.round !== 'false',
                                         update: null
                                     };
                                     if (block.type === 'spawn_laser_way_resist') {
