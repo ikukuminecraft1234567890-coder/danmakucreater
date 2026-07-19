@@ -2118,6 +2118,45 @@ function applyAbilityEffect(cardId, owner) {
 
                 let tBulletStart = performance.now();
                 const useFastRemove = bullets.length > 200;
+                // --- ループ前キャッシュ: passives/無敵/共通値を1回だけ評価 ---
+                const _tc1          = turnCount > 1;
+                const _acLen2       = activeCards.length >= 2;
+                const _isCustomTest = isCustomCardTesting;
+                const _pInv         = player.isInvincible || (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0);
+                const _cInv         = cpu.isInvincible;
+                const _pHitR        = player.hitboxRadius;
+                const _pGrazeR      = player.grazeRadius;
+                const _cHitR        = cpu.hitboxRadius;
+                const _cGrazeR      = cpu.grazeRadius;
+                const _canvasH      = canvas.height;
+                const _despawnLimit = (activeCards && activeCards[0] && activeCards[0].despawnTime !== undefined)
+                                        ? (Number(activeCards[0].despawnTime) || 1.5) : 1.5;
+                // player passives
+                const _pp1  = _tc1 && player.passives.includes('p1');
+                const _pp5  = _tc1 && player.passives.includes('p5');
+                const _pp6  = _tc1 && player.passives.includes('p6');
+                const _pp8  = _tc1 && player.passives.includes('p8')  && player.bombs === 0;
+                const _pp10 = _tc1 && player.passives.includes('p10');
+                const _pp14 = _tc1 && player.passives.includes('p14');
+                const _pp15 = _tc1 && player.passives.includes('p15');
+                const _pp16 = _tc1 && player.passives.includes('p16') && player.hp <= 300;
+                const _pp17 = _tc1 && player.passives.includes('p17') && player.hp <= 300;
+                const _pp21 = _tc1 && player.passives.includes('p21');
+                const _pp22 = _tc1 && player.p22Buff               && player.passives.includes('p22');
+                // cpu passives
+                const _cp1  = _tc1 && cpu.passives.includes('p1');
+                const _cp5  = _tc1 && cpu.passives.includes('p5');
+                const _cp6  = _tc1 && cpu.passives.includes('p6');
+                const _cp8  = _tc1 && cpu.passives.includes('p8')  && cpu.bombs === 0;
+                const _cp10 = _tc1 && cpu.passives.includes('p10');
+                const _cp13 = _tc1 && cpu.passives.includes('p13');
+                const _cp14 = _tc1 && cpu.passives.includes('p14');
+                const _cp15 = _tc1 && cpu.passives.includes('p15');
+                const _cp16 = _tc1 && cpu.passives.includes('p16') && cpu.hp <= 300;
+                const _cp17 = _tc1 && cpu.passives.includes('p17') && cpu.hp <= 300;
+                const _cp21 = _tc1 && cpu.passives.includes('p21');
+                const _cp22 = _tc1 && cpu.p22Buff                && cpu.passives.includes('p22');
+                // ---------------------------------------------------
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     let b = bullets[i];
                     if (!b) continue; // 安全対策: ループ内で配列が縮小して範囲外になった場合の回避
@@ -2144,13 +2183,9 @@ function applyAbilityEffect(cardId, owner) {
                         }
                     } else if (b.isCustom) {
                         // Custom spells: can go offscreen, keep active up to despawnTime (default 1.5) to prevent mobile lag
-                        let despawnLimit = 1.5;
-                        if (activeCards && activeCards[0] && activeCards[0].despawnTime !== undefined) {
-                            despawnLimit = Number(activeCards[0].despawnTime) || 1.5;
-                        }
-                        if (b.x < -500 || b.x > PLAY_WIDTH + 500 || b.y < -500 || b.y > canvas.height + 500) {
+                        if (b.x < -500 || b.x > PLAY_WIDTH + 500 || b.y < -500 || b.y > _canvasH + 500) {
                             shouldDespawn = true;
-                        } else if (b.offscreenTime >= despawnLimit) {
+                        } else if (b.offscreenTime >= _despawnLimit) {
                             shouldDespawn = true;
                         }
                     } else {
@@ -2191,7 +2226,7 @@ function applyAbilityEffect(cardId, owner) {
                             continue;
                         }
                     } else if (b.team === 'CPU') {
-                        let isInv = player.isInvincible || (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0);
+                        let isInv = _pInv;
                         if (isInv || b.isWarningLaser) {
                             continue;
                         }
@@ -2259,33 +2294,21 @@ function applyAbilityEffect(cardId, owner) {
                         } else {
                             distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;
                         }
-                        if (distSq < (player.hitboxRadius + bHitR) ** 2) {
+                        if (distSq < (_pHitR + bHitR) ** 2) {
                             let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 2 : 50);
-                            if (!b.isNormal && activeCards.length >= 2) {
+                            if (!b.isNormal && _acLen2) {
                                 dmg = Math.floor(dmg / 2);
                             }
                             // 攻撃側（CPU）のパッシブ補正
-                            if (turnCount > 1 && cpu.passives.includes('p8') && cpu.bombs === 0) {
-                                dmg = Math.floor(dmg * 1.25);
-                            }
-                            if (turnCount > 1 && cpu.passives.includes('p14')) {
-                                dmg = Math.floor(dmg * 1.10); // 気炎万丈 (+10%)
-                            }
-                            if (turnCount > 1 && cpu.passives.includes('p16') && cpu.hp <= 300) {
-                                dmg = Math.floor(dmg * 1.25); // 背水の陣 (+25%)
-                            }
-                            if (cpu.p22Buff && turnCount > 1 && cpu.passives.includes('p22')) {
-                                dmg = Math.floor(dmg * 1.20); // 憤怒の炎 (+20%)
-                            }
+                            if (_cp8)  { dmg = Math.floor(dmg * 1.25); }
+                            if (_cp14) { dmg = Math.floor(dmg * 1.10); } // 気炎万丈 (+10%)
+                            if (_cp16) { dmg = Math.floor(dmg * 1.25); } // 背水の陣 (+25%)
+                            if (_cp22) { dmg = Math.floor(dmg * 1.20); } // 憤怒の炎 (+20%)
 
                             // 防御側（PLAYER）のパッシブ補正
-                            if (turnCount > 1 && player.passives.includes('p1')) dmg = Math.max(1, dmg - 20); // 被弾軽減
-                            if (turnCount > 1 && player.passives.includes('p15') && !b.isNormal) {
-                                dmg = Math.max(1, dmg - 15); // 弾幕結界 (スペル被弾-15)
-                            }
-                            if (turnCount > 1 && player.passives.includes('p17') && player.hp <= 300) {
-                                dmg = Math.floor(dmg * 0.80); // 金剛結界 (-20%)
-                            }
+                            if (_pp1)                    dmg = Math.max(1, dmg - 20); // 被弾軽減
+                            if (_pp15 && !b.isNormal)   dmg = Math.max(1, dmg - 15); // 弾幕結界
+                            if (_pp17)                   dmg = Math.floor(dmg * 0.80); // 金剛結界 (-20%)
 
                             player.pendingDamage += dmg;
                             if (!player.recentHits) player.recentHits = [];
@@ -2297,14 +2320,14 @@ function applyAbilityEffect(cardId, owner) {
                                 bullets.splice(i, 1); continue;
                             }
                         }
-                        if (!b.grazed && distSq < (player.grazeRadius + bHitR) ** 2) {
+                        if (!b.grazed && distSq < (_pGrazeR + bHitR) ** 2) {
                             b.grazed = true; player.grazeCount++;
-                            if (turnCount > 1 && player.passives.includes('p6') && Math.random() < 0.5) {
+                            if (_pp6 && Math.random() < 0.5) {
                                 player.pendingHeal += 1;
                             }
 
                             // p21 吸血の牙 (20グレイズごとにHP回復)
-                            if (turnCount > 1 && player.passives.includes('p21') && player.grazeCount % 20 === 0) {
+                            if (_pp21 && player.grazeCount % 20 === 0) {
                                 player.pendingHeal += 10;
                                 addBattleEffect("【吸血の牙】 HP回復量+10！", "#88ff88");
                             }
@@ -2312,11 +2335,11 @@ function applyAbilityEffect(cardId, owner) {
                             spawnBombPiece(b.x, b.y, 3);
 
                             // パッシブp5の判定 (500グレイズごとに回復に調整)
-                            if (turnCount > 1 && player.passives.includes('p5') && player.grazeCount % 500 === 0) {
+                            if (_pp5 && player.grazeCount % 500 === 0) {
                                 if (player.bombs < player.maxBombs) player.bombs++;
                             }
                             // パッシブp10の判定 (1%でボム回復)
-                            if (turnCount > 1 && player.passives.includes('p10') && Math.random() < 0.01) {
+                            if (_pp10 && Math.random() < 0.01) {
                                 if (player.bombs < player.maxBombs) {
                                     player.bombs++;
                                     addBattleEffect("【霊力還元】 ボムが1つ回復！", "#aaffaa");
@@ -2324,7 +2347,7 @@ function applyAbilityEffect(cardId, owner) {
                             }
                         }
                     } else if (b.team === 'PLAYER') {
-                        if (cpu.isInvincible || b.isWarningLaser) {
+                        if (_cInv || b.isWarningLaser) {
                             continue;
                         }
                         let distSq;
@@ -2391,33 +2414,21 @@ function applyAbilityEffect(cardId, owner) {
                         } else {
                             distSq = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
                         }
-                        if (distSq < (cpu.hitboxRadius + bHitR) ** 2) {
+                        if (distSq < (_cHitR + bHitR) ** 2) {
                             let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 1 : 40); // 通常弾は一発1ダメージ固定
-                            if (!b.isNormal && activeCards.length >= 2) {
+                            if (!b.isNormal && _acLen2) {
                                 dmg = Math.floor(dmg / 2);
                             }
                             // 攻撃側（PLAYER）のパッシブ補正
-                            if (turnCount > 1 && player.passives.includes('p8') && player.bombs === 0) {
-                                dmg = Math.floor(dmg * 1.25);
-                            }
-                            if (turnCount > 1 && player.passives.includes('p14')) {
-                                dmg = Math.floor(dmg * 1.10); // 気炎万丈 (+10%)
-                            }
-                            if (turnCount > 1 && player.passives.includes('p16') && player.hp <= 300) {
-                                dmg = Math.floor(dmg * 1.25); // 背水の陣 (+25%)
-                            }
-                            if (player.p22Buff && turnCount > 1 && player.passives.includes('p22')) {
-                                dmg = Math.floor(dmg * 1.20); // 憤怒の炎 (+20%)
-                            }
+                            if (_pp8)  { dmg = Math.floor(dmg * 1.25); }
+                            if (_pp14) { dmg = Math.floor(dmg * 1.10); } // 気炎万丈 (+10%)
+                            if (_pp16) { dmg = Math.floor(dmg * 1.25); } // 背水の陣 (+25%)
+                            if (_pp22) { dmg = Math.floor(dmg * 1.20); } // 憤怒の炎 (+20%)
 
                             // 防御側（CPU）のパッシブ補正
-                            if (turnCount > 1 && cpu.passives.includes('p1')) dmg = Math.max(1, dmg - 20); // 被弾軽減
-                            if (turnCount > 1 && cpu.passives.includes('p15') && !b.isNormal) {
-                                dmg = Math.max(1, dmg - 15); // 弾幕結界 (スペル被弾-15)
-                            }
-                            if (turnCount > 1 && cpu.passives.includes('p17') && cpu.hp <= 300) {
-                                dmg = Math.floor(dmg * 0.80); // 金剛結界 (-20%)
-                            }
+                            if (_cp1)                   dmg = Math.max(1, dmg - 20); // 被弾軽減
+                            if (_cp15 && !b.isNormal)  dmg = Math.max(1, dmg - 15); // 弾幕結界
+                            if (_cp17)                  dmg = Math.floor(dmg * 0.80); // 金剛結界 (-20%)
 
                             cpu.pendingDamage += dmg;
                             if (!cpu.recentHits) cpu.recentHits = [];
@@ -2432,23 +2443,23 @@ function applyAbilityEffect(cardId, owner) {
                             if (useFastRemove) { b._dead = true; continue; }
                             bullets.splice(i, 1); continue;
                         }
-                        if (!b.grazed && distSq < (cpu.grazeRadius + bHitR) ** 2) {
+                        if (!b.grazed && distSq < (_cGrazeR + bHitR) ** 2) {
                             b.grazed = true; cpu.grazeCount++;
-                            if (turnCount > 1 && cpu.passives.includes('p6') && Math.random() < 0.5) {
+                            if (_cp6 && Math.random() < 0.5) {
                                 cpu.pendingHeal += 1;
                             }
 
                             // p21 吸血の牙 (20グレイズごとにHP回復)
-                            if (turnCount > 1 && cpu.passives.includes('p21') && cpu.grazeCount % 20 === 0) {
+                            if (_cp21 && cpu.grazeCount % 20 === 0) {
                                 cpu.pendingHeal += 10;
                                 addBattleEffect("【吸血の牙】 相手のHP回復量+10！", "#ffaacc");
                             }
 
                             // CPUのパッシブ判定
-                            if (turnCount > 1 && cpu.passives.includes('p5') && cpu.grazeCount % 500 === 0) {
+                            if (_cp5 && cpu.grazeCount % 500 === 0) {
                                 if (cpu.bombs < cpu.maxBombs) cpu.bombs++;
                             }
-                            if (turnCount > 1 && cpu.passives.includes('p10') && Math.random() < 0.01) {
+                            if (_cp10 && Math.random() < 0.01) {
                                 if (cpu.bombs < cpu.maxBombs) {
                                     cpu.bombs++;
                                     addBattleEffect("【霊力還元】 相手のボムが回復！", "#ff8888");
