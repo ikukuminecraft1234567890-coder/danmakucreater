@@ -16,6 +16,7 @@ function stepEmitter(c, state, attacker, target, dt) {
 
             // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
+                state._emitterGen = (state._emitterGen || 0) + 1; // tweenが動いている=変数変化あり
                 state.tweens = state.tweens.filter(tw => {
                     if (tw.isCoordPair) {
                         let nextX, nextY;
@@ -376,6 +377,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let varName = block.params.name;
                         let val = evalValue(block.params.value, state.variables);
                         setScriptVariable(state, varName, val, block.type === 'const_var');
+                        state._emitterGen = (state._emitterGen || 0) + 1; // 変数変化 → gen++
                         break;
                     }
                     case 'change_var': {
@@ -384,6 +386,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let delta = block.params.op === '-' ? -val : val;
                         if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
                         if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
+                        state._emitterGen = (state._emitterGen || 0) + 1; // 変数変化 → gen++
                         break;
                     }
                     case 'aim_at_target': {
@@ -1272,28 +1275,38 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardSecond = window.currentCardSecond;
                 state.variables.cardFrame = window.currentCardFrame || 0;
                 
-                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
+                // コア（エミッター）の変数同期（エミッター変数が変化したフレームのみ実行）
                 if (window.needsEmitterSync && b.sharedEmitterState && b.sharedEmitterState.variables) {
-                    const vars = b.sharedEmitterState.variables;
-                    for (let key in vars) {
-                        if (Object.prototype.hasOwnProperty.call(vars, key)) {
-                            state.variables['e_' + key] = vars[key];
-                            state.variables['emitter_' + key] = vars[key];
+                    const _emSt = b.sharedEmitterState;
+                    const _curGen = _emSt._emitterGen || 0;
+                    if (b._lastEmitterGen !== _curGen) {
+                        const vars = _emSt.variables;
+                        for (let key in vars) {
+                            if (Object.prototype.hasOwnProperty.call(vars, key)) {
+                                state.variables['e_' + key] = vars[key];
+                                state.variables['emitter_' + key] = vars[key];
+                            }
                         }
+                        b._lastEmitterGen = _curGen;
                     }
                 }
             } else if (b.sharedEmitterState && b.sharedEmitterState.variables) {
                 state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
                 state.variables.cardFrame = Number(b.sharedEmitterState.variables.cardFrame || b.sharedEmitterState.variables.frame || 0);
                 
-                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
+                // コア（エミッター）の変数同期（エミッター変数が変化したフレームのみ実行）
                 if (window.needsEmitterSync) {
-                    const vars = b.sharedEmitterState.variables;
-                    for (let key in vars) {
-                        if (Object.prototype.hasOwnProperty.call(vars, key)) {
-                            state.variables['e_' + key] = vars[key];
-                            state.variables['emitter_' + key] = vars[key];
+                    const _emSt2 = b.sharedEmitterState;
+                    const _curGen2 = _emSt2._emitterGen || 0;
+                    if (b._lastEmitterGen !== _curGen2) {
+                        const vars = _emSt2.variables;
+                        for (let key in vars) {
+                            if (Object.prototype.hasOwnProperty.call(vars, key)) {
+                                state.variables['e_' + key] = vars[key];
+                                state.variables['emitter_' + key] = vars[key];
+                            }
                         }
+                        b._lastEmitterGen = _curGen2;
                     }
                 }
             } else {
