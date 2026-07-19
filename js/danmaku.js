@@ -2741,6 +2741,38 @@ if (y > 886) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "模倣「レッドマジック」",
+    desc: "レミリアのそれより圧倒的に簡単。というか、ほぼ下位互換ｗ",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    wait(2)
+    angle = random(0,360)
+    spawnRingResist("normal", "#ff3333", 300, 0, 7, 0, 0, 60, "ootama", "relative", "40")
+    playSound("shot_raw")
+    wait(3)
+}
+    `,
+    bulletScript: `
+bounce()
+if (cardFrame == 10 * n) {
+    spangle = random(0,360)
+    spawnBullet("normal", "#ff3333", 0, spangle, 0, 0, 10, "b_marutama", "relative", "4")
+}
+    `,
+    magicCircleScript: `
+if (timer == 1..4) {
+    speed += 0.4
+}
+    `
 }
 
 ];
