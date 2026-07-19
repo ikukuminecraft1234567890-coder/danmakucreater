@@ -2636,6 +2636,88 @@ spriteAngle = angle
     `
 },
 {
+    difficulty: "Hard",
+    name: "「常闇幻朧月睨」",
+    desc: "説明文や作成者名など",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 1,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 0,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    idousakix = random(-200,200)
+    idousakiy = random(-100,100)
+    tween("ex", ex, 384 + idousakix, "seconds", 1)
+    tween("ey", ey, 179 + idousakiy, "seconds", 1)
+    stop = 0
+    for (let i = 0; i < 40; i++) {
+        spawnRing("normal", "#ff3333", 200, angle, 12, 0, 0, 6, "kome", "relative", "6")
+        angle += 4
+        wait(0.02)
+    }
+    wait(0.5)
+    stop = 1
+    kaisi = 0.1
+    kaisi2 = 2
+    for (let i = 0; i < 10; i++) {
+        kaisi += 0.01
+        kaisi2 += 0.1
+        spawnRingResist("normal", "#3333ff", 800, angle, 24, 0, 0, 30, "b_knife", "relative", "6")
+        angle += 6.5
+        wait(0.02)
+    }
+    for (let i = 0; i < 10; i++) {
+        kaisi += 0.01
+        kaisi2 += 0.1
+        spawnRingResist("normal", "#3333ff", 800, angle, 24, 0, 0, 30, "b_knife", "relative", "6")
+        angle -= -2
+        wait(0.02)
+    }
+    wait(1)
+    stop = 2
+    wait(0.5)
+    stop = 0
+    wait(1.5 - minus)
+    minus += 0.1
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    if (e_stop == 0) {
+        hitRadius = 12
+        radius = 20
+        speed = 500
+    }
+    if (e_stop == 1) {
+        hitRadius = 0
+        radius = 0
+        speed = 0
+    }
+    if (e_stop == 2) {
+        radius = 20
+        speed = 0
+    }
+}
+if (color==#3333ff) {
+    if (timer == kaisi) {
+        speed = 0
+    }
+    if (timer == kaisi2..9000) {
+        speed = 600
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+
+
+
+//ここから下、💩
+{
     difficulty: "NORMAL",
     name: "否符「生命搾取」",
     desc: "タッチだと簡単です。",
