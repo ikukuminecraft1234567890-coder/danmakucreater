@@ -2980,17 +2980,24 @@ function applyAbilityEffect(cardId, owner) {
                         let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
                         let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
 
+                        let radCache = new Map();
                         function getTrailNodeRadius(age, scale) {
+                            let key = ((age * 100) | 0) + '_' + scale;
+                            let cached = radCache.get(key);
+                            if (cached !== undefined) return cached;
+
+                            let res = 0;
                             if (gT > 0 && age < gT) {
                                 let t = age / gT;
-                                return baseR * scale * Math.sin(t * Math.PI / 2);
+                                res = baseR * scale * Math.sin(t * Math.PI / 2);
                             } else if (age < gT + kT) {
-                                return baseR * scale;
+                                res = baseR * scale;
                             } else if (sT > 0 && age < gT + kT + sT) {
                                 let t = (age - (gT + kT)) / sT;
-                                return baseR * scale * Math.cos(t * Math.PI / 2);
+                                res = baseR * scale * Math.cos(t * Math.PI / 2);
                             }
-                            return 0;
+                            radCache.set(key, res);
+                            return res;
                         }
 
                         function buildRibbonPath(scale) {
@@ -3901,7 +3908,16 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.save();
                 
                 let card = activeCards[0];
-                let cardDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(card.difficulty) : (card.difficulty || 'NORMAL');
+                let rawDiff = card.difficulty;
+                let currentGlobalDiff = (typeof cpuDifficulty !== 'undefined' && cpuDifficulty) 
+                                        ? cpuDifficulty 
+                                        : (window.cpuDifficulty || (document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : null));
+
+                if (!rawDiff || (rawDiff === 'NORMAL' && currentGlobalDiff && currentGlobalDiff !== 'NORMAL')) {
+                    rawDiff = currentGlobalDiff || 'NORMAL';
+                }
+
+                let cardDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(rawDiff) : String(rawDiff || 'NORMAL').toUpperCase();
                 let diffChar = cardDiff.charAt(0).toUpperCase();
                 
                 // グラデーションの定義
