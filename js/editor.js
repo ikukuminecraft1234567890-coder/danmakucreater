@@ -1262,6 +1262,9 @@ function customCardMakerSwitchTab(tab) {
             let xOffsetInput = document.getElementById('custom-card-x-offset') ? Number(document.getElementById('custom-card-x-offset').value) || 0 : 0;
             let yOffsetInput = document.getElementById('custom-card-y-offset') ? Number(document.getElementById('custom-card-y-offset').value) || 0 : 0;
 
+            let currentDiffVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : 'NORMAL';
+            let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(currentDiffVal) : currentDiffVal.toUpperCase();
+
             let tempCustomCard = {
                 id: 'custom_test',
                 name: '【A】' + (document.getElementById('custom-card-name').value.trim() || 'テスト弾幕'),
@@ -1270,6 +1273,7 @@ function customCardMakerSwitchTab(tab) {
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
                 maxMisses: document.getElementById('custom-card-max-misses') ? parseInt(document.getElementById('custom-card-max-misses').value, 10) : 2,
+                difficulty: formattedDiff,
                 pattern: 'custom_test',
                 interval: 0.1,
                 rawCost: 0,
@@ -1280,6 +1284,9 @@ function customCardMakerSwitchTab(tab) {
                 bulletScript: JSON.parse(JSON.stringify(customCardMaker.bulletScript)),
                 magicCircleScript: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || []))
             };
+            
+            window.cpuDifficulty = formattedDiff;
+            window.currentDifficulty = formattedDiff;
             
             let testCardIdx = defaultCards.active.findIndex(c => c.id === 'custom_test');
             if (testCardIdx !== -1) {
@@ -3359,6 +3366,9 @@ function customCardMakerSwitchTab(tab) {
             let yOffset = Number(sharedCard.y_offset) || 0;
             let despawnTime = parseFloat(sharedCard.despawnTime) || 1.5;
 
+            let cardDiffVal = sharedCard.difficulty || 'NORMAL';
+            let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(cardDiffVal) : cardDiffVal.toUpperCase();
+
             let tempCustomCard = {
                 id: 'custom_test_shared_' + idx,
                 name: sharedCard.name.startsWith('【A】') ? sharedCard.name : '【A】' + sharedCard.name,
@@ -3367,6 +3377,7 @@ function customCardMakerSwitchTab(tab) {
                 y_offset: yOffset,
                 despawnTime: despawnTime,
                 maxMisses: sharedCard.maxMisses !== undefined ? parseInt(sharedCard.maxMisses, 10) : 2,
+                difficulty: formattedDiff,
                 pattern: 'custom_test_shared_' + idx,
                 interval: 0.1,
                 rawCost: 0,
@@ -3377,6 +3388,9 @@ function customCardMakerSwitchTab(tab) {
                 bulletScript: bulletScript,
                 magicCircleScript: magicCircleScript
             };
+
+            window.cpuDifficulty = formattedDiff;
+            window.currentDifficulty = formattedDiff;
 
             // defaultCards.active に登録して上書き
             let testCardIdx = defaultCards.active.findIndex(c => c.id === tempCustomCard.id);
