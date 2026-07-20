@@ -2285,42 +2285,34 @@ function applyAbilityEffect(cardId, owner) {
 
                             let isHit = false;
                             let isGraze = false;
-                            for (let k = 0; k < history.length; k++) {
-                                let node = history[k];
-                                let rHit = getTNRadius(node.age, hitR);
-                                let rGraze = getTNRadius(node.age, grazeR);
-                                if (rGraze <= 0.1) continue;
-                                let dSq = (player.x - node.x) ** 2 + (player.y - node.y) ** 2;
-                                if (rHit > 0.1 && dSq < (_pHitR + rHit) ** 2) { isHit = true; break; }
-                                if (!b.grazed && dSq < (_pGrazeR + rGraze) ** 2) { isGraze = true; }
-                            }
-                            if (!isHit && history.length > 1) {
-                                for (let k = 0; k < history.length - 1; k++) {
-                                    let p1 = history[k];
-                                    let p2 = history[k + 1];
-                                    let r1Hit = getTNRadius(p1.age, hitR);
-                                    let r2Hit = getTNRadius(p2.age, hitR);
-                                    let r1Graze = getTNRadius(p1.age, grazeR);
-                                    let r2Graze = getTNRadius(p2.age, grazeR);
-                                    if (r1Graze <= 0.1 && r2Graze <= 0.1) continue;
+                            let step = history.length > 20 ? 2 : 1;
+                            for (let k = 0; k < history.length - 1; k += step) {
+                                let kNext = Math.min(history.length - 1, k + step);
+                                let p1 = history[k];
+                                let p2 = history[kNext];
+                                let r1Hit = getTNRadius(p1.age, hitR);
+                                let r2Hit = getTNRadius(p2.age, hitR);
+                                let r1Graze = getTNRadius(p1.age, grazeR);
+                                let r2Graze = getTNRadius(p2.age, grazeR);
+                                if (r1Graze <= 0.1 && r2Graze <= 0.1) continue;
 
-                                    let A = player.x - p1.x;
-                                    let B = player.y - p1.y;
-                                    let C = p2.x - p1.x;
-                                    let D = p2.y - p1.y;
-                                    let dot = A * C + B * D;
-                                    let lenSq = C * C + D * D;
-                                    let param = lenSq !== 0 ? dot / lenSq : -1;
-                                    if (param >= 0 && param <= 1) {
-                                        let cx = p1.x + param * C;
-                                        let cy = p1.y + param * D;
-                                        let rClosestHit = r1Hit + param * (r2Hit - r1Hit);
-                                        let rClosestGraze = r1Graze + param * (r2Graze - r1Graze);
-                                        let dSq = (player.x - cx) ** 2 + (player.y - cy) ** 2;
-                                        if (rClosestHit > 0.1 && dSq < (_pHitR + rClosestHit) ** 2) { isHit = true; break; }
-                                        if (!b.grazed && dSq < (_pGrazeR + rClosestGraze) ** 2) { isGraze = true; }
-                                    }
-                                }
+                                let A = player.x - p1.x;
+                                let B = player.y - p1.y;
+                                let C = p2.x - p1.x;
+                                let D = p2.y - p1.y;
+                                let dot = A * C + B * D;
+                                let lenSq = C * C + D * D;
+                                let param = lenSq !== 0 ? dot / lenSq : -1;
+                                if (param < 0) param = 0;
+                                else if (param > 1) param = 1;
+
+                                let cx = p1.x + param * C;
+                                let cy = p1.y + param * D;
+                                let rClosestHit = r1Hit + param * (r2Hit - r1Hit);
+                                let rClosestGraze = r1Graze + param * (r2Graze - r1Graze);
+                                let dSq = (player.x - cx) ** 2 + (player.y - cy) ** 2;
+                                if (rClosestHit > 0.1 && dSq < (_pHitR + rClosestHit) ** 2) { isHit = true; break; }
+                                if (!b.grazed && dSq < (_pGrazeR + rClosestGraze) ** 2) { isGraze = true; }
                             }
                             distSq = isHit ? 0 : (isGraze ? (_pGrazeR * 0.5) ** 2 : Infinity);
                         } else if (b.isLaser) {
@@ -2464,35 +2456,29 @@ function applyAbilityEffect(cardId, owner) {
                             }
 
                             let isHit = false;
-                            for (let k = 0; k < history.length; k++) {
-                                let node = history[k];
-                                let r = getTNRadiusCPU(node.age);
-                                if (r <= 0.1) continue;
-                                let dSq = (cpu.x - node.x) ** 2 + (cpu.y - node.y) ** 2;
-                                if (dSq < (_cHitR + r) ** 2) { isHit = true; break; }
-                            }
-                            if (!isHit && history.length > 1) {
-                                for (let k = 0; k < history.length - 1; k++) {
-                                    let p1 = history[k];
-                                    let p2 = history[k + 1];
-                                    let r1 = getTNRadiusCPU(p1.age);
-                                    let r2 = getTNRadiusCPU(p2.age);
-                                    if (r1 <= 0.1 && r2 <= 0.1) continue;
-                                    let A = cpu.x - p1.x;
-                                    let B = cpu.y - p1.y;
-                                    let C = p2.x - p1.x;
-                                    let D = p2.y - p1.y;
-                                    let dot = A * C + B * D;
-                                    let lenSq = C * C + D * D;
-                                    let param = lenSq !== 0 ? dot / lenSq : -1;
-                                    if (param >= 0 && param <= 1) {
-                                        let cx = p1.x + param * C;
-                                        let cy = p1.y + param * D;
-                                        let rClosest = r1 + param * (r2 - r1);
-                                        let dSq = (cpu.x - cx) ** 2 + (cpu.y - cy) ** 2;
-                                        if (dSq < (_cHitR + rClosest) ** 2) { isHit = true; break; }
-                                    }
-                                }
+                            let step = history.length > 20 ? 2 : 1;
+                            for (let k = 0; k < history.length - 1; k += step) {
+                                let kNext = Math.min(history.length - 1, k + step);
+                                let p1 = history[k];
+                                let p2 = history[kNext];
+                                let r1 = getTNRadiusCPU(p1.age);
+                                let r2 = getTNRadiusCPU(p2.age);
+                                if (r1 <= 0.1 && r2 <= 0.1) continue;
+                                let A = cpu.x - p1.x;
+                                let B = cpu.y - p1.y;
+                                let C = p2.x - p1.x;
+                                let D = p2.y - p1.y;
+                                let dot = A * C + B * D;
+                                let lenSq = C * C + D * D;
+                                let param = lenSq !== 0 ? dot / lenSq : -1;
+                                if (param < 0) param = 0;
+                                else if (param > 1) param = 1;
+
+                                let cx = p1.x + param * C;
+                                let cy = p1.y + param * D;
+                                let rClosest = r1 + param * (r2 - r1);
+                                let dSq = (cpu.x - cx) ** 2 + (cpu.y - cy) ** 2;
+                                if (rClosest > 0.1 && dSq < (_cHitR + rClosest) ** 2) { isHit = true; break; }
                             }
                             distSq = isHit ? 0 : Infinity;
                         } else if (b.isLaser) {
@@ -3009,10 +2995,9 @@ function applyAbilityEffect(cardId, owner) {
 
                         let mainColor = b.color || '#00ffff';
 
-                        // 1. 外側（メインカラー）
+                        // 1. 外側（メインカラー）の全パスを一括構築して1回で fill
                         ctx.fillStyle = mainColor;
-                        ctx.strokeStyle = mainColor;
-
+                        ctx.beginPath();
                         for (let k = 0; k < history.length - 1; k++) {
                             let p1 = history[k];
                             let p2 = history[k + 1];
@@ -3030,42 +3015,31 @@ function applyAbilityEffect(cardId, owner) {
                                 let nx = -Math.sin(angle);
                                 let ny = Math.cos(angle);
 
-                                let ax = p1.x + nx * r1;
-                                let ay = p1.y + ny * r1;
-                                let bx = p1.x - nx * r1;
-                                let by = p1.y - ny * r1;
-                                let cx = p2.x + nx * r2;
-                                let cy = p2.y + ny * r2;
-                                let dxPt = p2.x - nx * r2;
-                                let dyPt = p2.y - ny * r2;
-
-                                ctx.beginPath();
-                                ctx.moveTo(ax, ay);
-                                ctx.lineTo(cx, cy);
-                                ctx.lineTo(dxPt, dyPt);
-                                ctx.lineTo(bx, by);
+                                ctx.moveTo(p1.x + nx * r1, p1.y + ny * r1);
+                                ctx.lineTo(p2.x + nx * r2, p2.y + ny * r2);
+                                ctx.lineTo(p2.x - nx * r2, p2.y - ny * r2);
+                                ctx.lineTo(p1.x - nx * r1, p1.y - ny * r1);
                                 ctx.closePath();
-                                ctx.fill();
                             }
 
                             if (b.round !== false) {
-                                ctx.beginPath();
+                                ctx.moveTo(p1.x + r1, p1.y);
                                 ctx.arc(p1.x, p1.y, Math.max(0.1, r1), 0, Math.PI * 2);
-                                ctx.fill();
                             }
                         }
                         if (history.length > 0 && b.round !== false) {
                             let lastP = history[history.length - 1];
                             let lastR = getTrailNodeRadius(lastP.age);
                             if (lastR > 0.1) {
-                                ctx.beginPath();
+                                ctx.moveTo(lastP.x + lastR, lastP.y);
                                 ctx.arc(lastP.x, lastP.y, Math.max(0.1, lastR), 0, Math.PI * 2);
-                                ctx.fill();
                             }
                         }
+                        ctx.fill();
 
-                        // 2. 内側（コアの白帯）
+                        // 2. 内側（コアの白帯）の全パスを一括構築して1回で fill
                         ctx.fillStyle = '#ffffff';
+                        ctx.beginPath();
                         for (let k = 0; k < history.length - 1; k++) {
                             let p1 = history[k];
                             let p2 = history[k + 1];
@@ -3083,39 +3057,27 @@ function applyAbilityEffect(cardId, owner) {
                                 let nx = -Math.sin(angle);
                                 let ny = Math.cos(angle);
 
-                                let ax = p1.x + nx * r1;
-                                let ay = p1.y + ny * r1;
-                                let bx = p1.x - nx * r1;
-                                let by = p1.y - ny * r1;
-                                let cx = p2.x + nx * r2;
-                                let cy = p2.y + ny * r2;
-                                let dxPt = p2.x - nx * r2;
-                                let dyPt = p2.y - ny * r2;
-
-                                ctx.beginPath();
-                                ctx.moveTo(ax, ay);
-                                ctx.lineTo(cx, cy);
-                                ctx.lineTo(dxPt, dyPt);
-                                ctx.lineTo(bx, by);
+                                ctx.moveTo(p1.x + nx * r1, p1.y + ny * r1);
+                                ctx.lineTo(p2.x + nx * r2, p2.y + ny * r2);
+                                ctx.lineTo(p2.x - nx * r2, p2.y - ny * r2);
+                                ctx.lineTo(p1.x - nx * r1, p1.y - ny * r1);
                                 ctx.closePath();
-                                ctx.fill();
                             }
 
                             if (b.round !== false) {
-                                ctx.beginPath();
+                                ctx.moveTo(p1.x + r1, p1.y);
                                 ctx.arc(p1.x, p1.y, Math.max(0.1, r1), 0, Math.PI * 2);
-                                ctx.fill();
                             }
                         }
                         if (history.length > 0 && b.round !== false) {
                             let lastP = history[history.length - 1];
                             let lastR = getTrailNodeRadius(lastP.age) * 0.45;
                             if (lastR > 0.1) {
-                                ctx.beginPath();
+                                ctx.moveTo(lastP.x + lastR, lastP.y);
                                 ctx.arc(lastP.x, lastP.y, Math.max(0.1, lastR), 0, Math.PI * 2);
-                                ctx.fill();
                             }
                         }
+                        ctx.fill();
                     }
                     ctx.restore();
                 } else if (b.isBeam) {
