@@ -2855,7 +2855,44 @@ if (timer == 1..4) {
     speed += 0.4
 }
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「唸る秘神の牙」",
+    desc: "ついにへにょりレーザー登場",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 0,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+for (let i = 0; i < 12000; i++) {
+    spawnTrail("#00ffff", 400, angle, 0, 0, 8, 0.2, 0.3, 0.2, "false", "relative", "8")
+    spawnTrail("#00ffff", 400, angle + 90, 0, 0, 8, 0.2, 0.3, 0.2, "false", "relative", "8")
+    spawnTrail("#00ffff", 400, angle + 180, 0, 0, 8, 0.2, 0.3, 0.2, "false", "relative", "8")
+    spawnTrail("#00ffff", 400, angle + 270, 0, 0, 8, 0.2, 0.3, 0.2, "false", "relative", "8")
+    angle += random(0,40)
+    wait(0.2)
+    spawnLaserWay("#ff3333", 6, 450, angle, 2, 45, 0, 0, "relative", "3")
 }
+    `,
+    bulletScript: `
+period = 60 + random(-20,20)
+amp = 30
+baseAngle = angle
+frame2 = 0
+while (true) {
+    frame2 += 1
+    l += 1
+    angle = baseAngle - amp * sin(frame2 * 360 / period)
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+}
+
 
 ];
 
