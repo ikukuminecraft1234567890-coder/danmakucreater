@@ -2974,109 +2974,76 @@ function applyAbilityEffect(cardId, owner) {
                 } else if (b.isTrail) {
                     ctx.save();
                     let history = b.trailHistory || [];
-                    if (history.length > 0) {
+                    if (history.length > 1) {
                         let baseR = b.radius || 8;
                         let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
                         let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
                         let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
 
-                        function getTrailNodeRadius(age) {
+                        function getTrailNodeRadius(age, scale) {
                             if (gT > 0 && age < gT) {
                                 let t = age / gT;
-                                return baseR * Math.sin(t * Math.PI / 2);
+                                return baseR * scale * Math.sin(t * Math.PI / 2);
                             } else if (age < gT + kT) {
-                                return baseR;
+                                return baseR * scale;
                             } else if (sT > 0 && age < gT + kT + sT) {
                                 let t = (age - (gT + kT)) / sT;
-                                return baseR * Math.cos(t * Math.PI / 2);
+                                return baseR * scale * Math.cos(t * Math.PI / 2);
                             }
                             return 0;
                         }
 
+                        function buildRibbonPath(scale) {
+                            let leftPts = [];
+                            let rightPts = [];
+                            for (let k = 0; k < history.length - 1; k++) {
+                                let p1 = history[k];
+                                let p2 = history[k + 1];
+                                let r1 = getTrailNodeRadius(p1.age, scale);
+                                let r2 = getTrailNodeRadius(p2.age, scale);
+                                if (r1 <= 0.05 && r2 <= 0.05) continue;
+
+                                let dx = p2.x - p1.x;
+                                let dy = p2.y - p1.y;
+                                let dist = Math.hypot(dx, dy);
+                                if (dist < 0.01) continue;
+
+                                let angle = Math.atan2(dy, dx);
+                                let nx = -Math.sin(angle);
+                                let ny = Math.cos(angle);
+
+                                if (leftPts.length === 0) {
+                                    leftPts.push({ x: p1.x + nx * r1, y: p1.y + ny * r1 });
+                                    rightPts.push({ x: p1.x - nx * r1, y: p1.y - ny * r1 });
+                                }
+                                leftPts.push({ x: p2.x + nx * r2, y: p2.y + ny * r2 });
+                                rightPts.push({ x: p2.x - nx * r2, y: p2.y - ny * r2 });
+                            }
+
+                            if (leftPts.length > 1) {
+                                ctx.moveTo(leftPts[0].x, leftPts[0].y);
+                                for (let i = 1; i < leftPts.length; i++) {
+                                    ctx.lineTo(leftPts[i].x, leftPts[i].y);
+                                }
+                                for (let i = rightPts.length - 1; i >= 0; i--) {
+                                    ctx.lineTo(rightPts[i].x, rightPts[i].y);
+                                }
+                                ctx.closePath();
+                            }
+                        }
+
                         let mainColor = b.color || '#00ffff';
 
-                        // 1. 外側（メインカラー）の全パスを一括構築して1回で fill
+                        // 1. 外側（メインカラー）の連続滑らかリボン
                         ctx.fillStyle = mainColor;
                         ctx.beginPath();
-                        for (let k = 0; k < history.length - 1; k++) {
-                            let p1 = history[k];
-                            let p2 = history[k + 1];
-                            let r1 = getTrailNodeRadius(p1.age);
-                            let r2 = getTrailNodeRadius(p2.age);
-
-                            if (r1 <= 0.1 && r2 <= 0.1) continue;
-
-                            let dx = p2.x - p1.x;
-                            let dy = p2.y - p1.y;
-                            let dist = Math.hypot(dx, dy);
-
-                            if (dist > 0.1) {
-                                let angle = Math.atan2(dy, dx);
-                                let nx = -Math.sin(angle);
-                                let ny = Math.cos(angle);
-
-                                ctx.moveTo(p1.x + nx * r1, p1.y + ny * r1);
-                                ctx.lineTo(p2.x + nx * r2, p2.y + ny * r2);
-                                ctx.lineTo(p2.x - nx * r2, p2.y - ny * r2);
-                                ctx.lineTo(p1.x - nx * r1, p1.y - ny * r1);
-                                ctx.closePath();
-                            }
-
-                            if (b.round !== false) {
-                                ctx.moveTo(p1.x + r1, p1.y);
-                                ctx.arc(p1.x, p1.y, Math.max(0.1, r1), 0, Math.PI * 2);
-                            }
-                        }
-                        if (history.length > 0 && b.round !== false) {
-                            let lastP = history[history.length - 1];
-                            let lastR = getTrailNodeRadius(lastP.age);
-                            if (lastR > 0.1) {
-                                ctx.moveTo(lastP.x + lastR, lastP.y);
-                                ctx.arc(lastP.x, lastP.y, Math.max(0.1, lastR), 0, Math.PI * 2);
-                            }
-                        }
+                        buildRibbonPath(1.0);
                         ctx.fill();
 
-                        // 2. 内側（コアの白帯）の全パスを一括構築して1回で fill
+                        // 2. 内側（コアの白帯）の連続滑らかリボン
                         ctx.fillStyle = '#ffffff';
                         ctx.beginPath();
-                        for (let k = 0; k < history.length - 1; k++) {
-                            let p1 = history[k];
-                            let p2 = history[k + 1];
-                            let r1 = getTrailNodeRadius(p1.age) * 0.45;
-                            let r2 = getTrailNodeRadius(p2.age) * 0.45;
-
-                            if (r1 <= 0.1 && r2 <= 0.1) continue;
-
-                            let dx = p2.x - p1.x;
-                            let dy = p2.y - p1.y;
-                            let dist = Math.hypot(dx, dy);
-
-                            if (dist > 0.1) {
-                                let angle = Math.atan2(dy, dx);
-                                let nx = -Math.sin(angle);
-                                let ny = Math.cos(angle);
-
-                                ctx.moveTo(p1.x + nx * r1, p1.y + ny * r1);
-                                ctx.lineTo(p2.x + nx * r2, p2.y + ny * r2);
-                                ctx.lineTo(p2.x - nx * r2, p2.y - ny * r2);
-                                ctx.lineTo(p1.x - nx * r1, p1.y - ny * r1);
-                                ctx.closePath();
-                            }
-
-                            if (b.round !== false) {
-                                ctx.moveTo(p1.x + r1, p1.y);
-                                ctx.arc(p1.x, p1.y, Math.max(0.1, r1), 0, Math.PI * 2);
-                            }
-                        }
-                        if (history.length > 0 && b.round !== false) {
-                            let lastP = history[history.length - 1];
-                            let lastR = getTrailNodeRadius(lastP.age) * 0.45;
-                            if (lastR > 0.1) {
-                                ctx.moveTo(lastP.x + lastR, lastP.y);
-                                ctx.arc(lastP.x, lastP.y, Math.max(0.1, lastR), 0, Math.PI * 2);
-                            }
-                        }
+                        buildRibbonPath(0.45);
                         ctx.fill();
                     }
                     ctx.restore();
