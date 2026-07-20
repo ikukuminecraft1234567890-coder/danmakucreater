@@ -2891,6 +2891,62 @@ while (true) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "Lunatic",
+    name: "魔符「殺人の流星群」",
+    desc: "シリンダーフォックスっぽいものを作ったけど多分本家よりムズいです。",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    angle = 6 + offset
+    spawnRingResist("normal", "#ff3333", 0, angle, 18 + way, 0, 0, 12, "star", "relative", "4")
+    spawnLaserRingResist("#ff3333", 6, 0, angle, 18 + way, 0, 0, "relative", "4")
+    wait(3)
+    offset += 3
+    way += 1
+}
+    `,
+    bulletScript: `
+spriteAngle += 7
+if (x < 10) {
+    once {
+        angle = -angle
+        angle += 180
+        speed = 0
+    }
+}
+if (x > 758) {
+    once {
+        angle = -angle
+        angle += 180
+        speed = 0
+    }
+}
+if (y < 10) {
+    once {
+        angle = -angle
+        speed = 0
+    }
+}
+if (y > 886) {
+    once {
+        angle = -angle
+        speed = 0
+    }
+}
+if (speed == 0..400) {
+    speed += 3
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 
