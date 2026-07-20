@@ -19,6 +19,8 @@
         let currentEditingDeck = null;
         let isGameRunning = false;
         let cpuDifficulty = 'NORMAL'; // 'EASY', 'NORMAL', 'HARD', 'LUNATIC'
+        window.cpuDifficulty = cpuDifficulty;
+        window.currentDifficulty = cpuDifficulty;
         let activeSelectSlotType = null; // 'active' or 'passive'
         let activeSelectSlotIndex = null; // 0-4 or 0-2
 
@@ -944,6 +946,8 @@
 
         function selectDifficulty(diff) {
             cpuDifficulty = diff;
+            window.cpuDifficulty = diff;
+            window.currentDifficulty = diff;
 
             const buttons = document.querySelectorAll('.diff-btn');
             buttons.forEach(btn => {

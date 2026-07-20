@@ -3908,13 +3908,12 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.save();
                 
                 let card = activeCards[0];
-                let rawDiff = card.difficulty;
-                let currentGlobalDiff = (typeof cpuDifficulty !== 'undefined' && cpuDifficulty) 
-                                        ? cpuDifficulty 
-                                        : (window.cpuDifficulty || (document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : null));
-
-                if (!rawDiff || (rawDiff === 'NORMAL' && currentGlobalDiff && currentGlobalDiff !== 'NORMAL')) {
-                    rawDiff = currentGlobalDiff || 'NORMAL';
+                let selectVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : null;
+                let globalDiff = window.cpuDifficulty || window.currentDifficulty || selectVal || (typeof cpuDifficulty !== 'undefined' ? cpuDifficulty : null);
+                
+                let rawDiff = globalDiff || (card ? card.difficulty : null) || 'NORMAL';
+                if (card && card.difficulty && typeof normalizeDifficulty === 'function' && normalizeDifficulty(card.difficulty) !== 'NORMAL') {
+                    rawDiff = card.difficulty;
                 }
 
                 let cardDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(rawDiff) : String(rawDiff || 'NORMAL').toUpperCase();
