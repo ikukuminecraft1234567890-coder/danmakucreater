@@ -2857,7 +2857,7 @@ if (timer == 1..4) {
     `
 },
 {
-    difficulty: "NORMAL",
+    difficulty: "h",
     name: "「唸る秘神の牙」",
     desc: "ついにへにょりレーザー登場",
     duration: 20,            // 制限時間（秒）
