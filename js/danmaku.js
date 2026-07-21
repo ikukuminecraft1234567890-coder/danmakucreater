@@ -3013,7 +3013,9 @@ if (frame == 3..870000) {
 }
     `,
     magicCircleScript: `
-        // 子弾挙動の独自コード（任意）
+if (timer == 2..3) {
+    speed += 2
+}
     `
 }
 
