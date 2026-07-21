@@ -2947,6 +2947,74 @@ if (speed == 0..400) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "h",
+    name: "恋符「ミラクルスパーク」",
+    desc: "っぱ、レーザーなんよ。",
+    duration: 40,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 3; i++) {
+        aimAtTarget()
+        spawnLaserRingResist("#ffdd33", 50, 15, angle, 12, 0, 0, "relative", "10")
+        playSound("laser_heavy")
+        wait(2)
+        playSound("boon01")
+        wait(3)
+    }
+    for (let i = 0; i < 3; i++) {
+        aimAtTarget()
+        spawnLaserRingResist("#ffdd33", 50, 15, angle, 12, 0, 0, "relative", "10")
+        playSound("laser_heavy")
+        wait(1)
+        aimAtTarget()
+        spawnLaserRingResist("#ffdd33", 50, 15, angle, 12, 0, 0, "relative", "10")
+        playSound("laser_heavy")
+        wait(1)
+        playSound("boon01")
+        wait(1)
+        playSound("boon01")
+        wait(2)
+    }
+    aimAtTarget()
+    spawnLaserRingResist("#ffdd33", 50, 15, angle, 12, 0, 0, "relative", "10")
+    playSound("laser_heavy")
+    wait(0.6666666667)
+    aimAtTarget()
+    spawnLaserRingResist("#ffdd33", 50, 15, angle, 12, 0, 0, "relative", "10")
+    playSound("laser_heavy")
+    wait(0.6666666667)
+    aimAtTarget()
+    spawnLaserRingResist("#ffdd33", 50, 15, angle, 12, 0, 0, "relative", "10")
+    playSound("laser_heavy")
+    wait(0.6666666667)
+    playSound("boon01")
+    wait(0.6666666667)
+    playSound("boon01")
+    wait(0.6666666667)
+    playSound("boon01")
+    wait(20)
+}
+    `,
+    bulletScript: `
+if (frame == 2) {
+    speed = 1500
+}
+if (frame == 3..870000) {
+    spangle = random(0,360)
+    spawnBullet("normal", "#ffdd33", 1, spangle, 0, 0, 6, "light", "relative", "6")
+    wait(0.007)
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 
