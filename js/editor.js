@@ -1812,10 +1812,10 @@ function customCardMakerSwitchTab(tab) {
                         let ox = b.params.offsetX || '0';
                         let oy = b.params.offsetY || '0';
                         let rad = b.params.radius || '8';
-                        let gt = b.params.growTime || '0.2';
-                        let kt = b.params.keepTime || '0.3';
-                        let st = b.params.shrinkTime || '0.5';
-                        let rnd = b.params.round || 'true';
+                        let gt = (b.params.growTime !== undefined && b.params.growTime !== '') ? b.params.growTime : '0.2';
+                        let kt = (b.params.keepTime !== undefined && b.params.keepTime !== '') ? b.params.keepTime : '0.3';
+                        let st = (b.params.shrinkTime !== undefined && b.params.shrinkTime !== '') ? b.params.shrinkTime : '0.5';
+                        let rnd = (b.params.round !== undefined && b.params.round !== '') ? String(b.params.round) : 'true';
                         let cm = b.params.coordMode || 'relative';
                         let hr = b.params.hitRadius || '';
                         line = `${fnName}(${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, ${gt}, ${kt}, ${st}, "${rnd}", "${cm}", ${formatCodeColorArg(hr)})`;
@@ -1832,9 +1832,13 @@ function customCardMakerSwitchTab(tab) {
                         let spr = b.params.spread || '45';
                         let ox = b.params.offsetX || '0';
                         let oy = b.params.offsetY || '0';
+                        let gt = (b.params.growTime !== undefined && b.params.growTime !== '') ? b.params.growTime : '0.2';
+                        let kt = (b.params.keepTime !== undefined && b.params.keepTime !== '') ? b.params.keepTime : '0.3';
+                        let st = (b.params.shrinkTime !== undefined && b.params.shrinkTime !== '') ? b.params.shrinkTime : '0.5';
+                        let rnd = (b.params.round !== undefined && b.params.round !== '') ? String(b.params.round) : 'true';
                         let cm = b.params.coordMode || 'relative';
                         let hr = b.params.hitRadius || '';
-                        line = `${fnName}(${formatCodeColorArg(col)}, ${rad}, ${spd}, ${ang}, ${cnt}, ${spr}, ${ox}, ${oy}, "${cm}", ${formatCodeColorArg(hr)})`;
+                        line = `${fnName}(${formatCodeColorArg(col)}, ${rad}, ${spd}, ${ang}, ${cnt}, ${spr}, ${ox}, ${oy}, ${gt}, ${kt}, ${st}, "${rnd}", "${cm}", ${formatCodeColorArg(hr)})`;
                         break;
                     }
                     case 'spawn_laser_ring':
@@ -1847,9 +1851,13 @@ function customCardMakerSwitchTab(tab) {
                         let cnt = b.params.count || '12';
                         let ox = b.params.offsetX || '0';
                         let oy = b.params.offsetY || '0';
+                        let gt = (b.params.growTime !== undefined && b.params.growTime !== '') ? b.params.growTime : '0.2';
+                        let kt = (b.params.keepTime !== undefined && b.params.keepTime !== '') ? b.params.keepTime : '0.3';
+                        let st = (b.params.shrinkTime !== undefined && b.params.shrinkTime !== '') ? b.params.shrinkTime : '0.5';
+                        let rnd = (b.params.round !== undefined && b.params.round !== '') ? String(b.params.round) : 'true';
                         let cm = b.params.coordMode || 'relative';
                         let hr = b.params.hitRadius || '';
-                        line = `${fnName}(${formatCodeColorArg(col)}, ${rad}, ${spd}, ${ang}, ${cnt}, ${ox}, ${oy}, "${cm}", ${formatCodeColorArg(hr)})`;
+                        line = `${fnName}(${formatCodeColorArg(col)}, ${rad}, ${spd}, ${ang}, ${cnt}, ${ox}, ${oy}, ${gt}, ${kt}, ${st}, "${rnd}", "${cm}", ${formatCodeColorArg(hr)})`;
                         break;
                     }
                     case 'spawn_beam':
@@ -2345,6 +2353,7 @@ function customCardMakerSwitchTab(tab) {
                     if (mSpawnLaserWay) {
                         let isRes = !!mSpawnLaserWay[1];
                         let args = splitArgs(mSpawnLaserWay[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let hasTrailArgs = args.length >= 13 || (args.length >= 12 && (args[11] === 'true' || args[11] === 'false' || args[12] === 'relative' || args[12] === 'absolute'));
                         block = {
                             type: isRes ? 'spawn_laser_way_resist' : 'spawn_laser_way',
                             params: {
@@ -2357,8 +2366,12 @@ function customCardMakerSwitchTab(tab) {
                                 spread: args[5] || '45',
                                 offsetX: args[6] || '0',
                                 offsetY: args[7] || '0',
-                                coordMode: args[8] || 'relative',
-                                hitRadius: (args[9] !== undefined && args[9] !== '""') ? args[9] : ''
+                                growTime: hasTrailArgs ? args[8] : '0.2',
+                                keepTime: hasTrailArgs ? args[9] : '0.3',
+                                shrinkTime: hasTrailArgs ? args[10] : '0.5',
+                                round: hasTrailArgs ? args[11] : 'true',
+                                coordMode: hasTrailArgs ? (args[12] || 'relative') : (args[8] || 'relative'),
+                                hitRadius: hasTrailArgs ? ((args[13] !== undefined && args[13] !== '""') ? args[13] : '') : ((args[9] !== undefined && args[9] !== '""') ? args[9] : '')
                             },
                             indent
                         };
@@ -2367,6 +2380,7 @@ function customCardMakerSwitchTab(tab) {
                     if (mSpawnLaserRing) {
                         let isRes = !!mSpawnLaserRing[1];
                         let args = splitArgs(mSpawnLaserRing[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        let hasTrailArgs = args.length >= 12 || (args.length >= 11 && (args[10] === 'true' || args[10] === 'false' || args[11] === 'relative' || args[11] === 'absolute'));
                         block = {
                             type: isRes ? 'spawn_laser_ring_resist' : 'spawn_laser_ring',
                             params: {
@@ -2378,8 +2392,12 @@ function customCardMakerSwitchTab(tab) {
                                 count: args[4] || '12',
                                 offsetX: args[5] || '0',
                                 offsetY: args[6] || '0',
-                                coordMode: args[7] || 'relative',
-                                hitRadius: (args[8] !== undefined && args[8] !== '""') ? args[8] : ''
+                                growTime: hasTrailArgs ? args[7] : '0.2',
+                                keepTime: hasTrailArgs ? args[8] : '0.3',
+                                shrinkTime: hasTrailArgs ? args[9] : '0.5',
+                                round: hasTrailArgs ? args[10] : 'true',
+                                coordMode: hasTrailArgs ? (args[11] || 'relative') : (args[7] || 'relative'),
+                                hitRadius: hasTrailArgs ? ((args[12] !== undefined && args[12] !== '""') ? args[12] : '') : ((args[8] !== undefined && args[8] !== '""') ? args[8] : '')
                             },
                             indent
                         };
@@ -2777,6 +2795,7 @@ function customCardMakerSwitchTab(tab) {
                         }
                         return sTrim;
                     });
+                    let hasTrailArgs = args.length >= 13 || (args.length >= 12 && (args[11] === 'true' || args[11] === 'false' || args[12] === 'relative' || args[12] === 'absolute'));
                     block = {
                         type: isRes ? 'spawn_laser_way_resist' : 'spawn_laser_way',
                         params: {
@@ -2789,8 +2808,12 @@ function customCardMakerSwitchTab(tab) {
                             spread: args[5] || '45',
                             offsetX: args[6] || '0',
                             offsetY: args[7] || '0',
-                            coordMode: args[8] || 'relative',
-                            hitRadius: (args[9] !== undefined && args[9] !== '""') ? args[9] : ''
+                            growTime: hasTrailArgs ? args[8] : '0.2',
+                            keepTime: hasTrailArgs ? args[9] : '0.3',
+                            shrinkTime: hasTrailArgs ? args[10] : '0.5',
+                            round: hasTrailArgs ? args[11] : 'true',
+                            coordMode: hasTrailArgs ? (args[12] || 'relative') : (args[8] || 'relative'),
+                            hitRadius: hasTrailArgs ? ((args[13] !== undefined && args[13] !== '""') ? args[13] : '') : ((args[9] !== undefined && args[9] !== '""') ? args[9] : '')
                         },
                         indent: indent
                     };
@@ -2805,6 +2828,7 @@ function customCardMakerSwitchTab(tab) {
                         }
                         return sTrim;
                     });
+                    let hasTrailArgs = args.length >= 12 || (args.length >= 11 && (args[10] === 'true' || args[10] === 'false' || args[11] === 'relative' || args[11] === 'absolute'));
                     block = {
                         type: isRes ? 'spawn_laser_ring_resist' : 'spawn_laser_ring',
                         params: {
@@ -2816,8 +2840,12 @@ function customCardMakerSwitchTab(tab) {
                             count: args[4] || '12',
                             offsetX: args[5] || '0',
                             offsetY: args[6] || '0',
-                            coordMode: args[7] || 'relative',
-                            hitRadius: (args[8] !== undefined && args[8] !== '""') ? args[8] : ''
+                            growTime: hasTrailArgs ? args[7] : '0.2',
+                            keepTime: hasTrailArgs ? args[8] : '0.3',
+                            shrinkTime: hasTrailArgs ? args[9] : '0.5',
+                            round: hasTrailArgs ? args[10] : 'true',
+                            coordMode: hasTrailArgs ? (args[11] || 'relative') : (args[7] || 'relative'),
+                            hitRadius: hasTrailArgs ? ((args[12] !== undefined && args[12] !== '""') ? args[12] : '') : ((args[8] !== undefined && args[8] !== '""') ? args[8] : '')
                         },
                         indent: indent
                     };

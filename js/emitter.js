@@ -485,9 +485,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         if (isTrail) {
                             newBullet.isTrail = true;
-                            newBullet.growTime = block.params.growTime ? Number(evalExpr(block.params.growTime, state.variables)) : 0.2;
-                            newBullet.keepTime = block.params.keepTime ? Number(evalExpr(block.params.keepTime, state.variables)) : 0.3;
-                            newBullet.shrinkTime = block.params.shrinkTime ? Number(evalExpr(block.params.shrinkTime, state.variables)) : 0.5;
+                            newBullet.growTime = (block.params.growTime !== undefined && block.params.growTime !== '') ? Number(evalExpr(block.params.growTime, state.variables)) : 0.2;
+                            newBullet.keepTime = (block.params.keepTime !== undefined && block.params.keepTime !== '') ? Number(evalExpr(block.params.keepTime, state.variables)) : 0.3;
+                            newBullet.shrinkTime = (block.params.shrinkTime !== undefined && block.params.shrinkTime !== '') ? Number(evalExpr(block.params.shrinkTime, state.variables)) : 0.5;
                             newBullet.round = (block.params.round !== undefined) ? (block.params.round === 'true' || block.params.round === true) : true;
                             newBullet.trailHistory = [];
                         }
@@ -810,10 +810,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 isCustom: true,
                                 isTrail: true,
                                 trailHistory: [],
-                                growTime: evalExpr(block.params.growTime || '0.2', state.variables),
-                                keepTime: evalExpr(block.params.keepTime || '0.3', state.variables),
-                                shrinkTime: evalExpr(block.params.shrinkTime || '0.5', state.variables),
-                                round: block.params.round !== 'false',
+                                growTime: (block.params.growTime !== undefined && block.params.growTime !== '') ? Number(evalExpr(block.params.growTime, state.variables)) : 0.2,
+                                keepTime: (block.params.keepTime !== undefined && block.params.keepTime !== '') ? Number(evalExpr(block.params.keepTime, state.variables)) : 0.3,
+                                shrinkTime: (block.params.shrinkTime !== undefined && block.params.shrinkTime !== '') ? Number(evalExpr(block.params.shrinkTime, state.variables)) : 0.5,
+                                round: block.params.round !== 'false' && block.params.round !== false,
                                 update: null
                             };
                             if (block.type === 'spawn_laser_way_resist') {
@@ -827,6 +827,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.color = bColor;
                             newBullet.bulletState.variables.radius = bRadius;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.growTime = newBullet.growTime;
+                            newBullet.bulletState.variables.keepTime = newBullet.keepTime;
+                            newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                             newBullet.bulletState.variables.bulletImage = 'none';
                             newBullet.sharedEmitterState = state;
                             newBullet.update = (b, bdt) => {
@@ -879,10 +882,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 isCustom: true,
                                 isTrail: true,
                                 trailHistory: [],
-                                growTime: evalExpr(block.params.growTime || '0.2', state.variables),
-                                keepTime: evalExpr(block.params.keepTime || '0.3', state.variables),
-                                shrinkTime: evalExpr(block.params.shrinkTime || '0.5', state.variables),
-                                round: block.params.round !== 'false',
+                                growTime: (block.params.growTime !== undefined && block.params.growTime !== '') ? Number(evalExpr(block.params.growTime, state.variables)) : 0.2,
+                                keepTime: (block.params.keepTime !== undefined && block.params.keepTime !== '') ? Number(evalExpr(block.params.keepTime, state.variables)) : 0.3,
+                                shrinkTime: (block.params.shrinkTime !== undefined && block.params.shrinkTime !== '') ? Number(evalExpr(block.params.shrinkTime, state.variables)) : 0.5,
+                                round: block.params.round !== 'false' && block.params.round !== false,
                                 update: null
                             };
                             if (block.type === 'spawn_laser_ring_resist') {
@@ -896,6 +899,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.color = bColor;
                             newBullet.bulletState.variables.radius = bRadius;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.growTime = newBullet.growTime;
+                            newBullet.bulletState.variables.keepTime = newBullet.keepTime;
+                            newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                             newBullet.bulletState.variables.bulletImage = 'none';
                             newBullet.sharedEmitterState = state;
                             newBullet.update = (b, bdt) => {
@@ -1955,9 +1961,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 if (isTrail) {
                                     newBullet.isTrail = true;
-                                    newBullet.growTime = block.params.growTime ? Number(evalExpr(block.params.growTime, state.variables, block, 'growTime')) : 0.2;
-                                    newBullet.keepTime = block.params.keepTime ? Number(evalExpr(block.params.keepTime, state.variables, block, 'keepTime')) : 0.3;
-                                    newBullet.shrinkTime = block.params.shrinkTime ? Number(evalExpr(block.params.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5;
+                                    newBullet.growTime = (block.params.growTime !== undefined && block.params.growTime !== '') ? Number(evalExpr(block.params.growTime, state.variables, block, 'growTime')) : 0.2;
+                                    newBullet.keepTime = (block.params.keepTime !== undefined && block.params.keepTime !== '') ? Number(evalExpr(block.params.keepTime, state.variables, block, 'keepTime')) : 0.3;
+                                    newBullet.shrinkTime = (block.params.shrinkTime !== undefined && block.params.shrinkTime !== '') ? Number(evalExpr(block.params.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5;
                                     newBullet.round = (block.params.round !== undefined) ? (block.params.round === 'true' || block.params.round === true) : true;
                                     newBullet.trailHistory = [];
                                 }
@@ -2266,10 +2272,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         isCustom: true,
                                         isTrail: true,
                                         trailHistory: [],
-                                        growTime: evalExpr(block.params.growTime || '0.2', state.variables, block, 'growTime'),
-                                        keepTime: evalExpr(block.params.keepTime || '0.3', state.variables, block, 'keepTime'),
-                                        shrinkTime: evalExpr(block.params.shrinkTime || '0.5', state.variables, block, 'shrinkTime'),
-                                        round: block.params.round !== 'false',
+                                        growTime: (block.params.growTime !== undefined && block.params.growTime !== '') ? Number(evalExpr(block.params.growTime, state.variables, block, 'growTime')) : 0.2,
+                                        keepTime: (block.params.keepTime !== undefined && block.params.keepTime !== '') ? Number(evalExpr(block.params.keepTime, state.variables, block, 'keepTime')) : 0.3,
+                                        shrinkTime: (block.params.shrinkTime !== undefined && block.params.shrinkTime !== '') ? Number(evalExpr(block.params.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5,
+                                        round: block.params.round !== 'false' && block.params.round !== false,
                                         update: null
                                     };
                                     if (block.type === 'spawn_laser_way_resist') {
@@ -2283,6 +2289,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.color = bColor;
                                     newBullet.bulletState.variables.radius = bRadius;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                                    newBullet.bulletState.variables.growTime = newBullet.growTime;
+                                    newBullet.bulletState.variables.keepTime = newBullet.keepTime;
+                                    newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                                     newBullet.bulletState.variables.bulletImage = 'none';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
                                     newBullet.update = (childB, childBDT) => {
@@ -2334,7 +2343,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         color: bColor,
                                         customDmg: 20,
                                         isCustom: true,
-                                        isLaser: true,
+                                        isTrail: true,
+                                        trailHistory: [],
+                                        growTime: (block.params.growTime !== undefined && block.params.growTime !== '') ? Number(evalExpr(block.params.growTime, state.variables, block, 'growTime')) : 0.2,
+                                        keepTime: (block.params.keepTime !== undefined && block.params.keepTime !== '') ? Number(evalExpr(block.params.keepTime, state.variables, block, 'keepTime')) : 0.3,
+                                        shrinkTime: (block.params.shrinkTime !== undefined && block.params.shrinkTime !== '') ? Number(evalExpr(block.params.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5,
+                                        round: block.params.round !== 'false' && block.params.round !== false,
                                         update: null
                                     };
                                     if (block.type === 'spawn_laser_ring_resist') {
@@ -2348,6 +2362,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.color = bColor;
                                     newBullet.bulletState.variables.radius = bRadius;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                                    newBullet.bulletState.variables.growTime = newBullet.growTime;
+                                    newBullet.bulletState.variables.keepTime = newBullet.keepTime;
+                                    newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                                     newBullet.bulletState.variables.bulletImage = 'none';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
                                     newBullet.update = (childB, childBDT) => {
@@ -3268,10 +3285,10 @@ function stepEmitter(c, state, attacker, target, dt) {
             'spawn_way_resist': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'bulletImage', 'coordMode', 'hitRadius'],
             'spawn_beam': ['warningTime', 'activeTime', 'laserWidth', 'angle', 'offsetX', 'offsetY', 'coordMode', 'hitRadius'],
             'spawn_beam_resist': ['warningTime', 'activeTime', 'laserWidth', 'angle', 'offsetX', 'offsetY', 'coordMode', 'hitRadius'],
-            'spawn_laser_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'coordMode', 'hitRadius'],
-            'spawn_laser_way_resist': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'coordMode', 'hitRadius'],
-            'spawn_laser_ring': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'coordMode', 'hitRadius'],
-            'spawn_laser_ring_resist': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'coordMode', 'hitRadius'],
+            'spawn_laser_way': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'growTime', 'keepTime', 'shrinkTime', 'round', 'coordMode', 'hitRadius'],
+            'spawn_laser_way_resist': ['type', 'color', 'speed', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'radius', 'growTime', 'keepTime', 'shrinkTime', 'round', 'coordMode', 'hitRadius'],
+            'spawn_laser_ring': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'growTime', 'keepTime', 'shrinkTime', 'round', 'coordMode', 'hitRadius'],
+            'spawn_laser_ring_resist': ['type', 'color', 'speed', 'angle', 'count', 'offsetX', 'offsetY', 'radius', 'growTime', 'keepTime', 'shrinkTime', 'round', 'coordMode', 'hitRadius'],
             'spawn_beam_way': ['warningTime', 'activeTime', 'laserWidth', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'coordMode', 'hitRadius'],
             'spawn_beam_way_resist': ['warningTime', 'activeTime', 'laserWidth', 'angle', 'count', 'spread', 'offsetX', 'offsetY', 'coordMode', 'hitRadius'],
             'spawn_beam_ring': ['warningTime', 'activeTime', 'laserWidth', 'angle', 'count', 'offsetX', 'offsetY', 'coordMode', 'hitRadius'],
