@@ -3083,7 +3083,7 @@ if (timer == 5.5..6) {
 },
 {
     difficulty: "Lunatic",
-    name: "「混沌なる狂気」",
+    name: "「混沌なる狂気～Lunatic」",
     desc: "予告線なしver",
     duration: 30,            // 制限時間（秒）
     maxMisses: 2,
