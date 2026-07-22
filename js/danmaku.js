@@ -3139,6 +3139,42 @@ if (timer == 5.5..6) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「宝永四年の赤蛇」",
+    desc: "説明文や作成者名など",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 3,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnBulletResist("normal", "#ff3333", 1, angle, 0, 0, 0, "none", "relative", "0")
+    wait(6)
+}
+    `,
+    bulletScript: `
+if (cardFrame == 2 * n) {
+    spawnBullet("normal", "#ffffff", 0, angle, rx, ry, 15, "b_marutama", "relative", "0")
+}
+if (cardFrame == 30 * n) {
+    speed = 1600
+    aimAtTarget()
+}
+speed += -30
+    `,
+    magicCircleScript: `
+if (timer > 0.5) {
+    hitRadius = 6
+    color = = #ff3333
+}
+if (timer > 6) {
+    y = -80000
+}
+    `
 }
 
 
