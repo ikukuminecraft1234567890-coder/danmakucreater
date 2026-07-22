@@ -3017,6 +3017,128 @@ if (timer == 2..3) {
     speed += 2
 }
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「混沌なる狂気」",
+    desc: "予告線ありver",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 8,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    angle += random(0,360)
+    wait(3)
+    spawnLaserRingResist("#ff3333", 1, 400, angle, 36, 0, 0, "relative", "0")
+    wait(0.5)
+    spawnLaserRingResist("#33ffff", 1, 500, angle, 36, 0, 0, "relative", "0")
+    wait(0.5)
+    spawnLaserRingResist("#ff3333", 6, 400, angle, 36, 0, 0, "relative", "6")
+    wait(0.5)
+    spawnLaserRingResist("#33ffff", 6, 500, angle, 36, 0, 0, "relative", "6")
+    wait(0.5)
+    ex = 384 + random(-100,100)
+    ey = 400 + random(-100,100)
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    offset = 0.8
+}
+if (color==#33ffff) {
+    offset = -0.8
+}
+if (timer == 0..0.5) {
+    angle += 3 * offset
+}
+if (timer == 0.5..1.5) {
+    angle += -2 * offset
+}
+if (timer == 1.5..2.5) {
+    angle += 7 - plus * offset
+    plus += 0.2
+}
+if (timer == 3.5..4) {
+    angle += 4 * offset
+}
+if (timer == 4..4.5) {
+    angle -= 1 * offset
+}
+if (timer == 4.5..5) {
+    angle += 1 * offset
+}
+if (timer == 5..5.5) {
+    angle -= 1
+}
+if (timer == 5.5..6) {
+    angle += 1
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    difficulty: "Lunatic",
+    name: "「混沌なる狂気」",
+    desc: "予告線なしver",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 8,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    angle += random(0,360)
+    wait(4)
+    spawnLaserRingResist("#ff3333", 6, 400, angle, 36, 0, 0, "relative", "6")
+    wait(0.5)
+    spawnLaserRingResist("#33ffff", 6, 500, angle, 36, 0, 0, "relative", "6")
+    wait(0.5)
+    ex = 384 + random(-100,100)
+    ey = 400 + random(-100,100)
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    offset = 0.8
+}
+if (color==#33ffff) {
+    offset = -0.8
+}
+if (timer == 0..0.5) {
+    angle += 3 * offset
+}
+if (timer == 0.5..1.5) {
+    angle += -2 * offset
+}
+if (timer == 1.5..2.5) {
+    angle += 7 - plus * offset
+    plus += 0.2
+}
+if (timer == 3.5..4) {
+    angle += 4 * offset
+}
+if (timer == 4..4.5) {
+    angle -= 1 * offset
+}
+if (timer == 4.5..5) {
+    angle += 1 * offset
+}
+if (timer == 5..5.5) {
+    angle -= 1
+}
+if (timer == 5.5..6) {
+    angle += 1
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 
