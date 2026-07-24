@@ -44,6 +44,11 @@ function customCardMakerSwitchTab(tab) {
                 block.params.count = '10';
             } else if (type === 'if') {
                 block.params.cond = 'x < 10';
+            } else if (type === 'aif') {
+                block.type = 'if';
+                block.params.cond = 'abs(y - ty) <= 3';
+                block.params.aifTol = '3';
+                block.params.aifCond = 'y == ty';
             } else if (type === 'const_var') {
                 block.params.name = 'baseSpeed';
                 block.params.value = '250';
@@ -265,6 +270,13 @@ function customCardMakerSwitchTab(tab) {
         function customCardMakerUpdateParam(idx, paramName, value) {
             let script = getActiveScript();
             script[idx].params[paramName] = value;
+            if (paramName === 'aifTol' || paramName === 'aifCond') {
+                let tol = script[idx].params.aifTol || '0';
+                let condStr = script[idx].params.aifCond || 'y == ty';
+                condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
+                condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
+                script[idx].params.cond = condStr;
+            }
             customCardMaker.testPassed = false;
             saveCustomCardDraft(false);
             renderCardMaker();
@@ -447,6 +459,15 @@ function customCardMakerSwitchTab(tab) {
                             `;
                             break;
                         case 'if': {
+                            if (b.params.aifTol !== undefined) {
+                                blockDiv.className = 'maker-block color-control';
+                                html = `
+                                    <span>[制御] <span style="color:#ffcc00;font-weight:bold;">aif</span>[<input type="text" class="block-param-input" style="width:40px;" value="${b.params.aifTol}" onchange="customCardMakerUpdateParam(${idx}, 'aifTol', this.value)">] (
+                                    <input type="text" class="block-param-input" style="width:120px;" value="${b.params.aifCond}" onchange="customCardMakerUpdateParam(${idx}, 'aifCond', this.value)"> )</span>
+                                    ${renderBlockControls(idx)}
+                                `;
+                                break;
+                            }
                             let cond = b.params.cond || 'isBounced';
                             let normalizedCond = cond.replace(/\s+/g, '');
                             let selectVal = 'custom';
@@ -1948,7 +1969,11 @@ function customCardMakerSwitchTab(tab) {
                         line = `warningTime = ${b.params.warningTime || '1.0'}\n${indentStr}activeTime = ${b.params.activeTime || '1.5'}\n${indentStr}laserWidth = ${b.params.laserWidth || '12'}`;
                         break;
                     case 'if':
-                        line = `if (${b.params.cond || 'x < 10'})`;
+                        if (b.params.aifTol !== undefined) {
+                            line = `aif[${b.params.aifTol}](${b.params.aifCond})`;
+                        } else {
+                            line = `if (${b.params.cond || 'x < 10'})`;
+                        }
                         break;
                     case 'once':
                         line = `once`;
@@ -2082,7 +2107,7 @@ function customCardMakerSwitchTab(tab) {
                         let condStr = mAIf[2].trim();
                         condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
                         condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
-                        block = { type: 'if', params: { cond: condStr }, indent };
+                        block = { type: 'if', params: { cond: condStr, aifTol: tol, aifCond: condRaw }, indent };
                     }
                     let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
@@ -2623,7 +2648,7 @@ function customCardMakerSwitchTab(tab) {
                     let condStr = mAIf[2].trim();
                     condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
                     condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
-                    block = { type: 'if', params: { cond: condStr }, indent: indent };
+                    block = { type: 'if', params: { cond: condStr, aifTol: tol, aifCond: condRaw }, indent: indent };
                 }
                 let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                 if (mAim) {
