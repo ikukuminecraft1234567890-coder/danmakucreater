@@ -2104,7 +2104,8 @@ function customCardMakerSwitchTab(tab) {
                     let mAIf = trimmed.match(/^aif\s*\[(.*?)\]\s*\((.*?)\)$/i);
                     if (mAIf) {
                         let tol = mAIf[1].trim();
-                        let condStr = mAIf[2].trim();
+                        let condRaw = mAIf[2].trim();
+                        let condStr = condRaw;
                         condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
                         condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
                         block = { type: 'if', params: { cond: condStr, aifTol: tol, aifCond: condRaw }, indent };
@@ -2645,7 +2646,8 @@ function customCardMakerSwitchTab(tab) {
                 let mAIf = trimmed.match(/^aif\s*\[(.*?)\]\s*\((.*?)\)$/i);
                 if (mAIf) {
                     let tol = mAIf[1].trim();
-                    let condStr = mAIf[2].trim();
+                    let condRaw = mAIf[2].trim();
+                    let condStr = condRaw;
                     condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
                     condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
                     block = { type: 'if', params: { cond: condStr, aifTol: tol, aifCond: condRaw }, indent: indent };
