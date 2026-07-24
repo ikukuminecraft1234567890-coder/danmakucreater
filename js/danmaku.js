@@ -3266,7 +3266,7 @@ if (frame > 305) {
     name: "超人「博麗霊夢」",
     desc: "「博麗霊夢のエア結界」の難易度上昇版",
     duration: 30,            // 制限時間（秒）
-    maxMisses: 2,
+    maxMisses: 3,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
