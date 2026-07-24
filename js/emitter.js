@@ -1472,6 +1472,11 @@ function stepEmitter(c, state, attacker, target, dt) {
         function runCustomBulletScript(b, dt, attacker, target) {
             let state = b.bulletState;
             if (!state) return;
+
+            // --- 永久スリープによる超軽量化処理 ---
+            if (state.waitTimer >= 99999 && (!state.tweens || state.tweens.length === 0)) {
+                return;
+            }
             
             // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
