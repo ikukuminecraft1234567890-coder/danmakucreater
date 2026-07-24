@@ -4679,6 +4679,7 @@ function applyAbilityEffect(cardId, owner) {
             if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) return s.substring(1, s.length - 1);
             if (variables && variables[s] !== undefined) return variables[s];
             if (isCssColorLiteral(s)) return s;
+            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko'].includes(s)) return s;
             // "12,522" のようなコンマ区切り座標リテラルは数式評価せずそのまま文字列として返す
             if (/^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?$/.test(s)) return s;
             return evalExpr(expr, variables || {}, block, key);
@@ -4690,6 +4691,7 @@ function applyAbilityEffect(cardId, owner) {
                 raw = raw.substring(1, raw.length - 1);
             }
             if (variables && variables[raw] !== undefined) return String(variables[raw]);
+            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko'].includes(raw)) return raw;
             // カンマ区切りの座標指定（例: x0,y0 など）の各大要素を個別に evalExpr する
             if (raw.includes(',')) {
                 let parts = raw.split(',').map(part => {
