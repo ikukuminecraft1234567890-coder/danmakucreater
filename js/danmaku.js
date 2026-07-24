@@ -3175,6 +3175,176 @@ if (timer > 6) {
     y = -80000
 }
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「博麗霊夢のエア結界」",
+    desc: "陰陽玉を陰陽弾無しで作ったｗ",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 348
+    wait(0.2)
+    heru = 600000
+    spawnBullet("normal", "#ff3332", 120, angle, 0, 0, 30, "light", "relative", "30")
+    spawnBullet("normal", "#3332ff", 120, angle + 180, 0, 0, 30, "light", "relative", "30")
+    for (let i = 0; i < 48; i++) {
+        for (let j = 0; j < 3; j++) {
+            spawnBullet("normal", "#ff3333", 240, angle, 0, 0, 20, "b_ohuda", "relative", "4")
+            spawnBullet("normal", "#3333ff", 240, angle + 180, 0, 0, 20, "b_ohuda", "relative", "4")
+            angle += 1.25
+            ikouangle += 0.25
+        }
+        ikouangle += 3.5
+        wait(0.035)
+        playSound("shot")
+    }
+    heru = 1.6
+    for (let i = 0; i < 52; i++) {
+            spawnBullet("normal", "#ff3333", 240, angle - 6, 0, 0, 20, "ohuda", "relative", "4")
+            spawnBullet("normal", "#ff3333", 240, angle + 180 + 6, 0, 0, 20, "b_ohuda", "relative", "4")
+            spawnBullet("normal", "#3333ff", 240, angle + 6, 0, 0, 20, "ohuda", "relative", "4")
+            spawnBullet("normal", "#3333ff", 240, angle + 180 - 6, 0, 0, 20, "b_ohuda", "relative", "4")
+        for (let i = 0; i < 3; i++) {
+            angle += 0.7
+            ikouangle += 2
+            heru -= 0.01
+        }
+        wait(0.03)
+        playSound("shot")
+    }
+    wait(2.2 - hakkyou)
+    wait(1 - hakkyou2)
+    hakkyou += 1
+    hakkyou += 0.5
+}
+    `,
+    bulletScript: `
+if (frame == 60..180) {
+    speed -= 4
+}
+if (frame == 180..190) {
+    speed = 0
+}
+if (frame == 260..305) {
+    once {
+        angle -= 90
+        angle += ikouangle * 3
+        speed = 0
+        spriteAngle = angle
+    }
+    if (color == #ff3332) {
+        angle -= 2
+        spriteAngle = angle
+    }
+    if (color == #3332ff) {
+        angle -= 2
+        spriteAngle = angle
+    }
+    speed = 200
+}
+if (timer == heru) {
+    speed = 0
+}
+// ★ここが究極の軽量化ポイント！
+// 305フレームを超えたら、このスクリプトの計算を「99999秒待機（実質停止）」させる
+if (frame > 305) {
+    wait(99999)
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    difficulty: "lunatic",
+    name: "超人「博麗霊夢」",
+    desc: "「博麗霊夢のエア結界」の難易度上昇版",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 348
+    wait(0.2)
+    heru = 600000
+    spawnBullet("normal", "#ff3332", 120, angle, 0, 0, 30, "light", "relative", "30")
+    spawnBullet("normal", "#3332ff", 120, angle + 180, 0, 0, 30, "light", "relative", "30")
+    for (let i = 0; i < 48; i++) {
+        for (let j = 0; j < 6; j++) {
+            spawnBullet("normal", "#ff3333", 240, angle, 0, 0, 20, "b_ohuda", "relative", "4")
+            spawnBullet("normal", "#3333ff", 240, angle + 180, 0, 0, 20, "b_ohuda", "relative", "4")
+            angle += 1.25 / 2
+            ikouangle += 0.25
+        }
+        ikouangle += 3.5
+        wait(0.035)
+        playSound("shot")
+    }
+    heru = 1.6
+    for (let i = 0; i < 52; i++) {
+        for (let i = 0; i < 3; i++) {
+            spawnBullet("normal", "#ff3333", 240, angle - 6, 0, 0, 20, "ohuda", "relative", "4")
+            spawnBullet("normal", "#ff3333", 240, angle + 180 + 6, 0, 0, 20, "b_ohuda", "relative", "4")
+            spawnBullet("normal", "#3333ff", 240, angle + 6, 0, 0, 20, "ohuda", "relative", "4")
+            spawnBullet("normal", "#3333ff", 240, angle + 180 - 6, 0, 0, 20, "b_ohuda", "relative", "4")
+            angle += 0.7
+            ikouangle += 2
+            heru -= 0.01
+        }
+        wait(0.03)
+        playSound("shot")
+    }
+    wait(2.2 - hakkyou)
+    wait(1 - hakkyou2)
+    hakkyou += 1
+    hakkyou += 0.5
+}
+    `,
+    bulletScript: `
+if (frame == 60..180) {
+    speed -= 4
+}
+if (frame == 180..190) {
+    speed = 0
+}
+if (frame == 260..305) {
+    once {
+        angle -= 90
+        angle += ikouangle * 3
+        speed = 0
+        spriteAngle = angle
+    }
+    if (color == #ff3332) {
+        angle -= 2
+        spriteAngle = angle
+    }
+    if (color == #3332ff) {
+        angle -= 2
+        spriteAngle = angle
+    }
+    speed = 200
+}
+if (timer == heru) {
+    speed = 0
+}
+// ★ここが究極の軽量化ポイント！
+// 305フレームを超えたら、このスクリプトの計算を「99999秒待機（実質停止）」させる
+if (frame > 305) {
+    wait(99999)
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 
