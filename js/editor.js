@@ -2076,6 +2076,14 @@ function customCardMakerSwitchTab(tab) {
                     if (mForRepeat) block = { type: 'repeat', params: { count: mForRepeat[2].trim(), indexVar: mForRepeat[1].trim() }, indent };
                     let mIf = trimmed.match(/^if\s*\((.*?)\)$/i);
                     if (mIf) block = { type: 'if', params: { cond: mIf[1].trim() }, indent };
+                    let mAIf = trimmed.match(/^aif\s*\[(.*?)\]\s*\((.*?)\)$/i);
+                    if (mAIf) {
+                        let tol = mAIf[1].trim();
+                        let condStr = mAIf[2].trim();
+                        condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
+                        condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
+                        block = { type: 'if', params: { cond: condStr }, indent };
+                    }
                     let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
                     let mAimCoord = trimmed.match(/^aimAt\((.*?)\)$/i);
@@ -2608,6 +2616,14 @@ function customCardMakerSwitchTab(tab) {
                 let mIf = trimmed.match(/^if\s*\((.*?)\)$/i);
                 if (mIf) {
                     block = { type: 'if', params: { cond: mIf[1].trim() }, indent: indent };
+                }
+                let mAIf = trimmed.match(/^aif\s*\[(.*?)\]\s*\((.*?)\)$/i);
+                if (mAIf) {
+                    let tol = mAIf[1].trim();
+                    let condStr = mAIf[2].trim();
+                    condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
+                    condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
+                    block = { type: 'if', params: { cond: condStr }, indent: indent };
                 }
                 let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                 if (mAim) {
