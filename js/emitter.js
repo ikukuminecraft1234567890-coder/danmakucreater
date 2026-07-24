@@ -1474,7 +1474,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (!state) return;
 
             // --- 永久スリープによる超軽量化処理 ---
-            if (state.waitTimer >= 99999 && (!state.tweens || state.tweens.length === 0)) {
+            if (state.waitTimer > 1000 && (!state.tweens || state.tweens.length === 0)) {
                 return;
             }
             
