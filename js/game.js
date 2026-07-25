@@ -4895,7 +4895,7 @@ function applyAbilityEffect(cardId, owner) {
             'sin', 'cos', 'tan', 'sqrt', 'abs', 'min', 'max', 'PI', 'PI2',
             'atan2', 'pow', 'log', 'exp', 'floor', 'round', 'ceil', 'random', 'rand',
             'const', 'let', 'var', 'function', 'return', 'n',
-            '__fuzzyEqual', '__fuzzyNotEqual', '__v'
+            '__fuzzyEqual', '__fuzzyNotEqual', '__v', '__seedrandom'
         ]);
 
         function compileNumericExpr(expr) {
