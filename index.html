@@ -125,6 +125,7 @@
                         <option value="second">秒数 (second)</option>
                         <option value="frame">フレーム数 (frame)</option>
                         <option value="random(0, 100)">random(0, 100)</option>
+                        <option value="seedrandom[12345](0, 100)">seedrandom[12345](0, 100)</option>
                         <option value="x">現在のX座標 (x)</option>
                         <option value="y">現在のY座標 (y)</option>
                         <option value="dist">ターゲットとの距離 (dist)</option>
@@ -448,6 +449,7 @@ random()        // 0.0 以上 1.0 未満の乱数
 random(max)     // 0 から max 未満の乱数
 random(min,max) // min から max 未満の乱数
 rand()          // random の略称 (同じ動作)
+seedrandom[seed](min,max) // 再現性のあるハッシュブレンド式乱数
 sin(度)         // 正弦 (サイン, 度数法)
 cos(度)         // 余弦 (コサイン, 度数法)
 tan(度)         // 正接 (タンジェント, 度数法)
