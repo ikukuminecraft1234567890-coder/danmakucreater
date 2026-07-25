@@ -4996,10 +4996,8 @@ function applyAbilityEffect(cardId, owner) {
                     '};' +
                     'const __seedrandom = (baseSeed, a, b, vars) => {' +
                     '  let n = vars.n !== undefined ? vars.n : 0;' +
-                    '  let t = vars.frame !== undefined ? vars.frame : 0;' +
-                    '  if (vars.__seedLastFrame !== t) { vars.__seedLastFrame = t; vars.__seedCount = 0; }' +
-                    '  vars.__seedCount = (vars.__seedCount || 0) + 1;' +
-                    '  let seed = Math.floor(Number(baseSeed)) + Math.floor(n) * 2654435761 + Math.floor(t) * 314159265 + vars.__seedCount * 1013904223;' +
+                    '  let t = vars.t !== undefined ? vars.t : 0;' +
+                    '  let seed = Math.floor(Number(baseSeed)) + Math.floor(n) * 2654435761 + Math.floor(t * 1000) * 314159265;' +
                     '  let s = (seed >>> 0) + 0x6D2B79F5;' +
                     '  s = Math.imul(s ^ (s >>> 15), s | 1);' +
                     '  s ^= s + Math.imul(s ^ (s >>> 7), s | 61);' +
