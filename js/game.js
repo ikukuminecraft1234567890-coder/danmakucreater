@@ -1692,56 +1692,6 @@ function applyAbilityEffect(cardId, owner) {
                             reigekiCutinTimer = 1.0;
                             reigekiCutinOwner = 'CPU';
                         }
-                    } else {
-                        // 通常の自律CPU of bomb trigger
-                        if (cpu.bombs >= 1 && !cpu.isInvincible && cpu.bombCooldown <= 0) {
-                            let activePlayerBulletsCount = bullets.filter(b => b.team === 'PLAYER' && !b.isNormal).length;
-                            // 画面上にプレイヤーのスペル弾があり、かつ被弾ダメージが大きい場合、または低HP時に確率で緊急回避
-                            if (activePlayerBulletsCount > 0 && (cpu.pendingDamage > 40 || (cpu.hp < 300 && Math.random() < 0.005))) {
-                                let consumed = true;
-                                if (turnCount > 1 && cpu.passives.includes('p20') && Math.random() < 0.08) {
-                                    consumed = false;
-                                    addBattleEffect("【霊力節約】 相手のボムが消費されなかった！", "#ffaacc");
-                                }
-                                if (consumed) {
-                                    cpu.bombs -= 1;
-                                }
-                                cpu.isInvincible = true;
-                                let now = performance.now();
-                                let refund = cpu.recentHits ? cpu.recentHits
-                                    .filter(h => now - h.timestamp <= 250)
-                                    .reduce((sum, h) => sum + h.damage, 0) : 0;
-                                cpu.pendingDamage = Math.max(0, cpu.pendingDamage - refund);
-                                cpu.recentHits = [];
-
-                                // p19 乾坤一擲
-                                if (turnCount > 1 && cpu.passives.includes('p19')) {
-                                    player.hp = Math.max(0, player.hp - 30);
-                                    addBattleEffect("【乾坤一擲】 霊撃であなたに30ダメージ！", "#ff8888");
-                                    checkDeath();
-                                }
-
-                                if (turnCount > 1 && cpu.passives.includes('p11')) {
-                                    cpu.invincibleTimer = 3.0;
-                                    addBattleEffect("【八卦の加護】 相手の霊撃無敵時間が延長！", "#ff5555");
-                                } else {
-                                    cpu.invincibleTimer = 2.0;
-                                }
-                                cpu.bombCooldown = 5.0; // クールダウン5秒
-
-                                activeReigekis.push({
-                                    team: 'CPU',
-                                    x: cpu.x,
-                                    y: cpu.y,
-                                    radius: 30,
-                                    maxRadius: 260,
-                                    duration: 2.0,
-                                    timer: 0
-                                });
-
-                                reigekiCutinTimer = 1.0;
-                                reigekiCutinOwner = 'CPU';
-                            }
                         }
                     }
                 }
@@ -1853,122 +1803,15 @@ function applyAbilityEffect(cardId, owner) {
                     dx = 0;
                 }
 
-                
-                // CPUの自律移動（軽量な単純回避移動に統一）
-                let isDanger = false;
-                if (cpu.thinkTimer === undefined) cpu.thinkTimer = 0;
-                cpu.thinkTimer++;
-                let shouldThink = (cpu.thinkTimer % cpu.thinkInterval === 0);
-
-                // 危険判定（周囲にプレイヤーの弾があるか）
-                for (let b of bullets) {
-                    if (b.team === 'PLAYER' && !b.isNormal) {
-                        if (Math.random() < cpu.ignoreChance) continue;
-                        if (b.isBeam) {
-                            let rx = cpu.x - b.x, ry = cpu.y - b.y;
-                            let distAlong = rx * Math.cos(b.angle) + ry * Math.sin(b.angle);
-                            let distPerp  = -rx * Math.sin(b.angle) + ry * Math.cos(b.angle);
-                            if (distAlong > 0 && distAlong < 1200 && Math.abs(distPerp) < b.radius + 80) {
-                                isDanger = true; break;
-                            }
-                        } else {
-                            if (Math.abs(b.x - cpu.x) < 200 && Math.abs(b.y - cpu.y) < 250) {
-                                isDanger = true; break;
-                            }
-                        }
-                    }
-                }
-
-                if (shouldThink && (isDanger || cpu.evadeTimer <= 0)) {
-                    let bestScore = -Infinity;
-                    let bestTx = cpu.x, bestTy = cpu.y;
-                    const moveAngles = [0, Math.PI/4, Math.PI/2, Math.PI*3/4, Math.PI, -Math.PI*3/4, -Math.PI/2, -Math.PI/4];
-                    const moveDists = [0, 10, 20, 40, 70];
-
-                    for (let d of moveDists) {
-                        let angles = d === 0 ? [0] : moveAngles;
-                        for (let a of angles) {
-                            let tx = cpu.x + Math.cos(a) * d;
-                            let ty = cpu.y + Math.sin(a) * d;
-                            if (tx < cpu.hitboxRadius + 10 || tx > PLAY_WIDTH - cpu.hitboxRadius - 10) continue;
-                            if (ty < cpu.hitboxRadius + 10 || ty > canvas.height - cpu.hitboxRadius - 10) continue;
-                            let minTDist = Infinity;
-                            for (let t = 0.1; t <= 0.4; t += 0.1) {
-                                let pCpuX = cpu.x + Math.cos(a) * (d / 0.4) * t;
-                                let pCpuY = cpu.y + Math.sin(a) * (d / 0.4) * t;
-                                for (let b of bullets) {
-                                    if (b.team === 'PLAYER' && !b.isNormal) {
-                                        if (b.hitRadius === 0) continue;
-                                        if (Math.random() < cpu.ignoreChance) continue;
-                                        if (b.isBeam) {
-                                            let rx = pCpuX - b.x, ry = pCpuY - b.y;
-                                            let distAlong = rx * Math.cos(b.angle) + ry * Math.sin(b.angle);
-                                            let distPerp  = -rx * Math.sin(b.angle) + ry * Math.cos(b.angle);
-                                            if (distAlong > 0 && distAlong < 1200) {
-                                                let dist = Math.abs(distPerp) - (b.isWarning ? 90 : b.radius) - cpu.hitboxRadius;
-                                                if (dist < minTDist) minTDist = dist;
-                                            }
-                                        } else {
-                                            let pBx = b.x + b.vx * t, pBy = b.y + b.vy * t;
-                                            let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
-                                            let dist = Math.sqrt((pBx - pCpuX) ** 2 + (pBy - pCpuY) ** 2) - bHitR - cpu.hitboxRadius;
-                                            if (dist < minTDist) minTDist = dist;
-                                        }
-                                    }
-                                }
-                            }
-                            if (minTDist === Infinity) minTDist = 10000;
-                            let score = minTDist;
-                            if (minTDist > 30) {
-                                score -= Math.abs(tx - player.x) * 0.05;
-                                score -= Math.abs(ty - canvas.height * 0.2) * 0.1;
-                            }
-                            if (score > bestScore) { bestScore = score; bestTx = tx; bestTy = ty; }
-                        }
-                    }
-                    cpu.targetX = bestTx;
-                    cpu.targetY = bestTy;
-                    if (isDanger) cpu.evadeTimer = 0.5;
-                }
-
-                if (cpu.evadeTimer > 0) cpu.evadeTimer -= dt;
-                if (!isDanger && cpu.evadeTimer <= 0) {
-                    if (Math.random() < 0.03) {
-                        cpu.targetX = player.x + (Math.random() - 0.5) * 100;
-                        cpu.targetY = canvas.height * 0.2 + (Math.random() - 0.5) * 50;
-                        cpu.evadeTimer = 0.5;
-                    }
-                }
-
-                cpu.targetX = Math.max(cpu.hitboxRadius + 10, Math.min(PLAY_WIDTH - cpu.hitboxRadius - 10, cpu.targetX));
-                cpu.targetY = Math.max(cpu.hitboxRadius + 10, Math.min(canvas.height - cpu.hitboxRadius - 10, cpu.targetY));
-
-                let cdx = cpu.targetX - cpu.x, cdy = cpu.targetY - cpu.y;
-                let cdist = Math.sqrt(cdx * cdx + cdy * cdy);
-                if (cpuDifficulty === 'EASY') {
-                    cpu.isSlow = false;
-                } else {
-                    cpu.isSlow = isDanger && cdist > 0 && cdist < 30;
-                }
-                let currentCpuSpeed = cpu.isSlow ? cpu.speed * 0.4 : cpu.speed;
-                let moveDist = currentCpuSpeed * dt;
-                if (cdist > moveDist) {
-                    cpu.x += (cdx / cdist) * moveDist;
-                    cpu.y += (cdy / cdist) * moveDist;
-                } else {
-                    cpu.x = cpu.targetX;
-                    cpu.y = cpu.targetY;
-                }
-
-                if (cpu.x < cpu.prevX - 0.1) {
-                    cpu.moveDir = -1; // left
-                } else if (cpu.x > cpu.prevX + 0.1) {
-                    cpu.moveDir = 1; // right
-                } else {
-                    cpu.moveDir = 0; // idle
-                }
+                // --- CPUの自律移動（CPU戦は廃止されたためAIによる計算・移動処理を全削除） ---
+                // ターゲット（ダミー）としての座標は維持しつつ、無駄な計算を一切行わない
+                cpu.x = PLAY_WIDTH / 2;
+                cpu.y = canvas.height * 0.2;
+                cpu.targetX = cpu.x;
+                cpu.targetY = cpu.y;
                 cpu.prevX = cpu.x;
                 
+
                 enforceCustomActionLock(dt);
 
                 // アクションフェーズの弾幕展開
