@@ -4930,6 +4930,18 @@ function applyAbilityEffect(cardId, owner) {
 
 
 
+                // seedrandom[seed](a,b) のパース
+                s = s.replace(/seedrandom\[(.*?)\]\((.*?)\)/g, function(match, seedExpr, argsStr) {
+                    if (!argsStr.trim()) {
+                        return '__seedrandom(' + seedExpr + ', undefined, undefined, __v)';
+                    }
+                    let args = argsStr.split(',');
+                    if (args.length === 1) {
+                        return '__seedrandom(' + seedExpr + ', ' + args[0] + ', undefined, __v)';
+                    }
+                    return '__seedrandom(' + seedExpr + ', ' + args[0] + ', ' + args[1] + ', __v)';
+                });
+
                 // 5. a == b / a != b を誤差許容関数呼び出しに置換
                 s = s.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, '__fuzzyEqual($1,$2)');
                 s = s.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, '__fuzzyNotEqual($1,$2)');
@@ -4981,6 +4993,18 @@ function applyAbilityEffect(cardId, owner) {
                     '  if (b !== undefined) return Number(a || 0) + __random() * (Number(b || 0) - Number(a || 0));' +
                     '  if (a !== undefined) return __random() * Number(a || 0);' +
                     '  return __random();' +
+                    '};' +
+                    'const __seedrandom = (baseSeed, a, b, vars) => {' +
+                    '  let n = vars.n !== undefined ? vars.n : 0;' +
+                    '  let t = vars.t !== undefined ? vars.t : 0;' +
+                    '  let seed = Math.floor(Number(baseSeed)) + Math.floor(n) * 2654435761 + Math.floor(t * 1000) * 314159265;' +
+                    '  let s = (seed >>> 0) + 0x6D2B79F5;' +
+                    '  s = Math.imul(s ^ (s >>> 15), s | 1);' +
+                    '  s ^= s + Math.imul(s ^ (s >>> 7), s | 61);' +
+                    '  let r = ((s ^ (s >>> 14)) >>> 0) / 4294967296;' +
+                    '  if (b !== undefined) return Number(a || 0) + r * (Number(b || 0) - Number(a || 0));' +
+                    '  if (a !== undefined) return r * Number(a || 0);' +
+                    '  return r;' +
                     '};' +
                     'const __checkInterval = (currentVal, interval, stateKey, variables) => {' +
                     '  if (!interval || interval <= 0) return false;' +
