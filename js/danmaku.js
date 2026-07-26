@@ -3345,6 +3345,44 @@ if (frame > 305) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "Hard",
+    name: "「天守閣の侍」",
+    desc: "青娥パクリ",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 448
+    kaisuu += 1
+    angle = seedrandom[1000 + kaisuu](-160,160)
+    angle2 = seedrandom[100 + kaisuu * 2](-160,160)
+    plusangle = seedrandom[200 + kaisuu](-2,2)
+    for (let i = 0; i < 60; i++) {
+        spawnBullet("normal", "#ff3333", 400, -90 + angle, 0, 0, 19, "kome", "relative", "6")
+        spawnBullet("normal", "#ff3333", 400, -90 + angle2, 0, 0, 19, "kome", "relative", "6")
+        wait(0.016)
+    }
+}
+    `,
+    bulletScript: `
+if (timer == 0..1) {
+    angle += plusangle
+}
+if (timer == 1) {
+    angle = random(0,360)
+    speed = 300
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 
