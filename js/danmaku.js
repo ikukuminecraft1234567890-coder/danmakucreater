@@ -3435,6 +3435,78 @@ if (second == 4..30000) {
     wait(99999999)
 }
     `
+},
+{
+    difficulty: "HARD",
+    name: "フィーリングウォール",
+    desc: "おｗうｗ",
+    duration: 22.5,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+  while (true) {
+        playSound("shot")
+    wait(0.1)
+    playSound("charge2")
+    wait(2)
+    while (true) {
+        spawnRing("normal", "#9457eb", 700, angle, 7, 0, 0, 12, "light", "relative", "10")
+        angle += 45.2
+        playSound("shot")
+        wait(0.016)
+    }
+}
+while (true) {
+    muki = 1
+    spawnBullet("normal", "#ff3333", 200, 90, 0, 0, 6, "none", "absolute", "6")
+    muki = -1
+    spawnBullet("normal", "#ff3333", 200, 90, 768, 0, 6, "none", "absolute", "6")
+    wait(2)
+}
+if (x < 10) {
+}
+    `,
+    bulletScript: `
+if (color==#9457eb) {
+    once {
+        advance(10)
+        auraIntensity = 10
+        auraRange = 7
+        tween("auraRange", auraRange, 2.75, "seconds", 0.5)
+    }
+    if (speed == 200..70000) {
+        speed += -2
+    }
+}
+if (color==#ff3333) {
+    once {
+        warningTime = 0.0
+        activeTime = 70
+        laserWidth = 30
+        tanaka = 0
+    }
+    if (muki==1) {
+        x += 0.1
+        x += 5 - tanaka
+        if (tanaka == 0..4.9) {
+            tanaka += 0.1
+        }
+    }
+    if (muki==-1) {
+        x -= 0.1
+        x -= 5 - tanaka
+        if (tanaka == 0..4.9) {
+            tanaka += 0.1
+        }
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 
 
