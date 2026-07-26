@@ -3383,6 +3383,58 @@ spriteAngle = angle
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「イラプトオブリコイル」",
+    desc: "結構頑張った",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 3; i++) {
+        spawnBeam(1.0, 0, 60, 90 + 60, 0, 0, "relative", "#ff3333")
+        spawnBeam(1.0, 0, 60, 90 - 60, 0, 0, "relative", "#ff3333")
+        wait(1)
+        spawnTrailResist("#00ffff", 1000, 90 + 60, 0, 0, 20, 0.2, 2, 0.0001, "true", "relative", "10")
+        spawnTrailResist("#00ffff", 1000, 90 - 60, 0, 0, 20, 0.2, 2, 0.0001, "true", "relative", "10")
+        playSound("laser_heavy")
+        wait(4)
+    }
+    wait(400)
+}
+    `,
+    bulletScript: `
+if (color == #00ffff) {
+    if (frame === 10 * n) {
+        second2 = 1
+        spangle = random(0,360)
+        spawnRing("normal", "#ff3333", 0, spangle, 7, 0, 0, 6, "b_marutama", "relative", "6")
+        second2 = 2
+        spangle = random(0,360)
+        spawnRing("normal", "#ff3333", 0, spangle, 7, 0, 0, 6, "b_marutama", "relative", "6")
+        second2 = 3
+        spangle = random(0,360)
+        spawnRing("normal", "#ff3333", 0, spangle, 7, 0, 0, 6, "b_marutama", "relative", "6")
+    }
+}
+if (second == 15..30000) {
+    wait(99999999)
+}
+bounce()
+    `,
+    magicCircleScript: `
+if (second == second2) {
+    speed = 200
+}
+if (second == 4..30000) {
+    wait(99999999)
+}
+    `
 }
 
 
