@@ -1692,7 +1692,6 @@ function applyAbilityEffect(cardId, owner) {
                             reigekiCutinTimer = 1.0;
                             reigekiCutinOwner = 'CPU';
                         }
-                        }
                     }
                 }
 
