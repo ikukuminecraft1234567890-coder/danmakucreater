@@ -3555,9 +3555,9 @@ if (param == "5") {
 {
     difficulty: "LUNATIC",
     name: "飛鉢「伝説の飛空円盤」",
-    desc: "ZUN氏の真のロジック（4箇所の波状展開・二重カーブ）の完全再現",
+    desc: "ほぼ完全再現",
     duration: 120,
-    maxMisses: 20,
+    maxMisses: inf,
     x_offset: 0,
     y_offset: 0,
     despawnTime: 200.0,
