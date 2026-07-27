@@ -3693,6 +3693,47 @@ if (frame == 60..600000) {
 }
     `,
     magicCircleScript: ``
+},
+{
+    difficulty: "NORMAL",
+    name: "「天邪鬼の死」",
+    desc: "回転避けはできません",
+    duration: 25,            // 制限時間（秒）
+    maxMisses: "inf",
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnRingResist("normal", "#ff3333", 200, angle, 150, 0, 0, 12, "light", "relative", "10")
+    angle += random(0,360)
+    wait(1)
+}
+while (true) {
+    playSound("shot")
+    aimAtTarget()
+    spawnWay("normal", "#33ffff", 1000, angle, 10, 6, 0, 0, 20, "kome", "relative", "6")
+    wait(0.016)
+}
+    `,
+    bulletScript: `
+once {
+    if (color != #33ffff) {
+        advance(20)
+        auraRange = 6
+        auraIntensity = 3
+        tween("auraRange", auraRange, 2.75, "seconds", 1)
+        tween("auraIntensity", auraIntensity, 1, "seconds", 1)
+    }
+    if (color == #33ffff) {
+        advance(10)
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
