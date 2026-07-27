@@ -3412,6 +3412,11 @@ function customCardMakerSwitchTab(tab) {
                             minMissBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
                             minMissBadge.textContent = '★Miss: ' + minMissCount;
                             titleSpan.appendChild(minMissBadge);
+                        } else {
+                            const clearBadge = document.createElement('span');
+                            clearBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
+                            clearBadge.textContent = '★CLEARED';
+                            titleSpan.appendChild(clearBadge);
                         }
                     } else {
                         const clearBadge = document.createElement('span');

@@ -4124,6 +4124,42 @@ function applyAbilityEffect(cardId, owner) {
 
 
         // ==========================================
+        // リトライ機能
+        // ==========================================
+        window.retryCurrentCard = function() {
+            if (!isGameRunning || !isCustomCardTesting || typeof activeCards === 'undefined' || activeCards.length === 0) return;
+            let tempCustomCard = activeCards[0];
+            
+            // reset state
+            window.currentCardSecond = 0;
+            window.currentCardFrame = 0;
+            window.playerMissCount = 0;
+            window.playerInvincibleTimer = 0;
+            window.miniExplosionEffect = null;
+            window.miniExplosionShockwave = null;
+            customCardTestEmitterDone = false;
+            customCardDeathEffect = null;
+            window.customCardClearEffect = null;
+            normalShotTimer = 0;
+            
+            player.x = PLAY_WIDTH / 2;
+            player.y = canvas.height - 100;
+            player.hp = player.maxHp;
+            
+            cpu.hp = cpu.maxHp;
+            cpu.pendingDamage = 0;
+            
+            bullets.length = 0;
+            magicCircles.length = 0;
+            activeReigekis.length = 0;
+            
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0);
+            actionTimer = tempCustomCard.duration;
+            
+            gameState = 'BATTLE';
+        };
+
+        // ==========================================
         // スマートフォン用 タッチ操作・コントロール初期化システム
         // ==========================================
         function initTouchControls() {
@@ -4147,6 +4183,42 @@ function applyAbilityEffect(cardId, owner) {
                 phaseMsg.addEventListener('touchmove', stopTouchPropagation, { passive: true });
                 phaseMsg.addEventListener('touchend', stopTouchPropagation, { passive: true });
             }
+
+            let leftTopTapCount = 0;
+            let leftTopTapTimer = null;
+            let rightTopTapCount = 0;
+            let rightTopTapTimer = null;
+
+            const handleQuickTaps = (clientX, clientY) => {
+                if (!isGameRunning || gameState !== 'BATTLE') return false;
+                
+                const rect = container.getBoundingClientRect();
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                
+                if (y < 120) {
+                    if (x < 120) { // 左上 (リトライ)
+                        leftTopTapCount++;
+                        clearTimeout(leftTopTapTimer);
+                        if (leftTopTapCount >= 3) {
+                            leftTopTapCount = 0;
+                            if (window.retryCurrentCard) window.retryCurrentCard();
+                            return true;
+                        }
+                        leftTopTapTimer = setTimeout(() => leftTopTapCount = 0, 400);
+                    } else if (x > rect.width - 120) { // 右上 (ホームへ戻る)
+                        rightTopTapCount++;
+                        clearTimeout(rightTopTapTimer);
+                        if (rightTopTapCount >= 3) {
+                            rightTopTapCount = 0;
+                            if (typeof endCustomCardTest === 'function') endCustomCardTest(false);
+                            return true;
+                        }
+                        rightTopTapTimer = setTimeout(() => rightTopTapCount = 0, 400);
+                    }
+                }
+                return false;
+            };
 
             // 共通ドラッグ処理関数
             const onDragStart = (clientX, clientY) => {
@@ -4208,7 +4280,10 @@ function applyAbilityEffect(cardId, owner) {
                 document.body.classList.add('mobile-mode');
 
                 if (e.touches.length > 0) {
-                    onDragStart(e.touches[0].clientX, e.touches[0].clientY);
+                    const clientX = e.touches[0].clientX;
+                    const clientY = e.touches[0].clientY;
+                    if (handleQuickTaps(clientX, clientY)) return; // 3回タップ発動時はドラッグ処理を行わない
+                    onDragStart(clientX, clientY);
                 }
             }, { passive: false });
 
@@ -4232,6 +4307,7 @@ function applyAbilityEffect(cardId, owner) {
                     window.customCardClearEffect.tapCount = (window.customCardClearEffect.tapCount || 0) + 1;
                     return;
                 }
+                if (handleQuickTaps(e.clientX, e.clientY)) return; // 3回タップ発動時はドラッグ処理を行わない
                 onDragStart(e.clientX, e.clientY);
             });
 
