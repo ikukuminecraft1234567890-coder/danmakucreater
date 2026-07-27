@@ -3404,7 +3404,8 @@ function customCardMakerSwitchTab(tab) {
                 titleSpan.textContent = card.name;
                 
                 if (isCleared) {
-                    if (card.maxMisses === Infinity) {
+                    let isInf = card.maxMisses === Infinity || String(card.maxMisses).trim().toLowerCase() === 'inf' || String(card.maxMisses).trim().toLowerCase() === 'infinity';
+                    if (isInf) {
                         const minMissCount = getSharedDanmakuMinMiss(card.name);
                         if (typeof minMissCount === 'number') {
                             const minMissBadge = document.createElement('span');
