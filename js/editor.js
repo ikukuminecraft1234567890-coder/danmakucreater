@@ -1293,7 +1293,13 @@ function customCardMakerSwitchTab(tab) {
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
-                maxMisses: document.getElementById('custom-card-max-misses') ? parseInt(document.getElementById('custom-card-max-misses').value, 10) : 2,
+                maxMisses: (() => {
+                    if (!document.getElementById('custom-card-max-misses')) return 2;
+                    let val = document.getElementById('custom-card-max-misses').value.trim().toLowerCase();
+                    if (val === 'inf' || val === 'infinity') return Infinity;
+                    let parsed = parseInt(val, 10);
+                    return isNaN(parsed) ? 2 : parsed;
+                })(),
                 difficulty: formattedDiff,
                 pattern: 'custom_test',
                 interval: 0.1,
@@ -1413,8 +1419,11 @@ function customCardMakerSwitchTab(tab) {
             document.getElementById('titleScreen').style.display = 'flex';
             
             if (success && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared' && typeof currentSharedDanmakuName !== 'undefined' && currentSharedDanmakuName) {
-                let isNoMiss = typeof window.playerMissCount === 'number' && window.playerMissCount === 0;
-                saveClearedSharedDanmaku(currentSharedDanmakuName, isNoMiss);
+                let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
+                let isNoMiss = missCount === 0;
+                let maxMisses = window.playerMaxMisses;
+                let isInfMisses = maxMisses === Infinity;
+                saveClearedSharedDanmaku(currentSharedDanmakuName, isNoMiss, missCount, isInfMisses);
             }
             
             if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared') {
@@ -1469,7 +1478,13 @@ function customCardMakerSwitchTab(tab) {
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
-                maxMisses: document.getElementById('custom-card-max-misses') ? parseInt(document.getElementById('custom-card-max-misses').value, 10) : 2,
+                maxMisses: (() => {
+                    if (!document.getElementById('custom-card-max-misses')) return 2;
+                    let val = document.getElementById('custom-card-max-misses').value.trim().toLowerCase();
+                    if (val === 'inf' || val === 'infinity') return Infinity;
+                    let parsed = parseInt(val, 10);
+                    return isNaN(parsed) ? 2 : parsed;
+                })(),
                 difficulty: typeof normalizeDifficulty === 'function' ? normalizeDifficulty(document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : 'NORMAL') : (document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value.toUpperCase() : 'NORMAL'),
                 rawCost: cost,
                 cost: getCustomCardPlayCost(cost),
@@ -3238,7 +3253,18 @@ function customCardMakerSwitchTab(tab) {
         // -------------------------------------------------------------
         let currentSharedDanmakuName = null;
 
-        function saveClearedSharedDanmaku(name, isNoMiss) {
+        function getSharedDanmakuMinMiss(name) {
+            try {
+                const saved = localStorage.getItem('touhou_kyoukaisen_minmiss_shared');
+                if (saved) {
+                    const minMissDict = JSON.parse(saved);
+                    return minMissDict[name];
+                }
+            } catch(e) {}
+            return undefined;
+        }
+
+        function saveClearedSharedDanmaku(name, isNoMiss, missCount, isInfMisses) {
             let clearedList = [];
             try {
                 const saved = localStorage.getItem('touhou_kyoukaisen_cleared_shared');
@@ -3253,7 +3279,24 @@ function customCardMakerSwitchTab(tab) {
                 } catch(e) {}
             }
 
-            if (isNoMiss) {
+            if (isInfMisses) {
+                let minMissDict = {};
+                try {
+                    const savedMinMiss = localStorage.getItem('touhou_kyoukaisen_minmiss_shared');
+                    if (savedMinMiss) {
+                        minMissDict = JSON.parse(savedMinMiss);
+                    }
+                } catch(e) {}
+                
+                if (typeof missCount === 'number') {
+                    if (!(name in minMissDict) || missCount < minMissDict[name]) {
+                        minMissDict[name] = missCount;
+                        try {
+                            localStorage.setItem('touhou_kyoukaisen_minmiss_shared', JSON.stringify(minMissDict));
+                        } catch(e) {}
+                    }
+                }
+            } else if (isNoMiss) {
                 let noMissList = [];
                 try {
                     const savedNoMiss = localStorage.getItem('touhou_kyoukaisen_nomiss_shared');
@@ -3361,17 +3404,27 @@ function customCardMakerSwitchTab(tab) {
                 titleSpan.textContent = card.name;
                 
                 if (isCleared) {
-                    const clearBadge = document.createElement('span');
-                    clearBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
-                    clearBadge.textContent = '★CLEARED';
-                    titleSpan.appendChild(clearBadge);
+                    if (card.maxMisses === Infinity) {
+                        const minMissCount = getSharedDanmakuMinMiss(card.name);
+                        if (typeof minMissCount === 'number') {
+                            const minMissBadge = document.createElement('span');
+                            minMissBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
+                            minMissBadge.textContent = '★Miss: ' + minMissCount;
+                            titleSpan.appendChild(minMissBadge);
+                        }
+                    } else {
+                        const clearBadge = document.createElement('span');
+                        clearBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
+                        clearBadge.textContent = '★CLEARED';
+                        titleSpan.appendChild(clearBadge);
 
-                    const isNoMiss = isSharedDanmakuNoMiss(card.name);
-                    if (isNoMiss) {
-                        const noMissBadge = document.createElement('span');
-                        noMissBadge.style.cssText = 'margin-left: 4px; font-size: 9px; color: #ffbb00; background: rgba(255,187,0,0.15); border: 1px solid rgba(255,187,0,0.4); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
-                        noMissBadge.textContent = '★NoMiss';
-                        titleSpan.appendChild(noMissBadge);
+                        const isNoMiss = isSharedDanmakuNoMiss(card.name);
+                        if (isNoMiss) {
+                            const noMissBadge = document.createElement('span');
+                            noMissBadge.style.cssText = 'margin-left: 4px; font-size: 9px; color: #ffbb00; background: rgba(255,187,0,0.15); border: 1px solid rgba(255,187,0,0.4); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
+                            noMissBadge.textContent = '★NoMiss';
+                            titleSpan.appendChild(noMissBadge);
+                        }
                     }
                 }
                 
@@ -3447,7 +3500,14 @@ function customCardMakerSwitchTab(tab) {
                 x_offset: xOffset,
                 y_offset: yOffset,
                 despawnTime: despawnTime,
-                maxMisses: sharedCard.maxMisses !== undefined ? parseInt(sharedCard.maxMisses, 10) : 2,
+                maxMisses: (() => {
+                    if (sharedCard.maxMisses === undefined || sharedCard.maxMisses === null) return 2;
+                    if (typeof sharedCard.maxMisses === 'number') return sharedCard.maxMisses;
+                    let val = String(sharedCard.maxMisses).trim().toLowerCase();
+                    if (val === 'inf' || val === 'infinity') return Infinity;
+                    let parsed = parseInt(val, 10);
+                    return isNaN(parsed) ? 2 : parsed;
+                })(),
                 difficulty: formattedDiff,
                 pattern: 'custom_test_shared_' + idx,
                 interval: 0.1,

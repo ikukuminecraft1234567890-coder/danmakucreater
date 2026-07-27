@@ -3864,8 +3864,12 @@ function applyAbilityEffect(cardId, owner) {
                 
                 // 文字の準備
                 let starText = '';
-                for (let li = 0; li < lives; li++) starText += '★';
-                if (starText === '') starText = '無残機';
+                if (maxMisses === Infinity) {
+                    starText = 'Miss: ' + missCount;
+                } else {
+                    for (let li = 0; li < lives; li++) starText += '★';
+                    if (starText === '') starText = '無残機';
+                }
                 
                 ctx.font = 'bold 14px sans-serif';
                 let textWidth = ctx.measureText(starText).width;
