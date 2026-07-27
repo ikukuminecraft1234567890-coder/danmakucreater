@@ -3556,7 +3556,7 @@ if (param == "5") {
     difficulty: "LUNATIC",
     name: "飛鉢「伝説の飛空円盤」",
     desc: "ほぼ完全再現",
-    duration: 120,
+    duration: 80,
     maxMisses: "inf",
     x_offset: 0,
     y_offset: 0,
