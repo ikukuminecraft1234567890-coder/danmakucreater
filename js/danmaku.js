@@ -3555,7 +3555,7 @@ if (param == "5") {
 {
     difficulty: "LUNATIC",
     name: "飛鉢「伝説の飛空円盤」",
-    desc: "ほぼ完全再現",
+    desc: "ほぼ完全再現。私の最高記録は2ミスです。",
     duration: 90,
     maxMisses: "inf",
     x_offset: 0,
