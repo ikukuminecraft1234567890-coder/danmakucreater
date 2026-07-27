@@ -3556,7 +3556,7 @@ if (param == "5") {
     difficulty: "LUNATIC",
     name: "飛鉢「伝説の飛空円盤」",
     desc: "ほぼ完全再現",
-    duration: 80,
+    duration: 90,
     maxMisses: "inf",
     x_offset: 0,
     y_offset: 0,
@@ -3659,7 +3659,7 @@ if (param == "5") {
         baseAngle = random(0,360)
         spawnRingResist("normal", "#ff3333", 140, baseAngle, 32,  64 * 1.5, -80 * 1.5, 20, "ohuda", "relative", "10")
         
-        wait(5)
+        wait(3.5)
 
         aimAtTarget()
         baseAngle = random(0,360)
@@ -3671,7 +3671,7 @@ if (param == "5") {
         baseAngle = random(0,360)
         spawnRingResist("normal", "#ff3333", 141, baseAngle, 32,  64 * 1.5, -80 * 1.5, 20, "ohuda", "relative", "10")
         
-        wait(5)
+        wait(3.5)
     }
 }
     `,
