@@ -3508,8 +3508,192 @@ if (color==#ff3333) {
         // 子弾挙動の独自コード（任意）
     `
 }
+,
+{
+    difficulty: "Normal",
+    name: "「夢想結界」",
+    desc: "失敗作供養",
+    duration: 20,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 2.0,
+    emitterScript: `
+rot = 0
+while (true) {
+    baseRot = rot
+    rot += 11
+    
+    spawnAngle1 = baseRot
+    spawnAngle2 = -baseRot
+    
+    for (let i = 0; i < 10; i++) {
+        spawnRing("normal", "#cc33ff", 160, spawnAngle1, 24, -114, 54, 10, "ohuda", "relative", "4")
+        spawnRing("normal", "#cc33ff", 160, spawnAngle1, 24, 64, -80, 10, "ohuda", "relative", "4")
+        spawnRing("normal", "#3333ff", 160, spawnAngle2, 24, 114, 54, 10, "ohuda", "relative", "5")
+        spawnRing("normal", "#3333ff", 160, spawnAngle2, 24, -64, -80, 10, "ohuda", "relative", "5")
+        
+        spawnAngle1 += 36
+        spawnAngle2 -= 36
+        
+        wait(0.13)
+    }
+    
+    wait(1.2)
+}
+    `,
+    bulletScript: `
+if (param == "4") {
+    angle -= 0.35
+}
+if (param == "5") {
+    angle += 0.35
+}
+    `,
+    magicCircleScript: ``
+},
+{
+    difficulty: "LUNATIC",
+    name: "飛鉢「伝説の飛空円盤」",
+    desc: "ZUN氏の真のロジック（4箇所の波状展開・二重カーブ）の完全再現",
+    duration: 120,
+    maxMisses: 20,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 200.0,
+    emitterScript: `
+    while(true) {
+    for (let i = 0; i < 2; i++) {
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 18, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 18, 114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 18, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 18, 64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        wait(5)
 
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 18, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 18, 114,  54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 18, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 18, 64,  -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        wait(5)
+    }
+    for (let i = 0; i < 2; i++) {
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 140, baseAngle, 24, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 141, baseAngle, 24,  114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 141, baseAngle, 24, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 140, baseAngle, 24,  64, -80, 20, "ohuda", "relative", "10")
+        baseAngle += 36
+        wait(5)
 
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 141, baseAngle, 24, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 140, baseAngle, 24,  114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 140, baseAngle, 24, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#33e0ff", 141, baseAngle, 24,  64, -80, 20, "ohuda", "relative", "10")
+        
+        wait(5)
+    }
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 32, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 32, 114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 32, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 32, 64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        wait(5)
+
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 32, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 32, 114,  54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 32, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 32, 64,  -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        wait(5)
+
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 32, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 32, 114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 141, baseAngle, 32, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#cc33ff", 140, baseAngle, 32, 64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        wait(7)
+    for (let i = 0; i < 20; i++) {
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 140, baseAngle, 32, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 141, baseAngle, 32,  114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 141, baseAngle, 32, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 140, baseAngle, 32,  64, -80, 20, "ohuda", "relative", "10")
+        
+        wait(5)
+
+        aimAtTarget()
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 141, baseAngle, 32, -114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 140, baseAngle, 32,  114, 54, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 140, baseAngle, 32, -64, -80, 20, "ohuda", "relative", "10")
+        baseAngle = random(0,360)
+        spawnRingResist("normal", "#ff3333", 141, baseAngle, 32,  64, -80, 20, "ohuda", "relative", "10")
+        
+        wait(5)
+    }
+}
+    `,
+    bulletScript: `
+    spriteAngle = angle
+once {
+    if (speed == 140) { curve = -1.6 }
+    if (speed == 141) { curve = 1.6 }
+    speed = 200
+}
+if (frame < 51) {
+    speed -= 0.7
+    angle += curve
+    y += 0.6
+}
+if (frame == 60..600000) {
+    angle += curve / 6
+    y += 1
+}
+    `,
+    magicCircleScript: ``
+}
 ];
 
 /**
