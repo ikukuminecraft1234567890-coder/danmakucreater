@@ -3734,6 +3734,238 @@ once {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "h",
+    name: "快符「朝の光の中で」",
+    desc: "Ah～朝の光の中で Ah Ah Ah～ 光 Ah～",
+    duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 100; i++) {
+        angle += 31
+        spawnWay("normal", "#ff3333", 500, angle, 6, 1, 0, 0, 6, "light", "relative", "6")
+        wait(0.01)
+    }
+    for (let i = 0; i < 100; i++) {
+        angle += 30.3
+        spawnWay("normal", "#ff3333", 700, angle, 6, 2, 0, 0, 6, "light", "relative", "6")
+        wait(0.01)
+    }
+    for (let i = 0; i < 10; i++) {
+        aimAtTarget()
+        spawnRing("normal", "#ffaa33", 900, angle, 21, 0, 0, 40, "ootama", "relative", "20")
+        wait(0.1)
+    }
+    angle = 0
+    for (let i = 0; i < 18; i++) {
+        spawnBullet("normal", "#ffdd33", 700, angle, 0, 0, 6, "light", "relative", "6")
+        spawnBullet("normal", "#ffdd33", 700, -angle, 0, 0, 6, "light", "relative", "6")
+        angle += 20
+        wait(0.01)
+    }
+    for (let i = 0; i < 5; i++) {
+        aimAtTarget()
+        spd = 0
+        wa = 15
+        for (let i = 0; i < 15; i++) {
+            spawnWay("normal", "#33ff88", 500 + spd, angle, wa, 1, 0, 0, 6, "light", "relative", "6")
+            spd += 50
+            wa -= 1
+            wait(0.02)
+        }
+        wait(0.05)
+    }
+    for (let i = 0; i < 30; i++) {
+        muki = 1
+        spawnRing("normal", "#3388ff", 800, 0, 18, 0, 0, 20, "light", "relative", "15")
+        muki = -1
+        spawnRing("normal", "#3388ff", 800, 0, 18, 0, 0, 20, "light", "relative", "15")
+        wait(0.05)
+    }
+    for (let i = 0; i < 50; i++) {
+        spawnRing("normal", "#884898", 800, frame * 3, 18, 0, 0, 20, "light", "relative", "15")
+        wait(0.05)
+    }
+    while (true) {
+        for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < 5; i++) {
+                wait(0.06)
+                rspx = seedrandom[6 + seedcount](0,768)
+                seedcount += 1
+                rsped = 0
+                for (let i = 0; i < 3; i++) {
+                    spawnBullet("normal", "#ff3333", 400 + rsped, 90, rspx, 0, 6, "light", "absolute", "5")
+                    rsped += 16
+                }
+                orspx = seedrandom[600 + seedcount](0,768)
+                spawnBullet("normal", "#ffaa32", 800, 90, orspx, 0, 9, "light", "absolute", "6")
+                spawnBullet("normal", "#3387ff", 800, 90, 758, 0, 10, "light", "absolute", "7")
+                spawnBullet("normal", "#3387ff", 800, 90, 10, 0, 10, "light", "absolute", "7")
+            }
+            spawnRing("normal", "#884898", 800, frame * 3, 18, 0, 0, 20, "light", "relative", "15")
+        }
+        yelangle += 10
+        spawnLaserRing("#ffdd32", 6, 900, yelangle, 8, 0, 0, 0.2, 0.3, 0.2, "true", "relative", "6")
+        wa = 5
+        spd = 0
+        for (let i = 0; i < 5; i++) {
+            spawnWay("normal", "#33ff87", 800 + spd, 90, wa, 1, tx, 0, 6, "light", "absolute", "6")
+            spd += 80
+            wa -= 1
+        }
+    }
+}
+    `,
+    bulletScript: `
+if (color == #ffdd33) {
+    if (isBounced) {
+        bounce()
+        warningTime = 1.0
+        activeTime = 0.7
+        laserWidth = 12
+    }
+}
+if (color == #3388ff) {
+    if (timer == 0..0.7) {
+        angle += 2 * muki
+    }
+}
+if (color == #ffaa32) {
+    once {
+        aimAtTarget()
+    }
+}
+if (color == #3387ff) {
+    once {
+        aimAtTarget()
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    difficulty: "h",
+    name: "快符「朝の光の中で」",
+    desc: "軽量版です",
+    duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 100; i++) {
+        angle += 31
+        spawnWay("normal", "#ff3333", 500, angle, 6, 1, 0, 0, 6, "None", "relative", "6")
+        wait(0.01)
+    }
+    for (let i = 0; i < 100; i++) {
+        angle += 30.3
+        spawnWay("normal", "#ff3333", 700, angle, 6, 2, 0, 0, 6, "None", "relative", "6")
+        wait(0.01)
+    }
+    for (let i = 0; i < 10; i++) {
+        aimAtTarget()
+        spawnRing("normal", "#ffaa33", 900, angle, 21, 0, 0, 40, "ootama", "relative", "20")
+        wait(0.1)
+    }
+    angle = 0
+    for (let i = 0; i < 18; i++) {
+        spawnBullet("normal", "#ffdd33", 700, angle, 0, 0, 6, "None", "relative", "6")
+        spawnBullet("normal", "#ffdd33", 700, -angle, 0, 0, 6, "None", "relative", "6")
+        angle += 20
+        wait(0.01)
+    }
+    for (let i = 0; i < 5; i++) {
+        aimAtTarget()
+        spd = 0
+        wa = 15
+        for (let i = 0; i < 15; i++) {
+            spawnWay("normal", "#33ff88", 500 + spd, angle, wa, 1, 0, 0, 6, "None", "relative", "6")
+            spd += 50
+            wa -= 1
+            wait(0.02)
+        }
+        wait(0.05)
+    }
+    for (let i = 0; i < 30; i++) {
+        muki = 1
+        spawnRing("normal", "#3388ff", 800, 0, 18, 0, 0, 20, "None", "relative", "15")
+        muki = -1
+        spawnRing("normal", "#3388ff", 800, 0, 18, 0, 0, 20, "None", "relative", "15")
+        wait(0.05)
+    }
+    for (let i = 0; i < 50; i++) {
+        spawnRing("normal", "#884898", 800, frame * 3, 18, 0, 0, 20, "None", "relative", "15")
+        wait(0.05)
+    }
+    while (true) {
+        for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < 5; i++) {
+                wait(0.06)
+                rspx = seedrandom[6 + seedcount](0,768)
+                seedcount += 1
+                rsped = 0
+                for (let i = 0; i < 3; i++) {
+                    spawnBullet("normal", "#ff3333", 400 + rsped, 90, rspx, 0, 6, "None", "absolute", "5")
+                    rsped += 16
+                }
+                orspx = seedrandom[600 + seedcount](0,768)
+                spawnBullet("normal", "#ffaa32", 800, 90, orspx, 0, 9, "None", "absolute", "6")
+                spawnBullet("normal", "#3387ff", 800, 90, 758, 0, 10,  "None", "absolute", "7")
+                spawnBullet("normal", "#3387ff", 800, 90, 10, 0, 10,   "None", "absolute", "7")
+            }
+            spawnRing("normal", "#884898", 800, frame * 3, 18, 0, 0, 20, "None", "relative", "15")
+        }
+        yelangle += 10
+        spawnLaserRing("#ffdd32", 6, 900, yelangle, 8, 0, 0, 0.2, 0.3, 0.2, "true", "relative", "6")
+        wa = 5
+        spd = 0
+        for (let i = 0; i < 5; i++) {
+            spawnWay("normal", "#33ff87", 800 + spd, 90, wa, 1, tx, 0, 6, "None", "absolute", "6")
+            spd += 80
+            wa -= 1
+        }
+    }
+}
+    `,
+    bulletScript: `
+if (color == #ffdd33) {
+    if (isBounced) {
+        bounce()
+        warningTime = 1.0
+        activeTime = 0.7
+        laserWidth = 12
+    }
+}
+if (color == #3388ff) {
+    if (timer == 0..0.7) {
+        angle += 2 * muki
+    }
+}
+if (color == #ffaa32) {
+    once {
+        aimAtTarget()
+    }
+}
+if (color == #3387ff) {
+    once {
+        aimAtTarget()
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
