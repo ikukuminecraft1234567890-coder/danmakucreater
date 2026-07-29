@@ -3691,6 +3691,9 @@ if (frame == 60..600000) {
     angle += curve / 6
     y += 1
 }
+if(color==##cc33ff){
+x += curve / 4
+}
     `,
     magicCircleScript: ``
 },
