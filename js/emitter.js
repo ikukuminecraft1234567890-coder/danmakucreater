@@ -1086,9 +1086,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                         magicCircles.push(newMagicCircle);
                         break;
                     }
-                    case 'add_var_over_time':
-                    case 'add_var_over_time_wait': {
-                        let varName = block.params.name || 'angle';
+                    case 'add_angle_over_time':
+                    case 'add_angle_over_time_wait': {
+                        let varName = 'angle';
                         let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
                         let duration = evalExpr(block.params.duration || '30', state.variables);
                         let mode = block.params.mode || 'frames';
@@ -1107,7 +1107,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             elapsed: 0
                         });
                         
-                        if (block.type === 'add_var_over_time_wait') {
+                        if (block.type === 'add_angle_over_time_wait') {
                             state.waitingTweenName = varName;
                         }
                         break;
@@ -2646,9 +2646,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 state.variables.y = (Number(state.variables.y) || 0) + Math.sin(rad) * dist;
                                 break;
                             }
-                            case 'add_var_over_time':
-                            case 'add_var_over_time_wait': {
-                                let varName = block.params.name || 'angle';
+                            case 'add_angle_over_time':
+                            case 'add_angle_over_time_wait': {
+                                let varName = 'angle';
                                 let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
                                 let duration = evalExpr(block.params.duration || '30', state.variables);
                                 let mode = block.params.mode || 'frames';
@@ -2667,7 +2667,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     elapsed: 0
                                 });
                                 
-                                if (block.type === 'add_var_over_time_wait') {
+                                if (block.type === 'add_angle_over_time_wait') {
                                     state.waitingTweenName = varName;
                                 }
                                 break;
@@ -3338,6 +3338,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             'change_var': ['name', 'op', 'value'],
             'tween_var': ['name', 'start', 'end', 'mode', 'value'],
             'tween_var_wait': ['name', 'start', 'end', 'mode', 'value'],
+            'add_angle_over_time': ['stepVal', 'mode', 'duration'],
+            'add_angle_over_time_wait': ['stepVal', 'mode', 'duration'],
             'set_laser': ['warningTime', 'activeTime', 'laserWidth'],
             'aim_at_target': [],
             'aim_at_coord': ['targetX', 'targetY'],
@@ -3376,7 +3378,9 @@ function stepEmitter(c, state, attacker, target, dt) {
         const BLOCK_TYPE_MAP = {
             'repeat': 'r', 'forever': 'f', 'wait': 'w', 'if': 'i', 'once': 'o',
             'const_var': 'v', 'set_var': 's', 'change_var': 'c',
-            'tween_var': 't', 'tween_var_wait': 'tw', 'set_laser': 'sl',
+            'tween_var': 't', 'tween_var_wait': 'tw',
+            'add_angle_over_time': 'aot', 'add_angle_over_time_wait': 'aotw',
+            'set_laser': 'sl',
             'aim_at_target': 'a', 'aim_at_coord': 'ac', 'move_owner': 'm', 'slide_owner': 'd',
             'spawn_bullet': 'sb', 'spawn_bullet_resist': 'sbr', 
             'spawn_trail': 'st', 'spawn_trail_resist': 'str',
