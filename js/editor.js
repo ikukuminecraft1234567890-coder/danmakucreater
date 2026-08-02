@@ -255,10 +255,12 @@ function customCardMakerSwitchTab(tab) {
                 block.params.duration = '1';
                 block.params.stepVal = '5';
                 block.params.easing = 'linear';
-            } else if (type === 'add_angle_over_time' || type === 'add_angle_over_time_wait') {
-                block.params.stepVal = '5';
-                block.params.mode = 'frames';
-                block.params.duration = '30';
+            } else if (type === 'tween_angle' || type === 'tween_angle_wait') {
+                block.params.from = '0';
+                block.params.to = '360';
+                block.params.mode = 'seconds';
+                block.params.duration = '1';
+                block.params.easing = 'linear';
             } else if (type === 'advance') {
                 block.params.distance = '50';
             } else if (type === 'once') {
@@ -1227,20 +1229,28 @@ function customCardMakerSwitchTab(tab) {
                             `;
                             break;
                         }
-                        case 'add_angle_over_time':
-                        case 'add_angle_over_time_wait': {
-                            let mode = b.params.mode || 'frames';
-                            let isWait = b.type === 'add_angle_over_time_wait';
+                        case 'tween_angle':
+                        case 'tween_angle_wait': {
+                            let mode = b.params.mode || 'seconds';
+                            let isWait = b.type === 'tween_angle_wait';
+                            let easing = b.params.easing || 'linear';
                             blockDiv.className = 'maker-block color-motion';
                             html = `
-                                <span>[動作] 角度を${isWait ? '一定期間変えて待つ' : '一定期間変える'}</span>
-                                <span>1f毎</span>
-                                <input type="text" list="val-suggestions" style="width:55px;" value="${b.params.stepVal || '5'}" onchange="customCardMakerUpdateParam(${idx}, 'stepVal', this.value)">
-                                <span>ずつ加算する。 期間:</span>
-                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '30'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">
+                                <span>[動作] 角度を${isWait ? 'スムーズに変えて待つ' : 'スムーズに変える'}</span>
+                                <input type="text" list="val-suggestions" style="width:55px;" value="${b.params.from || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'from', this.value)">
+                                <span>から</span>
+                                <input type="text" list="val-suggestions" style="width:55px;" value="${b.params.to || '360'}" onchange="customCardMakerUpdateParam(${idx}, 'to', this.value)">
+                                <span>へ</span>
                                 <select onchange="customCardMakerUpdateParam(${idx}, 'mode', this.value)">
-                                    <option value="frames"  ${mode === 'frames'  ? 'selected' : ''}>フレーム</option>
-                                    <option value="seconds" ${mode === 'seconds' ? 'selected' : ''}>秒</option>
+                                    <option value="seconds" ${mode === 'seconds' ? 'selected' : ''}>秒で</option>
+                                    <option value="frames"  ${mode === 'frames'  ? 'selected' : ''}>フレームで</option>
+                                </select>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '1'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'easing', this.value)">
+                                    <option value="linear" ${easing === 'linear' ? 'selected' : ''}>等速</option>
+                                    <option value="easeIn" ${easing === 'easeIn' ? 'selected' : ''}>加速</option>
+                                    <option value="easeOut" ${easing === 'easeOut' ? 'selected' : ''}>減速</option>
+                                    <option value="easeInOut" ${easing === 'easeInOut' ? 'selected' : ''}>加減速</option>
                                 </select>
                                 ${renderBlockControls(idx)}
                             `;
@@ -1997,11 +2007,12 @@ function customCardMakerSwitchTab(tab) {
                         }
                         break;
                     }
-                    case 'add_angle_over_time':
-                    case 'add_angle_over_time_wait': {
-                        let isWait = b.type === 'add_angle_over_time_wait';
-                        let fnName = isWait ? 'addAngleOverTimeWait' : 'addAngleOverTime';
-                        line = `${fnName}(${b.params.stepVal || '5'}, "${b.params.mode || 'frames'}", ${b.params.duration || '30'})`;
+                    case 'tween_angle':
+                    case 'tween_angle_wait': {
+                        let isWait = b.type === 'tween_angle_wait';
+                        let fnName = isWait ? 'tweenAngleWait' : 'tweenAngle';
+                        let easingStr = b.params.easing && b.params.easing !== 'linear' ? `, '${b.params.easing}'` : '';
+                        line = `${fnName}(${b.params.from}, ${b.params.to}, "${b.params.mode}", ${b.params.duration}${easingStr})`;
                         break;
                     }
                     case 'bounce':
@@ -2226,16 +2237,18 @@ function customCardMakerSwitchTab(tab) {
                             indent
                         };
                     }
-                    let mAddAngle = trimmed.match(/^addAngleOverTime(Wait)?\((.*?)\)$/i);
-                    if (mAddAngle) {
-                        let isWait = !!mAddAngle[1];
-                        let args = splitArgs(mAddAngle[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                    let mTweenAngle = trimmed.match(/^tweenAngle(Wait)?\((.*?)\)$/i);
+                    if (mTweenAngle) {
+                        let isWait = !!mTweenAngle[1];
+                        let args = splitArgs(mTweenAngle[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                         block = {
-                            type: isWait ? 'add_angle_over_time_wait' : 'add_angle_over_time',
+                            type: isWait ? 'tween_angle_wait' : 'tween_angle',
                             params: {
-                                stepVal: args[0] || '5',
-                                mode: args[1] || 'frames',
-                                duration: args[2] || '30'
+                                from: args[0] || '0',
+                                to: args[1] || '360',
+                                mode: args[2] || 'seconds',
+                                duration: args[3] || '1',
+                                easing: args[4] || 'linear'
                             },
                             indent
                         };
@@ -2798,16 +2811,18 @@ function customCardMakerSwitchTab(tab) {
                         indent: indent
                     };
                 }
-                let mAddAngle = trimmed.match(/^addAngleOverTime(Wait)?\((.*?)\)$/i);
-                if (mAddAngle) {
-                    let isWait = !!mAddAngle[1];
-                    let args = splitArgs(mAddAngle[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                let mTweenAngle = trimmed.match(/^tweenAngle(Wait)?\((.*?)\)$/i);
+                if (mTweenAngle) {
+                    let isWait = !!mTweenAngle[1];
+                    let args = splitArgs(mTweenAngle[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
                     block = {
-                        type: isWait ? 'add_angle_over_time_wait' : 'add_angle_over_time',
+                        type: isWait ? 'tween_angle_wait' : 'tween_angle',
                         params: {
-                            stepVal: args[0] || '5',
-                            mode: args[1] || 'frames',
-                            duration: args[2] || '30'
+                            from: args[0] || '0',
+                            to: args[1] || '360',
+                            mode: args[2] || 'seconds',
+                            duration: args[3] || '1',
+                            easing: args[4] || 'linear'
                         },
                         indent: indent
                     };

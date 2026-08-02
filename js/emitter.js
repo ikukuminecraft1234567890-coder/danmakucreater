@@ -108,7 +108,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                         let t = Math.min(1, tw.elapsed / tw.total);
                         let easedT = applyEasing(t, tw.easing);
-                        state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                        
+                        if (tw.isAngleTween) {
+                            let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
+                            let newAngle = tw.from + diff * easedT;
+                            state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                        } else {
+                            state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                        }
+                        
                         return t < 1; // done if t==1
                     }
                 });
@@ -1086,12 +1094,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         magicCircles.push(newMagicCircle);
                         break;
                     }
-                    case 'add_angle_over_time':
-                    case 'add_angle_over_time_wait': {
+                    case 'tween_angle':
+                    case 'tween_angle_wait': {
                         let varName = 'angle';
-                        let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
-                        let duration = evalExpr(block.params.duration || '30', state.variables);
-                        let mode = block.params.mode || 'frames';
+                        let fromVal = evalExpr(block.params.from || '0', state.variables);
+                        let toVal = evalExpr(block.params.to || '360', state.variables);
+                        let duration = evalExpr(block.params.duration || '1', state.variables);
+                        let mode = block.params.mode || 'seconds';
                         if (mode === 'frames') duration = Math.max(1, duration);
                         else duration = Math.max(0.001, duration);
                         
@@ -1100,14 +1109,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                         
                         state.tweens.push({
                             name: varName,
-                            mode: 'addOverTime',
-                            timeMode: mode,
-                            stepVal: stepVal,
+                            mode: mode,
+                            from: fromVal,
+                            to: toVal,
                             total: duration,
-                            elapsed: 0
+                            elapsed: 0,
+                            easing: block.params.easing || 'linear',
+                            isAngleTween: true
                         });
                         
-                        if (block.type === 'add_angle_over_time_wait') {
+                        if (block.type === 'tween_angle_wait') {
                             state.waitingTweenName = varName;
                         }
                         break;
@@ -1600,7 +1611,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                         let t = Math.min(1, tw.elapsed / tw.total);
                         let easedT = applyEasing(t, tw.easing);
-                        state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                        
+                        if (tw.isAngleTween) {
+                            let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
+                            let newAngle = tw.from + diff * easedT;
+                            state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                        } else {
+                            state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                        }
+                        
                         return t < 1; // done if t==1
                     }
                 });
@@ -2646,12 +2665,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 state.variables.y = (Number(state.variables.y) || 0) + Math.sin(rad) * dist;
                                 break;
                             }
-                            case 'add_angle_over_time':
-                            case 'add_angle_over_time_wait': {
+                            case 'tween_angle':
+                            case 'tween_angle_wait': {
                                 let varName = 'angle';
-                                let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
-                                let duration = evalExpr(block.params.duration || '30', state.variables);
-                                let mode = block.params.mode || 'frames';
+                                let fromVal = evalExpr(block.params.from || '0', state.variables);
+                                let toVal = evalExpr(block.params.to || '360', state.variables);
+                                let duration = evalExpr(block.params.duration || '1', state.variables);
+                                let mode = block.params.mode || 'seconds';
                                 if (mode === 'frames') duration = Math.max(1, duration);
                                 else duration = Math.max(0.001, duration);
                                 
@@ -2660,14 +2680,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 
                                 state.tweens.push({
                                     name: varName,
-                                    mode: 'addOverTime',
-                                    timeMode: mode,
-                                    stepVal: stepVal,
+                                    mode: mode,
+                                    from: fromVal,
+                                    to: toVal,
                                     total: duration,
-                                    elapsed: 0
+                                    elapsed: 0,
+                                    easing: block.params.easing || 'linear',
+                                    isAngleTween: true
                                 });
                                 
-                                if (block.type === 'add_angle_over_time_wait') {
+                                if (block.type === 'tween_angle_wait') {
                                     state.waitingTweenName = varName;
                                 }
                                 break;
@@ -3338,8 +3360,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             'change_var': ['name', 'op', 'value'],
             'tween_var': ['name', 'start', 'end', 'mode', 'value'],
             'tween_var_wait': ['name', 'start', 'end', 'mode', 'value'],
-            'add_angle_over_time': ['stepVal', 'mode', 'duration'],
-            'add_angle_over_time_wait': ['stepVal', 'mode', 'duration'],
+            'tween_angle': ['start', 'end', 'mode', 'value'],
+            'tween_angle_wait': ['start', 'end', 'mode', 'value'],
             'set_laser': ['warningTime', 'activeTime', 'laserWidth'],
             'aim_at_target': [],
             'aim_at_coord': ['targetX', 'targetY'],
@@ -3379,7 +3401,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'repeat': 'r', 'forever': 'f', 'wait': 'w', 'if': 'i', 'once': 'o',
             'const_var': 'v', 'set_var': 's', 'change_var': 'c',
             'tween_var': 't', 'tween_var_wait': 'tw',
-            'add_angle_over_time': 'aot', 'add_angle_over_time_wait': 'aotw',
+            'tween_angle': 'ta', 'tween_angle_wait': 'taw',
             'set_laser': 'sl',
             'aim_at_target': 'a', 'aim_at_coord': 'ac', 'move_owner': 'm', 'slide_owner': 'd',
             'spawn_bullet': 'sb', 'spawn_bullet_resist': 'sbr', 
