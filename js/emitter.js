@@ -98,6 +98,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         state.variables[tw.name] = next;
                         return true;
+                    } else if (tw.mode === 'addOverTime') {
+                        tw.elapsed += (tw.timeMode === 'seconds') ? dt : 1;
+                        let varVal = Number(state.variables[tw.name]) || 0;
+                        state.variables[tw.name] = varVal + tw.stepVal;
+                        return tw.elapsed < tw.total;
                     } else {
                         // 時間 / フレーム制御の線形補間
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
@@ -1081,6 +1086,33 @@ function stepEmitter(c, state, attacker, target, dt) {
                         magicCircles.push(newMagicCircle);
                         break;
                     }
+                    case 'add_var_over_time':
+                    case 'add_var_over_time_wait': {
+                        let varName = block.params.name || 'angle';
+                        let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
+                        let duration = evalExpr(block.params.duration || '30', state.variables);
+                        let mode = block.params.mode || 'frames';
+                        if (mode === 'frames') duration = Math.max(1, duration);
+                        else duration = Math.max(0.001, duration);
+                        
+                        if (!state.tweens) state.tweens = [];
+                        state.tweens = state.tweens.filter(t => t.name !== varName);
+                        
+                        state.tweens.push({
+                            name: varName,
+                            mode: 'addOverTime',
+                            timeMode: mode,
+                            stepVal: stepVal,
+                            total: duration,
+                            elapsed: 0
+                        });
+                        
+                        if (block.type === 'add_var_over_time_wait') {
+                            state.waitingTweenName = varName;
+                        }
+                        break;
+                    }
+
                     case 'tween_var':
                     case 'tween_var_wait': {
                         let varName = block.params.name || 'angle';
@@ -1559,6 +1591,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         state.variables[tw.name] = next;
                         return true;
+                    } else if (tw.mode === 'addOverTime') {
+                        tw.elapsed += (tw.timeMode === 'seconds') ? dt : 1;
+                        let varVal = Number(state.variables[tw.name]) || 0;
+                        state.variables[tw.name] = varVal + tw.stepVal;
+                        return tw.elapsed < tw.total;
                     } else {
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                         let t = Math.min(1, tw.elapsed / tw.total);
@@ -2607,6 +2644,32 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let rad = (Number(state.variables.angle) || 0) * Math.PI / 180;
                                 state.variables.x = (Number(state.variables.x) || 0) + Math.cos(rad) * dist;
                                 state.variables.y = (Number(state.variables.y) || 0) + Math.sin(rad) * dist;
+                                break;
+                            }
+                            case 'add_var_over_time':
+                            case 'add_var_over_time_wait': {
+                                let varName = block.params.name || 'angle';
+                                let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
+                                let duration = evalExpr(block.params.duration || '30', state.variables);
+                                let mode = block.params.mode || 'frames';
+                                if (mode === 'frames') duration = Math.max(1, duration);
+                                else duration = Math.max(0.001, duration);
+                                
+                                if (!state.tweens) state.tweens = [];
+                                state.tweens = state.tweens.filter(t => t.name !== varName);
+                                
+                                state.tweens.push({
+                                    name: varName,
+                                    mode: 'addOverTime',
+                                    timeMode: mode,
+                                    stepVal: stepVal,
+                                    total: duration,
+                                    elapsed: 0
+                                });
+                                
+                                if (block.type === 'add_var_over_time_wait') {
+                                    state.waitingTweenName = varName;
+                                }
                                 break;
                             }
                             case 'tween_var':

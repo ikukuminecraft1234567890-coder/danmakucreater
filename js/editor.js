@@ -255,6 +255,11 @@ function customCardMakerSwitchTab(tab) {
                 block.params.duration = '1';
                 block.params.stepVal = '5';
                 block.params.easing = 'linear';
+            } else if (type === 'add_var_over_time' || type === 'add_var_over_time_wait') {
+                block.params.name = 'angle';
+                block.params.stepVal = '5';
+                block.params.mode = 'frames';
+                block.params.duration = '30';
             } else if (type === 'advance') {
                 block.params.distance = '50';
             } else if (type === 'once') {
@@ -1223,6 +1228,26 @@ function customCardMakerSwitchTab(tab) {
                             `;
                             break;
                         }
+                        case 'add_var_over_time':
+                        case 'add_var_over_time_wait': {
+                            let mode = b.params.mode || 'frames';
+                            let isWait = b.type === 'add_var_over_time_wait';
+                            blockDiv.className = 'maker-block color-vars';
+                            html = `
+                                <span>[変数] ${isWait ? '一定期間増減して待つ' : '一定期間増減する'}</span>
+                                <input type="text" list="var-suggestions" style="width:75px;" value="${b.params.name || 'angle'}" onchange="customCardMakerUpdateParam(${idx}, 'name', this.value)">
+                                <span>に 1f毎</span>
+                                <input type="text" list="val-suggestions" style="width:55px;" value="${b.params.stepVal || '5'}" onchange="customCardMakerUpdateParam(${idx}, 'stepVal', this.value)">
+                                <span>ずつ加算する。 期間:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '30'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'mode', this.value)">
+                                    <option value="frames"  ${mode === 'frames'  ? 'selected' : ''}>フレーム</option>
+                                    <option value="seconds" ${mode === 'seconds' ? 'selected' : ''}>秒</option>
+                                </select>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        }
                         case 'bounce':
                             blockDiv.className = 'maker-block color-motion';
                             html = `
@@ -1974,6 +1999,13 @@ function customCardMakerSwitchTab(tab) {
                         }
                         break;
                     }
+                    case 'add_var_over_time':
+                    case 'add_var_over_time_wait': {
+                        let isWait = b.type === 'add_var_over_time_wait';
+                        let fnName = isWait ? 'addVarOverTimeWait' : 'addVarOverTime';
+                        line = `${fnName}("${b.params.name || 'angle'}", ${b.params.stepVal || '5'}, "${b.params.mode || 'frames'}", ${b.params.duration || '30'})`;
+                        break;
+                    }
                     case 'bounce':
                         line = `bounce()`;
                         break;
@@ -2192,6 +2224,21 @@ function customCardMakerSwitchTab(tab) {
                                 duration: (mode !== 'step' && mode !== 'vecstep') ? modeVal : '1',
                                 stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5',
                                 easing: easing
+                            },
+                            indent
+                        };
+                    }
+                    let mAddVar = trimmed.match(/^addVarOverTime(Wait)?\((.*?)\)$/i);
+                    if (mAddVar) {
+                        let isWait = !!mAddVar[1];
+                        let args = splitArgs(mAddVar[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                        block = {
+                            type: isWait ? 'add_var_over_time_wait' : 'add_var_over_time',
+                            params: {
+                                name: args[0] || 'angle',
+                                stepVal: args[1] || '5',
+                                mode: args[2] || 'frames',
+                                duration: args[3] || '30'
                             },
                             indent
                         };
@@ -2750,6 +2797,21 @@ function customCardMakerSwitchTab(tab) {
                             duration: (mode !== 'step' && mode !== 'vecstep') ? modeVal : '1',
                             stepVal: (mode === 'step' || mode === 'vecstep') ? modeVal : '5',
                             easing: easing
+                        },
+                        indent: indent
+                    };
+                }
+                let mAddVar = trimmed.match(/^addVarOverTime(Wait)?\((.*?)\)$/i);
+                if (mAddVar) {
+                    let isWait = !!mAddVar[1];
+                    let args = splitArgs(mAddVar[2]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+                    block = {
+                        type: isWait ? 'add_var_over_time_wait' : 'add_var_over_time',
+                        params: {
+                            name: args[0] || 'angle',
+                            stepVal: args[1] || '5',
+                            mode: args[2] || 'frames',
+                            duration: args[3] || '30'
                         },
                         indent: indent
                     };
