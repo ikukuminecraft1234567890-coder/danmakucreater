@@ -1503,8 +1503,9 @@ function applyAbilityEffect(cardId, owner) {
             }
             window.perfTouch      = 0;
             window.perfBullet     = 0;
-            window.perfBltMove    = 0;
-            window.perfBltCollide = 0;
+            window.perfBltUpd     = 0;
+            window.perfBltPhx     = 0;
+            window.perfBltCol     = 0;
             window.perfEmitter    = 0;
 
             startGameLoop();
@@ -1965,9 +1966,10 @@ function applyAbilityEffect(cardId, owner) {
 
                 let tBulletStart = performance.now();
                 const useFastRemove = bullets.length > 200;
-                // 遠距離コライドスキップ用
                 const COLL_SKIP_SQ = 400 * 400;
                 let _collSkipped = 0;
+                // フェーズ別計測: b.update(スクリプト実行) / 移動・delete / 当たり判定
+                let _perfUpd = 0, _perfPhx = 0, _perfCol = 0, _updCount = 0;
                 // --- ループ前キャッシュ: passives/無敵/共通値を1回だけ評価 ---
                 const _tc1          = turnCount > 1;
                 const _acLen2       = activeCards.length >= 2;
@@ -2010,11 +2012,26 @@ function applyAbilityEffect(cardId, owner) {
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     let b = bullets[i];
                     if (!b) continue;
-                    if (b.update) b.update(b, dt);
+
+                    // フェーズ① b.update — bulletScriptの実行
+                    let _phxStart;
+                    if (b.update) {
+                        const _tu = performance.now();
+                        b.update(b, dt);
+                        const _tuEnd = performance.now();
+                        _perfUpd += _tuEnd - _tu;
+                        _updCount++;
+                        _phxStart = _tuEnd;
+                    } else {
+                        _phxStart = performance.now();
+                    }
+
+                    // フェーズ② 物理・delete
                     if (isBulletExpired(b)) {
-                        if (useFastRemove) { b._dead = true; continue; }
-                        bullets.splice(i, 1); continue;
-                    }                    if (!b.isHeadDead) {
+                        if (useFastRemove) { b._dead = true; _perfPhx += performance.now() - _phxStart; continue; }
+                        bullets.splice(i, 1); _perfPhx += performance.now() - _phxStart; continue;
+                    }
+                    if (!b.isHeadDead) {
                         b.x += b.vx * dt; b.y += b.vy * dt;
                     }
 
@@ -2072,25 +2089,23 @@ function applyAbilityEffect(cardId, owner) {
                     }
 
                     if (shouldDespawn) {
-                        if (useFastRemove) { b._dead = true; continue; }
-                        bullets.splice(i, 1); continue;
+                        if (useFastRemove) { b._dead = true; _perfPhx += performance.now() - _phxStart; continue; }
+                        bullets.splice(i, 1); _perfPhx += performance.now() - _phxStart; continue;
                     }
 
-                    if (b.isBeam || b.isGungnir) {
-                        continue;
-                    }
+                    if (b.isBeam || b.isGungnir) { _perfPhx += performance.now() - _phxStart; continue; }
+                    if (b.hitRadius === 0)        { _perfPhx += performance.now() - _phxStart; continue; }
+                    _perfPhx += performance.now() - _phxStart;
 
-                    if (b.hitRadius === 0) {
-                        continue;
-                    }
-
-                    // 遠距離コライドスキップ: プレイヤー・CPU 両方から400px超なら当たり判定を省略
+                    // フェーズ③ 当たり判定
+                    const _tc = performance.now();
+                    // 遠距離コライドスキップ
                     if (!b.isBombPiece && !b.isLaser && !b.isTrail) {
                         const _dxP = b.x - player.x, _dyP = b.y - player.y;
                         const _dxC = b.x - cpu.x,    _dyC = b.y - cpu.y;
                         if (_dxP*_dxP + _dyP*_dyP > COLL_SKIP_SQ &&
                             _dxC*_dxC + _dyC*_dyC > COLL_SKIP_SQ) {
-                            _collSkipped++; continue;
+                            _collSkipped++; _perfCol += performance.now() - _tc; continue;
                         }
                     }
 
@@ -2453,6 +2468,8 @@ function applyAbilityEffect(cardId, owner) {
                         }
                     }
                 }
+                // 弾ループの最後: 残存弾を先頭から詰める
+                // 最後の弾の当たり判定後に _perfCol に加算する残りの performance.now()は巣なので略
                 if (useFastRemove) {
                     let writeIdx = 0;
                     for (let i = 0; i < bullets.length; i++) {
@@ -2460,13 +2477,12 @@ function applyAbilityEffect(cardId, owner) {
                     }
                     bullets.length = writeIdx;
                 }
-                const _tBulletEnd = performance.now();
-                const _bltTotal = _tBulletEnd - tBulletStart;
-                window.perfBullet     = (window.perfBullet || 0) + _bltTotal;
-                // skip率から移動・判定を概算（オーバーヘッドなしの簡易指標）
-                const _skipRate = bullets.length > 0 ? _collSkipped / bullets.length : 0;
-                window.perfBltMove    = (window.perfBltMove    || 0) + _bltTotal * (0.6 + _skipRate * 0.4);
-                window.perfBltCollide = (window.perfBltCollide || 0) + _bltTotal * ((1 - _skipRate) * 0.4);
+                const _bltTotalMs = performance.now() - tBulletStart;
+                window.perfBullet     = (window.perfBullet  || 0) + _bltTotalMs;
+                window.perfBltUpd     = (window.perfBltUpd  || 0) + _perfUpd;
+                window.perfBltPhx     = (window.perfBltPhx  || 0) + _perfPhx;
+                window.perfBltCol     = (window.perfBltCol  || 0) + _perfCol;
+                window.perfBltUpdN    = _updCount;   // おこの弾数
                 window.perfBltSkipped = _collSkipped;
             }
 
@@ -4181,8 +4197,8 @@ function applyAbilityEffect(cardId, owner) {
             if (window.showDebugProfiler) {
                 const fpsColor = fpsDisplay >= 55 ? '#00ff88' : fpsDisplay >= 30 ? '#ffcc00' : '#ff4444';
                 ctx.font = 'bold 11px monospace';
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.fillRect(4, 4, 175, 185);
+                ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                ctx.fillRect(4, 4, 185, 215);
                 ctx.fillStyle = fpsColor;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'top';
@@ -4192,19 +4208,24 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.fillText('Sim  : ' + (window.perfSim    || 0).toFixed(1) + 'ms', 8, 36);
                 ctx.fillText(' -Tch: ' + (window.perfTouch  || 0).toFixed(1) + 'ms', 8, 50);
                 ctx.fillText(' -Blt: ' + (window.perfBullet || 0).toFixed(1) + 'ms', 8, 64);
-                // 細分化: 移動フェーズ vs 当たり判定フェーズ
-                ctx.fillStyle = '#aaddff';
+                // 細分化: スクリプト実行 / 移動物理 / 当たり判定
+                ctx.fillStyle = '#ffdd88';
+                ctx.fillText('  .upd: ' + (window.perfBltUpd || 0).toFixed(1) + 'ms (' + (window.perfBltUpdN || 0) + ' fn)', 8, 78);
+                ctx.fillStyle = '#88ddff';
+                ctx.fillText('  .phx: ' + (window.perfBltPhx || 0).toFixed(1) + 'ms', 8, 92);
+                ctx.fillStyle = '#88ffaa';
                 const _skipPct = bullets.length > 0 ? Math.round((window.perfBltSkipped || 0) / bullets.length * 100) : 0;
-                ctx.fillText('  .Mov: ' + (window.perfBltMove    || 0).toFixed(1) + 'ms', 8, 78);
-                ctx.fillText('  .Col: ' + (window.perfBltCollide || 0).toFixed(1) + 'ms (skip ' + _skipPct + '%)', 8, 92);
+                ctx.fillText('  .col: ' + (window.perfBltCol || 0).toFixed(1) + 'ms (skip ' + _skipPct + '%)', 8, 106);
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText(' -Emt: ' + (window.perfEmitter || 0).toFixed(1) + 'ms', 8, 106);
-                ctx.fillText('Draw : ' + (window.perfDraw   || 0).toFixed(1) + 'ms', 8, 120);
-                ctx.fillText(' -Blt: ' + (window.perfDrawB  || 0).toFixed(1) + 'ms', 8, 134);
+                ctx.fillText(' -Emt: ' + (window.perfEmitter || 0).toFixed(1) + 'ms', 8, 120);
+                ctx.fillText('Draw : ' + (window.perfDraw   || 0).toFixed(1) + 'ms', 8, 134);
+                ctx.fillText(' -Blt: ' + (window.perfDrawB  || 0).toFixed(1) + 'ms', 8, 148);
                 ctx.fillStyle = '#ffcc00';
-                ctx.fillText('Count: ' + bullets.length + ' bullets', 8, 148);
+                ctx.fillText('Count: ' + bullets.length + ' bullets', 8, 162);
                 ctx.fillStyle = '#88ff88';
-                ctx.fillText('Skip : ' + (window.perfBltSkipped || 0) + ' (' + _skipPct + '%)', 8, 162);
+                ctx.fillText('Skip : ' + (window.perfBltSkipped || 0) + ' (' + _skipPct + '%)', 8, 176);
+                ctx.fillStyle = '#ffaaff';
+                ctx.fillText('Upd/f: ' + (window.perfBltUpdN || 0) + ' bullets w/ fn', 8, 190);
             }
             ctx.textBaseline = 'alphabetic';
         }
