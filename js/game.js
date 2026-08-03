@@ -2720,17 +2720,21 @@ function applyAbilityEffect(cardId, owner) {
 
             const blurScale = 0; // shadowBlur is disabled for performance
             let tDrawBStart = performance.now();
+            const _drawNow = tDrawBStart; // performance.now() をループ外で1回だけキャッシュ
 
             // ── 光弾のオーラ（グロー）を先行して描画（加算合成＋揺らぎエフェクト） ──
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter'; // 加算合成で光っぽく繋げる
-            bullets.forEach(b => {
-                if (b.radius <= 0) return;
-                // 画面外カリング（オーラ分を考慮して通常より広い範囲でカリング判定）
-                if (b.x < -b.radius - 35 || b.x > PLAY_WIDTH + b.radius + 35 || b.y < -b.radius - 35 || b.y > canvas.height + b.radius + 35) return;
-                
-                if (b.bulletImage === 'light') {
-                    let time = performance.now();
+            // 光弾が1つも無ければこのパスを完全スキップ（毎フレーム全弾ループしない）
+            const _hasLightBullet = bullets.some(b => b.bulletImage === 'light' && b.radius > 0);
+            if (_hasLightBullet) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter'; // 加算合成で光っぽく繋げる
+                for (let _li = 0; _li < bullets.length; _li++) {
+                    const b = bullets[_li];
+                    if (b.bulletImage !== 'light') continue;
+                    if (b.radius <= 0) continue;
+                    // 画面外カリング（オーラ分を考慮して通常より広い範囲でカリング判定）
+                    if (b.x < -b.radius - 35 || b.x > PLAY_WIDTH + b.radius + 35 || b.y < -b.radius - 35 || b.y > canvas.height + b.radius + 35) continue;
+                    
                     // 弾ごとに異なる揺らぎを作るためのシード値
                     let seed = b.x * 0.05 + b.y * 0.05;
 
@@ -2749,12 +2753,12 @@ function applyAbilityEffect(cardId, owner) {
                     }
                     
                     // オーラのサイズは auraRangeVal を基準にし、非常に微弱かつゆっくりとうねるように調整
-                    let auraRadius = b.radius * (auraRangeVal + 0.08 * Math.sin(time * 0.002 + seed));
+                    let auraRadius = b.radius * (auraRangeVal + 0.08 * Math.sin(_drawNow * 0.002 + seed));
                     let auraColor = b.color || '#ff3333';
                     
                     // 位置の揺れもごくわずかに抑え、ゆっくりと浮遊する程度にする (最大0.3px)
-                    let waveX = b.x + Math.sin(time * 0.003 + seed) * 0.3;
-                    let waveY = b.y + Math.cos(time * 0.0025 + seed) * 0.3;
+                    let waveX = b.x + Math.sin(_drawNow * 0.003 + seed) * 0.3;
+                    let waveY = b.y + Math.cos(_drawNow * 0.0025 + seed) * 0.3;
 
                     // キャッシュからテクスチャを取得して描画
                     let tex = window.getLightBulletTexture(auraColor, b.radius);
@@ -2763,7 +2767,6 @@ function applyAbilityEffect(cardId, owner) {
                         let drawSize = tex.size * scale;
 
                         if (drawSize > 0) {
-                            ctx.save();
                             ctx.globalAlpha = Math.max(0, Math.min(1.0, auraIntensityVal));
                             ctx.drawImage(
                                 tex.canvas,
@@ -2772,20 +2775,79 @@ function applyAbilityEffect(cardId, owner) {
                                 drawSize,
                                 drawSize
                             );
-                            ctx.restore();
                         }
                     }
                 }
-            });
-            ctx.restore();
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
 
-            bullets.forEach(b => {
-                if (b.radius <= 0) return;
-                // 画面外カリング（通常弾のみ）
-                // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
-                if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece && !b.isTrail) {
-                    if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) return;
+            // ── 弾の描画 ─────────────────────────────────────────────────────────
+            // 最適化: 通常の円弾（画像なし・特殊フラグなし）を色でグループ化してバッチ描画
+            // これにより fill() の呼び出し回数を大幅に削減する
+            {
+                const _circleGroups = new Map(); // key: "color_radius" → {color, radius, xs[], ys[]}
+                const _specialBullets = []; // 特殊弾（画像あり、ビーム、レーザー等）は後でそのまま描画
+
+                for (let _bi = 0; _bi < bullets.length; _bi++) {
+                    const b = bullets[_bi];
+                    if (b.radius <= 0) continue;
+                    // 画面外カリング（特殊弾はスキップしない）
+                    const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
+                                       b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
+                                       b.isSweeper || b.bulletImage;
+                    if (!_isSpecial && !b.isNormal) {
+                        // 通常の円弾のカリング
+                        if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) continue;
+                        // バッチ用グループに追加
+                        const _col = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
+                        const _r = b.radius * 1.5;
+                        const _gKey = _col + '|' + _r;
+                        let _g = _circleGroups.get(_gKey);
+                        if (!_g) { _g = { color: _col, radius: _r, xs: [], ys: [] }; _circleGroups.set(_gKey, _g); }
+                        _g.xs.push(b.x);
+                        _g.ys.push(b.y);
+                    } else {
+                        _specialBullets.push(b);
+                    }
                 }
+
+                // バッチ円弾描画: 同じ色・同じ半径の弾を1回のfill()でまとめて描画
+                for (const [, _g] of _circleGroups) {
+                    ctx.fillStyle = _g.color;
+                    ctx.beginPath();
+                    for (let _k = 0; _k < _g.xs.length; _k++) {
+                        ctx.moveTo(_g.xs[_k] + _g.radius, _g.ys[_k]);
+                        ctx.arc(_g.xs[_k], _g.ys[_k], _g.radius, 0, Math.PI * 2);
+                    }
+                    ctx.fill();
+                }
+            }
+
+            // ── 特殊弾・画像弾の描画（バッチ化不可なものを個別描画） ─────────────
+            const bullets_special = (() => {
+                const _arr = [];
+                for (let _bi = 0; _bi < bullets.length; _bi++) {
+                    const b = bullets[_bi];
+                    if (b.radius <= 0) continue;
+                    const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
+                                       b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
+                                       b.isSweeper || b.bulletImage || b.isNormal;
+                    if (!_isSpecial) continue;
+                    _arr.push(b);
+                }
+                return _arr;
+            })();
+
+            for (let _bsi = 0; _bsi < bullets_special.length; _bsi++) {
+            const b = bullets_special[_bsi];
+            // 画面外カリング（通常弾のみ）
+            // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
+            if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece && !b.isTrail) {
+                if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) continue;
+            }
+            {
+            /* ↑ 以降の描画コードは従来の forEach ブロックの中身と同一 */
 
                 if (b.isBombPiece) {
                     ctx.save();
@@ -3225,9 +3287,7 @@ function applyAbilityEffect(cardId, owner) {
                         }
 
                         if (texture) {
-                            ctx.save();
-                            ctx.translate(b.x, b.y);
-                            
+                            // 最適化: ctx.save/restore の代わりに setTransform を使用
                             // spriteAngleが定義されている場合はその絶対角度、なければ進行方向の角度を使用
                             let angle;
                             if (b.bulletState && b.bulletState.variables && b.bulletState.variables.spriteAngle !== undefined && b.bulletState.variables.spriteAngle !== null) {
@@ -3239,9 +3299,10 @@ function applyAbilityEffect(cardId, owner) {
                             } else {
                                 angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
                             }
-                            ctx.rotate(angle);
+                            const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                            ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
                             ctx.drawImage(texture, -drawRadius, -drawRadius, drawRadius * 2, drawRadius * 2);
-                            ctx.restore();
+                            ctx.setTransform(1, 0, 0, 1, 0, 0); // リセット
                         } else {
                             let color = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
                             ctx.fillStyle = color;
@@ -3382,7 +3443,8 @@ function applyAbilityEffect(cardId, owner) {
                     }
                     ctx.restore();
                 }
-            });
+            } // end of special bullet draw block
+            } // end of for _bsi loop
             window.perfDrawB = performance.now() - tDrawBStart;
 
             // 魔法陣（Magic Circles）の描画
