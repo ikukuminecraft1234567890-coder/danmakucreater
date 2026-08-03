@@ -1965,12 +1965,9 @@ function applyAbilityEffect(cardId, owner) {
 
                 let tBulletStart = performance.now();
                 const useFastRemove = bullets.length > 200;
-                // 遠距離コライドスキップ用: プレイヤー・CPU両者から遠い弾は当たり判定を省略
-                // 画面幅が約768pxなので400pxあれば「絶対に当たらない」と言える
+                // 遠距離コライドスキップ用
                 const COLL_SKIP_SQ = 400 * 400;
-                let _perfBltMoveAcc = 0; // 移動フェーズ累積時間
-                let _perfBltCollAcc = 0; // 判定フェーズ累積時間
-                let _collSkipped = 0;    // スキップした弾数（デバッグ用）
+                let _collSkipped = 0;
                 // --- ループ前キャッシュ: passives/無敵/共通値を1回だけ評価 ---
                 const _tc1          = turnCount > 1;
                 const _acLen2       = activeCards.length >= 2;
@@ -2012,17 +2009,12 @@ function applyAbilityEffect(cardId, owner) {
                 // ---------------------------------------------------
                 for (let i = bullets.length - 1; i >= 0; i--) {
                     let b = bullets[i];
-                    if (!b) continue; // 安全対策: ループ内で配列が縮小して範囲外になった場合の回避
-
-                    // ── 移動フェーズ（位置更新・デスポーン判定） ──────────────────
-                    let _tMove = performance.now();
-                    if (b.update) b.update(b, dt); // 弾個別の状態更新 (消える魔球やエボリューションなど)
+                    if (!b) continue;
+                    if (b.update) b.update(b, dt);
                     if (isBulletExpired(b)) {
-                        if (useFastRemove) { b._dead = true; _perfBltMoveAcc += performance.now() - _tMove; continue; }
-                        bullets.splice(i, 1);
-                        _perfBltMoveAcc += performance.now() - _tMove; continue;
-                    }
-                    if (!b.isHeadDead) {
+                        if (useFastRemove) { b._dead = true; continue; }
+                        bullets.splice(i, 1); continue;
+                    }                    if (!b.isHeadDead) {
                         b.x += b.vx * dt; b.y += b.vy * dt;
                     }
 
@@ -2080,31 +2072,25 @@ function applyAbilityEffect(cardId, owner) {
                     }
 
                     if (shouldDespawn) {
-                        if (useFastRemove) { b._dead = true; _perfBltMoveAcc += performance.now() - _tMove; continue; }
-                        bullets.splice(i, 1); _perfBltMoveAcc += performance.now() - _tMove; continue;
+                        if (useFastRemove) { b._dead = true; continue; }
+                        bullets.splice(i, 1); continue;
                     }
 
                     if (b.isBeam || b.isGungnir) {
-                        _perfBltMoveAcc += performance.now() - _tMove; continue;
+                        continue;
                     }
 
                     if (b.hitRadius === 0) {
-                        _perfBltMoveAcc += performance.now() - _tMove; continue;
+                        continue;
                     }
-                    _perfBltMoveAcc += performance.now() - _tMove;
-
-                    // ── 当たり判定フェーズ ────────────────────────────────────────
-                    let _tColl = performance.now();
 
                     // 遠距離コライドスキップ: プレイヤー・CPU 両方から400px超なら当たり判定を省略
-                    // isBombPiece は近寄ることで拾うアイテムなのでスキップ対象外
                     if (!b.isBombPiece && !b.isLaser && !b.isTrail) {
                         const _dxP = b.x - player.x, _dyP = b.y - player.y;
                         const _dxC = b.x - cpu.x,    _dyC = b.y - cpu.y;
                         if (_dxP*_dxP + _dyP*_dyP > COLL_SKIP_SQ &&
                             _dxC*_dxC + _dyC*_dyC > COLL_SKIP_SQ) {
-                            _collSkipped++;
-                            _perfBltCollAcc += performance.now() - _tColl; continue;
+                            _collSkipped++; continue;
                         }
                     }
 
@@ -2468,19 +2454,20 @@ function applyAbilityEffect(cardId, owner) {
                     }
                 }
                 if (useFastRemove) {
-                    // 参照を壊さないようにインプレース（破壊的）に生存している弾のみを残す
                     let writeIdx = 0;
                     for (let i = 0; i < bullets.length; i++) {
-                        if (!bullets[i]._dead) {
-                            bullets[writeIdx++] = bullets[i];
-                        }
+                        if (!bullets[i]._dead) bullets[writeIdx++] = bullets[i];
                     }
                     bullets.length = writeIdx;
                 }
-                window.perfBullet     = (window.perfBullet     || 0) + (performance.now() - tBulletStart);
-                window.perfBltMove    = (window.perfBltMove    || 0) + _perfBltMoveAcc;
-                window.perfBltCollide = (window.perfBltCollide || 0) + _perfBltCollAcc;
-                window.perfBltSkipped = _collSkipped; // 最新フレームのスキップ数
+                const _tBulletEnd = performance.now();
+                const _bltTotal = _tBulletEnd - tBulletStart;
+                window.perfBullet     = (window.perfBullet || 0) + _bltTotal;
+                // skip率から移動・判定を概算（オーバーヘッドなしの簡易指標）
+                const _skipRate = bullets.length > 0 ? _collSkipped / bullets.length : 0;
+                window.perfBltMove    = (window.perfBltMove    || 0) + _bltTotal * (0.6 + _skipRate * 0.4);
+                window.perfBltCollide = (window.perfBltCollide || 0) + _bltTotal * ((1 - _skipRate) * 0.4);
+                window.perfBltSkipped = _collSkipped;
             }
 
             if (isCustomCardTesting) {
