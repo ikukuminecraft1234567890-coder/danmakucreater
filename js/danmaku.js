@@ -4018,6 +4018,96 @@ if (type == 2) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "hard",
+    name: "バレットドミニオンの消失",
+    desc: "説明文や作成者名など",
+    duration: 25,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+// 楕円のサイズ設定
+ey = 248
+a = 150
+b = 50
+// ボスからのズレ具合（偏り）
+shiftX = 75
+// 角度の初期化
+theta = 0
+while (true) {
+    // 1. 基本の楕円のX, Y座標を計算し、shiftXぶんズラす
+    cx = a * cos(theta)
+    cy = b * sin(theta)
+    rx = cx + shiftX
+    ry = cy
+    // 2. 0 から 7 まで 8回 繰り返す
+    for (let i = 0; i < 8; i++) {
+        // 角度の計算
+        dir = i * 45
+        // ★ i の数字（方向）に合わせて色を変数 c に入れる
+        c = "#ffffff" // 初期値
+        if (i == 0) {
+            c = "#ff3333"
+        }
+        // 1方向目：赤
+        if (i == 1) {
+            c = "#ff9933"
+        }
+        // 2方向目：橙
+        if (i == 2) {
+            c = "#ffff33"
+        }
+        // 3方向目：黄
+        if (i == 3) {
+            c = "#33ff33"
+        }
+        // 4方向目：緑
+        if (i == 4) {
+            c = "#33ffff"
+        }
+        // 5方向目：シアン
+        if (i == 5) {
+            c = "#3333ff"
+        }
+        // 6方向目：青
+        if (i == 6) {
+            c = "#9933ff"
+        }
+        // 7方向目：紫
+        if (i == 7) {
+            c = "#ff33cc"
+        }
+        // 8方向目：ピンク
+        // 数学の「回転行列」で、rxとryを dir 度ぶん回転させる
+        rotX = rx * cos(dir) - ry * sin(dir)
+        rotY = rx * sin(dir) + ry * cos(dir)
+        // 3. ボスの現在位置(ex, ey)を足して、実際の出現座標を決定
+        ox = ex + rotX
+        oy = ey + rotY
+        // 4. 計算した座標に配置（ここで変数 c を使う）
+        ofangle -= 2
+        spawnBullet("normal", c, 0, theta + dir, ox, oy, 20, "kome", "absolute", "5")
+    }
+    // 5. 角度の更新
+    theta += 12
+    wait(0.02)
+}
+    `,
+    bulletScript: `
+speed += 1 + kasoku
+kasoku += 0.02
+once {
+    angle += 45 + ofangle
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
