@@ -110,9 +110,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let easedT = applyEasing(t, tw.easing);
                         
                         if (tw.isAngleTween) {
-                            let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
-                            let newAngle = tw.from + diff * easedT;
-                            state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                            if (tw.rotMode === 'direct') {
+                                state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                            } else {
+                                let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
+                                let newAngle = tw.from + diff * easedT;
+                                state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                            }
                         } else {
                             state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
                         }
@@ -1115,7 +1119,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                             total: duration,
                             elapsed: 0,
                             easing: block.params.easing || 'linear',
-                            isAngleTween: true
+                            isAngleTween: true,
+                            rotMode: block.params.rotMode || 'shortest'
                         });
                         
                         if (block.type === 'tween_angle_wait') {
@@ -1516,8 +1521,16 @@ function stepEmitter(c, state, attacker, target, dt) {
             let state = b.bulletState;
             if (!state) return;
 
-            // --- 永久スリープによる超軽量化処理 ---
-            if (state.waitTimer > 1000 && (!state.tweens || state.tweens.length === 0)) {
+            // ── 超軽量化処理：完了済みの弾は b.update を削除して二度と処理しない ──
+            if (state.finished && (!state.tweens || state.tweens.length === 0)) {
+                b.update = null;
+                return;
+            }
+
+            // ── 超軽量化処理：waitタイマー減算のみ（tweensがなく、壁/弾判定も不要な場合は重い前処理を完全パス） ──
+            const _hasTweens = state.tweens && state.tweens.length > 0;
+            if (state.waitTimer > 0 && !_hasTweens && !window.needsWallTouchDetection && !window.needsBulletTouchDetection) {
+                state.waitTimer -= dt;
                 return;
             }
             
@@ -1613,9 +1626,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let easedT = applyEasing(t, tw.easing);
                         
                         if (tw.isAngleTween) {
-                            let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
-                            let newAngle = tw.from + diff * easedT;
-                            state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                            if (tw.rotMode === 'direct') {
+                                state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                            } else {
+                                let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
+                                let newAngle = tw.from + diff * easedT;
+                                state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                            }
                         } else {
                             state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
                         }
@@ -2686,7 +2703,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     total: duration,
                                     elapsed: 0,
                                     easing: block.params.easing || 'linear',
-                                    isAngleTween: true
+                                    isAngleTween: true,
+                                    rotMode: block.params.rotMode || 'shortest'
                                 });
                                 
                                 if (block.type === 'tween_angle_wait') {
@@ -3358,10 +3376,10 @@ function stepEmitter(c, state, attacker, target, dt) {
             'const_var': ['name', 'value'],
             'set_var': ['name', 'value'],
             'change_var': ['name', 'op', 'value'],
-            'tween_var': ['name', 'start', 'end', 'mode', 'value'],
-            'tween_var_wait': ['name', 'start', 'end', 'mode', 'value'],
-            'tween_angle': ['start', 'end', 'mode', 'value'],
-            'tween_angle_wait': ['start', 'end', 'mode', 'value'],
+            'tween_var': ['name', 'from', 'to', 'mode', 'duration', 'stepVal', 'easing'],
+            'tween_var_wait': ['name', 'from', 'to', 'mode', 'duration', 'stepVal', 'easing'],
+            'tween_angle': ['from', 'to', 'mode', 'duration', 'easing', 'rotMode'],
+            'tween_angle_wait': ['from', 'to', 'mode', 'duration', 'easing', 'rotMode'],
             'set_laser': ['warningTime', 'activeTime', 'laserWidth'],
             'aim_at_target': [],
             'aim_at_coord': ['targetX', 'targetY'],
