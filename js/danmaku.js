@@ -3966,6 +3966,58 @@ if (color == #3387ff) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "hard",
+    name: "星の通常",
+    desc: "よりもムズい。",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 1,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    type = 1
+    angle += random(-70,70)
+    bairitu = 1
+    spawnLaserRingResist("#ff3333", 7, 800, angle, 24, 0, 0, 0.2, 0.3, 0.5, "true", "relative", "5")
+    wait(0.5)
+    angle += random(-70,70)
+    bairitu = -1
+    spawnLaserRingResist("#ff3333", 7, 800, angle, 24, 0, 0, 0.2, 0.3, 0.5, "true", "relative", "5")
+    wait(0.5)
+    aimAtTarget()
+    bairitu = 0.085
+    type = 2
+    spawnLaserRingResist("#ff3333", 7, 60, angle + 5, 36, 0, 0, 0.2, 0.3, 0.5, "true", "relative", "5")
+    bairitu = -0.085
+    spawnLaserRingResist("#ff3333", 7, 60, angle + 5, 36, 0, 0, 0.2, 0.3, 0.5, "true", "relative", "5")
+    wait(0.5)
+    bairitu = 0
+    type = 3
+    spawnRing("normal", "#ffffff", 400, angle, 37, 0, 0, 18, "b_marutama", "relative", "15")
+    spawnRing("normal", "#ffffff", 600, angle, 37, 0, 0, 18, "b_marutama", "relative", "15")
+    spawnRing("normal", "#ffffff", 800, angle, 37, 0, 0, 18, "b_marutama", "relative", "15")
+    wait(1)
+    angle += random(-70,70)
+}
+    `,
+    bulletScript: `
+if (timer == 0..1) {
+    angle += 3 * bairitu - minus * bairitu
+    minus += 0.02
+}
+angle += 0.6 * bairitu
+if (type == 2) {
+    speed += 4
+    angle += 1.5 * bairitu
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
