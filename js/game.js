@@ -2816,20 +2816,27 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             // ── 弾の描画 ─────────────────────────────────────────────────────────
-            // 最適化: 通常の円弾（画像なし・特殊フラグなし）を色でグループ化してバッチ描画
-            // これにより fill() の呼び出し回数を大幅に削減する
+            // 最適化: 通常の円弾を色でグループ化してバッチ描画 + 特殊弾の抽出を1回のループで行う
+            // オブジェクト・配列の使い回しプールでGC（ガベージコレクション）を完全に排除
             {
-                const _circleGroups = new Map(); // key: "color_radius" → {color, radius, xs[], ys[]}
-                const _specialBullets = []; // 特殊弾（画像あり、ビーム、レーザー等）は後でそのまま描画
+                if (!window._globalCircleGroups) window._globalCircleGroups = new Map();
+                if (!window._globalSpecialBullets) window._globalSpecialBullets = [];
+                const _circleGroups = window._globalCircleGroups;
+                const _specialBullets = window._globalSpecialBullets;
+
+                // プールリセット
+                _circleGroups.forEach(g => { g.xs.length = 0; g.ys.length = 0; });
+                _specialBullets.length = 0;
 
                 for (let _bi = 0; _bi < bullets.length; _bi++) {
                     const b = bullets[_bi];
                     if (b.radius <= 0) continue;
-                    // 画面外カリング（特殊弾はスキップしない）
+
                     const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
                                        b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
-                                       b.isSweeper || b.bulletImage;
-                    if (!_isSpecial && !b.isNormal) {
+                                       b.isSweeper || b.bulletImage || b.isNormal;
+
+                    if (!_isSpecial) {
                         // 通常の円弾のカリング
                         if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) continue;
                         // バッチ用グループに追加
@@ -2837,7 +2844,10 @@ function applyAbilityEffect(cardId, owner) {
                         const _r = b.radius * 1.5;
                         const _gKey = _col + '|' + _r;
                         let _g = _circleGroups.get(_gKey);
-                        if (!_g) { _g = { color: _col, radius: _r, xs: [], ys: [] }; _circleGroups.set(_gKey, _g); }
+                        if (!_g) {
+                            _g = { color: _col, radius: _r, xs: [], ys: [] };
+                            _circleGroups.set(_gKey, _g);
+                        }
                         _g.xs.push(b.x);
                         _g.ys.push(b.y);
                     } else {
@@ -2847,6 +2857,7 @@ function applyAbilityEffect(cardId, owner) {
 
                 // バッチ円弾描画: 同じ色・同じ半径の弾を1回のfill()でまとめて描画
                 for (const [, _g] of _circleGroups) {
+                    if (_g.xs.length === 0) continue;
                     ctx.fillStyle = _g.color;
                     ctx.beginPath();
                     for (let _k = 0; _k < _g.xs.length; _k++) {
@@ -2858,19 +2869,7 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             // ── 特殊弾・画像弾の描画（バッチ化不可なものを個別描画） ─────────────
-            const bullets_special = (() => {
-                const _arr = [];
-                for (let _bi = 0; _bi < bullets.length; _bi++) {
-                    const b = bullets[_bi];
-                    if (b.radius <= 0) continue;
-                    const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
-                                       b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
-                                       b.isSweeper || b.bulletImage || b.isNormal;
-                    if (!_isSpecial) continue;
-                    _arr.push(b);
-                }
-                return _arr;
-            })();
+            const bullets_special = window._globalSpecialBullets;
 
             for (let _bsi = 0; _bsi < bullets_special.length; _bsi++) {
             const b = bullets_special[_bsi];
