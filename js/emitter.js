@@ -1882,10 +1882,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                 }
                             } else {
-                                // 弾スクリプトの末尾に到達：明示的なループ構造（repeat/forever/while）が無い場合は終了
-                                // 弾は最後に設定された速度・向きのまま飛行を継続する（無駄な毎フレーム再評価スパイクを完全防止）
-                                state.finished = true;
-                                b.update = null;
+                                // 弾の挙動は、最後まで実行し終えたら自動的に最初からループ実行する
+                                // once は弾生（この弾が存在する間）で一度きり — ループしてもリセットしない
+                                state.pc = 0;
+                                state.waitTimer = 0.01; // 1フレーム待機
                                 brokeToWait = true;
                                 break;
                             }
@@ -1893,8 +1893,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                         
                         let block = currentBlocks[currentPC];
                         if (!block) {
-                            state.finished = true;
-                            b.update = null;
+                            state.pc = 0;
+                            state.waitTimer = 0.01;
                             brokeToWait = true;
                             break;
                         }
