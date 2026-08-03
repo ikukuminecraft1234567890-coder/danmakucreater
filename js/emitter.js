@@ -1883,9 +1883,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                             } else {
                                 // 弾の挙動は、最後まで実行し終えたら自動的に最初からループ実行する
-                                // 位相ジッター（微小ゆらぎ）を加えて、2000発以上の全弾が全く同一フレームで一斉解凍（25msスパイク）するのを平坦化する
+                                // once は弾生（この弾が存在する間）で一度きり — ループしてもリセットしない
                                 state.pc = 0;
-                                state.waitTimer = 0.005 + Math.random() * 0.01;
+                                state.waitTimer = 0.01; // 1フレーム待機
                                 brokeToWait = true;
                                 break;
                             }
@@ -1894,7 +1894,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let block = currentBlocks[currentPC];
                         if (!block) {
                             state.pc = 0;
-                            state.waitTimer = 0.005 + Math.random() * 0.01;
+                            state.waitTimer = 0.01;
                             brokeToWait = true;
                             break;
                         }
