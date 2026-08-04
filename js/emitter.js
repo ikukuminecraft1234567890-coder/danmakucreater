@@ -1522,18 +1522,9 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (!state) return;
 
             // ── 超軽量化処理：完了済みの弾は b.update を削除して二度と処理しない ──
-            if (state.finished && (!state.tweens || state.tweens.length === 0)) {
-                b.update = null;
-                return;
-            }
+            // (Reverted to ensure 100% original behavior)
 
-            // ── 超軽量化処理：waitタイマー減算のみ（tweensがなく、壁/弾判定も不要な場合は重い前処理を完全パス） ──
-            const _hasTweens = state.tweens && state.tweens.length > 0;
-            if (state.waitTimer > 0 && !_hasTweens && !window.needsWallTouchDetection && !window.needsBulletTouchDetection) {
-                state.waitTimer -= dt;
-                return;
-            }
-            
+            const _hasTweens = state.tweens && state.tweens.length > 0;            
             // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
                 state.tweens = state.tweens.filter(tw => {
