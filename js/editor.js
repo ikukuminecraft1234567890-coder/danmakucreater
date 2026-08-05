@@ -1421,7 +1421,7 @@ function customCardMakerSwitchTab(tab) {
             turnCount = 1;
             
             activeCards = [ tempCustomCard ];
-            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0);
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
             customCardDeathEffect = null;
@@ -1572,7 +1572,45 @@ function customCardMakerSwitchTab(tab) {
             }
         });
 
-        function customCardMakerSwitchMode(mode) {
+        function customCardMakerCompileCurrent() {
+    let script = '';
+    if (document.getElementById('custom-card-maker-blocks').style.display !== 'none') {
+        let blockElems = document.getElementById('custom-card-maker-blocks').querySelectorAll('.custom-block');
+        let astBlocks = [];
+        blockElems.forEach(elem => {
+            let ast = customCardMakerBlockElemToAst(elem);
+            if (ast) astBlocks.push(ast);
+        });
+        script = convertAstBlocksToCode(astBlocks);
+    } else {
+        script = document.getElementById('custom-card-maker-code').value;
+    }
+    
+    try {
+        let blocks = codeToBlocks(script);
+        let compiledBlocks = compileIndentedBlocks(blocks);
+        
+        let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
+        
+        document.getElementById('custom-card-maker-compiled').value = funcStr;
+        
+        let evalFunc = null;
+        eval('evalFunc = ' + funcStr);
+        window.compiledDanmaku = window.compiledDanmaku || {};
+        window.compiledDanmaku['custom_test'] = evalFunc;
+        
+        tempCustomCard.id = 'custom_test';
+        tempCustomCard.emitterScript = script;
+        
+        customCardMakerSwitchMode('compiled');
+        alert("コンパイル成功！メモリ上に展開しました。\nこのままテストプレイすると超高速で動作します。");
+    } catch (e) {
+        alert("コンパイルエラー: " + e.message);
+        console.error(e);
+    }
+}
+
+function customCardMakerSwitchMode(mode) {
             if (customCardMakerMode === mode) return;
             
             let script = getActiveScript();
@@ -3573,7 +3611,7 @@ function customCardMakerSwitchTab(tab) {
             let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(cardDiffVal) : cardDiffVal.toUpperCase();
 
             let tempCustomCard = {
-                id: 'custom_test_shared_' + idx,
+                id: sharedCard.id || ('danmaku_' + idx),
                 name: sharedCard.name.startsWith('【A】') ? sharedCard.name : '【A】' + sharedCard.name,
                 duration: cardDuration,
                 x_offset: xOffset,
@@ -3676,7 +3714,7 @@ function customCardMakerSwitchTab(tab) {
             turnCount = 1;
 
             activeCards = [ tempCustomCard ];
-            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0);
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
             customCardDeathEffect = null;

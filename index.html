@@ -278,11 +278,14 @@
                                 <div style="flex-grow: 1;"></div>
                                 <button id="mode-btn-block" class="tab-btn active" onclick="customCardMakerSwitchMode('block')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">ブロック</button>
                                 <button id="mode-btn-code" class="tab-btn" onclick="customCardMakerSwitchMode('code')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">JSコード</button>
+                                <button id="mode-btn-compiled" class="tab-btn" onclick="customCardMakerSwitchMode('compiled')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px; color: #ff99ff;">コンパイル済</button>
+                                <button class="tab-btn" onclick="customCardMakerCompileCurrent()" style="font-size: 11px; padding: 4px 10px; margin-left: 10px; background: #990033; color: white;">コンパイル実行(ラグ解消)</button>
                                 <button id="code-guide-btn" class="tab-btn" onclick="toggleCustomCodeGuide(true)" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">コードヘルプ</button>
                             </div>
                             <div class="workspace-scroll" id="workspace-blocks-container">
                             </div>
                             <textarea id="workspace-code-textarea" class="code-textarea hidden" wrap="off" spellcheck="false" oninput="customCardMakerOnCodeInput()" placeholder="// ここにJSコードを記述してください...&#10;// 例 (コア挙動):&#10;// spawnRing(&quot;normal&quot;, &quot;#ff3333&quot;, 6, 200, 12)&#10;//&#10;// 例 (弾の挙動):&#10;// bounce()&#10;// if (isBounced)&#10;//     aimAtTarget()&#10;//     bulletType = &quot;laser&quot;&#10;//     speed = 350"></textarea>
+                            <textarea id="workspace-compiled-textarea" class="code-textarea hidden" wrap="off" spellcheck="false" readonly placeholder="ここにコンパイル済みコードが表示されます"></textarea>
                         </div>
                     </div>
 
@@ -551,6 +554,8 @@ while (true) {
     <!-- Modular Game Scripts -->
     <script src="js/sound.js?v=1.3.9"></script>
     <script>
+        document.write('<script src="js/compiledanmaku.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/compiler.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/danmaku.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
     </script>
     <script src="js/data.js?v=1.3.9"></script>
