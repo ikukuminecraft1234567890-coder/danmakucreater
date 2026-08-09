@@ -4112,7 +4112,7 @@ spriteAngle = angle
 {
     difficulty: "lunatic",
     name: "「業火優勢」",
-    desc: "説明文や作成者名など",
+    desc: "軽量版",
     duration: 20,            // 制限時間（秒）
     maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
@@ -4128,13 +4128,12 @@ while (true) {
         kaisu += 1
         angle += 9 * kakudo
         kakudo = 1.2
-        // すべてのspawnWayの画像引数を"star"に変更
-        spawnWay("normal", "#ff3333", 300, angle, 25, 3, 0, 0, 6, "star", "relative", "6")
-        spawnWay("normal", "#ff3333", 300, angle + 90, 25, 3, 0, 0, 6, "star", "relative", "6")
-        spawnWay("normal", "#ff3333", 300, angle + 180, 25, 3, 0, 0, 6, "star", "relative", "6")
-        spawnWay("normal", "#ff3333", 300, angle + 270, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle, 25, 3, 0, 0, 6, "none", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 90, 25, 3, 0, 0, 6, "none", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 180, 25, 3, 0, 0, 6, "none", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 270, 25, 3, 0, 0, 6, "none", "relative", "6")
         for (let i = 0; i < 9; i++) {
-            spawnWay("normal", "#ff3332", 300, angle + 45, 4, 90, 0, 0, 6, "star", "relative", "6")
+            spawnWay("normal", "#ff3332", 300, angle + 45, 4, 90, 0, 0, 6, "none", "relative", "6")
             angle += 3
             wait(0.1)
         }
@@ -4142,19 +4141,17 @@ while (true) {
         kaisu += 1
         angle += 9 * kakudo
         kakudo = -1.2
-        // 同様に修正
-        spawnWay("normal", "#ff3333", 300, angle, 25, 3, 0, 0, 6, "star", "relative", "6")
-        spawnWay("normal", "#ff3333", 300, angle + 90, 25, 3, 0, 0, 6, "star", "relative", "6")
-        spawnWay("normal", "#ff3333", 300, angle + 180, 25, 3, 0, 0, 6, "star", "relative", "6")
-        spawnWay("normal", "#ff3333", 300, angle + 270, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle, 25, 3, 0, 0, 6, "none", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 90, 25, 3, 0, 0, 6, "none", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 180, 25, 3, 0, 0, 6, "none", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 270, 25, 3, 0, 0, 6, "none", "relative", "6")
         for (let i = 0; i < 9; i++) {
-            spawnWay("normal", "#ff3332", 300, angle + 45, 4, 90, 0, 0, 6, "star", "relative", "6")
+            spawnWay("normal", "#ff3332", 300, angle + 45, 4, 90, 0, 0, 6, "none", "relative", "6")
             angle -= 3
             wait(0.1)
         }
     }
 }
-// 並行レーザーのループは変更なし
 while (true) {
     wait(0.5)
     spawnLaserWay("#33ffff", 6, 800, -90 + 50, 7, 10, 0, 0, 0.2, 0.01, 0.2, "true", "relative", "6")
