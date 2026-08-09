@@ -4110,7 +4110,7 @@ spriteAngle = angle
     `
 },
 {
-    difficulty: "Hard",
+    difficulty: "lunatic",
     name: "「業火優勢」",
     desc: "説明文や作成者名など",
     duration: 20,            // 制限時間（秒）
