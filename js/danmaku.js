@@ -4256,6 +4256,33 @@ radius = 10
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「回天之勢」",
+    desc: "ドパガキ向け！",
+    duration: 15,            // 制限時間（秒）
+    maxMisses: 1,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 10; i++) {
+        spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 30, "b_knife", "relative", "6")
+        angle += angled
+        wait(0.016 / 8)
+    }
+    angled = seedrandom[second](-5000,10)
+}
+    `,
+    bulletScript: `
+speed += 2
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
