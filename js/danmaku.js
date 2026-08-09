@@ -4283,6 +4283,38 @@ speed += 2
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "Hard",
+    name: "「嵐光明媚」",
+    desc: "説明文や作成者名など",
+    duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    kakudo = 1
+    spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 13, "b_uroko", "relative", "6")
+    kakudo = -1
+    spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 13, "b_uroko", "relative", "6")
+    wait(0.0016)
+}
+    `,
+    bulletScript: `
+once {
+    x = random(-300,1000)
+    y = 0
+    angle = 90 + 10 * kakudo
+    spriteAngle = angle
+}
+speed += 5
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
