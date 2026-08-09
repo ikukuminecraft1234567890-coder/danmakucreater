@@ -4108,6 +4108,83 @@ spriteAngle = angle
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "Hard",
+    name: "「業火優勢」",
+    desc: "説明文や作成者名など",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 448
+    wait(0.1)
+    while (true) {
+        angle += seedrandom[50 + kaisu](0,500)
+        kaisu += 1
+        angle += 9 * kakudo
+        kakudo = 1.2
+        // すべてのspawnWayの画像引数を"star"に変更
+        spawnWay("normal", "#ff3333", 300, angle, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 90, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 180, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 270, 25, 3, 0, 0, 6, "star", "relative", "6")
+        for (let i = 0; i < 9; i++) {
+            spawnWay("normal", "#ff3332", 300, angle + 45, 4, 90, 0, 0, 6, "star", "relative", "6")
+            angle += 3
+            wait(0.1)
+        }
+        angle += seedrandom[50 + kaisu](0,500)
+        kaisu += 1
+        angle += 9 * kakudo
+        kakudo = -1.2
+        // 同様に修正
+        spawnWay("normal", "#ff3333", 300, angle, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 90, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 180, 25, 3, 0, 0, 6, "star", "relative", "6")
+        spawnWay("normal", "#ff3333", 300, angle + 270, 25, 3, 0, 0, 6, "star", "relative", "6")
+        for (let i = 0; i < 9; i++) {
+            spawnWay("normal", "#ff3332", 300, angle + 45, 4, 90, 0, 0, 6, "star", "relative", "6")
+            angle -= 3
+            wait(0.1)
+        }
+    }
+}
+// 並行レーザーのループは変更なし
+while (true) {
+    wait(0.5)
+    spawnLaserWay("#33ffff", 6, 800, -90 + 50, 7, 10, 0, 0, 0.2, 0.01, 0.2, "true", "relative", "6")
+    spawnLaserWay("#33ffff", 6, 800, -90 - 50, 7, 10, 0, 0, 0.2, 0.01, 0.2, "true", "relative", "6")
+    wait(0.4)
+}
+    `,
+    bulletScript: `
+if (color!=#33ffff) {
+    angle += 0.4 * kakudo - l * kakudo
+    l += 0.000
+    once {
+        speed = 100
+    }
+    speed += 0.5
+}
+if (color==#33ffff) {
+    if (frame == 20..50) {
+        speed -= 15
+        homing(360)
+    }
+    if (frame == 50..120) {
+        speed += 10
+    }
+}
+radius = 10
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
