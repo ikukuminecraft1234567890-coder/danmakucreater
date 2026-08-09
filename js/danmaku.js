@@ -4285,7 +4285,7 @@ speed += 2
     `
 },
 {
-    difficulty: "Hard",
+    difficulty: "Lunatic",
     name: "「嵐光明媚」",
     desc: "説明文や作成者名など",
     duration: 15,            // 制限時間（秒）
@@ -4300,7 +4300,7 @@ while (true) {
     spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 13, "b_uroko", "relative", "6")
     kakudo = -1
     spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 13, "b_uroko", "relative", "6")
-    wait(0.0016)
+    wait(0.002)
 }
     `,
     bulletScript: `
