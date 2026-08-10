@@ -4477,6 +4477,53 @@ if (color == #ffffff) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「やんごとある威光」",
+    desc: "過去に作ったやつ",
+    duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `s
+while (true) {
+    if (cardSecond == 0..5) {
+        offset = 1
+        spawnRing("normal", "#ff3333", 50, angle, 26, 0, 0, 6, "virus", "relative", "6")
+        angle = random(0,20)
+        wait(0.05)
+    }
+    if (cardSecond == 4..10) {
+        offset = -1
+        spawnRing("normal", "#ff3333", 50, angle, 26, 0, 0, 6, "virus", "relative", "6")
+        angle = random(0,20)
+        wait(0.05)
+    }
+    if (cardSecond == 10..18) {
+        offset = 1
+        spawnRing("normal", "#ff3333", 50, angle, 26, 0, 0, 6, "virus", "relative", "6")
+        angle = random(0,20)
+        wait(0.1)
+        offset = -1
+        spawnRing("normal", "#ff3333", 50, angle, 26, 0, 0, 6, "virus", "relative", "6")
+        angle = random(0,20)
+        wait(0.1)
+    }
+}
+    `,
+    bulletScript: `
+if (timer == 0..5) {
+    angle += 0.2 * offset
+}
+speed = 300
+spriteAngle += 7
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
