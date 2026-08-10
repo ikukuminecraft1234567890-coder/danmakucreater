@@ -2992,29 +2992,40 @@ function applyAbilityEffect(cardId, owner) {
 
                         let mainColor = b.color || '#00ffff';
 
-                        // 1. 外側（メインカラー）の連続滑らかリボン
-                        ctx.fillStyle = mainColor;
-                        ctx.beginPath();
-                        buildRibbonPath(1.0);
-                        ctx.fill();
+                        // カラー文字解析（HEX/RGB）
+                        function parseRGB(cStr) {
+                            if (!cStr) return { r: 0, g: 255, b: 255 };
+                            if (cStr.startsWith('#')) {
+                                let hex = cStr.slice(1);
+                                if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+                                let num = parseInt(hex, 16);
+                                if (!isNaN(num)) return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+                            }
+                            let m = cStr.match(/\d+/g);
+                            if (m && m.length >= 3) return { r: Number(m[0]), g: Number(m[1]), b: Number(m[2]) };
+                            return { r: 0, g: 255, b: 255 };
+                        }
+                        let baseRGB = parseRGB(mainColor);
 
-                        // 2. 境界線のぼかし中間層（半透明・シャドウ）
-                        ctx.save();
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-                        ctx.shadowColor = mainColor;
-                        ctx.shadowBlur = 6;
-                        ctx.beginPath();
-                        buildRibbonPath(0.60);
-                        ctx.fill();
+                        // 白6.5割（scale 0.65）、色つき3.5割（scale 0.65 ～ 1.0）の滑らかグラデーション描画
+                        let steps = 6;
+                        for (let s = steps; s >= 0; s--) {
+                            let ratio = s / steps; // 1.0 (最外) -> 0.0 (コア側)
+                            let scale = 0.65 + ratio * 0.35; // 0.65 ～ 1.0
+                            let r = Math.round(255 * (1 - ratio) + baseRGB.r * ratio);
+                            let g = Math.round(255 * (1 - ratio) + baseRGB.g * ratio);
+                            let bVal = Math.round(255 * (1 - ratio) + baseRGB.b * ratio);
+                            ctx.fillStyle = `rgb(${r}, ${g}, ${bVal})`;
+                            ctx.beginPath();
+                            buildRibbonPath(scale);
+                            ctx.fill();
+                        }
 
-                        // 3. 内側（コアの白帯）
+                        // 内側6.5割（scale 0.65）は純白コア
                         ctx.fillStyle = '#ffffff';
-                        ctx.shadowColor = '#ffffff';
-                        ctx.shadowBlur = 4;
                         ctx.beginPath();
-                        buildRibbonPath(0.35);
+                        buildRibbonPath(0.65);
                         ctx.fill();
-                        ctx.restore();
                     }
                     ctx.restore();
                 } else if (b.isBeam) {
