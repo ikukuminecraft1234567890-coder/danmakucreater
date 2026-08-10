@@ -3007,11 +3007,18 @@ function applyAbilityEffect(cardId, owner) {
                         }
                         let baseRGB = parseRGB(mainColor);
 
-                        // 白6.5割（scale 0.65）、色つき3.5割（scale 0.65 ～ 1.0）の滑らかグラデーション描画
+                        // 白5割（0.0～0.50）、グラデーション3割（0.50～0.80）、単色2割（0.80～1.00）
+                        // 1. 外側2割（scale 0.80 ～ 1.00）: 単色メインカラー
+                        ctx.fillStyle = mainColor;
+                        ctx.beginPath();
+                        buildRibbonPath(1.0);
+                        ctx.fill();
+
+                        // 2. 中間3割（scale 0.50 ～ 0.80）: 白からメインカラーへの滑らかグラデーション
                         let steps = 6;
                         for (let s = steps; s >= 0; s--) {
-                            let ratio = s / steps; // 1.0 (最外) -> 0.0 (コア側)
-                            let scale = 0.65 + ratio * 0.35; // 0.65 ～ 1.0
+                            let ratio = s / steps; // 1.0 (色側 0.80) -> 0.0 (白側 0.50)
+                            let scale = 0.50 + ratio * 0.30; // 0.50 ～ 0.80
                             let r = Math.round(255 * (1 - ratio) + baseRGB.r * ratio);
                             let g = Math.round(255 * (1 - ratio) + baseRGB.g * ratio);
                             let bVal = Math.round(255 * (1 - ratio) + baseRGB.b * ratio);
@@ -3021,10 +3028,10 @@ function applyAbilityEffect(cardId, owner) {
                             ctx.fill();
                         }
 
-                        // 内側6.5割（scale 0.65）は純白コア
+                        // 3. 内側5割（scale 0.50以下）: 純白コア
                         ctx.fillStyle = '#ffffff';
                         ctx.beginPath();
-                        buildRibbonPath(0.65);
+                        buildRibbonPath(0.50);
                         ctx.fill();
                     }
                     ctx.restore();
