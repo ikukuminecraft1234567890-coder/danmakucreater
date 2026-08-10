@@ -4390,45 +4390,6 @@ if (color==#33ffff) {
     `
 },
 {
-    difficulty: "NORMAL",
-    name: "弾幕名",
-    desc: "説明文や作成者名など",
-    duration: 15,            // 制限時間（秒）
-    maxMisses: 2,
-    x_offset: 0,             // 出現位置の横オフセット
-    y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
-    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
-    emitterScript: `
-while (true) {
-    spd = 0
-    for (let i = 0; i < 12; i++) {
-        spawnRing("normal", "#ff3333", 200 + spd, angle, 7, 0, 0, 10, "b_uroko", "relative", "3")
-        angle += 2
-        spd += 10
-        wait(0.064)
-    }
-}
-while (true) {
-    once {
-        startx = ex
-        starty = ey
-    }
-    wait(2)
-    idoux = startx + random(-100,100)
-    idouy = starty + random(-100,200)
-    tween("ex", ex, idoux, "seconds", 0.7, "easeOut")
-    tween("ey", ey, idouy, "seconds", 0.7, "easeOut")
-}
-    `,
-    bulletScript: `
-        // 弾挙動の独自コード
-    `,
-    magicCircleScript: `
-        // 子弾挙動の独自コード（任意）
-    `
-},
-{
     difficulty: "hard",
     name: "「ミニ弾幕結界]",
     desc: "だいーぶ前に作ったやつ",
