@@ -1090,7 +1090,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             color: bColor,
                             team: attacker.team,
                             isCustom: true,
-                            emitterState: initEmitterState(c.magicCircleScript || [], { x: spawnX, y: spawnY }, target, 0, 0),
+                            emitterState: initEmitterState(c.magicCircleScript || [], { x: spawnX, y: spawnY }, target, 0, 0, c.id, '_magic'),
                             bulletScript: c.magicCircleScript || []
                         };
                         newMagicCircle.emitterState.magicCircleScript = c.magicCircleScript || [];
@@ -1269,7 +1269,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         } // 外側ループ
     }
 
-        function initBulletState(script, initialSpeed, initialAngle, attacker, target) {
+        function initBulletState(script, initialSpeed, initialAngle, attacker, target, compiledFn) {
 
             let variables = {
                 speed: initialSpeed,
@@ -1304,7 +1304,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                 lifetimeOnce: new Set(),
                 constVars: new Set(),
                 speedScaleApplied: new Set(),
-                finished: false
+                finished: false,
+                compiledFn: compiledFn || null
             };
         }
 
@@ -1523,6 +1524,7 @@ function stepEmitter(c, state, attacker, target, dt) {
 
             // ── 超軽量化処理：完了済みの弾は b.update を削除して二度と処理しない ──
             // (Reverted to ensure 100% original behavior)
+            const _t0 = performance.now();
 
             const _hasTweens = state.tweens && state.tweens.length > 0;            
             // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
@@ -1632,6 +1634,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                 });
             }
+            const _t1 = performance.now(); // tween完了
             if (window.bulletDebugCount === undefined) window.bulletDebugCount = 0;
             if (b.bulletDebugId === undefined) {
                 b.bulletDebugId = window.bulletDebugCount++;
@@ -1803,7 +1806,20 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.dist = 0;
             }
             
+            const _t2 = performance.now(); // セットアップ完了
+
             if (!state.finished) {
+                // --- AOT コンパイル済みジェネレータパス ---
+                if (state.compiledFn) {
+                    if (!state.compiledGenerator) {
+                        window.DanmakuCompilerRuntime._initBulletState = initBulletState;
+                        window.DanmakuCompilerRuntime._runCustomBulletScript = runCustomBulletScript;
+                        window.DanmakuCompilerRuntime._computeBulletThreatWeight = computeBulletThreatWeight;
+                        state.compiledGenerator = state.compiledFn(state, b, attacker, target, window.DanmakuCompilerRuntime);
+                    }
+                    const result = state.compiledGenerator.next();
+                    if (result.done) { state.finished = true; }
+                } else {
                 let dtRemaining = dt;
                 while (dtRemaining > 0 && !state.finished) {
                     if (state.waitTimer > 0) {
@@ -2835,8 +2851,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                         break;
                     }
                 } // 外側ループ
+                } // else (インタプリタフォールバック)
             }
             
+            const _t3 = performance.now(); // スクリプト実行完了
+
             // Physics update
             let finalAngleRad = state.variables.angle * Math.PI / 180;
             if (isPlayerSide) {
@@ -3012,6 +3031,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                     b.isCustomBeam = false;
                 }
             }
+            const _t4 = performance.now(); // 物理書き戻し完了
+            // フェーズ別計測を累積
+            window._bsT = window._bsT || { tw:0, su:0, sc:0, po:0, n:0 };
+            window._bsT.tw += _t1 - _t0;
+            window._bsT.su += _t2 - _t1;
+            window._bsT.sc += _t3 - _t2;
+            window._bsT.po += _t4 - _t3;
+            window._bsT.n++;
         }
 
         // ==========================================

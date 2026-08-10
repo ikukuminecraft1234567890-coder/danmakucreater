@@ -275,7 +275,7 @@ function applyAbilityEffect(cardId, owner) {
 
             selectedCards.forEach(copy => {
                 if (copy.isCustom) {
-                    copy.emitterState = initEmitterState(copy.emitterScript, attacker, target, copy.x_offset || 0, copy.y_offset || 0);
+                    copy.emitterState = initEmitterState(copy.emitterScript, attacker, target, copy.x_offset || 0, copy.y_offset || 0, copy.id);
                 }
             });
 
@@ -1970,6 +1970,7 @@ function applyAbilityEffect(cardId, owner) {
                 let _collSkipped = 0;
                 // フェーズ別計測: b.update(スクリプト実行) / 移動・delete / 当たり判定
                 let _perfUpd = 0, _perfPhx = 0, _perfCol = 0, _updCount = 0;
+                let _perfUpdAot = 0, _perfUpdInt = 0, _updAotCount = 0, _updIntCount = 0;
                 // --- ループ前キャッシュ: passives/無敵/共通値を1回だけ評価 ---
                 const _tc1          = turnCount > 1;
                 const _acLen2       = activeCards.length >= 2;
@@ -2019,8 +2020,18 @@ function applyAbilityEffect(cardId, owner) {
                         const _tu = performance.now();
                         b.update(b, dt);
                         const _tuEnd = performance.now();
-                        _perfUpd += _tuEnd - _tu;
+                        const _tuDelta = _tuEnd - _tu;
+                        _perfUpd += _tuDelta;
                         _updCount++;
+                        // AOT vs インタプリタ判定
+                        const _bState = b.bulletState;
+                        if (_bState && _bState.compiledFn) {
+                            _perfUpdAot += _tuDelta;
+                            _updAotCount++;
+                        } else {
+                            _perfUpdInt += _tuDelta;
+                            _updIntCount++;
+                        }
                         _phxStart = _tuEnd;
                     } else {
                         _phxStart = performance.now();
@@ -2184,7 +2195,7 @@ function applyAbilityEffect(cardId, owner) {
                                 if (rClosestHit > 0.1 && dSq < (_pHitR + rClosestHit) ** 2) { isHit = true; break; }
                                 if (!b.grazed && dSq < (_pGrazeR + rClosestGraze) ** 2) { isGraze = true; }
                             }
-                            distSq = isHit ? 0 : (isGraze ? (_pGrazeR * 0.5) ** 2 : Infinity);
+                            distSq = isHit ? 0 : (isGraze ? (_pHitR + bHitR) ** 2 + 1 : Infinity);
                         } else if (b.isLaser) {
                             let x1 = b.x;
                             let y1 = b.y;
@@ -2484,6 +2495,10 @@ function applyAbilityEffect(cardId, owner) {
                 window.perfBltCol     = (window.perfBltCol  || 0) + _perfCol;
                 window.perfBltUpdN    = _updCount;   // おこの弾数
                 window.perfBltSkipped = _collSkipped;
+                window.perfBltUpdAot  = (window.perfBltUpdAot || 0) + _perfUpdAot;
+                window.perfBltUpdInt  = (window.perfBltUpdInt || 0) + _perfUpdInt;
+                window.perfBltUpdAotN = _updAotCount;
+                window.perfBltUpdIntN = _updIntCount;
             }
 
             if (isCustomCardTesting) {
@@ -4197,7 +4212,7 @@ function applyAbilityEffect(cardId, owner) {
                 const fpsColor = fpsDisplay >= 55 ? '#00ff88' : fpsDisplay >= 30 ? '#ffcc00' : '#ff4444';
                 ctx.font = 'bold 11px monospace';
                 ctx.fillStyle = 'rgba(0,0,0,0.85)';
-                ctx.fillRect(4, 4, 185, 215);
+                ctx.fillRect(4, 4, 195, 312);
                 ctx.fillStyle = fpsColor;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'top';
@@ -4210,21 +4225,31 @@ function applyAbilityEffect(cardId, owner) {
                 // 細分化: スクリプト実行 / 移動物理 / 当たり判定
                 ctx.fillStyle = '#ffdd88';
                 ctx.fillText('  .upd: ' + (window.perfBltUpd || 0).toFixed(1) + 'ms (' + (window.perfBltUpdN || 0) + ' fn)', 8, 78);
+                ctx.fillStyle = '#ffaa44';
+                ctx.fillText('   -aot: ' + (window.perfBltUpdAot || 0).toFixed(1) + 'ms (' + (window.perfBltUpdAotN || 0) + ')', 8, 92);
+                ctx.fillStyle = '#ff6666';
+                ctx.fillText('   -int: ' + (window.perfBltUpdInt || 0).toFixed(1) + 'ms (' + (window.perfBltUpdIntN || 0) + ')', 8, 106);
+                // runCustomBulletScript 内部フェーズ
+                const _bsT = window._bsT || { tw:0, su:0, sc:0, po:0 };
+                ctx.fillStyle = '#cc88ff';
+                ctx.fillText('   └tw: ' + (_bsT.tw || 0).toFixed(1) + 'ms  su: ' + (_bsT.su || 0).toFixed(1) + 'ms', 8, 120);
+                ctx.fillStyle = '#88ffcc';
+                ctx.fillText('   └sc: ' + (_bsT.sc || 0).toFixed(1) + 'ms  po: ' + (_bsT.po || 0).toFixed(1) + 'ms', 8, 134);
                 ctx.fillStyle = '#88ddff';
-                ctx.fillText('  .phx: ' + (window.perfBltPhx || 0).toFixed(1) + 'ms', 8, 92);
+                ctx.fillText('  .phx: ' + (window.perfBltPhx || 0).toFixed(1) + 'ms', 8, 148);
                 ctx.fillStyle = '#88ffaa';
                 const _skipPct = bullets.length > 0 ? Math.round((window.perfBltSkipped || 0) / bullets.length * 100) : 0;
-                ctx.fillText('  .col: ' + (window.perfBltCol || 0).toFixed(1) + 'ms (skip ' + _skipPct + '%)', 8, 106);
+                ctx.fillText('  .col: ' + (window.perfBltCol || 0).toFixed(1) + 'ms (skip ' + _skipPct + '%)', 8, 162);
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText(' -Emt: ' + (window.perfEmitter || 0).toFixed(1) + 'ms', 8, 120);
-                ctx.fillText('Draw : ' + (window.perfDraw   || 0).toFixed(1) + 'ms', 8, 134);
-                ctx.fillText(' -Blt: ' + (window.perfDrawB  || 0).toFixed(1) + 'ms', 8, 148);
+                ctx.fillText(' -Emt: ' + (window.perfEmitter || 0).toFixed(1) + 'ms', 8, 176);
+                ctx.fillText('Draw : ' + (window.perfDraw   || 0).toFixed(1) + 'ms', 8, 190);
+                ctx.fillText(' -Blt: ' + (window.perfDrawB  || 0).toFixed(1) + 'ms', 8, 204);
                 ctx.fillStyle = '#ffcc00';
-                ctx.fillText('Count: ' + bullets.length + ' bullets', 8, 162);
+                ctx.fillText('Count: ' + bullets.length + ' bullets', 8, 218);
                 ctx.fillStyle = '#88ff88';
-                ctx.fillText('Skip : ' + (window.perfBltSkipped || 0) + ' (' + _skipPct + '%)', 8, 176);
+                ctx.fillText('Skip : ' + (window.perfBltSkipped || 0) + ' (' + _skipPct + '%)', 8, 232);
                 ctx.fillStyle = '#ffaaff';
-                ctx.fillText('Upd/f: ' + (window.perfBltUpdN || 0) + ' bullets w/ fn', 8, 190);
+                ctx.fillText('Upd/f: ' + (window.perfBltUpdN || 0) + ' bullets w/ fn', 8, 246);
             }
             ctx.textBaseline = 'alphabetic';
         }
@@ -5065,6 +5090,7 @@ function applyAbilityEffect(cardId, owner) {
 
                 const fn = new Function('__v', '__random', functionBody);
                 numericExprCache.set(expr, fn);
+                fn.__sourceCode = `${expr}`;
                 return fn;
             } catch(e) {
                 if (window.showDebugProfiler) {

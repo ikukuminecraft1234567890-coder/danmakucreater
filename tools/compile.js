@@ -2,10 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Mocks for browser environment so game.js and editor.js can run in Node
-global.window = global;
+global.window = global; global.window.addEventListener = () => {}; global.addEventListener = () => {};
 global.addEventListener = () => {};
 global.document = { addEventListener: () => {},
-    getElementById: (id) => ({
+    getElementById: (id) => ({ addEventListener: () => {}, 
         getContext: () => ({
             fillRect: () => {},
             clearRect: () => {},
@@ -64,7 +64,7 @@ eval(compilerJs);
 eval(danmakuJs + ';\nwindow.sharedDanmakuList = sharedDanmakuList;');
 
 function compileDanmakuToJS() {
-    console.log("Compiling danmaku...");
+    console.log("Compiling danmaku..."); console.log("compileIndentedBlocks typeof:", typeof compileIndentedBlocks);
     try {
         let emitterText = emitterJs;
 
@@ -98,6 +98,21 @@ function compileDanmakuToJS() {
         runtimeBlocksCode = runtimeBlocksCode.replace(/block\.type/g, 'p.type');
         runtimeBlocksCode = runtimeBlocksCode.replace(/block\.children/g, 'p.children');
         runtimeBlocksCode = runtimeBlocksCode.replace(/resolveColorParam\(/g, 'window.DanmakuCompilerRuntime.resolveColorParam(');
+        runtimeBlocksCode = runtimeBlocksCode.replace(/initBulletState\(/g, '_util._initBulletState(');
+        runtimeBlocksCode = runtimeBlocksCode.replace(/runCustomBulletScript\(/g, '_util._runCustomBulletScript(');
+        runtimeBlocksCode = runtimeBlocksCode.replace(/computeBulletThreatWeight\(/g, '_util._computeBulletThreatWeight(');
+
+        // bulletState 生成時に compiledFn を注入するパッチ
+        // childScript版 (通常 spawn / ring / aim / fan)
+        runtimeBlocksCode = runtimeBlocksCode.replace(
+            /_util\._initBulletState\(childScript,\s*speed,\s*angle,\s*attacker,\s*target\)/g,
+            "_util._initBulletState(childScript, speed, angle, attacker, target, (window.compiledDanmaku && state.danmakuId) ? (window.compiledDanmaku[state.danmakuId + '_bullet'] || null) : null)"
+        );
+        // 空 script 版 (magicCircle spawn)
+        runtimeBlocksCode = runtimeBlocksCode.replace(
+            /_util\._initBulletState\(\[\],\s*0,\s*angle,\s*attacker,\s*target\)/g,
+            "_util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.danmakuId) ? (window.compiledDanmaku[state.danmakuId + '_magic'] || null) : null)"
+        );
 
         let outputJS = `// ==========================================
 // PRE-COMPILED DANMAKU GENERATORS
@@ -139,22 +154,60 @@ window.DanmakuCompilerRuntime.fuzzyEqual = function(a, b) {
     return false;
 };
 window.DanmakuCompilerRuntime.fuzzyNotEqual = function(a, b) { return !window.DanmakuCompilerRuntime.fuzzyEqual(a, b); };
-window.DanmakuCompilerRuntime.seedrandom = function(seed, a, b, vars) { return Math.random(); };
+window.DanmakuCompilerRuntime.rand = function(a, b) {
+    if (b !== undefined) return Number(a || 0) + Math.random() * (Number(b || 0) - Number(a || 0));
+    if (a !== undefined) return Math.random() * Number(a || 0);
+    return Math.random();
+};
+window.DanmakuCompilerRuntime.seedrandom = function(baseSeed, a, b, vars) {
+    let n = vars.n !== undefined ? vars.n : 0;
+    let t = vars.t !== undefined ? vars.t : 0;
+    let seed = Math.floor(Number(baseSeed)) + Math.floor(n) * 2654435761 + Math.floor(t * 1000) * 314159265;
+    let s = (seed >>> 0) + 0x6D2B79F5;
+    s = Math.imul(s ^ (s >>> 15), s | 1);
+    s ^= s + Math.imul(s ^ (s >>> 7), s | 61);
+    let r = ((s ^ (s >>> 14)) >>> 0) / 4294967296;
+    if (b !== undefined) return Number(a || 0) + r * (Number(b || 0) - Number(a || 0));
+    if (a !== undefined) return r * Number(a || 0);
+    return r;
+};
+window.DanmakuCompilerRuntime.checkInterval = function(currentVal, interval, stateKey, variables) {
+    if (!interval || interval <= 0) return false;
+    let prevVal = variables[stateKey];
+    variables[stateKey] = currentVal;
+    if (prevVal === undefined) { prevVal = 0; }
+    return Math.floor(prevVal / interval) !== Math.floor(currentVal / interval);
+};
+
 
 `;
 
         let compiledCount = 0;
         for (let danmaku of window.sharedDanmakuList) {
             let idx = window.sharedDanmakuList.indexOf(danmaku);
+            
             let id = danmaku.id || ('danmaku_' + idx);
             
-            let blocks = typeof window.codeToBlocks === 'function' ? window.codeToBlocks(danmaku.emitterScript) : [];
-            let compiledBlocks = typeof window.compileIndentedBlocks === 'function' ? window.compileIndentedBlocks(JSON.parse(JSON.stringify(blocks))) : [];
-
+            // Compile emitterScript
+            let blocks = Array.isArray(danmaku.emitterScript) ? danmaku.emitterScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.emitterScript) : []);
+            let compiledBlocks = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(blocks))) : [];
             let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
+            outputJS += `window.compiledDanmaku['${id}'] = ${funcStr};\n`;
             
-            outputJS += `window.compiledDanmaku['${id}'] = ${funcStr};\n\n`;
+            // Compile bulletScript
+            let bBlocks = Array.isArray(danmaku.bulletScript) ? danmaku.bulletScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.bulletScript) : []);
+            let bCompiled = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(bBlocks))) : [];
+            let bFuncStr = window.DanmakuCompiler.compileSingle(bCompiled, true);
+            outputJS += `window.compiledDanmaku['${id}_bullet'] = ${bFuncStr};\n`;
+
+            // Compile magicCircleScript
+            let mBlocks = Array.isArray(danmaku.magicCircleScript) ? danmaku.magicCircleScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.magicCircleScript) : []);
+            let mCompiled = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(mBlocks))) : [];
+            let mFuncStr = window.DanmakuCompiler.compileSingle(mCompiled, true);
+            outputJS += `window.compiledDanmaku['${id}_magic'] = ${mFuncStr};\n\n`;
+
             compiledCount++;
+
         }
 
         fs.writeFileSync(path.join(jsDir, 'compiledanmaku.js'), outputJS, 'utf8');

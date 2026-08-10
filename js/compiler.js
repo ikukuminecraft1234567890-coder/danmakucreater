@@ -4,10 +4,8 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
     if (block.compiledParams && block.compiledParams[key]) {
         let fn = block.compiledParams[key];
         if (typeof fn === 'function') {
-            let str = fn.toString();
-            let match = str.match(/return\s+(.*);/s);
-            if (match) {
-                let body = match[1].trim();
+            let body = fn.__sourceCode;
+            if (body) {
                 body = body.replace(/__v/g, 'vars');
                 body = body.replace(/__rand/g, 'Math.random()');
                 body = body.replace(/__fuzzyEqual/g, '_util.fuzzyEqual');
@@ -34,7 +32,8 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         let block = blocks[i];
         let t = block.type;
         if (t === 'wait') {
-            js += ind + `yield (${window.DanmakuCompiler.getExpr(block, 'duration', '0.01')});\n`;
+            js += ind + `state.waitTimer = Math.max(0.001, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.01')});\n`;
+            js += ind + `yield;\n`;
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
             let varName = block.params.var || block.params.name;
             if (varName) {
@@ -48,7 +47,8 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         } else if (t === 'forever') {
             js += ind + `while (true) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
-            js += ind + `  yield 0;\n`;
+            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.001);\n`;
+            js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'repeat') {
             let idxVar = block.params && block.params.indexVar ? `vars['${block.params.indexVar}']` : `_i${indent}`;
@@ -60,15 +60,26 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
             js += ind + `while (${cond}) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
-            js += ind + `  yield 0;\n`;
+            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.001);\n`;
+            js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'if') {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
             js += ind + `if (${cond}) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             js += ind + `}\n`;
+        } else if (t === 'once') {
+            let bid = block.id || Math.random().toString(36).substr(2, 9);
+            js += ind + `if (!state.onceMap) state.onceMap = {};\n`;
+            js += ind + `if (!state.onceMap['${bid}']) {\n`;
+            js += ind + `  state.onceMap['${bid}'] = true;\n`;
+            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
+            js += ind + `}\n`;
         } else {
             js += ind + `_util.executeBlock({ type: '${t}', `;
+            if (block.id) {
+                js += `id: "${block.id}", `;
+            }
             if (block.params) {
                 for (let key in block.params) {
                     let exprVal = window.DanmakuCompiler.getExpr(block, key, 'undefined');
@@ -77,6 +88,8 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             }
             if (block.children && block.children.length > 0) {
                 js += `children: ${JSON.stringify(block.children)}, `;
+                let childFuncStr = window.DanmakuCompiler.compileSingle(block.children, true);
+                js += `compiledFn: ${childFuncStr}, `;
             }
             js += `}, state, b, attacker, target, _util);\n`;
         }
@@ -84,10 +97,20 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
     return js;
 };
 
-window.DanmakuCompiler.compileSingle = function(blocks) {
+window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     let funcStr = `function*(state, b, attacker, target, _util) {\n`;
     funcStr += `  let vars = state.variables;\n`;
-    funcStr += window.DanmakuCompiler.generateBlocksJS(blocks, 1);
+    
+    if (isBulletScript && blocks && blocks.length > 0) {
+        funcStr += `  while (true) {\n`;
+        funcStr += window.DanmakuCompiler.generateBlocksJS(blocks, 2);
+        funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+        funcStr += `    yield;\n`;
+        funcStr += `  }\n`;
+    } else {
+        funcStr += window.DanmakuCompiler.generateBlocksJS(blocks || [], 1);
+    }
+    
     funcStr += `}`;
     return funcStr;
 };

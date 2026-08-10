@@ -2163,7 +2163,7 @@ function customCardMakerSwitchMode(mode) {
                 let trimmed = rawLine.trim();
                 trimmed = trimmed.replace(/;+$/, "").trim();
                 // コメント・空行・単独の { } をスキップ
-                if (!trimmed || trimmed === '{' || trimmed === '}') return;
+                if (!trimmed || trimmed === '{' || trimmed === '}' || trimmed.startsWith('//')) return;
 
                 // インデントを計算（スタックの深さで決定）
                 let indent = Math.max(0, Math.min(20, currentIndent));
@@ -2704,7 +2704,7 @@ function customCardMakerSwitchMode(mode) {
                 trimmed = trimmed.replace(/;+$/, "").trim();
                 trimmed = trimmed.replace(/\{\s*$/, "").trim();
                 
-                if (trimmed === "" || trimmed === "{" || trimmed === "}") return;
+                if (trimmed === "" || trimmed === "{" || trimmed === "}" || trimmed.startsWith("//")) return;
                 
                 let block = null;
                 
