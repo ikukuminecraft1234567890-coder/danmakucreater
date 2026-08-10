@@ -4315,6 +4315,79 @@ speed += 5
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "hard",
+    name: "魔砲「大葬滅光線」",
+    desc: "先に作るものを決めてから作り始めた極めて珍しい例の弾幕。",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spd = 0
+    for (let i = 0; i < 10; i++) {
+        spawnRingResist("normal", "#ff3333", 50 + spd, angle, 1, 200, 0, 6, "light", "relative", "0")
+        spawnRingResist("normal", "#ff3333", 50 + spd, angle, 1, -200, 0, 6, "light", "relative", "0")
+        angle += 10
+        spd += 2.5
+    }
+    spawnTrailResist("#ffffff", 1, angle, 200, 0, 2, 0.001, 2, 0.001, "true", "relative", "0")
+    spawnTrailResist("#ffffff", 1, angle, -200, 0, 2, 0.001, 2, 0.001, "true", "relative", "0")
+    spawnTrailResist("#33ffff", 0, angle, 200, 0, 20, 0.3, 0.6, 1, "true", "relative", "0")
+    spawnTrailResist("#33ffff", 0, angle, -200, 0, 20, 0.3, 0.6, 1, "true", "relative", "0")
+    for (let i = 0; i < 50; i++) {
+        spawnRingResist("normal", "#ff3333", 50 + spd, angle, 1, 200, 0, 6, "light", "relative", "0")
+        spawnRingResist("normal", "#ff3333", 50 + spd, angle, 1, -200, 0, 6, "light", "relative", "0")
+        angle += 10
+        spd += 2.5
+    }
+    wait(2)
+}
+    `,
+    bulletScript: `
+if (color == #ff3333) {
+    once {
+        advance(120 + seedrandom[5](-0,50))
+        angle += 180
+    }
+    if (frame == 70) {
+        hitRadius = 5
+        idoukakudo = random(-0.3,0.3)
+        speed += random(0,200)
+    }
+    if (frame == 80..) {
+        angle += idoukakudo
+    }
+}
+if (color==#ffffff) {
+    once {
+        aimAtTarget()
+        x += offsetx
+        y += offsety
+    }
+    if (frame == 2) {
+        speed = 8000
+    }
+}
+if (color==#33ffff) {
+    once {
+        aimAtTarget()
+        x += offsetx
+        y += offsety
+    }
+    if (frame == 70) {
+        speed = 80000
+        hitRadius = 12
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
