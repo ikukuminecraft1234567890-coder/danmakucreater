@@ -4524,6 +4524,58 @@ spriteAngle += 7
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「サイド暗器」",
+    desc: "過去作ったやつ",
+    duration: 18,            // 制限時間（秒）
+    maxMisses: 0,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spx = 300
+    spawnBullet("normal", "#ff3333", 200, angle, spx, -160, 15, "light", "relative", "6")
+    spawnBullet("normal", "#ff3333", 200, angle + 180, -spx, 850, 15, "light", "relative", "6")
+    wait(0.03)
+    wait(0.1-hindo)
+    hindo += 0.001
+}
+    `,
+    bulletScript: `
+once {
+    y -= 100
+    speed = 400
+    x += random(-200,200)
+    y += random(-70,70)
+    speed += random(-70,70)
+    angle += random(-3,3)
+}
+speed += 1
+aif[20](y == ty) {
+    once {
+        speed = 0
+        angle = 90
+        if (x < tx) {
+            angle = 0
+        }
+        if (x > tx) {
+            angle = 180
+        }
+        spawnBullet("normal", "#ff3333", 100, angle, 0, 0, 30, "knife", "relative", "6")
+        y = -80000
+    }
+}
+    `,
+    magicCircleScript: `
+speed += 1
+once {
+    angle += random(-6,6)
+}
+    `
 }
 ];
 
