@@ -4337,8 +4337,8 @@ while (true) {
     }
     spawnTrailResist("#ffffff", 1, angle, 200, 0, 2, 0.001, 2, 0.001, "true", "relative", "0")
     spawnTrailResist("#ffffff", 1, angle, -200, 0, 2, 0.001, 2, 0.001, "true", "relative", "0")
-    spawnTrailResist("#33ffff", 0, angle, 200, 0, 20, 0.3, 0.6, 1, "true", "relative", "0")
-    spawnTrailResist("#33ffff", 0, angle, -200, 0, 20, 0.3, 0.6, 1, "true", "relative", "0")
+    spawnTrailResist("#33ffff", 0, angle, 200, 0, 30, 0.3, 0.6, 1, "true", "relative", "0")
+    spawnTrailResist("#33ffff", 0, angle, -200, 0, 30, 0.3, 0.6, 1, "true", "relative", "0")
     for (let i = 0; i < 50; i++) {
         spawnRingResist("normal", "#ff3333", 50 + spd, angle, 1, 200, 0, 6, "light", "relative", "0")
         spawnRingResist("normal", "#ff3333", 50 + spd, angle, 1, -200, 0, 6, "light", "relative", "0")
@@ -4381,7 +4381,7 @@ if (color==#33ffff) {
     }
     if (frame == 70) {
         speed = 80000
-        hitRadius = 12
+        hitRadius = 20
     }
 }
     `,
