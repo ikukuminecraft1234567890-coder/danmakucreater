@@ -4173,6 +4173,9 @@ if (color==#33ffff) {
         speed -= 15
         homing(360)
     }
+    if (frame == 50..51) {
+        aimAtTarget()
+    }
     if (frame == 50..120) {
         speed += 10
     }
