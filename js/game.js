@@ -2998,11 +2998,23 @@ function applyAbilityEffect(cardId, owner) {
                         buildRibbonPath(1.0);
                         ctx.fill();
 
-                        // 2. 内側（コアの白帯）の連続滑らかリボン
-                        ctx.fillStyle = '#ffffff';
+                        // 2. 境界線のぼかし中間層（半透明・シャドウ）
+                        ctx.save();
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+                        ctx.shadowColor = mainColor;
+                        ctx.shadowBlur = 6;
                         ctx.beginPath();
-                        buildRibbonPath(0.45);
+                        buildRibbonPath(0.60);
                         ctx.fill();
+
+                        // 3. 内側（コアの白帯）
+                        ctx.fillStyle = '#ffffff';
+                        ctx.shadowColor = '#ffffff';
+                        ctx.shadowBlur = 4;
+                        ctx.beginPath();
+                        buildRibbonPath(0.35);
+                        ctx.fill();
+                        ctx.restore();
                     }
                     ctx.restore();
                 } else if (b.isBeam) {
