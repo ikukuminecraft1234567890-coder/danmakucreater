@@ -4388,6 +4388,134 @@ if (color==#33ffff) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "弾幕名",
+    desc: "説明文や作成者名など",
+    duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spd = 0
+    for (let i = 0; i < 12; i++) {
+        spawnRing("normal", "#ff3333", 200 + spd, angle, 7, 0, 0, 10, "b_uroko", "relative", "3")
+        angle += 2
+        spd += 10
+        wait(0.064)
+    }
+}
+while (true) {
+    once {
+        startx = ex
+        starty = ey
+    }
+    wait(2)
+    idoux = startx + random(-100,100)
+    idouy = starty + random(-100,200)
+    tween("ex", ex, idoux, "seconds", 0.7, "easeOut")
+    tween("ey", ey, idouy, "seconds", 0.7, "easeOut")
+}
+    `,
+    bulletScript: `
+        // 弾挙動の独自コード
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    difficulty: "hard",
+    name: "「ミニ弾幕結界]",
+    desc: "だいーぶ前に作ったやつ",
+    duration: 30,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 448
+    wait(0.03)
+    ey = 448
+    if (cardSecond == 0..10) {
+        spawnWay("normal", "#ff3333", 200, angle, 1, 120, 0, 0, 12, "b_uroko", "relative", "6")
+        angle += 4
+    }
+    if (cardSecond == 10..20) {
+        spawnWay("normal", "#ff3333", 200, angle, 2, 180, 0, 0, 12, "b_uroko", "relative", "6")
+        angle += 2
+    }
+    if (cardSecond == 20..30) {
+        spawnWay("normal", "#ff3333", 200, angle, 3, 120, 0, 0, 12, "b_uroko", "relative", "6")
+        angle += 1.5
+    }
+    if (cardFrame == 5 * n) {
+        playSound("shot")
+    }
+}
+    `,
+    bulletScript: `
+once {
+    count = 0
+    angle += random(-10,10)
+}
+if (color == #ffffff) {
+    y = -80000
+}
+if (y < 0) {
+    if (count == 1) {
+        color = #ffffff
+        y = -8000
+    }
+    count = 1
+    y = 886
+}
+if (color == #ffffff) {
+    y = -80000
+}
+if (y > 896) {
+    if (count == 1) {
+        color = #ffffff
+        y = -8000
+    }
+    count = 1
+    y = 10
+}
+if (color == #ffffff) {
+    y = -80000
+}
+if (x < 0) {
+    if (count == 1) {
+        color = #ffffff
+        y = -8000
+    }
+    count = 1
+    x = 758
+}
+if (color == #ffffff) {
+    y = -80000
+}
+if (x > 768) {
+    if (count == 1) {
+        color = #ffffff
+        y = -8000
+    }
+    count = 1
+    x = 10
+}
+if (color == #ffffff) {
+    y = -80000
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
