@@ -1621,9 +1621,11 @@ function customCardMakerSwitchMode(mode) {
             
             const blocksContainer = document.getElementById('workspace-blocks-container');
             const codeTextarea = document.getElementById('workspace-code-textarea');
+            const compiledTextarea = document.getElementById('workspace-compiled-textarea');
             const palette = document.querySelector('.palette-panel');
             const btnBlock = document.getElementById('mode-btn-block');
             const btnCode = document.getElementById('mode-btn-code');
+            const btnCompiled = document.getElementById('mode-btn-compiled');
 
             const makerLayout = document.querySelector('.maker-layout');
 
@@ -1637,6 +1639,23 @@ function customCardMakerSwitchMode(mode) {
                     customCardMaker.bulletScript = parsedBlocks;
                 }
             }
+            
+            // 一旦すべてのメインエリアを非表示にする
+            if (blocksContainer) blocksContainer.classList.add('hidden');
+            if (codeTextarea) {
+                codeTextarea.classList.add('hidden');
+                codeTextarea.style.flex = '';
+                codeTextarea.style.minHeight = '';
+                codeTextarea.style.height = '';
+            }
+            if (compiledTextarea) {
+                compiledTextarea.classList.add('hidden');
+                compiledTextarea.style.flex = '';
+                compiledTextarea.style.minHeight = '';
+                compiledTextarea.style.height = '';
+            }
+            if (palette) palette.classList.add('hidden');
+            if (makerLayout) makerLayout.classList.remove('code-mode');
 
             if (mode === 'code') {
                 let script = getActiveScript();
@@ -1651,38 +1670,32 @@ function customCardMakerSwitchMode(mode) {
                     // フォーカスを当ててすぐ編集できるようにする
                     setTimeout(() => codeTextarea.focus(), 50);
                 }
-                if (blocksContainer) blocksContainer.classList.add('hidden');
-                // パレットパネルを完全に非表示にして画面を最大化
-                if (palette) palette.classList.add('hidden');
                 // レイアウトに code-mode クラスを付ける
+                if (makerLayout) makerLayout.classList.add('code-mode');
+            } else if (mode === 'compiled') {
+                if (compiledTextarea) {
+                    compiledTextarea.classList.remove('hidden');
+                    compiledTextarea.style.flex = '1';
+                    compiledTextarea.style.minHeight = '0';
+                    compiledTextarea.style.height = '100%';
+                }
                 if (makerLayout) makerLayout.classList.add('code-mode');
             } else {
                 if (blocksContainer) blocksContainer.classList.remove('hidden');
-                if (codeTextarea) {
-                    codeTextarea.classList.add('hidden');
-                    // ブロックモードに戻すときスタイルリセット
-                    codeTextarea.style.flex = '';
-                    codeTextarea.style.minHeight = '';
-                    codeTextarea.style.height = '';
-                }
                 // パレットパネルを再表示
                 if (palette) {
                     palette.classList.remove('hidden');
                     palette.style.opacity = '1.0';
                     palette.style.pointerEvents = 'auto';
                 }
-                // code-mode クラスを外す
-                if (makerLayout) makerLayout.classList.remove('code-mode');
-                
                 customCardMaker.testPassed = false;
                 renderCardMaker();
             }
             
             customCardMakerMode = mode;
-            
-            customCardMakerMode = mode;
             if (btnBlock) btnBlock.className = mode === 'block' ? 'tab-btn active' : 'tab-btn';
             if (btnCode) btnCode.className = mode === 'code' ? 'tab-btn active' : 'tab-btn';
+            if (btnCompiled) btnCompiled.className = mode === 'compiled' ? 'tab-btn active' : 'tab-btn';
         }
 
         function customCardMakerOnCodeInput() {
