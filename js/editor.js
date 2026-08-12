@@ -1799,13 +1799,7 @@ function customCardMakerSwitchMode(mode) {
                         let cm = b.params.coordMode || 'relative';
                         let hr = b.params.hitRadius || '';
 
-                        if (hr !== '' || rad !== '6' || img !== 'none' || cm !== 'relative') {
-                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}", ${formatCodeColorArg(hr)})`;
-                        } else if (ox !== '0' || oy !== '0') {
-                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy})`;
-                        } else {
-                            line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang})`;
-                        }
+                        line = `spawnBullet("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}", ${formatCodeColorArg(hr)})`;
                         break;
                     }
                     case 'spawn_bullet_resist': {
@@ -1820,13 +1814,7 @@ function customCardMakerSwitchMode(mode) {
                         let cm = b.params.coordMode || 'relative';
                         let hr = b.params.hitRadius || '';
 
-                        if (hr !== '' || rad !== '6' || img !== 'none' || cm !== 'relative') {
-                            line = `spawnBulletResist("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}", ${formatCodeColorArg(hr)})`;
-                        } else if (ox !== '0' || oy !== '0') {
-                            line = `spawnBulletResist("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy})`;
-                        } else {
-                            line = `spawnBulletResist("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang})`;
-                        }
+                        line = `spawnBulletResist("${bt}", ${formatCodeColorArg(col)}, ${spd}, ${ang}, ${ox}, ${oy}, ${rad}, "${img}", "${cm}", ${formatCodeColorArg(hr)})`;
                         break;
                     }
                     case 'spawn_ring': {
@@ -1842,13 +1830,7 @@ function customCardMakerSwitchMode(mode) {
                         let cmRing = b.params.coordMode || 'relative';
                         let hrRing = b.params.hitRadius || '';
 
-                        if (hrRing !== '' || radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative' || angRing !== '0') {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
-                        } else if (oxRing !== '0' || oyRing !== '0') {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
-                        } else {
-                            line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing})`;
-                        }
+                        line = `spawnRing("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
                         break;
                     }
                     case 'spawn_ring_resist': {
@@ -1864,13 +1846,7 @@ function customCardMakerSwitchMode(mode) {
                         let cmRing = b.params.coordMode || 'relative';
                         let hrRing = b.params.hitRadius || '';
 
-                        if (hrRing !== '' || radRing !== '6' || imgRing !== 'none' || cmRing !== 'relative' || angRing !== '0') {
-                            line = `spawnRingResist("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
-                        } else if (oxRing !== '0' || oyRing !== '0') {
-                            line = `spawnRingResist("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing})`;
-                        } else {
-                            line = `spawnRingResist("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing})`;
-                        }
+                        line = `spawnRingResist("${btRing}", ${formatCodeColorArg(colRing)}, ${spdRing}, ${angRing}, ${cntRing}, ${oxRing}, ${oyRing}, ${radRing}, "${imgRing}", "${cmRing}", ${formatCodeColorArg(hrRing)})`;
                         break;
                     }
                     case 'spawn_way': {
@@ -1887,13 +1863,7 @@ function customCardMakerSwitchMode(mode) {
                         let cmWay = b.params.coordMode || 'relative';
                         let hrWay = b.params.hitRadius || '';
 
-                        if (hrWay !== '' || radWay !== '6' || imgWay !== 'none' || cmWay !== 'relative') {
-                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}", ${formatCodeColorArg(hrWay)})`;
-                        } else if (oxWay !== '0' || oyWay !== '0') {
-                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay})`;
-                        } else {
-                            line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay})`;
-                        }
+                        line = `spawnWay("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}", ${formatCodeColorArg(hrWay)})`;
                         break;
                     }
                     case 'spawn_way_resist': {
@@ -1910,13 +1880,7 @@ function customCardMakerSwitchMode(mode) {
                         let cmWay = b.params.coordMode || 'relative';
                         let hrWay = b.params.hitRadius || '';
 
-                        if (hrWay !== '' || radWay !== '6' || imgWay !== 'none' || cmWay !== 'relative') {
-                            line = `spawnWayResist("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}", ${formatCodeColorArg(hrWay)})`;
-                        } else if (oxWay !== '0' || oyWay !== '0') {
-                            line = `spawnWayResist("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay})`;
-                        } else {
-                            line = `spawnWayResist("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay})`;
-                        }
+                        line = `spawnWayResist("${btWay}", ${formatCodeColorArg(colWay)}, ${spdWay}, ${angWay}, ${cntWay}, ${sprWay}, ${oxWay}, ${oyWay}, ${radWay}, "${imgWay}", "${cmWay}", ${formatCodeColorArg(hrWay)})`;
                         break;
                     }
                     case 'spawn_trail':
@@ -2025,11 +1989,7 @@ function customCardMakerSwitchMode(mode) {
                         let col = b.params.color || '#00ffff';
                         let ox = b.params.offsetX || '0';
                         let oy = b.params.offsetY || '0';
-                        if (ox !== '0' || oy !== '0') {
-                            line = `spawnMagicCircle(${formatCodeColorArg(col)}, ${ox}, ${oy})`;
-                        } else {
-                            line = `spawnMagicCircle(${formatCodeColorArg(col)})`;
-                        }
+                        line = `spawnMagicCircle(${formatCodeColorArg(col)}, ${ox}, ${oy})`;
                         break;
                     }
                     case 'speed_scale':
