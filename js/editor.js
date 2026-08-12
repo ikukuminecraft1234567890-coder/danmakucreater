@@ -1588,13 +1588,7 @@ function customCardMakerSwitchTab(tab) {
     }
 
     if (blocksContainer.style.display !== 'none') {
-        let blockElems = blocksContainer.querySelectorAll('.custom-block');
-        let astBlocks = [];
-        blockElems.forEach(elem => {
-            let ast = customCardMakerBlockElemToAst(elem);
-            if (ast) astBlocks.push(ast);
-        });
-        script = convertAstBlocksToCode(astBlocks);
+        script = blocksToCode(getActiveScript());
     } else {
         script = codeTextarea.value;
     }
