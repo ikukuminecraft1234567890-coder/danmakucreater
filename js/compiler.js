@@ -8,9 +8,9 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
             if (body) {
                 body = body.replace(/__v/g, 'vars');
                 body = body.replace(/__rand/g, 'Math.random()');
-                body = body.replace(/__fuzzyEqual/g, '_util.fuzzyEqual');
                 body = body.replace(/__fuzzyNotEqual/g, '_util.fuzzyNotEqual');
                 body = body.replace(/__seedrandom/g, '_util.seedrandom');
+                body = body.replace(/__checkInterval/g, '_util.checkInterval');
                 return body;
             }
         } else if (typeof fn === 'number') {
