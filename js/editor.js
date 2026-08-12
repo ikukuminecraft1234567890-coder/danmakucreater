@@ -1619,8 +1619,6 @@ function customCardMakerSwitchTab(tab) {
 function customCardMakerSwitchMode(mode) {
             if (customCardMakerMode === mode) return;
             
-            let script = getActiveScript();
-            
             const blocksContainer = document.getElementById('workspace-blocks-container');
             const codeTextarea = document.getElementById('workspace-code-textarea');
             const palette = document.querySelector('.palette-panel');
@@ -1629,7 +1627,19 @@ function customCardMakerSwitchMode(mode) {
 
             const makerLayout = document.querySelector('.maker-layout');
 
+            if (customCardMakerMode === 'code') {
+                let code = codeTextarea ? codeTextarea.value : "";
+                let parsedBlocks = codeToBlocks(code);
+                
+                if (customCardMaker.activeTab === 'emitter') {
+                    customCardMaker.emitterScript = parsedBlocks;
+                } else if (customCardMaker.activeTab === 'bullet') {
+                    customCardMaker.bulletScript = parsedBlocks;
+                }
+            }
+
             if (mode === 'code') {
+                let script = getActiveScript();
                 let code = blocksToCode(script);
                 if (codeTextarea) {
                     codeTextarea.value = code;
@@ -1647,15 +1657,6 @@ function customCardMakerSwitchMode(mode) {
                 // レイアウトに code-mode クラスを付ける
                 if (makerLayout) makerLayout.classList.add('code-mode');
             } else {
-                let code = codeTextarea ? codeTextarea.value : "";
-                let parsedBlocks = codeToBlocks(code);
-                
-                if (customCardMaker.activeTab === 'emitter') {
-                    customCardMaker.emitterScript = parsedBlocks;
-                } else if (customCardMaker.activeTab === 'bullet') {
-                    customCardMaker.bulletScript = parsedBlocks;
-                }
-                
                 if (blocksContainer) blocksContainer.classList.remove('hidden');
                 if (codeTextarea) {
                     codeTextarea.classList.add('hidden');
@@ -1676,6 +1677,8 @@ function customCardMakerSwitchMode(mode) {
                 customCardMaker.testPassed = false;
                 renderCardMaker();
             }
+            
+            customCardMakerMode = mode;
             
             customCardMakerMode = mode;
             if (btnBlock) btnBlock.className = mode === 'block' ? 'tab-btn active' : 'tab-btn';
