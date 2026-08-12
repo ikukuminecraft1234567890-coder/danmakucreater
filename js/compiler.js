@@ -110,15 +110,7 @@ window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     funcStr += `  const rand = _util.rand;\n`;
     funcStr += `  const seedrandom = _util.seedrandom;\n`;
     
-    if (isBulletScript && blocks && blocks.length > 0) {
-        funcStr += `  while (true) {\n`;
-        funcStr += window.DanmakuCompiler.generateBlocksJS(blocks, 2);
-        funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
-        funcStr += `    yield;\n`;
-        funcStr += `  }\n`;
-    } else {
-        funcStr += window.DanmakuCompiler.generateBlocksJS(blocks || [], 1);
-    }
+    funcStr += window.DanmakuCompiler.generateBlocksJS(blocks || [], 1);
     
     funcStr += `}`;
     return funcStr;
