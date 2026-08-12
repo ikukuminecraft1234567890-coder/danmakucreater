@@ -1261,7 +1261,8 @@
         // 弾アセット画像プリロード
         const bulletImgNames = [
             'knife', 'kome', 'marutama', 'ohuda', 'ootama', 'poihuru', 'star', 'uroko', 'virus', 'onmyoutama', 'sword',
-            'b_knife', 'b_marutama', 'b_ohuda', 'b_poihuru', 'b_star', 'b_uroko'
+            'b_knife', 'b_marutama', 'b_ohuda', 'b_poihuru', 'b_star', 'b_uroko',
+            'dangan', 'kunai1', 'kunai2'
         ];
         window.bulletImages = {};
         bulletImgNames.forEach(name => {
@@ -2400,6 +2401,7 @@
         // 変数の大文字小文字を区別せずに取得・設定するグローバルヘルパー
         window.getBulletVar = function(variables, name) {
             if (!variables) return undefined;
+            if (variables[name] !== undefined) return variables[name];
             let lowerName = name.toLowerCase();
             for (let key in variables) {
                 if (Object.prototype.hasOwnProperty.call(variables, key)) {
@@ -2413,6 +2415,10 @@
 
         window.setBulletVar = function(variables, name, value) {
             if (!variables) return;
+            if (Object.prototype.hasOwnProperty.call(variables, name)) {
+                variables[name] = value;
+                return;
+            }
             let lowerName = name.toLowerCase();
             for (let key in variables) {
                 if (Object.prototype.hasOwnProperty.call(variables, key)) {
@@ -2427,6 +2433,7 @@
 
         window.hasBulletVar = function(variables, name) {
             if (!variables) return false;
+            if (Object.prototype.hasOwnProperty.call(variables, name)) return true;
             let lowerName = name.toLowerCase();
             for (let key in variables) {
                 if (Object.prototype.hasOwnProperty.call(variables, key)) {

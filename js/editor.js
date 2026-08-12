@@ -646,6 +646,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
                                     <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
                                     <option value="b_uroko" ${b.params.bulletImage === 'b_uroko' ? 'selected' : ''}>巨大鱗弾</option>
+                                    <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
+                                    <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
+                                    <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
