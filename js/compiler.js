@@ -7,7 +7,8 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
             let body = fn.__sourceCode;
             if (body) {
                 body = body.replace(/__v/g, 'vars');
-                body = body.replace(/__rand/g, 'Math.random()');
+                body = body.replace(/__rand/g, 'random');
+                body = body.replace(/__fuzzyEqual/g, '_util.fuzzyEqual');
                 body = body.replace(/__fuzzyNotEqual/g, '_util.fuzzyNotEqual');
                 body = body.replace(/__seedrandom/g, '_util.seedrandom');
                 body = body.replace(/__checkInterval/g, '_util.checkInterval');
@@ -110,7 +111,15 @@ window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     funcStr += `  const rand = _util.rand;\n`;
     funcStr += `  const seedrandom = _util.seedrandom;\n`;
     
-    funcStr += window.DanmakuCompiler.generateBlocksJS(blocks || [], 1);
+    if (isBulletScript && blocks && blocks.length > 0) {
+        funcStr += `  while (true) {\n`;
+        funcStr += window.DanmakuCompiler.generateBlocksJS(blocks, 2);
+        funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+        funcStr += `    yield;\n`;
+        funcStr += `  }\n`;
+    } else {
+        funcStr += window.DanmakuCompiler.generateBlocksJS(blocks || [], 1);
+    }
     
     funcStr += `}`;
     return funcStr;
