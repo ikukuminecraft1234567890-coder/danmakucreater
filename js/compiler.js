@@ -106,6 +106,9 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
 window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     let funcStr = `function*(state, b, attacker, target, _util) {\n`;
     funcStr += `  let vars = state.variables;\n`;
+    funcStr += `  const random = _util.rand;\n`;
+    funcStr += `  const rand = _util.rand;\n`;
+    funcStr += `  const seedrandom = _util.seedrandom;\n`;
     
     if (isBulletScript && blocks && blocks.length > 0) {
         funcStr += `  while (true) {\n`;
