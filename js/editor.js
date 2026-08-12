@@ -1577,8 +1577,18 @@ function customCardMakerSwitchTab(tab) {
 
         function customCardMakerCompileCurrent() {
     let script = '';
-    if (document.getElementById('custom-card-maker-blocks').style.display !== 'none') {
-        let blockElems = document.getElementById('custom-card-maker-blocks').querySelectorAll('.custom-block');
+    const blocksContainer = document.getElementById('workspace-blocks-container');
+    const codeTextarea = document.getElementById('workspace-code-textarea');
+    const compiledTextarea = document.getElementById('workspace-compiled-textarea');
+
+    if (!blocksContainer || !codeTextarea) {
+        alert("コンパイル失敗: ワークスペース要素が見つかりません。");
+        console.error("customCardMakerCompileCurrent: workspace elements not found");
+        return;
+    }
+
+    if (blocksContainer.style.display !== 'none') {
+        let blockElems = blocksContainer.querySelectorAll('.custom-block');
         let astBlocks = [];
         blockElems.forEach(elem => {
             let ast = customCardMakerBlockElemToAst(elem);
@@ -1586,7 +1596,7 @@ function customCardMakerSwitchTab(tab) {
         });
         script = convertAstBlocksToCode(astBlocks);
     } else {
-        script = document.getElementById('custom-card-maker-code').value;
+        script = codeTextarea.value;
     }
     
     try {
@@ -1595,7 +1605,9 @@ function customCardMakerSwitchTab(tab) {
         
         let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
         
-        document.getElementById('custom-card-maker-compiled').value = funcStr;
+        if (compiledTextarea) {
+            compiledTextarea.value = funcStr;
+        }
         
         let evalFunc = null;
         eval('evalFunc = ' + funcStr);
