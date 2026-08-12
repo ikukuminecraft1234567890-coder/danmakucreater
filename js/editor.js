@@ -1608,9 +1608,6 @@ function customCardMakerSwitchTab(tab) {
         window.compiledDanmaku = window.compiledDanmaku || {};
         window.compiledDanmaku['custom_test'] = evalFunc;
         
-        tempCustomCard.id = 'custom_test';
-        tempCustomCard.emitterScript = flatBlocks;
-        
         customCardMakerSwitchMode('compiled');
         alert("コンパイル成功！メモリ上に展開しました。\nこのままテストプレイすると超高速で動作します。");
     } catch (e) {
