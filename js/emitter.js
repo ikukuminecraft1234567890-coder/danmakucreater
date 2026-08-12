@@ -198,6 +198,19 @@ function stepEmitter(c, state, attacker, target, dt) {
             let dy = isPlayerSide ? (attacker.y - target.y) : (target.y - attacker.y);
             state.variables.dist = Math.sqrt(dx * dx + dy * dy);
 
+            // AOTコンパイルされたジェネレータがある場合は、ASTインタプリタをバイパスしてそちらを実行
+            if (state.compiledFn) {
+                if (!state.compiledGenerator) {
+                    window.DanmakuCompilerRuntime._initBulletState = initBulletState;
+                    window.DanmakuCompilerRuntime._runCustomBulletScript = runCustomBulletScript;
+                    window.DanmakuCompilerRuntime._computeBulletThreatWeight = computeBulletThreatWeight;
+                    state.compiledGenerator = state.compiledFn(state, null, attacker, target, window.DanmakuCompilerRuntime);
+                }
+                const result = state.compiledGenerator.next();
+                if (result.done) { state.finished = true; }
+                return;
+            }
+
             if (state.parallelThreads) {
                 let allFinished = true;
                 for (let thread of state.parallelThreads) {
@@ -3808,6 +3821,9 @@ function stepEmitter(c, state, attacker, target, dt) {
         let customCardDraftSaveTimer = null;
 
         function saveCustomCardDraft(showNotification = false, skipCodeParse = false, defer = false) {
+            const compiledTextarea = document.getElementById('workspace-compiled-textarea');
+            if (compiledTextarea) compiledTextarea.value = '';
+
             if (defer && !showNotification) {
                 if (customCardDraftSaveTimer) clearTimeout(customCardDraftSaveTimer);
                 customCardDraftSaveTimer = setTimeout(() => {
@@ -4015,6 +4031,9 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             
             customCardMaker.activeTab = 'emitter';
+            
+            const compiledTextarea = document.getElementById('workspace-compiled-textarea');
+            if (compiledTextarea) compiledTextarea.value = '';
             
             document.getElementById('custom-card-name').value = customCardMaker.name;
             document.getElementById('custom-card-desc').value = customCardMaker.desc;

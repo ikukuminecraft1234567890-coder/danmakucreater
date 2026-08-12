@@ -4315,7 +4315,7 @@ function applyAbilityEffect(cardId, owner) {
             magicCircles.length = 0;
             activeReigekis.length = 0;
             
-            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0);
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
             actionTimer = tempCustomCard.duration;
             
             gameState = 'BATTLE';
@@ -5248,7 +5248,7 @@ function applyAbilityEffect(cardId, owner) {
             return isNaN(num) ? s : num; // 数値化できれば数値、できなければ文字列としてそのまま返す
         }
 
-        function initEmitterState(script, attacker, target, initXOffset = 0, initYOffset = 0) {
+        function initEmitterState(script, attacker, target, initXOffset = 0, initYOffset = 0, patternId = null) {
             let variables = {
                 angle: 0,
                 speed: 200,
@@ -5269,8 +5269,14 @@ function applyAbilityEffect(cardId, owner) {
 
             let compiledBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(script || [])));
 
+            let compiledFn = null;
+            if (patternId && window.compiledDanmaku && window.compiledDanmaku[patternId]) {
+                compiledFn = window.compiledDanmaku[patternId];
+            }
+
             let state = {
                 blocks: compiledBlocks,
+                compiledFn: compiledFn,
                 pc: 0,
                 waitTimer: 0,
                 stack: [],

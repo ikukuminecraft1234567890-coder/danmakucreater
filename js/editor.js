@@ -1300,15 +1300,32 @@ function customCardMakerSwitchTab(tab) {
             // コードエリアが非表示でない場合は、テキストコードからブロックを強制同期パースする
             // (リロード直後に変数モードとUIの表示がズレて、初回のテストプレイだけデフォルト赤弾が出る不具合を解消)
             const codeTextarea = document.getElementById('workspace-code-textarea');
-            if (codeTextarea && !codeTextarea.classList.contains('hidden')) {
-                let code = codeTextarea.value;
-                let parsed = codeToBlocks(code);
-                if (customCardMaker.activeTab === 'emitter') {
-                    customCardMaker.emitterScript = parsed;
-                } else if (customCardMaker.activeTab === 'bullet') {
-                    customCardMaker.bulletScript = parsed;
-                } else if (customCardMaker.activeTab === 'magicCircle') {
-                    customCardMaker.magicCircleScript = parsed;
+            const compiledTextarea = document.getElementById('workspace-compiled-textarea');
+            let isCompiled = false;
+            
+            if (compiledTextarea && compiledTextarea.value.trim().length > 0) {
+                isCompiled = true;
+                // コンパイル済みのコードがある場合、ASTパースを無視し、直接evalしてメモリに乗せる
+                try {
+                    let evalFunc = null;
+                    eval('evalFunc = ' + compiledTextarea.value);
+                    window.compiledDanmaku = window.compiledDanmaku || {};
+                    window.compiledDanmaku['custom_test'] = evalFunc;
+                } catch (e) {
+                    console.error("Failed to eval compiled code for test:", e);
+                }
+                
+            } else {
+                if (codeTextarea && !codeTextarea.classList.contains('hidden')) {
+                    let code = codeTextarea.value;
+                    let parsed = codeToBlocks(code);
+                    if (customCardMaker.activeTab === 'emitter') {
+                        customCardMaker.emitterScript = parsed;
+                    } else if (customCardMaker.activeTab === 'bullet') {
+                        customCardMaker.bulletScript = parsed;
+                    } else if (customCardMaker.activeTab === 'magicCircle') {
+                        customCardMaker.magicCircleScript = parsed;
+                    }
                 }
             }
 
@@ -1322,9 +1339,12 @@ function customCardMakerSwitchTab(tab) {
             let currentDiffVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : 'NORMAL';
             let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(currentDiffVal) : currentDiffVal.toUpperCase();
 
+            let rawName = document.getElementById('custom-card-name').value.trim() || 'テスト弾幕';
+            let testName = (isCompiled ? '【A】' : '【未コンパイル】') + rawName;
+
             let tempCustomCard = {
                 id: 'custom_test',
-                name: '【A】' + (document.getElementById('custom-card-name').value.trim() || 'テスト弾幕'),
+                name: testName,
                 duration: cardDuration,
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
@@ -1630,13 +1650,16 @@ function customCardMakerSwitchMode(mode) {
             const makerLayout = document.querySelector('.maker-layout');
 
             if (customCardMakerMode === 'code') {
-                let code = codeTextarea ? codeTextarea.value : "";
-                let parsedBlocks = codeToBlocks(code);
-                
-                if (customCardMaker.activeTab === 'emitter') {
-                    customCardMaker.emitterScript = parsedBlocks;
-                } else if (customCardMaker.activeTab === 'bullet') {
-                    customCardMaker.bulletScript = parsedBlocks;
+                const hasCompiled = compiledTextarea && compiledTextarea.value.trim().length > 0;
+                if (!hasCompiled) {
+                    let code = codeTextarea ? codeTextarea.value : "";
+                    let parsedBlocks = codeToBlocks(code);
+                    
+                    if (customCardMaker.activeTab === 'emitter') {
+                        customCardMaker.emitterScript = parsedBlocks;
+                    } else if (customCardMaker.activeTab === 'bullet') {
+                        customCardMaker.bulletScript = parsedBlocks;
+                    }
                 }
             }
             
