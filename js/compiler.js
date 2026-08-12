@@ -51,9 +51,15 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'repeat') {
-            let idxVar = block.params && block.params.indexVar ? `vars['${block.params.indexVar}']` : `_i${indent}`;
             let count = window.DanmakuCompiler.getExpr(block, 'count', '1');
-            js += ind + `for (let _limit${indent} = Math.round(${count}), ${idxVar} = 0; ${idxVar} < _limit${indent}; ${idxVar}++) {\n`;
+            if (block.params && block.params.indexVar) {
+                let idxVar = `vars['${block.params.indexVar}']`;
+                js += ind + `${idxVar} = 0;\n`;
+                js += ind + `for (let _limit${indent} = Math.round(${count}); ${idxVar} < _limit${indent}; ${idxVar}++) {\n`;
+            } else {
+                let idxVar = `_i${indent}`;
+                js += ind + `for (let _limit${indent} = Math.round(${count}), ${idxVar} = 0; ${idxVar} < _limit${indent}; ${idxVar}++) {\n`;
+            }
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             js += ind + `}\n`;
         } else if (t === 'while') {

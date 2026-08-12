@@ -516,7 +516,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                         );
 
-                        newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target);
+                        newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
                         newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
                         inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -605,7 +605,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                             );
 
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target);
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
                             newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -691,7 +691,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                             );
 
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target);
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
                             newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -763,7 +763,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.destroyResist = true;
                         }
                         newBullet.threatWeight = 100;
-                        newBullet.bulletState = initBulletState([], 0, angle, attacker, target);
+                        newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
                         inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                         newBullet.bulletState.variables.bulletType = 'laser';
@@ -837,7 +837,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target);
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
                             newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -909,7 +909,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target);
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
                             newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -981,7 +981,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = 100;
-                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target);
+                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.bulletType = 'laser';
@@ -1052,7 +1052,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = 100;
-                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target);
+                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.bulletType = 'laser';
@@ -2061,7 +2061,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 );
 
                                 let childScript = state.magicCircleScript || [];
-                                newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target);
+                                newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                 newBullet.bulletState.magicCircleScript = childScript;
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
                                 inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -2143,7 +2143,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     );
 
                                     let childScript = state.magicCircleScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target);
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.magicCircleScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -2223,7 +2223,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     );
 
                                     let childScript = state.magicCircleScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target);
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.magicCircleScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -2292,7 +2292,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.destroyResist = true;
                                 }
                                 newBullet.threatWeight = 100;
-                                newBullet.bulletState = initBulletState([], 0, angle, attacker, target);
+                                newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
                                 inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                 newBullet.bulletState.variables.bulletType = 'laser';
@@ -2367,7 +2367,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target);
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.magicCircleScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -2440,7 +2440,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target);
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.magicCircleScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -2512,7 +2512,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = 100;
-                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target);
+                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                     newBullet.bulletState.variables.bulletType = 'laser';
@@ -2583,7 +2583,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = 100;
-                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target);
+                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                     newBullet.bulletState.variables.bulletType = 'laser';

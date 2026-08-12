@@ -1587,15 +1587,15 @@ function customCardMakerSwitchTab(tab) {
         return;
     }
 
-    if (blocksContainer.style.display !== 'none') {
-        script = blocksToCode(getActiveScript());
+    let flatBlocks;
+    if (!blocksContainer.classList.contains('hidden')) {
+        flatBlocks = JSON.parse(JSON.stringify(getActiveScript()));
     } else {
-        script = codeTextarea.value;
+        flatBlocks = codeToBlocks(codeTextarea.value);
     }
     
     try {
-        let blocks = codeToBlocks(script);
-        let compiledBlocks = compileIndentedBlocks(blocks);
+        let compiledBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(flatBlocks)));
         
         let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
         
@@ -1609,7 +1609,7 @@ function customCardMakerSwitchTab(tab) {
         window.compiledDanmaku['custom_test'] = evalFunc;
         
         tempCustomCard.id = 'custom_test';
-        tempCustomCard.emitterScript = script;
+        tempCustomCard.emitterScript = flatBlocks;
         
         customCardMakerSwitchMode('compiled');
         alert("コンパイル成功！メモリ上に展開しました。\nこのままテストプレイすると超高速で動作します。");
