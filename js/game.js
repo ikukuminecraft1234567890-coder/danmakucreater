@@ -16,6 +16,36 @@ window.floor = Math.floor;
 window.round = Math.round;
 window.ceil = Math.ceil;
 
+window.DanmakuCompilerRuntime = window.DanmakuCompilerRuntime || {};
+window.DanmakuCompilerRuntime.rand = (a, b) => {
+  if (b !== undefined) return Number(a || 0) + Math.random() * (Number(b || 0) - Number(a || 0));
+  if (a !== undefined) return Math.random() * Number(a || 0);
+  return Math.random();
+};
+window.DanmakuCompilerRuntime.seedrandom = (baseSeed, a, b, vars) => {
+  let n = vars.n !== undefined ? vars.n : 0;
+  let t = vars.t !== undefined ? vars.t : 0;
+  let seed = Math.floor(Number(baseSeed)) + Math.floor(n) * 2654435761 + Math.floor(t * 1000) * 314159265;
+  let s = (seed >>> 0) + 0x6D2B79F5;
+  s = Math.imul(s ^ (s >>> 15), s | 1);
+  s ^= s + Math.imul(s ^ (s >>> 7), s | 61);
+  let r = ((s ^ (s >>> 14)) >>> 0) / 4294967296;
+  if (b !== undefined) return Number(a || 0) + r * (Number(b || 0) - Number(a || 0));
+  if (a !== undefined) return r * Number(a || 0);
+  return r;
+};
+window.DanmakuCompilerRuntime.fuzzyEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) < (window.currentDt || 0.017) : a == b;
+window.DanmakuCompilerRuntime.fuzzyNotEqual = (a, b) => (typeof a === "number" && typeof b === "number") ? Math.abs(a - b) >= (window.currentDt || 0.017) : a != b;
+window.DanmakuCompilerRuntime.checkInterval = (currentVal, interval, stateKey, variables) => {
+  if (!interval || interval <= 0) return false;
+  let prevVal = variables[stateKey];
+  variables[stateKey] = currentVal;
+  if (prevVal === undefined) {
+    prevVal = 0;
+  }
+  return Math.floor(prevVal / interval) !== Math.floor(currentVal / interval);
+};
+
 function applyAbilityEffect(cardId, owner) {
             let user = owner === 'PLAYER' ? player : cpu;
             let target = owner === 'PLAYER' ? cpu : player;
