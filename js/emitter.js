@@ -529,9 +529,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                         );
 
-                        newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
-                        newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
-                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                        newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                        newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = state.bulletScript || [];
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
                         inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                         newBullet.bulletState.variables.bulletType = isTrail ? 'trail' : (block.params.bulletType || 'normal');
@@ -619,9 +619,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                             );
 
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
-                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
-                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.color = bColor;
@@ -706,9 +706,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                             );
 
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
-                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
-                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.color = bColor;
@@ -853,9 +853,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
-                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
-                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.color = bColor;
@@ -926,9 +926,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
-                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
-                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.color = bColor;
@@ -1108,10 +1108,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                             color: bColor,
                             team: attacker.team,
                             isCustom: true,
-                            emitterState: initEmitterState(c.magicCircleScript || [], { x: spawnX, y: spawnY }, target, 0, 0, c.id, '_magic'),
-                            bulletScript: c.magicCircleScript || []
+                            emitterState: initEmitterState(state.magicCircleScript || [], { x: spawnX, y: spawnY }, target, 0, 0, state.id, '_magic'),
+                            bulletScript: state.magicCircleScript || []
                         };
-                        newMagicCircle.emitterState.magicCircleScript = c.magicCircleScript || [];
+                        newMagicCircle.emitterState.magicCircleScript = state.magicCircleScript || [];
 
                         magicCircles.push(newMagicCircle);
                         break;
