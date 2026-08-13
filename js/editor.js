@@ -1617,7 +1617,8 @@ function customCardMakerSwitchTab(tab) {
     try {
         let compiledBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(flatBlocks)));
         
-        let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
+        let isBullet = activeTab === 'bullet';
+        let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks, isBullet);
         
         if (compiledTextarea) {
             compiledTextarea.value = funcStr;
@@ -1650,16 +1651,13 @@ function customCardMakerSwitchMode(mode) {
             const makerLayout = document.querySelector('.maker-layout');
 
             if (customCardMakerMode === 'code') {
-                const hasCompiled = compiledTextarea && compiledTextarea.value.trim().length > 0;
-                if (!hasCompiled) {
-                    let code = codeTextarea ? codeTextarea.value : "";
-                    let parsedBlocks = codeToBlocks(code);
-                    
-                    if (customCardMaker.activeTab === 'emitter') {
-                        customCardMaker.emitterScript = parsedBlocks;
-                    } else if (customCardMaker.activeTab === 'bullet') {
-                        customCardMaker.bulletScript = parsedBlocks;
-                    }
+                let code = codeTextarea ? codeTextarea.value : "";
+                let parsedBlocks = codeToBlocks(code);
+                
+                if (customCardMaker.activeTab === 'emitter') {
+                    customCardMaker.emitterScript = parsedBlocks;
+                } else if (customCardMaker.activeTab === 'bullet') {
+                    customCardMaker.bulletScript = parsedBlocks;
                 }
             }
             
