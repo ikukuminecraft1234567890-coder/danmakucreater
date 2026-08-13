@@ -33,936 +33,946 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
     let canvas = { width: 640, height: 960 };
 
     switch (p.type) {
-                            case 'wait': {
-                                let dur = evalExpr(p.duration, state.variables, block, 'duration');
-                                state.waitTimer = Math.max(0.001, dur);
-                                brokeToWait = true;
-                                break;
-                            }
-                            case 'repeat': {
-                                let count = Math.round(evalExpr(p.count, state.variables, block, 'count'));
-                                let loopCount = Math.max(1, count);
-                                if (p.indexVar) state.variables[p.indexVar] = 0;
-                                state.stack.push({
-                                    type: 'repeat',
-                                    pc: 0,
-                                    iterationsLeft: loopCount,
-                                    totalIterations: loopCount,
-                                    index: 0,
-                                    indexVar: p.indexVar || null,
-                                    forever: false,
-                                    blocks: p.children || []
-                                });
-                                advancePC = false;
-                                break;
-                            }
-                            case 'forever': {
-                                state.stack.push({
-                                    type: 'forever',
-                                    pc: 0,
-                                    iterationsLeft: 999999,
-                                    forever: true,
-                                    blocks: p.children || []
-                                });
-                                advancePC = false;
-                                break;
-                            }
-                            case 'while': {
-                                let condStr = p.cond || 'false';
-                                if (evalCondition(condStr, state.variables, block, 'cond') && p.children && p.children.length > 0) {
-                                    state.stack.push({
-                                        type: 'while',
-                                        pc: 0,
-                                        iterationsLeft: 999999,
-                                        forever: false,
-                                        cond: condStr,
-                                        blocks: p.children || []
-                                    });
-                                    advancePC = false;
-                                }
-                                break;
-                            }
-                            case 'if': {
-                                let condStr = p.cond || 'x < 10';
-                                let isTrue = evalCondition(condStr, state.variables, block, 'cond');
-                                
-                                if (isTrue && p.children && p.children.length > 0) {
-                                    state.stack.push({
-                                        type: 'if',
-                                        pc: 0,
-                                        iterationsLeft: 1,
-                                        forever: false,
-                                        blocks: p.children
-                                    });
-                                    advancePC = false;
-                                }
-                                break;
-                            }
-                            case 'once': {
-                                advancePC = executeOnceBlock(block, state);
-                                break;
-                            }
-                            case 'set_laser': {
-                                state.variables.warningTime = evalExpr(p.warningTime || '1.0', state.variables, block, 'warningTime');
-                                state.variables.activeTime = evalExpr(p.activeTime || '1.5', state.variables, block, 'activeTime');
-                                state.variables.laserWidth = evalExpr(p.laserWidth || '12', state.variables, block, 'laserWidth');
-                                if (state.variables.laserStartTime === null || state.variables.laserStartTime === undefined) {
-                                    state.variables.laserStartTime = state.variables.timer;
-                                    b.laserStartX = b.x;
-                                    b.laserStartY = b.y;
-                                }
-                                break;
-                            }
-                            case 'spawn_bullet':
-                            case 'spawn_trail':
-                            case 'spawn_trail_resist': {
-                                let isTrail = p.type === 'spawn_trail' || p.type === 'spawn_trail_resist';
-                                let speed = evalExpr(p.speed, state.variables, block, 'speed');
-                                let angle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
+                    case 'play_sound': {
+                        let name = p.soundName || 'shot';
+                        if (typeof playSound === 'function') {
+                            playSound(name);
+                        }
+                        break;
+                    }
+                    case 'wait': {
+                        let dur = evalExpr(p.duration, state.variables, block, 'duration');
+                        state.waitTimer = Math.max(0.001, dur);
+                        brokeToWait = true;
+                        break;
+                    }
+                    case 'repeat': {
+                        let count = Math.round(evalExpr(p.count, state.variables, block, 'count'));
+                        let loopCount = Math.max(1, count);
+                        if (p.indexVar) state.variables[p.indexVar] = 0;
+                        state.stack.push({
+                            type: 'repeat',
+                            pc: 0,
+                            iterationsLeft: loopCount,
+                            totalIterations: loopCount,
+                            index: 0,
+                            indexVar: p.indexVar || null,
+                            forever: false,
+                            blocks: p.children || []
+                        });
+                        advancePC = false;
+                        break;
+                    }
+                    case 'forever': {
+                        state.stack.push({
+                            type: 'forever',
+                            pc: 0,
+                            iterationsLeft: 999999,
+                            forever: true,
+                            blocks: p.children || []
+                        });
+                        advancePC = false;
+                        break;
+                    }
+                    case 'while': {
+                        let condStr = p.cond || 'false';
+                        if (evalCondition(condStr, state.variables, block, 'cond') && p.children && p.children.length > 0) {
+                            state.stack.push({
+                                type: 'while',
+                                pc: 0,
+                                iterationsLeft: 999999,
+                                forever: false,
+                                cond: condStr,
+                                blocks: p.children || []
+                            });
+                            advancePC = false;
+                        }
+                        break;
+                    }
+                    case 'if': {
+                        let condStr = p.cond || 'x < 10';
+                        let isTrue = evalCondition(condStr, state.variables, block, 'cond');
+                        if (isTrue && p.children && p.children.length > 0) {
+                            state.stack.push({
+                                type: 'if',
+                                pc: 0,
+                                iterationsLeft: 1,
+                                forever: false,
+                                blocks: p.children
+                            });
+                            advancePC = false;
+                        }
+                        break;
+                    }
+                    case 'once': {
+                        advancePC = executeOnceBlock(block, state);
+                        break;
+                    }
 
-                                let coordMode = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (coordMode === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                
-                                let bRadius = evalExpr(p.radius || (isTrail ? '8' : '6'), state.variables, block, 'radius');
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let bImg = isTrail ? 'none' : (p.bulletImage || 'none');
-
-                                let angleRad = angle * Math.PI / 180;
-                                if (isPlayerSide) {
-                                    angleRad = -angleRad;
-                                }
-
-                                let newBullet = {
-                                    x: spawnX,
-                                    y: spawnY,
-                                    startX: spawnX,
-                                    startY: spawnY,
-                                    vx: Math.cos(angleRad) * speed,
-                                    vy: Math.sin(angleRad) * speed,
-                                    radius: bRadius,
-                                    hitRadius: bHitRadius,
-                                    bulletImage: bImg,
-                                    team: attacker.team,
-                                    color: bColor,
-                                    customDmg: 20,
-                                    isCustom: true,
-                                    update: null
-                                };
-
-                                if (p.bulletType === 'laser') {
-                                    newBullet.isLaser = true;
-                                }
-                                if (p.bulletType === 'trail') {
-                                    isTrail = true;
-                                }
-                                if (isTrail) {
-                                    newBullet.isTrail = true;
-                                    newBullet.growTime = (p.growTime !== undefined && p.growTime !== '') ? Number(evalExpr(p.growTime, state.variables, block, 'growTime')) : 0.2;
-                                    newBullet.keepTime = (p.keepTime !== undefined && p.keepTime !== '') ? Number(evalExpr(p.keepTime, state.variables, block, 'keepTime')) : 0.3;
-                                    newBullet.shrinkTime = (p.shrinkTime !== undefined && p.shrinkTime !== '') ? Number(evalExpr(p.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5;
-                                    newBullet.round = (p.round !== undefined) ? (p.round === 'true' || p.round === true) : true;
-                                    newBullet.trailHistory = [];
-                                }
-                                if (p.type === 'spawn_trail_resist') {
-                                    newBullet.destroyResist = true;
-                                }
-
-                                newBullet.threatWeight = computeBulletThreatWeight(
-                                    spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
-                                );
-
-                                let childScript = state.bulletScript || [];
-                                newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, state.compiledFn);
-                                newBullet.bulletState.bulletScript = childScript;
-                                newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
-                                newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                newBullet.bulletState.variables.bulletType = isTrail ? 'trail' : (p.bulletType || 'normal');
-                                if (isTrail) {
-                                    newBullet.bulletState.variables.growTime = p.growTime || '0.2';
-                                    newBullet.bulletState.variables.keepTime = p.keepTime || '0.3';
-                                    newBullet.bulletState.variables.shrinkTime = p.shrinkTime || '0.5';
-                                    newBullet.bulletState.variables.round = (p.round !== undefined) ? String(p.round) : 'true';
-                                }
-                                newBullet.bulletState.variables.color = bColor;
-                                newBullet.bulletState.variables.radius = bRadius;
-                                newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                newBullet.bulletState.variables.bulletImage = bImg;
-                                newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                newBullet.update = (childB, childBDT) => {
-                                    runCustomBulletScript(childB, childBDT, attacker, target);
-                                };
-
-                                bullets.push(newBullet);
-                                break;
-                            }
-                            case 'spawn_ring': {
-                                let speed = evalExpr(p.speed, state.variables, block, 'speed');
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
-                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(p.count || '12', state.variables, block, 'count'))));
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
-
-                                let coordMode = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (coordMode === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                
-                                let bRadius = evalExpr(p.radius || '6', state.variables, block, 'radius');
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let bImg = p.bulletImage || 'none';
-                                let centerAngle = evalExpr(p.angle || '0', state.variables, block, 'angle');
-
-                                for (let k = 0; k < count; k++) {
-                                    let angle = centerAngle + (360 / count) * k;
-                                    let angleRad = angle * Math.PI / 180;
-                                    if (isPlayerSide) {
-                                        angleRad = -angleRad;
-                                    }
-                                    
-                                    let newBullet = {
-                                        x: spawnX,
-                                        y: spawnY,
-                                        startX: spawnX,
-                                        startY: spawnY,
-                                        vx: Math.cos(angleRad) * speed,
-                                        vy: Math.sin(angleRad) * speed,
-                                        radius: bRadius,
-                                        hitRadius: bHitRadius,
-                                        bulletImage: bImg,
-                                        team: attacker.team,
-                                        color: bColor,
-                                        customDmg: 20,
-                                        isCustom: true,
-                                        update: null
-                                    };
-                                    
-                                    if (p.bulletType === 'laser') {
-                                        newBullet.isLaser = true;
-                                    }
-                                    
-                                    newBullet.threatWeight = computeBulletThreatWeight(
-                                        spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
-                                    );
-
-                                    let childScript = state.bulletScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, state.compiledFn);
-                                    newBullet.bulletState.bulletScript = childScript;
-                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
-                                    newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                    inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                    newBullet.bulletState.variables.color = bColor;
-                                    newBullet.bulletState.variables.radius = bRadius;
-                                    newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                    newBullet.bulletState.variables.bulletImage = bImg;
-                                    newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
-                                    
-                                    bullets.push(newBullet);
-                                }
-                                break;
-                            }
-                            case 'spawn_way': {
-                                let speed = evalExpr(p.speed, state.variables, block, 'speed');
-                                let centerAngle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
-                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(p.count || '3', state.variables, block, 'count'))));
-                                let spread = evalExpr(p.spread || '15', state.variables, block, 'spread');
-                                
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
-
-                                let coordMode = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (coordMode === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                
-                                let bRadius = evalExpr(p.radius || '6', state.variables, block, 'radius');
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let bImg = p.bulletImage || 'none';
-
-                                let startAngle = centerAngle - (spread * (count - 1)) / 2;
-                                
-                                for (let k = 0; k < count; k++) {
-                                    let angle = startAngle + spread * k;
-                                    let angleRad = angle * Math.PI / 180;
-                                    if (isPlayerSide) {
-                                        angleRad = -angleRad;
-                                    }
-                                    
-                                    let newBullet = {
-                                        x: spawnX,
-                                        y: spawnY,
-                                        startX: spawnX,
-                                        startY: spawnY,
-                                        vx: Math.cos(angleRad) * speed,
-                                        vy: Math.sin(angleRad) * speed,
-                                        radius: bRadius,
-                                        hitRadius: bHitRadius,
-                                        bulletImage: bImg,
-                                        team: attacker.team,
-                                        color: bColor,
-                                        customDmg: 20,
-                                        isCustom: true,
-                                        update: null
-                                    };
-                                    
-                                    if (p.bulletType === 'laser') {
-                                        newBullet.isLaser = true;
-                                    }
-                                    
-                                    newBullet.threatWeight = computeBulletThreatWeight(
-                                        spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
-                                    );
-
-                                    let childScript = state.bulletScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, state.compiledFn);
-                                    newBullet.bulletState.bulletScript = childScript;
-                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
-                                    newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                    inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                    newBullet.bulletState.variables.color = bColor;
-                                    newBullet.bulletState.variables.radius = bRadius;
-                                    newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                    newBullet.bulletState.variables.bulletImage = bImg;
-                                    newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
-                                    
-                                    bullets.push(newBullet);
-                                }
-                                break;
-                            }
-                            case 'spawn_beam':
-                            case 'spawn_beam_resist': {
-                                let wt = Number(evalExpr(p.warningTime || '1.0', state.variables, block, 'warningTime'));
-                                let at = Number(evalExpr(p.activeTime || '1.5', state.variables, block, 'activeTime'));
-                                let lw = Number(evalExpr(p.laserWidth || '12', state.variables, block, 'laserWidth'));
-                                let angle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
-                                let cm = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (cm === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
-
-                                let angleRad = angle * Math.PI / 180;
-                                if (isPlayerSide) angleRad = -angleRad;
-
-                                let newBullet = {
-                                    x: spawnX,
-                                    y: spawnY,
-                                    startX: spawnX,
-                                    startY: spawnY,
-                                    vx: 0,
-                                    vy: 0,
-                                    radius: 8,
-                                    hitRadius: bHitRadius,
-                                    bulletImage: 'none',
-                                    team: attacker.team,
-                                    color: bColor,
-                                    customDmg: 20,
-                                    isCustom: true,
-                                    isWarningLaser: true,
-                                    isLaser: false,
-                                    isCustomBeam: false,
-                                    laserStartX: spawnX,
-                                    laserStartY: spawnY,
-                                    update: null
-                                };
-                                if (p.type === 'spawn_beam_resist') {
-                                    newBullet.destroyResist = true;
-                                }
-                                newBullet.threatWeight = 100;
-                                newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
-                                newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                newBullet.bulletState.variables.bulletType = 'laser';
-                                newBullet.bulletState.variables.warningTime = String(wt);
-                                newBullet.bulletState.variables.activeTime = String(at);
-                                newBullet.bulletState.variables.laserWidth = String(lw);
-                                newBullet.bulletState.variables.laserStartTime = state.variables.timer;
-                                newBullet.bulletState.variables.timer = 0;
-                                newBullet.bulletState.variables.color = bColor;
-                                newBullet.bulletState.variables.radius = 8;
-                                newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                newBullet.update = (childB, childBDT) => {
-                                    runCustomBulletScript(childB, childBDT, attacker, target);
-                                };
-                                bullets.push(newBullet);
-                                break;
-                            }
-                            case 'spawn_laser_way':
-                            case 'spawn_laser_way_resist': {
-                                let speed = evalExpr(p.speed || '200', state.variables, block, 'speed');
-                                let centerAngle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color || '#ff3333', state.variables);
-                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(p.count || '3', state.variables, block, 'count'))));
-                                let spread = evalExpr(p.spread || '45', state.variables, block, 'spread');
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
-                                let cm = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (cm === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                let bRadius = evalExpr(p.radius || '6', state.variables, block, 'radius');
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let startAngle = centerAngle - (spread * (count - 1)) / 2;
-                                let childScript = state.magicCircleScript || [];
-                                let magicCompiledFn = window.compiledDanmaku && state.id ? window.compiledDanmaku[state.id + '_magic'] : (block ? block.compiledFn : null);
-                                for (let k = 0; k < count; k++) {
-                                    let angle = startAngle + spread * k;
-                                    let angleRad = angle * Math.PI / 180;
-                                    if (isPlayerSide) angleRad = -angleRad;
-                                    let newBullet = {
-                                        x: spawnX,
-                                        y: spawnY,
-                                        startX: spawnX,
-                                        startY: spawnY,
-                                        vx: Math.cos(angleRad) * speed,
-                                        vy: Math.sin(angleRad) * speed,
-                                        radius: bRadius,
-                                        hitRadius: bHitRadius,
-                                        bulletImage: 'none',
-                                        team: attacker.team,
-                                        color: bColor,
-                                        customDmg: 20,
-                                        isCustom: true,
-                                        isTrail: true,
-                                        trailHistory: [],
-                                        growTime: (p.growTime !== undefined && p.growTime !== '') ? Number(evalExpr(p.growTime, state.variables, block, 'growTime')) : 0.2,
-                                        keepTime: (p.keepTime !== undefined && p.keepTime !== '') ? Number(evalExpr(p.keepTime, state.variables, block, 'keepTime')) : 0.3,
-                                        shrinkTime: (p.shrinkTime !== undefined && p.shrinkTime !== '') ? Number(evalExpr(p.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5,
-                                        round: p.round !== 'false' && p.round !== false,
-                                        update: null
-                                    };
-                                    if (p.type === 'spawn_laser_way_resist') {
-                                        newBullet.destroyResist = true;
-                                    }
-                                    newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, magicCompiledFn);
-                                    newBullet.bulletState.magicCircleScript = childScript;
-                                    newBullet.bulletState.bulletScript = state.bulletScript || [];
-                                    newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                    inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                    newBullet.bulletState.variables.color = bColor;
-                                    newBullet.bulletState.variables.radius = bRadius;
-                                    newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                    newBullet.bulletState.variables.growTime = newBullet.growTime;
-                                    newBullet.bulletState.variables.keepTime = newBullet.keepTime;
-                                    newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
-                                    newBullet.bulletState.variables.bulletImage = 'none';
-                                    newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
-                                    bullets.push(newBullet);
-                                }
-                                break;
-                            }
-                            case 'spawn_laser_ring':
-                            case 'spawn_laser_ring_resist': {
-                                let speed = evalExpr(p.speed || '200', state.variables, block, 'speed');
-                                let centerAngle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color || '#ff3333', state.variables);
-                                let count = Math.max(3, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(p.count || '12', state.variables, block, 'count'))));
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
-                                let cm = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (cm === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                let bRadius = evalExpr(p.radius || '6', state.variables, block, 'radius');
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let childScript = state.magicCircleScript || [];
-                                let magicCompiledFn = window.compiledDanmaku && state.id ? window.compiledDanmaku[state.id + '_magic'] : (block ? block.compiledFn : null);
-                                for (let k = 0; k < count; k++) {
-                                    let angle = centerAngle + (360 / count) * k;
-                                    let angleRad = angle * Math.PI / 180;
-                                    if (isPlayerSide) angleRad = -angleRad;
-                                    let newBullet = {
-                                        x: spawnX,
-                                        y: spawnY,
-                                        startX: spawnX,
-                                        startY: spawnY,
-                                        vx: Math.cos(angleRad) * speed,
-                                        vy: Math.sin(angleRad) * speed,
-                                        radius: bRadius,
-                                        hitRadius: bHitRadius,
-                                        bulletImage: 'none',
-                                        team: attacker.team,
-                                        color: bColor,
-                                        customDmg: 20,
-                                        isCustom: true,
-                                        isTrail: true,
-                                        trailHistory: [],
-                                        growTime: (p.growTime !== undefined && p.growTime !== '') ? Number(evalExpr(p.growTime, state.variables, block, 'growTime')) : 0.2,
-                                        keepTime: (p.keepTime !== undefined && p.keepTime !== '') ? Number(evalExpr(p.keepTime, state.variables, block, 'keepTime')) : 0.3,
-                                        shrinkTime: (p.shrinkTime !== undefined && p.shrinkTime !== '') ? Number(evalExpr(p.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5,
-                                        round: p.round !== 'false' && p.round !== false,
-                                        update: null
-                                    };
-                                    if (p.type === 'spawn_laser_ring_resist') {
-                                        newBullet.destroyResist = true;
-                                    }
-                                    newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, magicCompiledFn);
-                                    newBullet.bulletState.magicCircleScript = childScript;
-                                    newBullet.bulletState.bulletScript = state.bulletScript || [];
-                                    newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                    inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                    newBullet.bulletState.variables.color = bColor;
-                                    newBullet.bulletState.variables.radius = bRadius;
-                                    newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                    newBullet.bulletState.variables.growTime = newBullet.growTime;
-                                    newBullet.bulletState.variables.keepTime = newBullet.keepTime;
-                                    newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
-                                    newBullet.bulletState.variables.bulletImage = 'none';
-                                    newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
-                                    bullets.push(newBullet);
-                                }
-                                break;
-                            }
-                            case 'spawn_beam_way':
-                            case 'spawn_beam_way_resist': {
-                                let wt = Number(evalExpr(p.warningTime || '1.0', state.variables, block, 'warningTime'));
-                                let at = Number(evalExpr(p.activeTime || '1.5', state.variables, block, 'activeTime'));
-                                let lw = Number(evalExpr(p.laserWidth || '12', state.variables, block, 'laserWidth'));
-                                let centerAngle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
-                                let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(p.count || '3', state.variables, block, 'count'))));
-                                let spread = evalExpr(p.spread || '45', state.variables, block, 'spread');
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
-                                let cm = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (cm === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
-                                let startAngle = centerAngle - (spread * (count - 1)) / 2;
-                                for (let k = 0; k < count; k++) {
-                                    let angle = startAngle + spread * k;
-                                    let newBullet = {
-                                        x: spawnX,
-                                        y: spawnY,
-                                        startX: spawnX,
-                                        startY: spawnY,
-                                        vx: 0,
-                                        vy: 0,
-                                        radius: 8,
-                                        hitRadius: bHitRadius,
-                                        bulletImage: 'none',
-                                        team: attacker.team,
-                                        color: bColor,
-                                        customDmg: 20,
-                                        isCustom: true,
-                                        isWarningLaser: true,
-                                        isLaser: false,
-                                        isCustomBeam: false,
-                                        laserStartX: spawnX,
-                                        laserStartY: spawnY,
-                                        update: null
-                                    };
-                                    if (p.type === 'spawn_beam_way_resist') {
-                                        newBullet.destroyResist = true;
-                                    }
-                                    newBullet.threatWeight = 100;
-                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
-                                    newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                    inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                    newBullet.bulletState.variables.bulletType = 'laser';
-                                    newBullet.bulletState.variables.warningTime = String(wt);
-                                    newBullet.bulletState.variables.activeTime = String(at);
-                                    newBullet.bulletState.variables.laserWidth = String(lw);
-                                    newBullet.bulletState.variables.laserStartTime = state.variables.timer;
-                                    newBullet.bulletState.variables.timer = 0;
-                                    newBullet.bulletState.variables.color = bColor;
-                                    newBullet.bulletState.variables.radius = 8;
-                                    newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                    newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
-                                    bullets.push(newBullet);
-                                }
-                                break;
-                            }
-                            case 'spawn_beam_ring':
-                            case 'spawn_beam_ring_resist': {
-                                let wt = Number(evalExpr(p.warningTime || '1.0', state.variables, block, 'warningTime'));
-                                let at = Number(evalExpr(p.activeTime || '1.5', state.variables, block, 'activeTime'));
-                                let lw = Number(evalExpr(p.laserWidth || '12', state.variables, block, 'laserWidth'));
-                                let centerAngle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
-                                let count = Math.max(3, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(p.count || '12', state.variables, block, 'count'))));
-                                let ox = evalExpr(p.offsetX || '0', state.variables, block, 'offsetX');
-                                let oy = evalExpr(p.offsetY || '0', state.variables, block, 'offsetY');
-                                let cm = p.coordMode || 'relative';
-                                let spawnX, spawnY;
-                                if (cm === 'absolute') {
-                                    spawnX = ox;
-                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
-                                } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
-                                }
-                                let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables, block, 'hitRadius') : undefined;
-                                if (bHitRadius !== undefined) {
-                                    let hrNum = Number(bHitRadius);
-                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
-                                }
-                                let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
-                                for (let k = 0; k < count; k++) {
-                                    let angle = centerAngle + (360 / count) * k;
-                                    let newBullet = {
-                                        x: spawnX,
-                                        y: spawnY,
-                                        startX: spawnX,
-                                        startY: spawnY,
-                                        vx: 0,
-                                        vy: 0,
-                                        radius: 8,
-                                        hitRadius: bHitRadius,
-                                        bulletImage: 'none',
-                                        team: attacker.team,
-                                        color: bColor,
-                                        customDmg: 20,
-                                        isCustom: true,
-                                        isWarningLaser: true,
-                                        isLaser: false,
-                                        isCustomBeam: false,
-                                        laserStartX: spawnX,
-                                        laserStartY: spawnY,
-                                        update: null
-                                    };
-                                    if (p.type === 'spawn_beam_ring_resist') {
-                                        newBullet.destroyResist = true;
-                                    }
-                                    newBullet.threatWeight = 100;
-                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
-                                    newBullet.bulletState.isPlayerSide = isPlayerSide;
-                                    inheritEmitterVariablesToBullet(state, newBullet.bulletState);
-                                    newBullet.bulletState.variables.bulletType = 'laser';
-                                    newBullet.bulletState.variables.warningTime = String(wt);
-                                    newBullet.bulletState.variables.activeTime = String(at);
-                                    newBullet.bulletState.variables.laserWidth = String(lw);
-                                    newBullet.bulletState.variables.laserStartTime = state.variables.timer;
-                                    newBullet.bulletState.variables.timer = 0;
-                                    newBullet.bulletState.variables.color = bColor;
-                                    newBullet.bulletState.variables.radius = 8;
-                                    newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
-                                    newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
-                                    bullets.push(newBullet);
-                                }
-                                break;
-                            }
-                            case 'const_var':
-                            case 'set_var': {
-                                let varName = p.name;
-                                let val = evalValue(p.value, state.variables, block, 'value');
-                                if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} set_var: ${varName} = ${val} (raw: ${p.value})`);
+                    case 'const_var':
+                    case 'set_var': {
+                        let varName = p.name;
+                        let val = evalValue(p.value, state.variables);
                         setScriptVariable(state, varName, val, p.type === 'const_var');
-                                break;
+                        break;
+                    }
+                    case 'change_var': {
+                        let varName = p.name;
+                        let val = evalExpr(p.value, state.variables);
+                        let delta = p.op === '-' ? -val : val;
+                        if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
+                        if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
+                        break;
+                    }
+                    case 'aim_at_target': {
+                        let dx = target.x - ((b ? b.x : attacker.x) + (state.variables.x_offset || 0));
+                        let dy = target.y - ((b ? b.y : attacker.y) + (state.variables.y_offset || 0));
+                        if (isPlayerSide) {
+                            let targetVirtualY = canvas.height - target.y;
+                            let spawnVirtualY = (canvas.height - (b ? b.y : attacker.y)) + (state.variables.y_offset || 0);
+                            dy = targetVirtualY - spawnVirtualY;
+                        }
+                        state.variables.angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        break;
+                    }
+                    case 'aim_at_coord': {
+                        let txRaw = evalExpr(p.targetX || '0', state.variables);
+                        let tyRaw = evalExpr(p.targetY || '0', state.variables);
+                        let txAbs = Number(txRaw) || 0;
+                        let tyAbs = isPlayerSide ? (canvas.height - (Number(tyRaw) || 0)) : (Number(tyRaw) || 0);
+                        let dxC = txAbs - ((b ? b.x : attacker.x) + (state.variables.x_offset || 0));
+                        let dyC = tyAbs - ((b ? b.y : attacker.y) + (state.variables.y_offset || 0));
+                        state.variables.angle = Math.atan2(dyC, dxC) * 180 / Math.PI;
+                        break;
+                    }
+                    case 'move_owner': {
+                        const owner = attacker === player ? 'PLAYER' : 'CPU';
+                        const preset = resolveTextParam(p.preset || 'center', state.variables);
+                        const duration = evalExpr(p.duration || '0', state.variables);
+                        setCustomOwnerPosition(owner, preset, duration);
+                        applyCustomOwnerPositionLock(owner, 0);
+                        
+                        // 移動先の座標を取得して ex, ey, exy に即座に反映させ、古い座標への引き戻しを防ぐ
+                        if (typeof getCustomOwnerPosition !== 'undefined') {
+                            const targetPos = getCustomOwnerPosition(owner, preset);
+                            if (targetPos) {
+                                state.variables.ex = targetPos.x;
+                                state.variables.ey = isPlayerSide ? (canvas.height - targetPos.y) : targetPos.y;
+                                state.variables.exy = `${targetPos.x},${state.variables.ey}`;
                             }
-                            case 'change_var': {
-                                let varName = p.name;
-                                let val = evalExpr(p.value, state.variables, block, 'value');
-                                let delta = p.op === '-' ? -val : val;
-                                let before = state.variables[varName];
-                                if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-                                if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
-                                if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${p.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${state.variables[varName]})`);
-                                break;
+                        }
+                        break;
+                    }
+                    case 'spawn_bullet':
+                    case 'spawn_bullet_resist':
+                    case 'spawn_trail':
+                    case 'spawn_trail_resist': {
+                        let isTrail = p.type === 'spawn_trail' || p.type === 'spawn_trail_resist';
+                        let speed = evalExpr(p.speed, state.variables);
+                        let angle = evalExpr(p.angle, state.variables);
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
+                        
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+
+                        let coordMode = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (coordMode === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+
+                        let angleRad = angle * Math.PI / 180;
+                        if (isPlayerSide) {
+                            angleRad = -angleRad;
+                        }
+                        
+                        let bRadius = evalExpr(p.radius || (isTrail ? '8' : '6'), state.variables);
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let bImg = isTrail ? 'none' : (p.bulletImage || 'none');
+
+                        let newBullet = {
+                            x: spawnX,
+                            y: spawnY,
+                            startX: spawnX, // 初期位置保存
+                            startY: spawnY,
+                            vx: Math.cos(angleRad) * speed,
+                            vy: Math.sin(angleRad) * speed,
+                            radius: bRadius,
+                            hitRadius: bHitRadius,
+                            bulletImage: bImg,
+                            team: attacker.team,
+                            color: bColor,
+                            customDmg: 20, // custom card damage balanced to 20
+                            isCustom: true,
+                            update: null
+                        };
+                        
+                        if (p.bulletType === 'laser') {
+                            newBullet.isLaser = true;
+                        }
+                        if (p.bulletType === 'trail') {
+                            isTrail = true;
+                        }
+                        if (isTrail) {
+                            newBullet.isTrail = true;
+                            newBullet.growTime = (p.growTime !== undefined && p.growTime !== '') ? Number(evalExpr(p.growTime, state.variables)) : 0.2;
+                            newBullet.keepTime = (p.keepTime !== undefined && p.keepTime !== '') ? Number(evalExpr(p.keepTime, state.variables)) : 0.3;
+                            newBullet.shrinkTime = (p.shrinkTime !== undefined && p.shrinkTime !== '') ? Number(evalExpr(p.shrinkTime, state.variables)) : 0.5;
+                            newBullet.round = (p.round !== undefined) ? (p.round === 'true' || p.round === true) : true;
+                            newBullet.trailHistory = [];
+                        }
+                        if (p.type === 'spawn_bullet_resist' || p.type === 'spawn_trail_resist') {
+                            newBullet.destroyResist = true;
+                        }
+
+                        newBullet.threatWeight = computeBulletThreatWeight(
+                            spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
+                        );
+
+                        newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                        newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                        newBullet.bulletState.isPlayerSide = isPlayerSide;
+                        inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                        newBullet.bulletState.variables.bulletType = isTrail ? 'trail' : (p.bulletType || 'normal');
+                        if (isTrail) {
+                            newBullet.bulletState.variables.growTime = p.growTime || '0.2';
+                            newBullet.bulletState.variables.keepTime = p.keepTime || '0.3';
+                            newBullet.bulletState.variables.shrinkTime = p.shrinkTime || '0.5';
+                            newBullet.bulletState.variables.round = (p.round !== undefined) ? String(p.round) : 'true';
+                        }
+                        newBullet.bulletState.variables.color = bColor;
+                        newBullet.bulletState.variables.radius = bRadius;
+                        newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                        newBullet.bulletState.variables.bulletImage = bImg;
+                        newBullet.sharedEmitterState = state;
+                        newBullet.update = (b, bdt) => {
+                            runCustomBulletScript(b, bdt, attacker, target);
+                        };
+                        
+                        if (window.showDebugProfiler) {
+                            console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
+                        }
+                        bullets.push(newBullet);
+                        break;
+                    }
+                    case 'spawn_ring':
+                    case 'spawn_ring_resist': {
+                        let speed = evalExpr(p.speed, state.variables);
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
+                        let count = Math.max(3, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(p.count || '12', state.variables))));
+                        
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+
+                        let coordMode = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (coordMode === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        
+                        let bRadius = evalExpr(p.radius || '6', state.variables);
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let bImg = p.bulletImage || 'none';
+                        let centerAngle = evalExpr(p.angle || '0', state.variables);
+
+                        for (let k = 0; k < count; k++) {
+                            let angle = centerAngle + (360 / count) * k;
+                            let angleRad = angle * Math.PI / 180;
+                            if (isPlayerSide) {
+                                angleRad = -angleRad;
                             }
-                            case 'aim_at_target': {
-                                let dx = target.x - b.x;
-                                let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
-                                state.variables.angle = Math.atan2(dy, dx) * 180 / Math.PI;
-                                break;
+                            
+                            let newBullet = {
+                                x: spawnX,
+                                y: spawnY,
+                                startX: spawnX, // 初期位置保存
+                                startY: spawnY,
+                                vx: Math.cos(angleRad) * speed,
+                                vy: Math.sin(angleRad) * speed,
+                                radius: bRadius,
+                                hitRadius: bHitRadius,
+                                bulletImage: bImg,
+                                team: attacker.team,
+                                color: bColor,
+                                customDmg: 20,
+                                isCustom: true,
+                                update: null
+                            };
+                            
+                            if (p.bulletType === 'laser') {
+                                newBullet.isLaser = true;
                             }
-                            case 'aim_at_coord': {
-                                let txRawB = evalExpr(p.targetX || '0', state.variables, block, 'targetX');
-                                let tyRawB = evalExpr(p.targetY || '0', state.variables, block, 'targetY');
-                                let txAbsB = Number(txRawB) || 0;
-                                let tyAbsB = isPlayerSide ? (canvas.height - (Number(tyRawB) || 0)) : (Number(tyRawB) || 0);
-                                let dxB = txAbsB - b.x;
-                                let dyB = isPlayerSide ? (b.y - tyAbsB) : (tyAbsB - b.y);
-                                state.variables.angle = Math.atan2(dyB, dxB) * 180 / Math.PI;
-                                break;
+                            if (p.type === 'spawn_ring_resist') {
+                                newBullet.destroyResist = true;
                             }
-                            case 'speed_scale': {
-                                advancePC = applySpeedScaleBlock(block, state);
-                                break;
+                            
+                            newBullet.threatWeight = computeBulletThreatWeight(
+                                spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
+                            );
+
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState.isPlayerSide = isPlayerSide;
+                            inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                            newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = bRadius;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.bulletImage = bImg;
+                            newBullet.sharedEmitterState = state;
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                            
+                            bullets.push(newBullet);
+                        }
+                        if (window.showDebugProfiler) {
+                            console.log(`[DEBUG] spawn_ring: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, angle=${centerAngle}`);
+                        }
+                        break;
+                    }
+                    case 'spawn_way':
+                    case 'spawn_way_resist': {
+                        let speed = evalExpr(p.speed, state.variables);
+                        let centerAngle = evalExpr(p.angle || 'angle', state.variables);
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
+                        let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(p.count || '3', state.variables))));
+                        let spread = evalExpr(p.spread || '15', state.variables);
+                        
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+
+                        let coordMode = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (coordMode === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        
+                        let bRadius = evalExpr(p.radius || '6', state.variables);
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let bImg = p.bulletImage || 'none';
+
+                        let startAngle = centerAngle - (spread * (count - 1)) / 2;
+                        
+                        for (let k = 0; k < count; k++) {
+                            let angle = startAngle + spread * k;
+                            let angleRad = angle * Math.PI / 180;
+                            if (isPlayerSide) {
+                                angleRad = -angleRad;
                             }
-                            case 'homing': {
-                                let turnSpeed = evalExpr(p.turnSpeed || '90', state.variables, block, 'turnSpeed');
-                                let dx = target.x - b.x;
-                                let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
-                                let targetAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-                                
-                                let diff = targetAngle - state.variables.angle;
-                                diff = ((diff + 180) % 360 + 360) % 360 - 180;
-                                
-                                let step = turnSpeed * dt;
-                                if (Math.abs(diff) < step) {
-                                    state.variables.angle = targetAngle;
+                            
+                            let newBullet = {
+                                x: spawnX,
+                                y: spawnY,
+                                startX: spawnX, // 初期位置保存
+                                startY: spawnY,
+                                vx: Math.cos(angleRad) * speed,
+                                vy: Math.sin(angleRad) * speed,
+                                radius: bRadius,
+                                hitRadius: bHitRadius,
+                                bulletImage: bImg,
+                                team: attacker.team,
+                                color: bColor,
+                                customDmg: 20,
+                                isCustom: true,
+                                update: null
+                            };
+                            
+                            if (p.bulletType === 'laser') {
+                                newBullet.isLaser = true;
+                            }
+                            if (p.type === 'spawn_way_resist') {
+                                newBullet.destroyResist = true;
+                            }
+                            
+                            newBullet.threatWeight = computeBulletThreatWeight(
+                                spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
+                            );
+
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState.isPlayerSide = isPlayerSide;
+                            inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                            newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = bRadius;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.bulletImage = bImg;
+                            newBullet.sharedEmitterState = state;
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                            
+                            bullets.push(newBullet);
+                        }
+                        if (window.showDebugProfiler) {
+                            console.log(`[DEBUG] spawn_way: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, spread=${spread}, centerAngle=${centerAngle}`);
+                        }
+                        break;
+                    }
+                    case 'spawn_beam':
+                    case 'spawn_beam_resist': {
+                        let wt = Number(evalExpr(p.warningTime || '1.0', state.variables));
+                        let at = Number(evalExpr(p.activeTime || '1.5', state.variables));
+                        let lw = Number(evalExpr(p.laserWidth || '12', state.variables));
+                        let angle = evalExpr(p.angle || 'angle', state.variables);
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+                        let cm = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (cm === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
+
+                        let angleRad = angle * Math.PI / 180;
+                        if (isPlayerSide) angleRad = -angleRad;
+
+                        let newBullet = {
+                            x: spawnX,
+                            y: spawnY,
+                            startX: spawnX,
+                            startY: spawnY,
+                            vx: 0,
+                            vy: 0,
+                            radius: 8,
+                            hitRadius: bHitRadius,
+                            bulletImage: 'none',
+                            team: attacker.team,
+                            color: bColor,
+                            customDmg: 20,
+                            isCustom: true,
+                            isWarningLaser: true,
+                            isLaser: false,
+                            isCustomBeam: false,
+                            laserStartX: spawnX,
+                            laserStartY: spawnY,
+                            update: null
+                        };
+                        if (p.type === 'spawn_beam_resist') {
+                            newBullet.destroyResist = true;
+                        }
+                        newBullet.threatWeight = 100;
+                        newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
+                        newBullet.bulletState.isPlayerSide = isPlayerSide;
+                        inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                        newBullet.bulletState.variables.bulletType = 'laser';
+                        newBullet.bulletState.variables.warningTime = String(wt);
+                        newBullet.bulletState.variables.activeTime = String(at);
+                        newBullet.bulletState.variables.laserWidth = String(lw);
+                        newBullet.bulletState.variables.laserStartTime = state.variables.timer;
+                        newBullet.bulletState.variables.timer = 0;
+                        newBullet.bulletState.variables.color = bColor;
+                        newBullet.bulletState.variables.radius = 8;
+                        newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                        newBullet.sharedEmitterState = state;
+                        newBullet.update = (b, bdt) => {
+                            runCustomBulletScript(b, bdt, attacker, target);
+                        };
+                        bullets.push(newBullet);
+                        break;
+                    }
+                    case 'spawn_laser_way':
+                    case 'spawn_laser_way_resist': {
+                        let speed = evalExpr(p.speed || '200', state.variables);
+                        let centerAngle = evalExpr(p.angle || 'angle', state.variables);
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color || '#ff3333', state.variables);
+                        let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(p.count || '3', state.variables))));
+                        let spread = evalExpr(p.spread || '45', state.variables);
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+                        let cm = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (cm === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        let bRadius = evalExpr(p.radius || '6', state.variables);
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let startAngle = centerAngle - (spread * (count - 1)) / 2;
+                        for (let k = 0; k < count; k++) {
+                            let angle = startAngle + spread * k;
+                            let angleRad = angle * Math.PI / 180;
+                            if (isPlayerSide) angleRad = -angleRad;
+                            let newBullet = {
+                                x: spawnX,
+                                y: spawnY,
+                                startX: spawnX,
+                                startY: spawnY,
+                                vx: Math.cos(angleRad) * speed,
+                                vy: Math.sin(angleRad) * speed,
+                                radius: bRadius,
+                                hitRadius: bHitRadius,
+                                bulletImage: 'none',
+                                team: attacker.team,
+                                color: bColor,
+                                customDmg: 20,
+                                isCustom: true,
+                                isTrail: true,
+                                trailHistory: [],
+                                growTime: (p.growTime !== undefined && p.growTime !== '') ? Number(evalExpr(p.growTime, state.variables)) : 0.2,
+                                keepTime: (p.keepTime !== undefined && p.keepTime !== '') ? Number(evalExpr(p.keepTime, state.variables)) : 0.3,
+                                shrinkTime: (p.shrinkTime !== undefined && p.shrinkTime !== '') ? Number(evalExpr(p.shrinkTime, state.variables)) : 0.5,
+                                round: p.round !== 'false' && p.round !== false,
+                                update: null
+                            };
+                            if (p.type === 'spawn_laser_way_resist') {
+                                newBullet.destroyResist = true;
+                            }
+                            newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState.isPlayerSide = isPlayerSide;
+                            inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                            newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = bRadius;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.growTime = newBullet.growTime;
+                            newBullet.bulletState.variables.keepTime = newBullet.keepTime;
+                            newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
+                            newBullet.bulletState.variables.bulletImage = 'none';
+                            newBullet.sharedEmitterState = state;
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                            bullets.push(newBullet);
+                        }
+                        break;
+                    }
+                    case 'spawn_laser_ring':
+                    case 'spawn_laser_ring_resist': {
+                        let speed = evalExpr(p.speed || '200', state.variables);
+                        let centerAngle = evalExpr(p.angle || 'angle', state.variables);
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color || '#ff3333', state.variables);
+                        let count = Math.max(3, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(p.count || '12', state.variables))));
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+                        let cm = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (cm === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        let bRadius = evalExpr(p.radius || '6', state.variables);
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        for (let k = 0; k < count; k++) {
+                            let angle = centerAngle + (360 / count) * k;
+                            let angleRad = angle * Math.PI / 180;
+                            if (isPlayerSide) angleRad = -angleRad;
+                            let newBullet = {
+                                x: spawnX,
+                                y: spawnY,
+                                startX: spawnX,
+                                startY: spawnY,
+                                vx: Math.cos(angleRad) * speed,
+                                vy: Math.sin(angleRad) * speed,
+                                radius: bRadius,
+                                hitRadius: bHitRadius,
+                                bulletImage: 'none',
+                                team: attacker.team,
+                                color: bColor,
+                                customDmg: 20,
+                                isCustom: true,
+                                isTrail: true,
+                                trailHistory: [],
+                                growTime: (p.growTime !== undefined && p.growTime !== '') ? Number(evalExpr(p.growTime, state.variables)) : 0.2,
+                                keepTime: (p.keepTime !== undefined && p.keepTime !== '') ? Number(evalExpr(p.keepTime, state.variables)) : 0.3,
+                                shrinkTime: (p.shrinkTime !== undefined && p.shrinkTime !== '') ? Number(evalExpr(p.shrinkTime, state.variables)) : 0.5,
+                                round: p.round !== 'false' && p.round !== false,
+                                update: null
+                            };
+                            if (p.type === 'spawn_laser_ring_resist') {
+                                newBullet.destroyResist = true;
+                            }
+                            newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
+                            newBullet.bulletState = initBulletState(c.bulletScript || [], speed, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.magicCircleScript = c.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = c.bulletScript || [];
+                            newBullet.bulletState.isPlayerSide = isPlayerSide;
+                            inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                            newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = bRadius;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.bulletState.variables.growTime = newBullet.growTime;
+                            newBullet.bulletState.variables.keepTime = newBullet.keepTime;
+                            newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
+                            newBullet.bulletState.variables.bulletImage = 'none';
+                            newBullet.sharedEmitterState = state;
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                            bullets.push(newBullet);
+                        }
+                        break;
+                    }
+                    case 'spawn_beam_way':
+                    case 'spawn_beam_way_resist': {
+                        let wt = Number(evalExpr(p.warningTime || '1.0', state.variables));
+                        let at = Number(evalExpr(p.activeTime || '1.5', state.variables));
+                        let lw = Number(evalExpr(p.laserWidth || '12', state.variables));
+                        let centerAngle = evalExpr(p.angle || 'angle', state.variables);
+                        let count = Math.max(1, Math.min(CUSTOM_SPAWN_WAY_MAX_COUNT, parseInt(evalExpr(p.count || '3', state.variables))));
+                        let spread = evalExpr(p.spread || '45', state.variables);
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+                        let cm = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (cm === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
+                        let startAngle = centerAngle - (spread * (count - 1)) / 2;
+                        for (let k = 0; k < count; k++) {
+                            let angle = startAngle + spread * k;
+                            let newBullet = {
+                                x: spawnX,
+                                y: spawnY,
+                                startX: spawnX,
+                                startY: spawnY,
+                                vx: 0,
+                                vy: 0,
+                                radius: 8,
+                                hitRadius: bHitRadius,
+                                bulletImage: 'none',
+                                team: attacker.team,
+                                color: bColor,
+                                customDmg: 20,
+                                isCustom: true,
+                                isWarningLaser: true,
+                                isLaser: false,
+                                isCustomBeam: false,
+                                laserStartX: spawnX,
+                                laserStartY: spawnY,
+                                update: null
+                            };
+                            if (p.type === 'spawn_beam_way_resist') {
+                                newBullet.destroyResist = true;
+                            }
+                            newBullet.threatWeight = 100;
+                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.isPlayerSide = isPlayerSide;
+                            inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                            newBullet.bulletState.variables.bulletType = 'laser';
+                            newBullet.bulletState.variables.warningTime = String(wt);
+                            newBullet.bulletState.variables.activeTime = String(at);
+                            newBullet.bulletState.variables.laserWidth = String(lw);
+                            newBullet.bulletState.variables.laserStartTime = state.variables.timer;
+                            newBullet.bulletState.variables.timer = 0;
+                            newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = 8;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.sharedEmitterState = state;
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                            bullets.push(newBullet);
+                        }
+                        break;
+                    }
+                    case 'spawn_beam_ring':
+                    case 'spawn_beam_ring_resist': {
+                        let wt = Number(evalExpr(p.warningTime || '1.0', state.variables));
+                        let at = Number(evalExpr(p.activeTime || '1.5', state.variables));
+                        let lw = Number(evalExpr(p.laserWidth || '12', state.variables));
+                        let centerAngle = evalExpr(p.angle || 'angle', state.variables);
+                        let count = Math.max(3, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(p.count || '12', state.variables))));
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+                        let cm = p.coordMode || 'relative';
+                        let spawnX, spawnY;
+                        if (cm === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                            spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        let bHitRadius = p.hitRadius ? evalExpr(p.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
+                        for (let k = 0; k < count; k++) {
+                            let angle = centerAngle + (360 / count) * k;
+                            let newBullet = {
+                                x: spawnX,
+                                y: spawnY,
+                                startX: spawnX,
+                                startY: spawnY,
+                                vx: 0,
+                                vy: 0,
+                                radius: 8,
+                                hitRadius: bHitRadius,
+                                bulletImage: 'none',
+                                team: attacker.team,
+                                color: bColor,
+                                customDmg: 20,
+                                isCustom: true,
+                                isWarningLaser: true,
+                                isLaser: false,
+                                isCustomBeam: false,
+                                laserStartX: spawnX,
+                                laserStartY: spawnY,
+                                update: null
+                            };
+                            if (p.type === 'spawn_beam_ring_resist') {
+                                newBullet.destroyResist = true;
+                            }
+                            newBullet.threatWeight = 100;
+                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target, block ? block.compiledFn : null);
+                            newBullet.bulletState.isPlayerSide = isPlayerSide;
+                            inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                            newBullet.bulletState.variables.bulletType = 'laser';
+                            newBullet.bulletState.variables.warningTime = String(wt);
+                            newBullet.bulletState.variables.activeTime = String(at);
+                            newBullet.bulletState.variables.laserWidth = String(lw);
+                            newBullet.bulletState.variables.laserStartTime = state.variables.timer;
+                            newBullet.bulletState.variables.timer = 0;
+                            newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = 8;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
+                            newBullet.sharedEmitterState = state;
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                            bullets.push(newBullet);
+                        }
+                        break;
+                    }
+                    case 'spawn_magic_circle': {
+                        let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
+                        let ox = evalExpr(p.offsetX || '0', state.variables);
+                        let oy = evalExpr(p.offsetY || '0', state.variables);
+
+                        let spawnX = (b ? b.x : attacker.x) + (state.variables.x_offset || 0) + ox;
+                        let spawnY = (b ? b.y : attacker.y) + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+
+                        let mcId = 'MC_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+                        let newMagicCircle = {
+                            id: mcId,
+                            x: spawnX,
+                            y: spawnY,
+                            radius: 18,
+                            color: bColor,
+                            team: attacker.team,
+                            isCustom: true,
+                            emitterState: initEmitterState(c.magicCircleScript || [], { x: spawnX, y: spawnY }, target, 0, 0, c.id, '_magic'),
+                            bulletScript: c.magicCircleScript || []
+                        };
+                        newMagicCircle.emitterState.magicCircleScript = c.magicCircleScript || [];
+
+                        magicCircles.push(newMagicCircle);
+                        break;
+                    }
+                    case 'tween_angle':
+                    case 'tween_angle_wait': {
+                        let varName = 'angle';
+                        let fromVal = evalExpr(p.from || '0', state.variables);
+                        let toVal = evalExpr(p.to || '360', state.variables);
+                        let duration = evalExpr(p.duration || '1', state.variables);
+                        let mode = p.mode || 'seconds';
+                        if (mode === 'frames') duration = Math.max(1, duration);
+                        else duration = Math.max(0.001, duration);
+                        
+                        if (!state.tweens) state.tweens = [];
+                        state.tweens = state.tweens.filter(t => t.name !== varName);
+                        
+                        state.tweens.push({
+                            name: varName,
+                            mode: mode,
+                            from: fromVal,
+                            to: toVal,
+                            total: duration,
+                            elapsed: 0,
+                            easing: p.easing || 'linear',
+                            isAngleTween: true,
+                            rotMode: p.rotMode || 'shortest'
+                        });
+                        
+                        if (p.type === 'tween_angle_wait') {
+                            state.waitingTweenName = varName;
+                        }
+                        break;
+                    }
+
+                    case 'tween_var':
+                    case 'tween_var_wait': {
+                        let varName = p.name || 'angle';
+                        let isMultiVar = varName.includes(',');
+                        
+                        let fromVal, toVal;
+                        if (isMultiVar) {
+                            let fromParts = (p.from || '').split(',').map(p => evalExpr(p.trim(), state.variables));
+                            let toParts = (p.to || '').split(',').map(p => evalExpr(p.trim(), state.variables));
+                            fromVal = `${fromParts[0] || 0},${fromParts[1] || 0}`;
+                            toVal = `${toParts[0] || 0},${toParts[1] || 0}`;
+                        } else {
+                            fromVal = evalExpr(p.from, state.variables);
+                            toVal   = evalExpr(p.to,   state.variables);
+                        }
+
+                        let mode    = p.mode || 'seconds'; // 'seconds' | 'frames' | 'step'
+                        if (!state.tweens) state.tweens = [];
+                        // 同じ変数の既存tweenを上書き
+                        state.tweens = state.tweens.filter(t => t.name !== varName);
+
+                        // 座標ペア（コンマ区切り文字列）の tween 補間の処理
+                        if (typeof toVal === 'string' && toVal.includes(',')) {
+                            let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
+                            let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
+                            if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
+                                state.variables[varName] = fromVal;
+                                if (mode === 'step' || mode === 'vecstep') {
+                                    let stepVal = evalExpr(p.stepVal || p.value || '5', state.variables);
+                                    if (mode === 'vecstep') {
+                                        state.tweens.push({
+                                            name: varName,
+                                            isCoordPair: true,
+                                            isStep: true,
+                                            isVecStep: true,
+                                            fromX: fromParts[0],
+                                            toX: toParts[0],
+                                            fromY: fromParts[1],
+                                            toY: toParts[1],
+                                            stepVal: stepVal,
+                                            mode,
+                                            total: 1,
+                                            elapsed: 0
+                                        });
+                                    } else {
+                                        // 従来の step モードの復元（各軸独立して加算）
+                                        let stepX = stepVal;
+                                        let stepY = stepVal;
+                                        if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
+                                        if (fromParts[1] > toParts[1] && stepY > 0) stepY = -stepY;
+                                        if (fromParts[0] === toParts[0]) stepX = 0;
+                                        if (fromParts[1] === toParts[1]) stepY = 0;
+
+                                        state.tweens.push({
+                                            name: varName,
+                                            isCoordPair: true,
+                                            isStep: true,
+                                            isVecStep: false,
+                                            fromX: fromParts[0],
+                                            toX: toParts[0],
+                                            fromY: fromParts[1],
+                                            toY: toParts[1],
+                                            stepX: stepX,
+                                            stepY: stepY,
+                                            mode,
+                                            total: 1,
+                                            elapsed: 0
+                                        });
+                                    }
                                 } else {
-                                    state.variables.angle += Math.sign(diff) * step;
+                                    // 通常の時間ベースの補間
+                                    let total = evalExpr(p.duration || '1', state.variables);
+                                    if (mode === 'frames') total = Math.max(1, total);
+                                    else total = Math.max(0.001, total);
+                                    state.tweens.push({
+                                        name: varName,
+                                        isCoordPair: true,
+                                        isStep: false,
+                                        fromX: fromParts[0],
+                                        toX: toParts[0],
+                                        fromY: fromParts[1],
+                                        toY: toParts[1],
+                                        mode,
+                                        total,
+                                        elapsed: 0,
+                                        easing: p.easing || 'linear'
+                                    });
                                 }
-                                break;
-                            }
-                            case 'bounce': {
-                                let x = state.variables.x;
-                                let y = state.variables.y;
-                                let angle = state.variables.angle;
-                                let bounced = false;
-                                if (x < 10 && Math.cos(angle * Math.PI / 180) < 0) {
-                                    angle = 180 - angle;
-                                    bounced = true;
-                                }
-                                if (x > PLAY_WIDTH - 10 && Math.cos(angle * Math.PI / 180) > 0) {
-                                    angle = 180 - angle;
-                                    bounced = true;
-                                }
-                                if (y < 10 && Math.sin(angle * Math.PI / 180) < 0) {
-                                    angle = -angle;
-                                    bounced = true;
-                                }
-                                // Bottom wall is excluded from bouncing
-                                state.variables.angle = ((angle % 360) + 360) % 360;
-                                if (bounced) {
-                                    state.variables.isBounced = 1;
-                                }
-                                break;
-                            }
-                            case 'advance': {
-                                let dist = evalExpr(p.distance || '50', state.variables, block, 'distance');
-                                let rad = (Number(state.variables.angle) || 0) * Math.PI / 180;
-                                state.variables.x = (Number(state.variables.x) || 0) + Math.cos(rad) * dist;
-                                state.variables.y = (Number(state.variables.y) || 0) + Math.sin(rad) * dist;
-                                break;
-                            }
-                            case 'tween_angle':
-                            case 'tween_angle_wait': {
-                                let varName = 'angle';
-                                let fromVal = evalExpr(p.from || '0', state.variables);
-                                let toVal = evalExpr(p.to || '360', state.variables);
-                                let duration = evalExpr(p.duration || '1', state.variables);
-                                let mode = p.mode || 'seconds';
-                                if (mode === 'frames') duration = Math.max(1, duration);
-                                else duration = Math.max(0.001, duration);
-                                
-                                if (!state.tweens) state.tweens = [];
-                                state.tweens = state.tweens.filter(t => t.name !== varName);
-                                
-                                state.tweens.push({
-                                    name: varName,
-                                    mode: mode,
-                                    from: fromVal,
-                                    to: toVal,
-                                    total: duration,
-                                    elapsed: 0,
-                                    easing: p.easing || 'linear',
-                                    isAngleTween: true,
-                                    rotMode: p.rotMode || 'shortest'
-                                });
-                                
-                                if (p.type === 'tween_angle_wait') {
+                                // 子変数を即座に初期化
+                                state.variables[varName + '_x'] = fromParts[0];
+                                state.variables[varName + '_y'] = fromParts[1];
+                                state.variables[varName + '.x'] = fromParts[0];
+                                state.variables[varName + '.y'] = fromParts[1];
+                                if (p.type === 'tween_var_wait') {
                                     state.waitingTweenName = varName;
                                 }
                                 break;
                             }
-                            case 'tween_var':
-                            case 'tween_var_wait': {
-                                let varName = p.name || 'angle';
-                                let isMultiVar = varName.includes(',');
-                                
-                                let fromVal, toVal;
-                                if (isMultiVar) {
-                                    let fromParts = (p.from || '').split(',').map(p => evalExpr(p.trim(), state.variables, block, 'from'));
-                                    let toParts = (p.to || '').split(',').map(p => evalExpr(p.trim(), state.variables, block, 'to'));
-                                    fromVal = `${fromParts[0] || 0},${fromParts[1] || 0}`;
-                                    toVal = `${toParts[0] || 0},${toParts[1] || 0}`;
-                                } else {
-                                    fromVal = evalExpr(p.from, state.variables, block, 'from');
-                                    toVal   = evalExpr(p.to,   state.variables, block, 'to');
-                                }
-
-                                let mode    = p.mode || 'seconds';
-                                if (!state.tweens) state.tweens = [];
-                                state.tweens = state.tweens.filter(t => t.name !== varName);
-
-                                if (typeof toVal === 'string' && toVal.includes(',')) {
-                                    let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
-                                    let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
-                                    if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
-                                        state.variables[varName] = fromVal;
-                                        if (mode === 'step' || mode === 'vecstep') {
-                                            let stepVal = evalExpr(p.stepVal || p.value || '5', state.variables, block, 'stepVal');
-                                            if (mode === 'vecstep') {
-                                                state.tweens.push({
-                                                    name: varName,
-                                                    isCoordPair: true,
-                                                    isStep: true,
-                                                    isVecStep: true,
-                                                    fromX: fromParts[0],
-                                                    toX: toParts[0],
-                                                    fromY: fromParts[1],
-                                                    toY: toParts[1],
-                                                    stepVal: stepVal,
-                                                    mode,
-                                                    total: 1,
-                                                    elapsed: 0
-                                                });
-                                            } else {
-                                                let stepX = stepVal;
-                                                let stepY = stepVal;
-                                                if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
-                                                if (fromParts[1] > toParts[1] && stepY > 0) stepY = -stepY;
-                                                if (fromParts[0] === toParts[0]) stepX = 0;
-                                                if (fromParts[1] === toParts[1]) stepY = 0;
-
-                                                state.tweens.push({
-                                                    name: varName,
-                                                    isCoordPair: true,
-                                                    isStep: true,
-                                                    isVecStep: false,
-                                                    fromX: fromParts[0],
-                                                    toX: toParts[0],
-                                                    fromY: fromParts[1],
-                                                    toY: toParts[1],
-                                                    stepX: stepX,
-                                                    stepY: stepY,
-                                                    mode,
-                                                    total: 1,
-                                                    elapsed: 0
-                                                });
-                                            }
-                                        } else {
-                                            let total = evalExpr(p.duration || '1', state.variables, block, 'duration');
-                                            if (mode === 'frames') total = Math.max(1, total);
-                                            else total = Math.max(0.001, total);
-                                            state.tweens.push({
-                                                name: varName,
-                                                isCoordPair: true,
-                                                isStep: false,
-                                                fromX: fromParts[0],
-                                                toX: toParts[0],
-                                                fromY: fromParts[1],
-                                                toY: toParts[1],
-                                                mode,
-                                                total,
-                                                elapsed: 0,
-                                                easing: p.easing || 'linear'
-                                            });
-                                        }
-                                        state.variables[varName + '_x'] = fromParts[0];
-                                        state.variables[varName + '_y'] = fromParts[1];
-                                        state.variables[varName + '.x'] = fromParts[0];
-                                        state.variables[varName + '.y'] = fromParts[1];
-                                        if (p.type === 'tween_var_wait') {
-                                            state.waitingTweenName = varName;
-                                        }
-                                    }
-                                } else {
-                                    if (mode === 'step') {
-                                        let stepVal = evalExpr(p.stepVal || '5', state.variables, block, 'stepVal');
-                                        if (fromVal > toVal && stepVal > 0) stepVal = -stepVal;
-                                        state.variables[varName] = fromVal;
-                                        state.tweens.push({ name: varName, to: toVal, mode: 'step', stepVal });
-                                    } else {
-                                        let total = evalExpr(p.duration || '1', state.variables, block, 'duration');
-                                        if (mode === 'frames') total = Math.max(1, total);
-                                        else total = Math.max(0.001, total);
-                                        state.variables[varName] = fromVal;
-                                        state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0, easing: p.easing || 'linear' });
-                                    }
-                                    if (p.type === 'tween_var_wait') {
-                                        state.waitingTweenName = varName;
-                                    }
-                                }
-                                break;
-                            }
                         }
+
+                        if (mode === 'step') {
+                            let stepVal = evalExpr(p.stepVal || '5', state.variables);
+                            if (fromVal > toVal && stepVal > 0) stepVal = -stepVal;
+                            state.variables[varName] = fromVal;
+                            state.tweens.push({ name: varName, to: toVal, mode: 'step', stepVal });
+                        } else {
+                            let total = evalExpr(p.duration || '1', state.variables);
+                            if (mode === 'frames') total = Math.max(1, total);
+                            else total = Math.max(0.001, total);
+                            state.variables[varName] = fromVal;
+                            state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0, easing: p.easing || 'linear' });
+                        }
+                        if (p.type === 'tween_var_wait') {
+                            state.waitingTweenName = varName;
+                        }
+                        break;
+                    }
+                }
 };
 
 window.compiledDanmaku['danmaku_0'] = function*(state, b, attacker, target, _util) {
