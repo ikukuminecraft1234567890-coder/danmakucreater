@@ -5281,6 +5281,7 @@ function applyAbilityEffect(cardId, owner) {
             }
 
             let state = {
+                id: patternId,
                 blocks: compiledBlocks,
                 compiledFn: compiledFn,
                 pc: 0,
