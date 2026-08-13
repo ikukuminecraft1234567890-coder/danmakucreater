@@ -1617,7 +1617,7 @@ function customCardMakerSwitchTab(tab) {
     try {
         let compiledBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(flatBlocks)));
         
-        let isBullet = activeTab === 'bullet';
+        let isBullet = customCardMaker.activeTab === 'bullet';
         let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks, isBullet);
         
         if (compiledTextarea) {
