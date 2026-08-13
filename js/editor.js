@@ -1307,10 +1307,7 @@ function customCardMakerSwitchTab(tab) {
                 isCompiled = true;
                 // コンパイル済みのコードがある場合、ASTパースを無視し、直接evalしてメモリに乗せる
                 try {
-                    let evalFunc = null;
-                    eval('evalFunc = ' + compiledTextarea.value);
-                    window.compiledDanmaku = window.compiledDanmaku || {};
-                    window.compiledDanmaku['custom_test'] = evalFunc;
+                    eval(compiledTextarea.value);
                 } catch (e) {
                     console.error("Failed to eval compiled code for test:", e);
                 }
@@ -1596,46 +1593,62 @@ function customCardMakerSwitchTab(tab) {
         });
 
         function customCardMakerCompileCurrent() {
-    let script = '';
-    const blocksContainer = document.getElementById('workspace-blocks-container');
-    const codeTextarea = document.getElementById('workspace-code-textarea');
-    const compiledTextarea = document.getElementById('workspace-compiled-textarea');
+            // 編集中のコードを反映
+            const blocksContainer = document.getElementById('workspace-blocks-container');
+            const codeTextarea = document.getElementById('workspace-code-textarea');
+            const compiledTextarea = document.getElementById('workspace-compiled-textarea');
 
-    if (!blocksContainer || !codeTextarea) {
-        alert("コンパイル失敗: ワークスペース要素が見つかりません。");
-        console.error("customCardMakerCompileCurrent: workspace elements not found");
-        return;
-    }
+            if (!blocksContainer || !codeTextarea) {
+                alert("コンパイル失敗: ワークスペース要素が見つかりません。");
+                console.error("customCardMakerCompileCurrent: workspace elements not found");
+                return;
+            }
 
-    let flatBlocks;
-    if (!blocksContainer.classList.contains('hidden')) {
-        flatBlocks = JSON.parse(JSON.stringify(getActiveScript()));
-    } else {
-        flatBlocks = codeToBlocks(codeTextarea.value);
-    }
-    
-    try {
-        let compiledBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(flatBlocks)));
-        
-        let isBullet = customCardMaker.activeTab === 'bullet';
-        let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks, isBullet);
-        
-        if (compiledTextarea) {
-            compiledTextarea.value = funcStr;
+            let flatBlocks;
+            if (!blocksContainer.classList.contains('hidden')) {
+                flatBlocks = JSON.parse(JSON.stringify(getActiveScript()));
+            } else {
+                flatBlocks = codeToBlocks(codeTextarea.value);
+            }
+            
+            // 現在のタブの最新コードを保存
+            if (customCardMaker.activeTab === 'emitter') customCardMaker.emitterScript = flatBlocks;
+            if (customCardMaker.activeTab === 'bullet') customCardMaker.bulletScript = flatBlocks;
+            if (customCardMaker.activeTab === 'magicCircle') customCardMaker.magicCircleScript = flatBlocks;
+
+            try {
+                window.compiledDanmaku = window.compiledDanmaku || {};
+                let finalJS = "";
+
+                // Emitter
+                let emBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(customCardMaker.emitterScript || [])));
+                let emStr = window.DanmakuCompiler.compileSingle(emBlocks, false);
+                finalJS += `// Emitter Script\nwindow.compiledDanmaku['custom_test'] = ${emStr};\n\n`;
+                eval(`window.compiledDanmaku['custom_test'] = ${emStr};`);
+
+                // Bullet
+                let buBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(customCardMaker.bulletScript || [])));
+                let buStr = window.DanmakuCompiler.compileSingle(buBlocks, true);
+                finalJS += `// Bullet Script\nwindow.compiledDanmaku['custom_test_bullet'] = ${buStr};\n\n`;
+                eval(`window.compiledDanmaku['custom_test_bullet'] = ${buStr};`);
+
+                // Magic
+                let maBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || [])));
+                let maStr = window.DanmakuCompiler.compileSingle(maBlocks, true);
+                finalJS += `// Magic Circle Script\nwindow.compiledDanmaku['custom_test_magic'] = ${maStr};\n\n`;
+                eval(`window.compiledDanmaku['custom_test_magic'] = ${maStr};`);
+                
+                if (compiledTextarea) {
+                    compiledTextarea.value = finalJS;
+                }
+                
+                customCardMakerSwitchMode('compiled');
+                alert("コンパイル成功！全スクリプト（エミッター/弾/子弾）をメモリ上に展開しました。\nこのままテストプレイすると超高速で動作します。");
+            } catch (e) {
+                alert("コンパイルエラー: " + e.message);
+                console.error(e);
+            }
         }
-        
-        let evalFunc = null;
-        eval('evalFunc = ' + funcStr);
-        window.compiledDanmaku = window.compiledDanmaku || {};
-        window.compiledDanmaku['custom_test'] = evalFunc;
-        
-        customCardMakerSwitchMode('compiled');
-        alert("コンパイル成功！メモリ上に展開しました。\nこのままテストプレイすると超高速で動作します。");
-    } catch (e) {
-        alert("コンパイルエラー: " + e.message);
-        console.error(e);
-    }
-}
 
 function customCardMakerSwitchMode(mode) {
             if (customCardMakerMode === mode) return;
