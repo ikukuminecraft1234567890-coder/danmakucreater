@@ -4921,11 +4921,11 @@ function applyAbilityEffect(cardId, owner) {
                         'let right = ' + rightExpr + ';' +
                         'return ' + (m[2] === '==' ? 'String(left).trim().toLowerCase() === String(right).trim().toLowerCase()' : 'String(left).trim().toLowerCase() !== String(right).trim().toLowerCase()') + ';'
                     );
+                    stringResultFn.__sourceCode = `(String(${leftExpr}).trim().toLowerCase() ${m[2] === '==' ? '===' : '!=='} String(${rightExpr}).trim().toLowerCase())`;
                 }
             }
 
             if (stringResultFn) {
-                stringResultFn.__sourceCode = `(String(${leftExpr}).trim().toLowerCase() ${m[2] === '==' ? '===' : '!=='} String(${rightExpr}).trim().toLowerCase())`;
                 conditionCache.set(cond, stringResultFn);
                 return stringResultFn;
             }

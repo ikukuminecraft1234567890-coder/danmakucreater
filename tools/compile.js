@@ -74,7 +74,7 @@ function compileDanmakuToJS() {
             return;
         }
 
-        let startIndex = switchMatches[1].index;
+        let startIndex = switchMatches[0].index;
         let braceCount = 0;
         let endIndex = -1;
         let started = false;

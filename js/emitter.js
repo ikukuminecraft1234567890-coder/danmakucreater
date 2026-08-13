@@ -2079,7 +2079,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 );
 
                                 let childScript = state.bulletScript || [];
-                                newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, state.compiledFn);
+                                newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                 newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2162,7 +2162,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     );
 
                                     let childScript = state.bulletScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, state.compiledFn);
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2243,7 +2243,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     );
 
                                     let childScript = state.bulletScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, state.compiledFn);
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, block ? block.compiledFn : null);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
