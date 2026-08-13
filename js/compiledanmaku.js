@@ -105,6 +105,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 break;
                             }
                             case 'spawn_bullet':
+                            case 'spawn_bullet_resist':
                             case 'spawn_trail':
                             case 'spawn_trail_resist': {
                                 let isTrail = p.type === 'spawn_trail' || p.type === 'spawn_trail_resist';
@@ -168,7 +169,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.round = (p.round !== undefined) ? (p.round === 'true' || p.round === true) : true;
                                     newBullet.trailHistory = [];
                                 }
-                                if (p.type === 'spawn_trail_resist') {
+                                if (p.type === 'spawn_trail_resist' || p.type === 'spawn_bullet_resist') {
                                     newBullet.destroyResist = true;
                                 }
 
@@ -200,7 +201,8 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 bullets.push(newBullet);
                                 break;
                             }
-                            case 'spawn_ring': {
+                            case 'spawn_ring':
+                            case 'spawn_ring_resist': {
                                 let speed = evalExpr(p.speed, state.variables, block, 'speed');
                                 let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
                                 let count = Math.max(1, Math.min(CUSTOM_SPAWN_RING_MAX_COUNT, parseInt(evalExpr(p.count || '12', state.variables, block, 'count'))));
@@ -253,6 +255,9 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     if (p.bulletType === 'laser') {
                                         newBullet.isLaser = true;
                                     }
+                                    if (p.type === 'spawn_ring_resist') {
+                                        newBullet.destroyResist = true;
+                                    }
                                     
                                     newBullet.threatWeight = _util._computeBulletThreatWeight(
                                         spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
@@ -276,7 +281,8 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 }
                                 break;
                             }
-                            case 'spawn_way': {
+                            case 'spawn_way':
+                            case 'spawn_way_resist': {
                                 let speed = evalExpr(p.speed, state.variables, block, 'speed');
                                 let centerAngle = evalExpr(p.angle || 'angle', state.variables, block, 'angle');
                                 let bColor = window.DanmakuCompilerRuntime.resolveColorParam(p.color, state.variables);
@@ -332,6 +338,9 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     
                                     if (p.bulletType === 'laser') {
                                         newBullet.isLaser = true;
+                                    }
+                                    if (p.type === 'spawn_way_resist') {
+                                        newBullet.destroyResist = true;
                                     }
                                     
                                     newBullet.threatWeight = _util._computeBulletThreatWeight(
