@@ -43,7 +43,8 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         } else if (t === 'change_var') {
             let varName = block.params.var || block.params.name;
             if (varName) {
-                js += ind + `vars['${varName}'] = (vars['${varName}'] || 0) + (${window.DanmakuCompiler.getExpr(block, 'value', '0')});\n`;
+                let op = block.params.op === '-' ? '-' : '+';
+                js += ind + `vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${window.DanmakuCompiler.getExpr(block, 'value', '0')});\n`;
             }
         } else if (t === 'forever') {
             js += ind + `while (true) {\n`;
@@ -83,7 +84,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             js += ind + `}\n`;
         } else {
-            js += ind + `_util.executeBlock({ type: '${t}', `;
+            js += ind + `if (_util.executeBlock({ type: '${t}', `;
             if (block.id) {
                 js += `id: "${block.id}", `;
             }
@@ -98,7 +99,9 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                 let childFuncStr = window.DanmakuCompiler.compileSingle(block.children, true);
                 js += `compiledFn: ${childFuncStr}, `;
             }
-            js += `}, state, b, attacker, target, _util);\n`;
+            js += `}, state, b, attacker, target, _util)) {\n`;
+            js += ind + `  yield;\n`;
+            js += ind + `}\n`;
         }
     }
     return js;

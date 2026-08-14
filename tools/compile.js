@@ -132,17 +132,6 @@ function compileDanmakuToJS() {
         runtimeBlocksCode = runtimeBlocksCode.replace(/attacker\.x/g, '(window.DanmakuCompilerRuntime._getCurrentX(b, attacker, state))');
         runtimeBlocksCode = runtimeBlocksCode.replace(/attacker\.y/g, '(window.DanmakuCompilerRuntime._getCurrentY(b, attacker, state, window.canvas ? window.canvas.height : 900))');
 
-        // bulletState 生成時に compiledFn を注入するパッチ
-        // childScript版 (通常 spawn / ring / aim / fan)
-        runtimeBlocksCode = runtimeBlocksCode.replace(
-            /_util\._initBulletState\(childScript,\s*speed,\s*angle,\s*attacker,\s*target\)/g,
-            "_util._initBulletState(childScript, speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? (window.compiledDanmaku[state.id + '_bullet'] || null) : null)"
-        );
-        // 空 script 版 (magicCircle spawn)
-        runtimeBlocksCode = runtimeBlocksCode.replace(
-            /_util\._initBulletState\(\[\],\s*0,\s*angle,\s*attacker,\s*target\)/g,
-            "_util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? (window.compiledDanmaku[state.id + '_magic'] || null) : null)"
-        );
 
         let outputJS = `// ==========================================
 // PRE-COMPILED DANMAKU GENERATORS
