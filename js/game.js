@@ -47,6 +47,20 @@ window.DanmakuCompilerRuntime.checkInterval = (currentVal, interval, stateKey, v
   return Math.floor(prevVal / interval) !== Math.floor(currentVal / interval);
 };
 
+window.DanmakuCompilerRuntime._getCurrentX = (b, attacker, state) => {
+    if (b) {
+        return state.variables.x !== undefined ? state.variables.x : b.x;
+    }
+    return attacker.x;
+};
+
+window.DanmakuCompilerRuntime._getCurrentY = (b, attacker, state, canvasHeight) => {
+    if (b) {
+        return state.variables.y !== undefined ? (state.isPlayerSide ? canvasHeight - state.variables.y : state.variables.y) : b.y;
+    }
+    return attacker.y;
+};
+
 function applyAbilityEffect(cardId, owner) {
             let user = owner === 'PLAYER' ? player : cpu;
             let target = owner === 'PLAYER' ? cpu : player;

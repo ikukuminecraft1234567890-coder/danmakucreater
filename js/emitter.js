@@ -207,7 +207,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                     state.compiledGenerator = state.compiledFn(state, null, attacker, target, window.DanmakuCompilerRuntime);
                 }
                 let dtRemaining = dt;
-                while (dtRemaining > 0 && !state.finished) {
+                let safetyCounter = 0;
+                while (dtRemaining > 0 && !state.finished && safetyCounter < 1000) {
+                    safetyCounter++;
                     if (state.waitTimer > 0) {
                         if (dtRemaining >= state.waitTimer) {
                             dtRemaining -= state.waitTimer;
@@ -224,15 +226,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         state.waitingTweenName = null;
                     }
-                    const result = state.compiledGenerator.next();
-                    if (result.done) { 
-                        state.finished = true;
-                        break;
-                    }
-                    if (state.waitTimer > 0 || state.waitingTweenName) {
-                        state.waitTimer -= dtRemaining;
-                        dtRemaining = 0;
-                        break;
+                    
+                    if (state.waitTimer <= 0 && !state.waitingTweenName) {
+                        const result = state.compiledGenerator.next();
+                        if (result.done) { 
+                            state.finished = true;
+                            break;
+                        }
                     }
                 }
                 return;
@@ -500,8 +500,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                             spawnX = ox;
                             spawnY = isPlayerSide ? (canvas.height - oy) : oy;
                         } else {
-                            spawnX = attacker.x + (state.variables.x_offset || 0) + ox;
-                            spawnY = attacker.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                            let baseX = state.variables.x !== undefined ? state.variables.x : attacker.x;
+                            let baseY = state.variables.y !== undefined ? (isPlayerSide ? canvas.height - state.variables.y : state.variables.y) : attacker.y;
+                            spawnX = baseX + (state.variables.x_offset || 0) + ox;
+                            spawnY = baseY + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                         }
 
                         let angleRad = angle * Math.PI / 180;
@@ -1868,7 +1870,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                         state.compiledGenerator = state.compiledFn(state, b, attacker, target, window.DanmakuCompilerRuntime);
                     }
                     let dtRemaining = dt;
-                    while (dtRemaining > 0 && !state.finished) {
+                    let safetyCounter = 0;
+                    while (dtRemaining > 0 && !state.finished && safetyCounter < 1000) {
+                        safetyCounter++;
                         if (state.waitTimer > 0) {
                             if (dtRemaining >= state.waitTimer) {
                                 dtRemaining -= state.waitTimer;
@@ -1885,15 +1889,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             state.waitingTweenName = null;
                         }
-                        const result = state.compiledGenerator.next();
-                        if (result.done) { 
-                            state.finished = true;
-                            break;
-                        }
-                        if (state.waitTimer > 0 || state.waitingTweenName) {
-                            state.waitTimer -= dtRemaining;
-                            dtRemaining = 0;
-                            break;
+                        
+                        if (state.waitTimer <= 0 && !state.waitingTweenName) {
+                            const result = state.compiledGenerator.next();
+                            if (result.done) { 
+                                state.finished = true;
+                                break;
+                            }
                         }
                     }
                 } else {
@@ -2081,8 +2083,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     spawnX = ox;
                                     spawnY = isPlayerSide ? (canvas.height - oy) : oy;
                                 } else {
-                                    spawnX = b.x + (state.variables.x_offset || 0) + ox;
-                                    spawnY = b.y + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                                    let baseX = state.variables.x !== undefined ? state.variables.x : b.x;
+                                    let baseY = state.variables.y !== undefined ? (isPlayerSide ? canvas.height - state.variables.y : state.variables.y) : b.y;
+                                    spawnX = baseX + (state.variables.x_offset || 0) + ox;
+                                    spawnY = baseY + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
                                 }
                                 
                                 let bRadius = evalExpr(block.params.radius || (isTrail ? '8' : '6'), state.variables, block, 'radius');

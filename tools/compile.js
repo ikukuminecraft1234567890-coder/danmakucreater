@@ -129,6 +129,8 @@ function compileDanmakuToJS() {
         runtimeBlocksCode = runtimeBlocksCode.replace(/initBulletState\(/g, '_util._initBulletState(');
         runtimeBlocksCode = runtimeBlocksCode.replace(/runCustomBulletScript\(/g, '_util._runCustomBulletScript(');
         runtimeBlocksCode = runtimeBlocksCode.replace(/computeBulletThreatWeight\(/g, '_util._computeBulletThreatWeight(');
+        runtimeBlocksCode = runtimeBlocksCode.replace(/attacker\.x/g, '(window.DanmakuCompilerRuntime._getCurrentX(b, attacker, state))');
+        runtimeBlocksCode = runtimeBlocksCode.replace(/attacker\.y/g, '(window.DanmakuCompilerRuntime._getCurrentY(b, attacker, state, window.canvas ? window.canvas.height : 900))');
 
         // bulletState 生成時に compiledFn を注入するパッチ
         // childScript版 (通常 spawn / ring / aim / fan)
