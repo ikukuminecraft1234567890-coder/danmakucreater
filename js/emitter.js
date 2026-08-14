@@ -558,7 +558,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                         );
 
-                        newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                        let cScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                        let cFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                        newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                         newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = state.bulletScript || [];
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -648,7 +650,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                             );
 
-                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                            let cFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -735,7 +739,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                             );
 
-                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                            let cFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -882,7 +888,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                            let cFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -955,7 +963,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                            newBullet.bulletState = initBulletState(state.bulletScript || [], speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                            let cFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = state.bulletScript || [];
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2141,8 +2151,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                                 );
 
-                                let childScript = state.bulletScript || [];
-                                newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                                let childFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
                                 newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2224,8 +2235,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                                     );
 
-                                    let childScript = state.bulletScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    let childScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                                    let childFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2305,8 +2317,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
                                     );
 
-                                    let childScript = state.bulletScript || [];
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    let childScript = (block.children && block.children.length > 0) ? block.children : (state.bulletScript || []);
+                                    let childFn = (block.children && block.children.length > 0) ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
