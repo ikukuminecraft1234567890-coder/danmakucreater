@@ -1,4 +1,4 @@
-﻿function applyEasing(t, easing) {
+function applyEasing(t, easing) {
     if (easing === 'easeIn') {
         return t * t;
     } else if (easing === 'easeOut') {
@@ -14,7 +14,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             let isPlayerSide = state.isPlayerSide;
 
-            // --- tween蜃ｦ逅・ｼ医せ繝繝ｼ繧ｺ遘ｻ陦鯉ｼ峨ｒ豈弱ヵ繝ｬ繝ｼ繝蜈医↓驕ｩ逕ｨ ---
+            // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
                 state.tweens = state.tweens.filter(tw => {
                     if (tw.isCoordPair) {
@@ -33,7 +33,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             
                             if (tw.isVecStep) {
-                                // 譁ｰ隕擾ｼ壹・繧ｯ繝医Ν繝吶・繧ｹ縺ｮ遲蛾溽峩邱夂ｧｻ蜍包ｼ・ecstep・・
+                                // 新規：ベクトルベースの等速直線移動（vecstep）
                                 let dx = tw.toX - curX;
                                 let dy = tw.toY - curY;
                                 let dist = Math.sqrt(dx * dx + dy * dy);
@@ -48,7 +48,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     isDone = false;
                                 }
                             } else {
-                                // 蠕ｩ蜈・ｼ壼ｾ捺擂縺ｮ蛟句挨霆ｸ蜉邂暦ｼ・tep・・
+                                // 復元：従来の個別軸加算（step）
                                 nextX = curX + tw.stepX;
                                 nextY = curY + tw.stepY;
                                 
@@ -73,7 +73,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             isDone = (t >= 1);
                         }
                         
-                        // 螟画焚縺ｸ譖ｸ縺肴綾縺・
+                        // 変数へ書き戻し
                         if (tw.name.includes(',')) {
                             let varNames = tw.name.split(',').map(n => n.trim());
                             state.variables[varNames[0]] = nextX;
@@ -88,7 +88,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         return !isDone;
                     }
                     if (tw.mode === 'step') {
-                        // 豈弱ヵ繝ｬ繝ｼ繝蝗ｺ螳夐㍼蜉邂・
+                        // 毎フレーム固定量加算
                         let cur = Number(state.variables[tw.name]) || 0;
                         let step = tw.stepVal;
                         let next = cur + step;
@@ -104,7 +104,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         state.variables[tw.name] = varVal + tw.stepVal;
                         return tw.elapsed < tw.total;
                     } else {
-                        // 譎る俣 / 繝輔Ξ繝ｼ繝蛻ｶ蠕｡縺ｮ邱壼ｽ｢陬憺俣
+                        // 時間 / フレーム制御の線形補間
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                         let t = Math.min(1, tw.elapsed / tw.total);
                         let easedT = applyEasing(t, tw.easing);
@@ -128,13 +128,13 @@ function stepEmitter(c, state, attacker, target, dt) {
 
 
             
-            // 繧ｳ繧｢縺ｮ迴ｾ蝨ｨ菴咲ｽｮ縲√ち繝ｼ繧ｲ繝・ヨ縺ｮ迴ｾ蝨ｨ菴咲ｽｮ縲√♀繧医・霍晞屬諠・ｱ繧呈ｯ弱ヵ繝ｬ繝ｼ繝蜷梧悄
+            // コアの現在位置、ターゲットの現在位置、および距離情報を毎フレーム同期
             state.variables.x = attacker.x;
             state.variables.y = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
 
-            // 迺ｰ蠅・､画焚 exy, txy (蠎ｧ讓吶・繧｢) 縺ｮ蛻晄悄螳夂ｾｩ
+            // 環境変数 exy, txy (座標ペア) の初期定義
             if (state.variables.exy === undefined) {
                 state.variables.exy = `${attacker.x},${state.variables.y}`;
             }
@@ -144,38 +144,38 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (state.variables.ey === undefined) {
                 state.variables.ey = state.variables.y;
             }
-            // 迴ｾ蝨ｨ繧ｹ繝ｩ繧､繝臥ｧｻ蜍穂ｸｭ縺九←縺・°蛻､螳・
+            // 現在スライド移動中かどうか判定
             const ownerKey = isPlayerSide ? 'PLAYER' : 'CPU';
             const slideLock = (typeof customOwnerPositionLocks !== 'undefined') ? customOwnerPositionLocks[ownerKey] : null;
             const isSliding = slideLock && slideLock.elapsed < slideLock.duration;
 
             if (isSliding) {
-                // 繧ｹ繝ｩ繧､繝我ｸｭ縺ｪ繧峨‘x / ey / exy 繧偵せ繝ｩ繧､繝我ｸｭ縺ｮ迴ｾ蝨ｨ蠎ｧ讓吶↓繝ｪ繧｢繝ｫ繧ｿ繧､繝蜷梧悄縺吶ｋ
+                // スライド中なら、ex / ey / exy をスライド中の現在座標にリアルタイム同期する
                 state.variables.ex = attacker.x;
                 state.variables.ey = state.variables.y;
                 state.variables.exy = `${attacker.x},${state.variables.y}`;
             } else {
-                // 繝峨ャ繝郁ｨ俶ｳ輔♀繧医・繧｢繝ｳ繝繝ｼ繝舌・險俶ｳ輔・蟄仙､画焚蜷梧悄
+                // ドット記法およびアンダーバー記法の子変数同期
                 let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
                 if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
                     state.variables['exy_x'] = curExy[0];
                     state.variables['exy_y'] = curExy[1];
                     state.variables['exy.x'] = curExy[0];
                     state.variables['exy.y'] = curExy[1];
-                    // 謨ｵ譛ｬ菴薙・蠎ｧ讓吶ｒ逶ｴ謗･ exy 縺ｫ蜷医ｏ縺帙ｋ・郁ｦ九◆逶ｮ繧ょ虚縺擾ｼ・
+                    // 敵本体の座標を直接 exy に合わせる（見た目も動く）
                     attacker.x = curExy[0];
                     attacker.y = curExy[1];
-                    // x_offset/y_offset 縺ｯ 0 縺ｫ菫昴▽・育匱蟆・ｽ咲ｽｮ縺ｯ attacker.x/y 蝓ｺ貅悶↓縺ｪ繧具ｼ・
+                    // x_offset/y_offset は 0 に保つ（発射位置は attacker.x/y 基準になる）
                     state.variables.x_offset = 0;
                     state.variables.y_offset = 0;
                 }
 
-                // ex / ey 螟画焚縺ｫ繧医ｋ attacker 蠎ｧ讓吶・譖ｴ譁ｰ・・xy 縺ｨ縺ｨ縺ｯ迢ｬ遶九＠縺ｦ蜍穂ｽ懶ｼ・
+                // ex / ey 変数による attacker 座標の更新（exy ととは独立して動作）
                 if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
                     attacker.x = Number(state.variables.ex);
                 }
                 if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
-                    // ey 縺ｯ Y霆ｸ縺ｮ隲也炊蠎ｧ讓咏ｳｻ・郁・讖溷・縺ｪ繧臥判髱｢荳・縲∵雰讖溷・縺ｪ繧臥判髱｢荳・・峨↑縺ｮ縺ｧ逕ｻ髱｢蠎ｧ讓吶↓螟画鋤
+                    // ey は Y軸の論理座標系（自機側なら画面下0、敵機側なら画面上0）なので画面座標に変換
                     attacker.y = isPlayerSide ? (canvas.height - Number(state.variables.ey)) : Number(state.variables.ey);
                 }
             }
@@ -184,7 +184,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables['txy_y'] = state.variables.ty;
             state.variables['txy.x'] = state.variables.tx;
             state.variables['txy.y'] = state.variables.ty;
-            // 繝励Ξ繧､繝､繝ｼ縺ｮ邨ｶ蟇ｾ蠎ｧ讓呻ｼ亥ｸｸ縺ｫ繝励Ξ繧､繝､繝ｼ蛛ｴ縲〆霆ｸ縺ｯ逕ｻ髱｢荳九′0縺ｮ隲也炊蠎ｧ讓呻ｼ・
+            // プレイヤーの絶対座標（常にプレイヤー側、Y軸は画面下が0の論理座標）
             state.variables.player_x = player.x;
             state.variables.player_y = canvas.height - player.y;
             if (!state.isParallelThread) {
@@ -198,7 +198,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             let dy = isPlayerSide ? (attacker.y - target.y) : (target.y - attacker.y);
             state.variables.dist = Math.sqrt(dx * dx + dy * dy);
 
-            // AOT繧ｳ繝ｳ繝代う繝ｫ縺輔ｌ縺溘ず繧ｧ繝阪Ξ繝ｼ繧ｿ縺後≠繧句ｴ蜷医・縲、ST繧､繝ｳ繧ｿ繝励Μ繧ｿ繧偵ヰ繧､繝代せ縺励※縺昴■繧峨ｒ螳溯｡・
+            // AOTコンパイルされたジェネレータがある場合は、ASTインタプリタをバイパスしてそちらを実行
             if (state.compiledFn) {
                 if (!state.compiledGenerator) {
                     window.DanmakuCompilerRuntime._initBulletState = initBulletState;
@@ -249,7 +249,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 return;
             }
 
-            // 繧､繝ｳ繝ｩ繧､繝ｳ縺ｮparallel{}繝悶Ο繝・け縺ｮ繧ｹ繝ｬ繝・ラ繧呈ｯ弱ヵ繝ｬ繝ｼ繝螳溯｡・
+            // インラインのparallel{}ブロックのスレッドを毎フレーム実行
             if (state.inlineThreads && state.inlineThreads.length > 0) {
                 for (const group of state.inlineThreads) {
                     if (group.done) continue;
@@ -471,7 +471,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         setCustomOwnerPosition(owner, preset, duration);
                         applyCustomOwnerPositionLock(owner, 0);
                         
-                        // 遘ｻ蜍募・縺ｮ蠎ｧ讓吶ｒ蜿門ｾ励＠縺ｦ ex, ey, exy 縺ｫ蜊ｳ蠎ｧ縺ｫ蜿肴丐縺輔○縲∝商縺・ｺｧ讓吶∈縺ｮ蠑輔″謌ｻ縺励ｒ髦ｲ縺・
+                        // 移動先の座標を取得して ex, ey, exy に即座に反映させ、古い座標への引き戻しを防ぐ
                         if (typeof getCustomOwnerPosition !== 'undefined') {
                             const targetPos = getCustomOwnerPosition(owner, preset);
                             if (targetPos) {
@@ -522,7 +522,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let newBullet = {
                             x: spawnX,
                             y: spawnY,
-                            startX: spawnX, // 蛻晄悄菴咲ｽｮ菫晏ｭ・
+                            startX: spawnX, // 初期位置保存
                             startY: spawnY,
                             vx: Math.cos(angleRad) * speed,
                             vy: Math.sin(angleRad) * speed,
@@ -633,7 +633,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let newBullet = {
                                 x: spawnX,
                                 y: spawnY,
-                                startX: spawnX, // 蛻晄悄菴咲ｽｮ菫晏ｭ・
+                                startX: spawnX, // 初期位置保存
                                 startY: spawnY,
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
@@ -730,7 +730,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let newBullet = {
                                 x: spawnX,
                                 y: spawnY,
-                                startX: spawnX, // 蛻晄悄菴咲ｽｮ菫晏ｭ・
+                                startX: spawnX, // 初期位置保存
                                 startY: spawnY,
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
@@ -1280,10 +1280,10 @@ function stepEmitter(c, state, attacker, target, dt) {
 
                         let mode    = block.params.mode || 'seconds'; // 'seconds' | 'frames' | 'step'
                         if (!state.tweens) state.tweens = [];
-                        // 蜷後§螟画焚縺ｮ譌｢蟄・ween繧剃ｸ頑嶌縺・
+                        // 同じ変数の既存tweenを上書き
                         state.tweens = state.tweens.filter(t => t.name !== varName);
 
-                        // 蠎ｧ讓吶・繧｢・医さ繝ｳ繝槫玄蛻・ｊ譁・ｭ怜・・峨・ tween 陬憺俣縺ｮ蜃ｦ逅・
+                        // 座標ペア（コンマ区切り文字列）の tween 補間の処理
                         if (typeof toVal === 'string' && toVal.includes(',')) {
                             let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
                             let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
@@ -1307,7 +1307,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                             elapsed: 0
                                         });
                                     } else {
-                                        // 蠕捺擂縺ｮ step 繝｢繝ｼ繝峨・蠕ｩ蜈・ｼ亥推霆ｸ迢ｬ遶九＠縺ｦ蜉邂暦ｼ・
+                                        // 従来の step モードの復元（各軸独立して加算）
                                         let stepX = stepVal;
                                         let stepY = stepVal;
                                         if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
@@ -1332,7 +1332,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         });
                                     }
                                 } else {
-                                    // 騾壼ｸｸ縺ｮ譎る俣繝吶・繧ｹ縺ｮ陬憺俣
+                                    // 通常の時間ベースの補間
                                     let total = evalExpr(block.params.duration || '1', state.variables);
                                     if (mode === 'frames') total = Math.max(1, total);
                                     else total = Math.max(0.001, total);
@@ -1350,7 +1350,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         easing: block.params.easing || 'linear'
                                     });
                                 }
-                                // 蟄仙､画焚繧貞叉蠎ｧ縺ｫ蛻晄悄蛹・
+                                // 子変数を即座に初期化
                                 state.variables[varName + '_x'] = fromParts[0];
                                 state.variables[varName + '_y'] = fromParts[1];
                                 state.variables[varName + '.x'] = fromParts[0];
@@ -1392,7 +1392,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (state.waitTimer > 0 || state.waitingTweenName) {
                     break;
                 }
-            } // 蜀・・繝ｫ繝ｼ繝・
+            } // 内側ループ
             
             if (brokeToWait || state.waitingTweenName) {
                 state.waitTimer -= dtRemaining;
@@ -1401,7 +1401,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             } else if (!state.finished) {
                 break;
             }
-        } // 螟門・繝ｫ繝ｼ繝・
+        } // 外側ループ
     }
 
         function initBulletState(script, initialSpeed, initialAngle, attacker, target, compiledFn) {
@@ -1461,7 +1461,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                 }
             }
-            // 騾溷ｺｦ繧ｼ繝ｭ縺ｮ遘ｻ蜍輔Ξ繝ｼ繧ｶ繝ｼ縺ｯ邱壹′謠冗判縺輔ｌ縺夐・蛻励↓谿狗蕗縺吶ｋ
+            // 速度ゼロの移動レーザーは線が描画されず配列に残留する
             if (b.isLaser && !b.isWarningLaser && !b.isCustomBeam) {
                 if (Math.hypot(b.vx || 0, b.vy || 0) < 1) {
                     return true;
@@ -1560,14 +1560,14 @@ function stepEmitter(c, state, attacker, target, dt) {
         function updateBulletTouchStates() {
             if (!Array.isArray(bullets)) return;
 
-            // 譁ｰ縺励￥繧｢繧ｯ繝・ぅ繝悶↑繧ｫ繝ｼ繝峨′繧ｻ繝・ヨ縺輔ｌ縺溘√∪縺溘・繧ｫ繝ｼ繝牙・繧頑崛縺域凾縺ｫ蜊ｳ蠎ｧ縺ｫ隕∽ｻｶ繧ｹ繧ｭ繝｣繝ｳ繧貞ｮ溯｡後☆繧・
+            // 新しくアクティブなカードがセットされた、またはカード切り替え時に即座に要件スキャンを実行する
             let currentCardsRef = (typeof activeCards !== 'undefined') ? activeCards : null;
             if (currentCardsRef !== lastActiveCardsRef) {
                 lastActiveCardsRef = currentCardsRef;
                 checkBulletTouchRequirement();
             }
 
-            // 螳壽悄逧・↓蠑ｾ縺ｮ謗･隗ｦ蛻､螳壹′蠢・ｦ√°繧偵メ繧ｧ繝・け (荳崎ｦ√↑繧牙叉譎・return)
+            // 定期的に弾の接触判定が必要かをチェック (不要なら即時 return)
             if (Math.random() < 0.02) {
                 checkBulletTouchRequirement();
             }
@@ -1589,11 +1589,11 @@ function stepEmitter(c, state, attacker, target, dt) {
             const len = candidates.length;
             if (len === 0) return;
 
-            // 邁｡譏鍋ｩｺ髢灘・蜑ｲ豕・(Grid Spatial Partitioning) 縺ｮ蟆主・
+            // 簡易空間分割法 (Grid Spatial Partitioning) の導入
             const cellSize = 64;
             const grid = new Map();
 
-            // 蠑ｾ繧偵そ繝ｫ縺ｫ逋ｻ骭ｲ
+            // 弾をセルに登録
             for (let i = 0; i < len; i++) {
                 const b = candidates[i];
                 b._candidateId = i;
@@ -1608,7 +1608,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 list.push(b);
             }
 
-            // 霑大ｍ繧ｻ繝ｫ縺ｮ蠑ｾ蜷悟｣ｫ縺ｮ縺ｿ縺ｧ蠖薙◆繧雁愛螳・
+            // 近傍セルの弾同士のみで当たり判定
             for (let i = 0; i < len; i++) {
                 const a = candidates[i];
                 const ax = a.x;
@@ -1620,7 +1620,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 const col = Math.floor(ax / cellSize);
                 const row = Math.floor(ay / cellSize);
 
-                // 閾ｪ霄ｫ縺ｨ蜻ｨ蝗ｲ8繧ｻ繝ｫ縺ｮ險・繧ｻ繝ｫ繧定ｪｿ縺ｹ繧・
+                // 自身と周囲8セルの計9セルを調べる
                 for (let dCol = -1; dCol <= 1; dCol++) {
                     for (let dRow = -1; dRow <= 1; dRow++) {
                         const targetKey = `${col + dCol}_${row + dRow}`;
@@ -1630,7 +1630,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         const cellLen = cellBullets.length;
                         for (let j = 0; j < cellLen; j++) {
                             const b = cellBullets[j];
-                            // aId < b._candidateId 縺ｧ驥崎､・愛螳壹ｒ螳悟・縺ｫ髦ｲ縺・
+                            // aId < b._candidateId で重複判定を完全に防ぐ
                             if (aId >= b._candidateId || aTeam !== b.team) continue;
 
                             const rr = ar + b._cachedRadius;
@@ -1664,12 +1664,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                 console.log(`[DEBUG AOT] runCustomBulletScript started for bullet at (${b.x.toFixed(1)}, ${b.y.toFixed(1)})`);
             }
 
-            // 笏笏 雜・ｻｽ驥丞喧蜃ｦ逅・ｼ壼ｮ御ｺ・ｸ医∩縺ｮ蠑ｾ縺ｯ b.update 繧貞炎髯､縺励※莠悟ｺｦ縺ｨ蜃ｦ逅・＠縺ｪ縺・笏笏
+            // ── 超軽量化処理：完了済みの弾は b.update を削除して二度と処理しない ──
             // (Reverted to ensure 100% original behavior)
             const _t0 = performance.now();
 
             const _hasTweens = state.tweens && state.tweens.length > 0;            
-            // --- tween蜃ｦ逅・ｼ医せ繝繝ｼ繧ｺ遘ｻ陦鯉ｼ峨ｒ豈弱ヵ繝ｬ繝ｼ繝蜈医↓驕ｩ逕ｨ ---
+            // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
                 state.tweens = state.tweens.filter(tw => {
                     if (tw.isCoordPair) {
@@ -1726,7 +1726,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             isDone = (t >= 1);
                         }
                         
-                        // 螟画焚縺ｸ譖ｸ縺肴綾縺・
+                        // 変数へ書き戻し
                         if (tw.name.includes(',')) {
                             let varNames = tw.name.split(',').map(n => n.trim());
                             state.variables[varNames[0]] = nextX;
@@ -1776,12 +1776,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                 });
             }
-            const _t1 = performance.now(); // tween螳御ｺ・
+            const _t1 = performance.now(); // tween完了
             if (window.bulletDebugCount === undefined) window.bulletDebugCount = 0;
             if (b.bulletDebugId === undefined) {
                 b.bulletDebugId = window.bulletDebugCount++;
             }
-            let shouldLog = window.showDebugProfiler && b.bulletDebugId < 15; // 繝・ヰ繝・げ繝｢繝ｼ繝画凾縺ｮ縺ｿ譛蛻昴・15逋ｺ縺ｮ縺ｿ繝ｭ繧ｰ蟇ｾ雎｡
+            let shouldLog = window.showDebugProfiler && b.bulletDebugId < 15; // デバッグモード時のみ最初の15発のみログ対象
             if (window.currentCardSecond !== undefined) {
                 state.variables.cardSecond = window.currentCardSecond;
                 state.variables.cardFrame = window.currentCardFrame || 0;
@@ -1795,13 +1795,13 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             let isPlayerSide = state.isPlayerSide;
             
-            // 髢句ｧ区凾縺ｮ蠎ｧ讓吶→隗貞ｺｦ縲・溷ｺｦ繧定ｨ倬鹸
+            // 開始時の座標と角度、速度を記録
             let initX = b.x;
             let initY = isPlayerSide ? (canvas.height - b.y) : b.y;
             let initAngle = Number(state.variables.angle) || 0;
             let initSpeed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             
-            // 豈弱ヵ繝ｬ繝ｼ繝螢√♀繧医・逕ｻ髱｢遶ｯ縺ｨ縺ｮ謗･隗ｦ繧貞愛螳夲ｼ医せ繧ｯ繝ｪ繝励ヨ縺ｧ菴ｿ逕ｨ縺吶ｋ蝣ｴ蜷医・縺ｿ螳溯｡鯉ｼ・
+            // 毎フレーム壁および画面端との接触を判定（スクリプトで使用する場合のみ実行）
             if (window.needsWallTouchDetection) {
                 let currentlyTouching;
                 let hitLeftWall = b.x < 10;
@@ -1820,7 +1820,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.bottomWall = hitBottomWall ? 1 : 0;
                 b.wasTouchingWall = currentlyTouching;
 
-                // 譁ｰ隕擾ｼ夂判髱｢遶ｯ・・dge・峨・蛻､螳・(x <= 0 繧・y <= 0 縺ｪ縺ｩ縲∝ｮ悟・縺ｫ逕ｻ髱｢螟悶・蠅・阜邱壹↓驕斐＠縺溘°)
+                // 新規：画面端（Edge）の判定 (x <= 0 や y <= 0 など、完全に画面外・境界線に達したか)
                 let hitLeftEdge = b.x <= 0;
                 let hitRightEdge = b.x >= PLAY_WIDTH;
                 let hitTopEdge = b.y <= 0;
@@ -1846,7 +1846,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.bottomEdge = 0;
             }
 
-            // 蠑ｾ蜷悟｣ｫ縺ｮ謗･隗ｦ蛻､螳夲ｼ医せ繧ｯ繝ｪ繝励ヨ縺ｧ菴ｿ逕ｨ縺吶ｋ蝣ｴ蜷医・縺ｿ螳溯｡鯉ｼ・
+            // 弾同士の接触判定（スクリプトで使用する場合のみ実行）
             if (window.needsBulletTouchDetection) {
                 let touchingBullet = b.pendingTouchBullet || null;
                 let bulletTouching = !!touchingBullet;
@@ -1862,7 +1862,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.touchingBullet = 0;
             }
             
-            // 蛻晏屓繝輔Ξ繝ｼ繝縺ｮ縺ｿ縺ｮ蛻晄悄蛹門・逅・
+            // 初回フレームのみの初期化処理
             if (state.variables.timer === 0) {
                 if (b.isLaser && (state.variables.warningTime === undefined || state.variables.warningTime === null)) {
                     state.variables.warningTime = 1.0;
@@ -1877,7 +1877,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardSecond = window.currentCardSecond;
                 state.variables.cardFrame = window.currentCardFrame || 0;
                 
-                // 繧ｳ繧｢・医お繝溘ャ繧ｿ繝ｼ・峨・螟画焚蜷梧悄・医せ繧ｯ繝ｪ繝励ヨ縺ｧ菴ｿ逕ｨ縺吶ｋ蝣ｴ蜷医・縺ｿ螳溯｡鯉ｼ・
+                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
                 if (window.needsEmitterSync && b.sharedEmitterState && b.sharedEmitterState.variables) {
                     const vars = b.sharedEmitterState.variables;
                     for (let key in vars) {
@@ -1891,7 +1891,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
                 state.variables.cardFrame = Number(b.sharedEmitterState.variables.cardFrame || b.sharedEmitterState.variables.frame || 0);
                 
-                // 繧ｳ繧｢・医お繝溘ャ繧ｿ繝ｼ・峨・螟画焚蜷梧悄・医せ繧ｯ繝ｪ繝励ヨ縺ｧ菴ｿ逕ｨ縺吶ｋ蝣ｴ蜷医・縺ｿ螳溯｡鯉ｼ・
+                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
                 if (window.needsEmitterSync) {
                     const vars = b.sharedEmitterState.variables;
                     for (let key in vars) {
@@ -1920,7 +1920,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
 
-            // 騾∽ｿ｡讖滂ｼ医お繝溘ャ繧ｿ繝ｼ・峨・迴ｾ蝨ｨ菴咲ｽｮ・亥ｷｮ蛻・ｿｽ蠕捺婿蠑上〒荳頑嶌縺阪ｒ髦ｲ縺撰ｼ・
+            // 送信機（エミッター）の現在位置（差分追従方式で上書きを防ぐ）
             let emitterDx = attacker.x - (b.prevEmitterX !== undefined ? b.prevEmitterX : attacker.x);
             let emitterDy = attacker.y - (b.prevEmitterY !== undefined ? b.prevEmitterY : attacker.y);
             
@@ -1937,21 +1937,21 @@ function stepEmitter(c, state, attacker, target, dt) {
             b.prevEmitterX = attacker.x;
             b.prevEmitterY = attacker.y;
 
-            // 繧ｹ繧ｯ繝ｪ繝励ヨ縺ｧ菴ｿ逕ｨ縺吶ｋ蝣ｴ蜷医・縺ｿ縲｀ath.sqrt (蟷ｳ譁ｹ譬ｹ) 險育ｮ励ｒ螳溯｡後＠縺ｦ鬮倬溷喧
+            // スクリプトで使用する場合のみ、Math.sqrt (平方根) 計算を実行して高速化
             if (window.needsDistanceCalc) {
                 state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
                 let dx = target.x - b.x;
                 let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
                 state.variables.dist = Math.sqrt(dx * dx + dy * dy);
             } else {
-                state.variables.speed = b.vx * b.vx + b.vy * b.vy === 0 ? 0 : 200; // 繝繝溘・蛟､・亥ｹｳ譁ｹ譬ｹ繧貞屓驕ｿ・・
+                state.variables.speed = b.vx * b.vx + b.vy * b.vy === 0 ? 0 : 200; // ダミー値（平方根を回避）
                 state.variables.dist = 0;
             }
             
-            const _t2 = performance.now(); // 繧ｻ繝・ヨ繧｢繝・・螳御ｺ・
+            const _t2 = performance.now(); // セットアップ完了
 
             if (!state.finished) {
-                // --- AOT 繧ｳ繝ｳ繝代う繝ｫ貂医∩繧ｸ繧ｧ繝阪Ξ繝ｼ繧ｿ繝代せ ---
+                // --- AOT コンパイル済みジェネレータパス ---
                 if (state.compiledFn) {
                     if (!state.compiledGenerator) {
                         window.DanmakuCompilerRuntime._initBulletState = initBulletState;
@@ -2061,10 +2061,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                 }
                             } else {
-                                // 蠑ｾ縺ｮ謖吝虚縺ｯ縲∵怙蠕後∪縺ｧ螳溯｡後＠邨ゅ∴縺溘ｉ閾ｪ蜍慕噪縺ｫ譛蛻昴°繧峨Ν繝ｼ繝怜ｮ溯｡後☆繧・
-                                // once 縺ｯ蠑ｾ逕滂ｼ医％縺ｮ蠑ｾ縺悟ｭ伜惠縺吶ｋ髢難ｼ峨〒荳蠎ｦ縺阪ｊ 窶・繝ｫ繝ｼ繝励＠縺ｦ繧ゅΜ繧ｻ繝・ヨ縺励↑縺・
+                                // 弾の挙動は、最後まで実行し終えたら自動的に最初からループ実行する
+                                // once は弾生（この弾が存在する間）で一度きり — ループしてもリセットしない
                                 state.pc = 0;
-                                state.waitTimer = 0.01; // 1繝輔Ξ繝ｼ繝蠕・ｩ・
+                                state.waitTimer = 0.01; // 1フレーム待機
                                 brokeToWait = true;
                                 break;
                             }
@@ -3102,7 +3102,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (state.waitTimer > 0 || state.waitingTweenName) {
                             break;
                         }
-                    } // 蜀・・繝ｫ繝ｼ繝・
+                    } // 内側ループ
                     
                     if (brokeToWait || state.waitingTweenName) {
                         state.waitTimer -= dtRemaining;
@@ -3111,11 +3111,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                     } else if (!state.finished) {
                         break;
                     }
-                } // 螟門・繝ｫ繝ｼ繝・
-                } // else (繧､繝ｳ繧ｿ繝励Μ繧ｿ繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ)
+                } // 外側ループ
+                } // else (インタプリタフォールバック)
             }
             
-            const _t3 = performance.now(); // 繧ｹ繧ｯ繝ｪ繝励ヨ螳溯｡悟ｮ御ｺ・
+            const _t3 = performance.now(); // スクリプト実行完了
 
             // Physics update
             let finalAngleRad = state.variables.angle * Math.PI / 180;
@@ -3126,7 +3126,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             b.vy = Math.sin(finalAngleRad) * state.variables.speed;
             
             // Sync mutated coordinates
-            // xy 縺ｮ螟画峩繧・x, y 縺ｫ蜷梧悄 (髢句ｧ区凾縺ｮ initXY 縺九ｉ譏守､ｺ逧・↓螟牙喧縺励◆譎ゅ・縺ｿ蜷梧悄縺吶ｋ縺薙→縺ｧ縲』 繧・y 蜊倅ｽ薙ｒ蛟句挨縺ｫ螟画峩縺励◆髫帙↓蜿､縺・xy 縺ｧ繝ｪ繧ｻ繝・ヨ縺輔ｌ繧九・繧帝亟縺・
+            // xy の変更を x, y に同期 (開始時の initXY から明示的に変化した時のみ同期することで、x や y 単体を個別に変更した際に古い xy でリセットされるのを防ぐ)
             if (state.variables.xy !== initXY) {
                 let xyParts = String(state.variables.xy).split(',').map(p => parseFloat(p.trim()));
                 if (xyParts.length === 2 && !isNaN(xyParts[0]) && !isNaN(xyParts[1])) {
@@ -3236,12 +3236,12 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             b.laserWidth = getLaserWidth(b);
             
-            // 險ｭ鄂ｮ繝ｬ繝ｼ繧ｶ繝ｼ・郁ｭｦ蜻顔ｷ壻ｻ倥″繝薙・繝・峨・蛻ｶ蠕｡
+            // 設置レーザー（警告線付きビーム）の制御
             let warnT = parseFloat(state.variables.warningTime) || 0;
             warnT = Math.max(0, warnT);
             let actT = parseFloat(state.variables.activeTime) || 0;
             if (actT > 0 && state.variables.warningTime !== undefined) {
-                state.variables.warningTime = warnT; // 繧ｹ繧ｯ繝ｪ繝励ヨ蛛ｴ縺ｫ繧ょ渚譏
+                state.variables.warningTime = warnT; // スクリプト側にも反映
                 if (state.variables.laserStartTime === null || state.variables.laserStartTime === undefined) {
                     state.variables.laserStartTime = state.variables.timer;
                 }
@@ -3251,7 +3251,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
                 
                 if (b.laserMoved) {
-                    // 騾壼ｸｸ縺ｮ迚ｩ逅・ｼ皮ｮ励↓蝓ｺ縺･縺冗ｧｻ蜍暮㍼繧・laserStartX / Y 縺ｫ蜉邂・
+                    // 通常の物理演算に基づく移動量を laserStartX / Y に加算
                     b.laserStartX += b.vx * dt;
                     b.laserStartY += b.vy * dt;
                     
@@ -3263,7 +3263,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     state.variables.x = b.x;
                     state.variables.y = isPlayerSide ? (canvas.height - b.y) : b.y;
                     
-                    // 莠碁㍾遘ｻ蜍輔ｒ髦ｲ縺舌◆繧√↓ vx, vy 縺ｯ繝ｪ繧ｻ繝・ヨ縺吶ｋ縺後∵ｬ｡蝗槭・縺溘ａ縺ｫ speed 繧・angle 縺ｯ邯ｭ謖・
+                    // 二重移動を防ぐために vx, vy はリセットするが、次回のために speed や angle は維持
                     b.vx = 0;
                     b.vy = 0;
                 } else {
@@ -3284,7 +3284,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 } else if (elapsed < warnT + actT) {
                     b.isWarningLaser = false;
                     b.isLaser = true;
-                    b.isCustomBeam = true; // 險ｭ鄂ｮ繝薙・繝繝輔Λ繧ｰ
+                    b.isCustomBeam = true; // 設置ビームフラグ
                 } else {
                     b._expired = true;
                     b.isWarningLaser = false;
@@ -3292,8 +3292,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     b.isCustomBeam = false;
                 }
             }
-            const _t4 = performance.now(); // 迚ｩ逅・嶌縺肴綾縺怜ｮ御ｺ・
-            // 繝輔ぉ繝ｼ繧ｺ蛻･險域ｸｬ繧堤ｴｯ遨・
+            const _t4 = performance.now(); // 物理書き戻し完了
+            // フェーズ別計測を累積
             window._bsT = window._bsT || { tw:0, su:0, sc:0, po:0, n:0 };
             window._bsT.tw += _t1 - _t0;
             window._bsT.su += _t2 - _t1;
@@ -3303,7 +3303,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         }
 
         // ==========================================
-        // 閾ｪ菴懊き繝ｼ繝我ｽ懈・逕ｻ髱｢ (邂｡逅・・繝悶Ο繝・け繧ｨ繝・ぅ繧ｿ)
+        // 自作カード作成画面 (管理・ブロックエディタ)
         // ==========================================
         function getBlockCost(block) {
             switch (block.type) {
@@ -3409,7 +3409,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             }, 250);
         }
 
-        // 蠑ｾ縺ｮ騾ｲ陦梧婿蜷代→閾ｪ讖滓婿蜷代・荳閾ｴ蠎ｦ縺九ｉ閼・ｨ∝ｺｦ(0.15縲・.0)繧堤ｮ怜・
+        // 弾の進行方向と自機方向の一致度から脅威度(0.15〜1.0)を算出
         function computeBulletThreatWeight(spawnX, spawnY, vx, vy, targetX, targetY) {
             let speed = Math.hypot(vx, vy);
             if (speed < 1) return 0.4;
@@ -3431,12 +3431,12 @@ function stepEmitter(c, state, attacker, target, dt) {
         }
 
         function calculateCustomCardCost(emitterScript, bulletScript) {
-            // 1. 蜷・ヶ繝ｭ繝・け縺ｮ譛菴主渕譛ｬ繧ｳ繧ｹ繝医ｒ邂怜・・磯撕逧・↑隧穂ｾ｡・・
+            // 1. 各ブロックの最低基本コストを算出（静的な評価）
             let baseBlockCost = 0;
             (emitterScript || []).forEach(b => baseBlockCost += getBlockCost(b));
             (bulletScript || []).forEach(b => baseBlockCost += getBlockCost(b));
 
-            // 轤ｹ縺九ｉ繝ｬ繧､・亥濠逶ｴ邱夲ｼ峨∈縺ｮ譛遏ｭ霍晞屬繧定ｨ育ｮ励☆繧九・繝ｫ繝代・・医Ξ繝ｼ繧ｶ繝ｼ縺ｮ閼・ｨ∝ｺｦ險育ｮ礼畑・・
+            // 点からレイ（半直線）への最短距離を計算するヘルパー（レーザーの脅威度計算用）
             function getDistanceToRay(px, py, sx, sy, angleDeg) {
                 let angleRad = angleDeg * Math.PI / 180;
                 let dx = Math.cos(angleRad);
@@ -3455,9 +3455,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
             }
 
-            // 2. 繧ｷ繝溘Η繝ｬ繝ｼ繧ｷ繝ｧ繝ｳ縺ｫ繧医ｋ蜍慕噪繧ｳ繧ｹ繝郁ｨ育ｮ・
-            let simDuration = 15; // 繧ｹ繝壹Ν繧ｫ繝ｼ繝牙・菴薙・譎る俣・・5遘抵ｼ・
-            let fps = 30; // 30FPS縺ｧ蜊∝・鬮倡ｲｾ蠎ｦ縺九▽鬮倬・
+            // 2. シミュレーションによる動的コスト計算
+            let simDuration = 15; // スペルカード全体の時間（15秒）
+            let fps = 30; // 30FPSで十分高精度かつ高速
             let dt = 1 / fps;
             let totalFrames = simDuration * fps;
 
@@ -3467,7 +3467,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             let emitterState = initEmitterState(emitterScript, attacker, target);
             let simBullets = [];
 
-            // 螳溯｡御ｸｭ縺ｮ繧ｲ繝ｼ繝縺ｫ蠖ｱ髻ｿ繧剃ｸ弱∴縺ｪ縺・ｈ縺・↓繧ｰ繝ｭ繝ｼ繝舌Ν bullets, magicCircles 驟榊・繧帝驕ｿ
+            // 実行中のゲームに影響を与えないようにグローバル bullets, magicCircles 配列を退避
             let originalBullets = bullets;
             let originalMagicCircles = magicCircles;
             bullets = [];
@@ -3489,7 +3489,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     spawnsThisSecond = 0;
                 }
 
-                // Emitter縺ｮ迥ｶ諷区峩譁ｰ
+                // Emitterの状態更新
                 if (!emitterState.finished) {
                     emitterState.variables.x = attacker.x;
                     emitterState.variables.y = attacker.y;
@@ -3502,7 +3502,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     stepEmitter({ bulletScript: bulletScript }, emitterState, attacker, target, dt);
                 }
 
-                // 逕滓・縺輔ｌ縺溷ｼｾ繧呈､懃衍縺励※繧ｷ繝溘Η繝ｬ繝ｼ繧ｷ繝ｧ繝ｳ逕ｨ驟榊・縺ｸ遘ｻ縺呻ｼ育ｧ帝俣60逋ｺ縺ｾ縺ｧ・・
+                // 生成された弾を検知してシミュレーション用配列へ移す（秒間60発まで）
                 if (bullets.length > 0) {
                     let spawnedThisFrame = bullets;
                     bullets = [];
@@ -3519,7 +3519,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         totalFired++;
                         totalWeightedThreat += threatWeight;
 
-                        // 逡ｰ蟶ｸ縺ｪ辟｡髯舌Ν繝ｼ繝礼ｭ峨〒繝｡繝｢繝ｪ縺梧ｺ｢繧後ｋ縺ｮ繧帝亟縺舌◆繧√√す繝溘Η繝ｬ繝ｼ繝亥ｯｾ雎｡縺ｯ500逋ｺ縺ｫ蛻ｶ髯・
+                        // 異常な無限ループ等でメモリが溢れるのを防ぐため、シミュレート対象は500発に制限
                         if (simBullets.length < 500) {
                             simBullets.push({
                                 x: b.x,
@@ -3540,7 +3540,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     });
                 }
 
-                // 繧ｷ繝溘Η繝ｬ繝ｼ繧ｷ繝ｧ繝ｳ荳ｭ縺ｮ蠑ｾ縺ｮ遘ｻ蜍・・・霑第磁蛻､螳・
+                // シミュレーション中の弾の移動 ＆ 近接判定
                 for (let i = 0; i < simBullets.length; i++) {
                     let b = simBullets[i];
                     if (b.offScreen) continue;
@@ -3552,7 +3552,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         b.y += b.vy * dt;
                     }
 
-                    // 繝励Ξ繧､繝､繝ｼ縺ｨ縺ｮ霍晞屬險育ｮ・
+                    // プレイヤーとの距離計算
                     let distToPlayer;
                     if (b.isLaser) {
                         let angle = (b.bulletState && b.bulletState.variables.angle !== undefined) ? b.bulletState.variables.angle : 0;
@@ -3563,7 +3563,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         distToPlayer = Math.sqrt(pdx * pdx + pdy * pdy);
                     }
 
-                    // 霑第磁蜉轤ｹ縺ｯ蠑ｾ縺斐→縺ｮ閼・ｨ∝ｺｦ縺ｧ驥阪∩莉倥￠・郁・讖溽漁縺・・鬮倥￥縲∝・譁ｹ菴阪・螟悶ｌ蠑ｾ縺ｯ菴弱￥・・
+                    // 近接加点は弾ごとの脅威度で重み付け（自機狙いは高く、全方位の外れ弾は低く）
                     let warnT = b.bulletState ? (parseFloat(b.bulletState.variables.warningTime) || 0) : 0;
                     let actT = b.bulletState ? (parseFloat(b.bulletState.variables.activeTime) || 0) : 0;
                     let isBeamThreat = b.isLaser || (warnT > 0 && actT > 0);
@@ -3575,7 +3575,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         closeToPlayerScore += isBeamThreat ? (1.5 * threatW) : threatW;
                     }
 
-                    // 逕ｻ髱｢螟門愛螳・
+                    // 画面外判定
                     let currentHeight = canvas ? canvas.height : 896;
                     let isOff = (b.x < 0 || b.x > PLAY_WIDTH || b.y < 0 || b.y > currentHeight);
                     if (isOff) {
@@ -3588,36 +3588,36 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                 }
 
-                // 縺吶∋縺ｦ蜃ｦ逅・＠邨ゅ∴縺溘ｉ譌ｩ譛溘ヶ繝ｬ繧､繧ｯ
+                // すべて処理し終えたら早期ブレイク
                 if (emitterState.finished && simBullets.every(b => b.offScreen)) {
                     break;
                 }
             }
 
-            // 繧ｰ繝ｭ繝ｼ繝舌Ν bullets, magicCircles 驟榊・繧貞ｾｩ蜈・
+            // グローバル bullets, magicCircles 配列を復元
             bullets = originalBullets;
             magicCircles = originalMagicCircles;
 
-            // 謖・ｨ吶・險育ｮ暦ｼ育黄逅・ｼｾ謨ｰ縺ｯ60逋ｺ/遘偵∬у螽∝ｺｦ縺ｯ60/遘偵〒荳企剞・・
+            // 指標の計算（物理弾数は60発/秒、脅威度は60/秒で上限）
             let threatPerSecond = Math.min(MAX_THREAT_PER_SECOND, totalWeightedThreat / simDuration);
             let closeScorePerSecond = closeToPlayerScore / simDuration;
             let fireRatePerSecond = totalFired / simDuration;
             let activeLoadPerFrame = activeBulletLoadScore / Math.max(1, totalFrames);
 
-            // 繧ｳ繧ｹ繝郁ｨ育ｮ怜ｼ擾ｼ郁у螽∝ｺｦ・玖ｿ第磁閼・ｨ・ｼ句ｼｾ騾滂ｼ・
+            // コスト計算式（脅威度＋近接脅威＋弾速）
             let simCost = Math.sqrt(Math.max(0, threatPerSecond)) * 0.95
                         + Math.sqrt(Math.max(0, closeScorePerSecond)) * 0.75
                         + Math.sqrt(Math.max(0, fireRatePerSecond)) * 0.35
                         + Math.sqrt(Math.max(0, activeLoadPerFrame)) * 0.45;
             let totalCost = simCost + getStaticComplexityCost(baseBlockCost);
 
-            // 繧ｳ繧ｹ繝医・蝗帶昏莠泌・縺励※謨ｴ謨ｰ・域怙菴・・・
+            // コストは四捨五入して整数（最低1）
             return Math.max(1, Math.round(totalCost));
         }
 
         function isUuidParam(str) {
             if (!str) return false;
-            // cc_ 縺ｧ蟋九∪繧九Ο繝ｼ繧ｫ繝ｫUUID縲√∪縺溘・ jb_ 縺ｧ蟋九∪繧徽SONBlob ID
+            // cc_ で始まるローカルUUID、または jb_ で始まるJSONBlob ID
             return str.length < 50 && (str.startsWith('cc_') || str.startsWith('jb_') || /^[A-Za-z0-9_-]+$/.test(str));
         }
 
@@ -3632,7 +3632,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             fetch(url)
                 .then(res => {
                     if (!res.ok) {
-                        throw new Error(`繝・・繧ｿ縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ (${res.status})`);
+                        throw new Error(`データが見つかりません (${res.status})`);
                     }
                     return res.json();
                 })
@@ -3641,11 +3641,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                     if (callback) callback(imported);
                 })
                 .catch(err => {
-                    alert(`繧ｫ繝ｼ繝峨・繝・・繧ｿ蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆縲・n\n隧ｳ邏ｰ: ${err.message}`);
+                    alert(`カードのデータ取得に失敗しました。\n\n詳細: ${err.message}`);
                 });
         }
 
-        // 繝悶Ο繝・け驟榊・繧呈･ｵ蟆上す繝ｪ繧｢繝ｩ繧､繧ｺ縺吶ｋ縺溘ａ縺ｮ鬆・分螳夂ｾｩ
+        // ブロック配列を極小シリアライズするための順番定義
         const BLOCK_PARAM_ORDER = {
             'repeat': ['count', 'indexVar'],
             'forever': [],
@@ -3761,8 +3761,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             let name, cost, desc, duration, emitterData, bulletData, magicCircleData, despawnTime, difficulty;
             
             if (Array.isArray(parsed)) {
-                // 驟榊・蠖｢蠑上・繝・す繝ｪ繧｢繝ｩ繧､繧ｺ (譁ｰ繝輔か繝ｼ繝槭ャ繝・
-                name = parsed[0] || '辟｡蜷阪き繝ｼ繝・;
+                // 配列形式のデシリアライズ (新フォーマット)
+                name = parsed[0] || '無名カード';
                 cost = parsed[1] !== undefined ? parsed[1] : 100;
                 desc = parsed[2] || '';
                 duration = parsed[3] !== undefined ? parsed[3] : 10;
@@ -3772,8 +3772,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                 despawnTime = parsed[7] !== undefined ? parsed[7] : 1.5;
                 difficulty = parsed[8] || 'NORMAL';
             } else {
-                // 繧ｪ繝悶ず繧ｧ繧ｯ繝亥ｽ｢蠑上・繝・す繝ｪ繧｢繝ｩ繧､繧ｺ (譌ｧ繝輔か繝ｼ繝槭ャ繝・
-                name = parsed.n || parsed.name || '辟｡蜷阪き繝ｼ繝・;
+                // オブジェクト形式のデシリアライズ (旧フォーマット)
+                name = parsed.n || parsed.name || '無名カード';
                 cost = parsed.c !== undefined ? parsed.c : (parsed.cost || 100);
                 desc = parsed.d || parsed.desc || '';
                 duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
@@ -3785,7 +3785,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 magicCircleData = parsed.m !== undefined ? parsed.m : parsed.magicCircleScript;
             }
             
-            // emitterScript 縺ｮ蠕ｩ蜈・
+            // emitterScript の復元
             let emitterScript = [];
             if (Array.isArray(emitterData)) {
                 if (emitterData.length > 0 && Array.isArray(emitterData[0])) {
@@ -3797,7 +3797,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 emitterScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(emitterData) : [];
             }
             
-            // bulletScript 縺ｮ蠕ｩ蜈・
+            // bulletScript の復元
             let bulletScript = [];
             if (Array.isArray(bulletData)) {
                 if (bulletData.length > 0 && Array.isArray(bulletData[0])) {
@@ -3809,7 +3809,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 bulletScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(bulletData) : [];
             }
             
-            // magicCircleScript 縺ｮ蠕ｩ蜈・
+            // magicCircleScript の復元
             let magicCircleScript = [];
             if (Array.isArray(magicCircleData)) {
                 if (magicCircleData.length > 0 && Array.isArray(magicCircleData[0])) {
@@ -3840,7 +3840,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             const card = customCards.find(c => c.id === cardId);
             if (!card) return;
             try {
-                // 驟榊・縺九▽讌ｵ蟆上す繝ｪ繧｢繝ｩ繧､繧ｺ縺輔ｌ縺溘ョ繝ｼ繧ｿ繧偵ヱ繝・け
+                // 配列かつ極小シリアライズされたデータをパック
                 const miniCard = [
                     card.name,
                     card.cost || 100,
@@ -3855,30 +3855,30 @@ function stepEmitter(c, state, attacker, target, dt) {
 
                 const jsonStr = JSON.stringify(miniCard);
                 
-                // Deflate + Base64url 縺ｧ蝨ｧ邵ｮ
+                // Deflate + Base64url で圧縮
                 let compressed = deflateAndBase64url(jsonStr);
                 let shareUrl;
                 if (compressed) {
                     shareUrl = `${window.location.origin}${window.location.pathname}?card=pk_${compressed}`;
                 } else {
-                    // pako縺後Ο繝ｼ繝峨＆繧後※縺・↑縺・ｭ峨・蝣ｴ蜷医・繧ｻ繝ｼ繝輔ユ繧｣繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ・域立LZString・・
+                    // pakoがロードされていない等の場合のセーフティフォールバック（旧LZString）
                     const lzCompressed = LZString.compressToEncodedURIComponent(jsonStr);
                     shareUrl = `${window.location.origin}${window.location.pathname}?card=${lzCompressed}`;
                 }
 
-                // 繧ｯ繝ｪ繝・・繝懊・繝峨↓繧ｳ繝斐・
+                // クリップボードにコピー
                 navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert(`縲・{card.name.replace('縲植縲・, '')}縲阪・蜈ｱ譛蔚RL繧偵さ繝斐・縺励∪縺励◆・―n螳悟・繧ｪ繝輔Λ繧､繝ｳ蟇ｾ蠢懊・雜・悸邵ｮURL縺ｧ縺吶・n\nURL: ${shareUrl}`);
+                    alert(`「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n完全オフライン対応の超圧縮URLです。\n\nURL: ${shareUrl}`);
                 }).catch(err => {
-                    prompt("蜈ｱ譛蔚RL繧偵さ繝斐・縺励※縺上□縺輔＞・・, shareUrl);
+                    prompt("共有URLをコピーしてください：", shareUrl);
                 });
             } catch (e) {
-                alert("蜈ｱ譛蔚RL縺ｮ菴懈・縺ｫ螟ｱ謨励＠縺ｾ縺励◆: " + e.message);
+                alert("共有URLの作成に失敗しました: " + e.message);
             }
         }
 
         function importCustomCardFromCode() {
-            const code = prompt("蜈ｱ譛峨＆繧後◆URL縲√さ繝ｼ繝峨√∪縺溘・繧ｫ繝ｼ繝迂D(UUID)繧貞・蜉帙＠縺ｦ縺上□縺輔＞・・);
+            const code = prompt("共有されたURL、コード、またはカードID(UUID)を入力してください：");
             if (!code) return;
             
             let cardDataStr = "";
@@ -3902,31 +3902,31 @@ function stepEmitter(c, state, attacker, target, dt) {
                             decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
                         }
                         if (!decompressed) {
-                            throw new Error("繝・さ繝ｳ繝励Ξ繧ｹ縺ｫ螟ｱ謨励＠縺ｾ縺励◆・医ョ繝ｼ繧ｿ遐ｴ謳阪・蜿ｯ閭ｽ諤ｧ・・);
+                            throw new Error("デコンプレスに失敗しました（データ破損の可能性）");
                         }
                         const card = parseSharedCard(decompressed);
                         importCard(card);
                     } catch (e) {
-                        alert("繝・・繧ｿ縺ｮ繧､繝ｳ繝昴・繝医↓螟ｱ謨励＠縺ｾ縺励◆縲よｭ｣縺励＞蜈ｱ譛蔚RL縺ｾ縺溘・繧ｳ繝ｼ繝峨ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞縲・n繧ｨ繝ｩ繝ｼ: " + e.message);
+                        alert("データのインポートに失敗しました。正しい共有URLまたはコードを入力してください。\nエラー: " + e.message);
                     }
                 }
             } else {
-                alert("譛牙柑縺ｪ繧ｳ繝ｼ繝峨′隕九ｏ縺九ｉ繧薙〒縺励◆縲・);
+                alert("有効なコードが見わからんでした。");
             }
         }
 
         function importCard(card) {
             if (!card.name || !card.emitterScript || !card.bulletScript) {
-                alert("辟｡蜉ｹ縺ｪ繧ｫ繝ｼ繝峨ョ繝ｼ繧ｿ縺ｧ縺吶・);
+                alert("無効なカードデータです。");
                 return null;
             }
             
             card.id = 'cc_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-            let baseName = card.name.replace('縲植縲・, '');
-            let name = '縲植縲・ + baseName;
+            let baseName = card.name.replace('【A】', '');
+            let name = '【A】' + baseName;
             let count = 1;
             while (customCards.some(c => c.name === name)) {
-                name = `縲植縲・{baseName} (${count})`;
+                name = `【A】${baseName} (${count})`;
                 count++;
             }
             card.name = name;
@@ -3936,13 +3936,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                 localStorage.setItem('touhou_kyoukaisen_custom_cards', JSON.stringify(customCards));
             } catch (e) {}
             
-            alert(`繧ｹ繝壹Ν繧ｫ繝ｼ繝峨・{card.name.replace('縲植縲・, '')}縲阪ｒ繧､繝ｳ繝昴・繝医＠縺ｾ縺励◆・～);
+            alert(`スペルカード「${card.name.replace('【A】', '')}」をインポートしました！`);
             integrateCustomCards();
             renderCardMakerList();
             return card;
         }
 
-        // --- 繧ｪ繝輔Λ繧､繝ｳ逕ｨ Deflate (pako.js) + Base64url 蝨ｧ邵ｮ繝倥Ν繝代・ ---
+        // --- オフライン用 Deflate (pako.js) + Base64url 圧縮ヘルパー ---
         function deflateAndBase64url(jsonStr) {
             if (typeof pako === 'undefined') return "";
             try {
@@ -3989,7 +3989,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (cardDataStr) {
                 if (isUuidParam(cardDataStr)) {
                     setTimeout(() => {
-                        if (confirm(`蜈ｱ譛峨＆繧後◆繧ｹ繝壹Ν繧ｫ繝ｼ繝・(ID: ${cardDataStr}) 繧偵う繝ｳ繝昴・繝医＠縺ｦ蜊ｳ蠎ｧ縺ｫ繝・せ繝医・繝ｬ繧､縺励∪縺吶°・歔)) {
+                        if (confirm(`共有されたスペルカード (ID: ${cardDataStr}) をインポートして即座にテストプレイしますか？`)) {
                             fetchCardByUuid(cardDataStr, (importedCard) => {
                                 if (importedCard) {
                                     customCardMakerOpenEditor(importedCard.id);
@@ -4004,18 +4004,18 @@ function stepEmitter(c, state, attacker, target, dt) {
                     try {
                         let decompressed = "";
                         if (cardDataStr.startsWith('pk_')) {
-                            // 譁ｰ繝輔か繝ｼ繝槭ャ繝茨ｼ嗔ako (deflate) 縺ｫ繧医ｋ隗｣蜃・
-                            const cleanB64 = cardDataStr.slice(3); // 'pk_' 繝励Ξ繝輔ぅ繝・け繧ｹ繧帝勁蜴ｻ
+                            // 新フォーマット：pako (deflate) による解凍
+                            const cleanB64 = cardDataStr.slice(3); // 'pk_' プレフィックスを除去
                             decompressed = inflateAndBase64url(cleanB64);
                         } else {
-                            // 譌ｧ繝輔か繝ｼ繝槭ャ繝茨ｼ哭ZString 縺ｫ繧医ｋ隗｣蜃・
+                            // 旧フォーマット：LZString による解凍
                             decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
                         }
 
                         if (decompressed) {
                             const card = parseSharedCard(decompressed);
                             setTimeout(() => {
-                                if (confirm(`蜈ｱ譛峨＆繧後◆繧ｹ繝壹Ν繧ｫ繝ｼ繝峨・{card.name.replace('縲植縲・, '')}縲阪ｒ繧､繝ｳ繝昴・繝医＠縺ｦ蜊ｳ蠎ｧ縺ｫ繝・せ繝医・繝ｬ繧､縺励∪縺吶°・歔)) {
+                                if (confirm(`共有されたスペルカード「${card.name.replace('【A】', '')}」をインポートして即座にテストプレイしますか？`)) {
                                     const importedCard = importCard(card);
                                     if (importedCard) {
                                         customCardMakerOpenEditor(importedCard.id);
@@ -4027,7 +4027,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }, 500);
                         }
                     } catch (e) {
-                        console.error("URL繝代Λ繝｡繝ｼ繧ｿ縺九ｉ縺ｮ繧､繝ｳ繝昴・繝医↓螟ｱ謨・", e);
+                        console.error("URLパラメータからのインポートに失敗:", e);
                     }
                 }
             }
@@ -4040,7 +4040,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             container.innerHTML = '';
             
             if (customCards.length === 0) {
-                container.innerHTML = '<div style="color:#aaa; font-size:12px; text-align:center; padding:30px 0;">逋ｻ骭ｲ縺輔ｌ縺ｦ縺・ｋ閾ｪ菴懊き繝ｼ繝峨・縺ゅｊ縺ｾ縺帙ｓ縲・/div>';
+                container.innerHTML = '<div style="color:#aaa; font-size:12px; text-align:center; padding:30px 0;">登録されている自作カードはありません。</div>';
                 return;
             }
             
@@ -4048,18 +4048,18 @@ function stepEmitter(c, state, attacker, target, dt) {
                 const item = document.createElement('div');
                 item.className = 'custom-card-item';
                 
-                let descText = card.desc ? card.desc.replace('縲占・菴懊き繝ｼ繝峨・, '') : '';
+                let descText = card.desc ? card.desc.replace('【自作カード】', '') : '';
                 
                 item.innerHTML = `
                     <div class="custom-card-info">
-                        <span class="custom-card-title">${card.name.replace('縲植縲・, '')}</span>
+                        <span class="custom-card-title">${card.name.replace('【A】', '')}</span>
                         <span class="custom-card-desc">${descText}</span>
                     </div>
-                    <span class="custom-card-cost-badge">蛻ｶ髯先凾髢・ ${getCustomCardDuration(card.duration)}s</span>
+                    <span class="custom-card-cost-badge">制限時間: ${getCustomCardDuration(card.duration)}s</span>
                     <div class="custom-card-actions">
-                        <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">邱ｨ髮・/button>
-                        <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">蜈ｱ譛・/button>
-                        <button class="custom-card-act-btn btn-delete" onclick="customCardMakerDeleteCard('${card.id}')">蜑企勁</button>
+                        <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">編集</button>
+                        <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">共有</button>
+                        <button class="custom-card-act-btn btn-delete" onclick="customCardMakerDeleteCard('${card.id}')">削除</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -4133,22 +4133,22 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (restoreBtn) restoreBtn.style.display = 'inline-block';
             
             if (showNotification) {
-                alert("繧ｹ繝壹Ν繧ｫ繝ｼ繝峨・邱ｨ髮・憾諷九ｒ荳譎ゆｿ晏ｭ倥＠縺ｾ縺励◆縲・);
+                alert("スペルカードの編集状態を一時保存しました。");
             }
         }
 
         function loadCustomCardDraft() {
             let draftStr = localStorage.getItem('custom_card_draft');
             if (!draftStr) {
-                alert("荳譎ゆｿ晏ｭ倥＆繧後◆繝・・繧ｿ縺後≠繧翫∪縺帙ｓ縲・);
+                alert("一時保存されたデータがありません。");
                 return;
             }
             
             try {
                 let draftData = JSON.parse(draftStr);
                 customCardMaker.editingId = draftData.editingId;
-                customCardMaker.name = draftData.name || '繧ｫ繧ｹ繧ｿ繝繧ｹ繝壹Ν';
-                customCardMaker.desc = draftData.desc || '繧ｪ繝ｪ繧ｸ繝翫Ν縺ｮ蠑ｾ蟷輔ヱ繧ｿ繝ｼ繝ｳ縲・;
+                customCardMaker.name = draftData.name || 'カスタムスペル';
+                customCardMaker.desc = draftData.desc || 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = getCustomCardDuration(draftData.duration);
                 customCardMaker.maxMisses = draftData.maxMisses !== undefined ? Number(draftData.maxMisses) : 2;
                 customCardMaker.difficulty = draftData.difficulty || 'NORMAL';
@@ -4202,10 +4202,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
                 
                 renderCardMaker();
-                alert("荳譎ゆｿ晏ｭ倥ョ繝ｼ繧ｿ縺九ｉ蠕ｩ蜈・＠縺ｾ縺励◆縲・);
+                alert("一時保存データから復元しました。");
             } catch (e) {
                 console.error(e);
-                alert("繝・・繧ｿ縺ｮ蠕ｩ蜈・↓螟ｱ謨励＠縺ｾ縺励◆縲・);
+                alert("データの復元に失敗しました。");
             }
         }
 
@@ -4243,7 +4243,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 let card = customCards.find(c => c.id === cardId);
                 let migratedCard = migrateOldCustomCard(card);
                 customCardMaker.editingId = migratedCard.id;
-                customCardMaker.name = migratedCard.name.replace('縲植縲・, '');
+                customCardMaker.name = migratedCard.name.replace('【A】', '');
                 customCardMaker.desc = migratedCard.desc;
                 customCardMaker.duration = getCustomCardDuration(migratedCard.duration);
                 customCardMaker.x_offset = migratedCard.x_offset || 0;
@@ -4255,11 +4255,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.maxMisses = migratedCard.maxMisses !== undefined ? migratedCard.maxMisses : 2;
                 customCardMaker.difficulty = migratedCard.difficulty || 'NORMAL';
                 customCardMaker.testPassed = true;
-                document.getElementById('card-editor-title').textContent = "繧ｹ繝壹Ν繧ｫ繝ｼ繝臥ｷｨ髮・;
+                document.getElementById('card-editor-title').textContent = "スペルカード編集";
             } else {
                 customCardMaker.editingId = null;
-                customCardMaker.name = '繧ｫ繧ｹ繧ｿ繝繧ｹ繝壹Ν';
-                customCardMaker.desc = '繧ｪ繝ｪ繧ｸ繝翫Ν縺ｮ蠑ｾ蟷輔ヱ繧ｿ繝ｼ繝ｳ縲・;
+                customCardMaker.name = 'カスタムスペル';
+                customCardMaker.desc = 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = 15;
                 customCardMaker.despawnTime = 1.5;
                 customCardMaker.maxMisses = 2;
@@ -4275,7 +4275,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.bulletScript = [];
                 customCardMaker.magicCircleScript = [];
                 customCardMaker.testPassed = false;
-                document.getElementById('card-editor-title').textContent = "譁ｰ隕上せ繝壹Ν繧ｫ繝ｼ繝我ｽ懈・";
+                document.getElementById('card-editor-title').textContent = "新規スペルカード作成";
             }
             
             customCardMaker.activeTab = 'emitter';
@@ -4300,4 +4300,3 @@ function stepEmitter(c, state, attacker, target, dt) {
             document.getElementById('card-maker-list-view').classList.remove('hidden');
             renderCardMakerList();
         }
-
