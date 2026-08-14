@@ -563,6 +563,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                         let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                         let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                        let hasScript = (cScript && cScript.length > 0) || !!cFn;
                         newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                         newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = cScript;
@@ -580,9 +581,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                         newBullet.bulletState.variables.bulletImage = bImg;
                         newBullet.sharedEmitterState = state;
-                        newBullet.update = (b, bdt) => {
-                            runCustomBulletScript(b, bdt, attacker, target);
-                        };
+                        if (hasScript) {
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                        } else {
+                            newBullet.update = null;
+                        }
                         
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
@@ -658,6 +663,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -668,9 +674,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.bulletState.variables.bulletImage = bImg;
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             
                             bullets.push(newBullet);
                         }
@@ -750,6 +760,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -760,9 +771,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.bulletState.variables.bulletImage = bImg;
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             
                             bullets.push(newBullet);
                         }
@@ -823,7 +838,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.destroyResist = true;
                         }
                         newBullet.threatWeight = 100;
-                        newBullet.bulletState = initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                        let isFromBullet = typeof b !== 'undefined' && b !== null;
+                        let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                        let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                        let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                        let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                        let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                        newBullet.bulletState = initBulletState(cScript, 0, angle, attacker, target, cFn);
+                        newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = cScript;
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
                         inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                         newBullet.bulletState.variables.bulletType = 'laser';
@@ -836,9 +859,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         newBullet.bulletState.variables.radius = 8;
                         newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                         newBullet.sharedEmitterState = state;
-                        newBullet.update = (b, bdt) => {
-                            runCustomBulletScript(b, bdt, attacker, target);
-                        };
+                        if (hasScript) {
+                            newBullet.update = (b, bdt) => {
+                                runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                        } else {
+                            newBullet.update = null;
+                        }
                         bullets.push(newBullet);
                         break;
                     }
@@ -902,6 +929,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -915,9 +943,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                             newBullet.bulletState.variables.bulletImage = 'none';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -980,6 +1012,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -993,9 +1026,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                             newBullet.bulletState.variables.bulletImage = 'none';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -1053,7 +1090,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = 100;
-                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let isFromBullet = typeof b !== 'undefined' && b !== null;
+                            let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                            let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                            let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                            newBullet.bulletState = initBulletState(cScript, 0, angle, attacker, target, cFn);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                            newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.bulletType = 'laser';
@@ -1066,9 +1111,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.radius = 8;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -1124,7 +1173,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = 100;
-                            newBullet.bulletState = initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let isFromBullet = typeof b !== 'undefined' && b !== null;
+                            let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                            let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                            let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                            newBullet.bulletState = initBulletState(cScript, 0, angle, attacker, target, cFn);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                            newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.bulletType = 'laser';
@@ -1137,9 +1194,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.radius = 8;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -1595,6 +1656,10 @@ function stepEmitter(c, state, attacker, target, dt) {
         function runCustomBulletScript(b, dt, attacker, target) {
             let state = b.bulletState;
             if (!state) return;
+            if (state.finished && (!state.tweens || state.tweens.length === 0)) {
+                b.update = null;
+                return;
+            }
             if (window.showDebugProfiler && state.variables.timer === 0) {
                 console.log(`[DEBUG AOT] runCustomBulletScript started for bullet at (${b.x.toFixed(1)}, ${b.y.toFixed(1)})`);
             }
@@ -1919,6 +1984,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             const result = state.compiledGenerator.next();
                             if (result.done) { 
                                 state.finished = true;
+                                if (!state.tweens || state.tweens.length === 0) {
+                                    b.update = null;
+                                }
                                 break;
                             }
                         }
@@ -2171,6 +2239,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                                 let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                                 let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
                                 newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
@@ -2188,9 +2257,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                 newBullet.bulletState.variables.bulletImage = bImg;
                                 newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                newBullet.update = (childB, childBDT) => {
-                                    runCustomBulletScript(childB, childBDT, attacker, target);
-                                };
+                                if (hasScript) {
+                                    newBullet.update = (childB, childBDT) => {
+                                        runCustomBulletScript(childB, childBDT, attacker, target);
+                                    };
+                                } else {
+                                    newBullet.update = null;
+                                }
 
                                 bullets.push(newBullet);
                                 break;
@@ -2258,6 +2331,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                                     let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                                     let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                    let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                     newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
@@ -2268,9 +2342,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.bulletState.variables.bulletImage = bImg;
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     
                                     bullets.push(newBullet);
                                 }
@@ -2343,6 +2421,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                                     let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
                                     let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                    let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                     newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
@@ -2353,9 +2432,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.bulletState.variables.bulletImage = bImg;
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     
                                     bullets.push(newBullet);
                                 }
@@ -2413,7 +2496,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.destroyResist = true;
                                 }
                                 newBullet.threatWeight = 100;
-                                newBullet.bulletState = initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                                let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
+                                newBullet.bulletState = initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                                newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
                                 inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                 newBullet.bulletState.variables.bulletType = 'laser';
@@ -2426,9 +2517,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.bulletState.variables.radius = 8;
                                 newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                 newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                newBullet.update = (childB, childBDT) => {
-                                    runCustomBulletScript(childB, childBDT, attacker, target);
-                                };
+                                if (hasScript) {
+                                    newBullet.update = (childB, childBDT) => {
+                                        runCustomBulletScript(childB, childBDT, attacker, target);
+                                    };
+                                } else {
+                                    newBullet.update = null;
+                                }
                                 bullets.push(newBullet);
                                 break;
                             }
@@ -2456,9 +2551,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
-                                let startAngle = centerAngle - (spread * (count - 1)) / 2;
-                                let childScript = state.magicCircleScript || [];
-                                let magicCompiledFn = window.compiledDanmaku && state.id ? window.compiledDanmaku[state.id + '_magic'] : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                                let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = startAngle + spread * k;
                                     let angleRad = angle * Math.PI / 180;
@@ -2489,8 +2587,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, magicCompiledFn);
-                                    newBullet.bulletState.magicCircleScript = childScript;
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -2502,9 +2600,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                                     newBullet.bulletState.variables.bulletImage = 'none';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;
@@ -2532,8 +2634,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
-                                let childScript = state.magicCircleScript || [];
-                                let magicCompiledFn = window.compiledDanmaku && state.id ? window.compiledDanmaku[state.id + '_magic'] : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                                let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = centerAngle + (360 / count) * k;
                                     let angleRad = angle * Math.PI / 180;
@@ -2564,8 +2670,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, magicCompiledFn);
-                                    newBullet.bulletState.magicCircleScript = childScript;
+                                    newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -2577,9 +2683,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                                     newBullet.bulletState.variables.bulletImage = 'none';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;
@@ -2610,6 +2720,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 let bColor = resolveColorParam('#ff3333', state.variables);
                                 let startAngle = centerAngle - (spread * (count - 1)) / 2;
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                                let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = startAngle + spread * k;
                                     let newBullet = {
@@ -2637,7 +2753,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = 100;
-                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    newBullet.bulletState = initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                                    newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                     newBullet.bulletState.variables.bulletType = 'laser';
@@ -2650,9 +2768,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.radius = 8;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;
@@ -2681,6 +2803,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
                                 let bColor = resolveColorParam('#ff3333', state.variables);
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                                let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = centerAngle + (360 / count) * k;
                                     let newBullet = {
@@ -2708,7 +2836,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = 100;
-                                    newBullet.bulletState = initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    newBullet.bulletState = initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                                    newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                     newBullet.bulletState.variables.bulletType = 'laser';
@@ -2721,9 +2851,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.radius = 8;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;

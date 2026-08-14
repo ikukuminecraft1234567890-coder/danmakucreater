@@ -235,6 +235,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                         let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                         let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                         let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                        let hasScript = (cScript && cScript.length > 0) || !!cFn;
                         newBullet.bulletState = _util._initBulletState(cScript, speed, angle, attacker, target, cFn);
                         newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = cScript;
@@ -252,9 +253,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                         newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                         newBullet.bulletState.variables.bulletImage = bImg;
                         newBullet.sharedEmitterState = state;
-                        newBullet.update = (b, bdt) => {
-                            _util._runCustomBulletScript(b, bdt, attacker, target);
-                        };
+                        if (hasScript) {
+                            newBullet.update = (b, bdt) => {
+                                _util._runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                        } else {
+                            newBullet.update = null;
+                        }
                         
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
@@ -330,6 +335,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                             let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = _util._initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -340,9 +346,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.bulletState.variables.bulletImage = bImg;
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                _util._runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    _util._runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             
                             bullets.push(newBullet);
                         }
@@ -422,6 +432,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                             let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = _util._initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -432,9 +443,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.bulletState.variables.bulletImage = bImg;
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                _util._runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    _util._runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             
                             bullets.push(newBullet);
                         }
@@ -495,7 +510,15 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             newBullet.destroyResist = true;
                         }
                         newBullet.threatWeight = 100;
-                        newBullet.bulletState = _util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                        let isFromBullet = typeof b !== 'undefined' && b !== null;
+                        let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                        let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                        let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                        let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                        let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                        newBullet.bulletState = _util._initBulletState(cScript, 0, angle, attacker, target, cFn);
+                        newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                        newBullet.bulletState.bulletScript = cScript;
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
                         inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                         newBullet.bulletState.variables.bulletType = 'laser';
@@ -508,9 +531,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                         newBullet.bulletState.variables.radius = 8;
                         newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                         newBullet.sharedEmitterState = state;
-                        newBullet.update = (b, bdt) => {
-                            _util._runCustomBulletScript(b, bdt, attacker, target);
-                        };
+                        if (hasScript) {
+                            newBullet.update = (b, bdt) => {
+                                _util._runCustomBulletScript(b, bdt, attacker, target);
+                            };
+                        } else {
+                            newBullet.update = null;
+                        }
                         bullets.push(newBullet);
                         break;
                     }
@@ -574,6 +601,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                             let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = _util._initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -587,9 +615,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                             newBullet.bulletState.variables.bulletImage = 'none';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                _util._runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    _util._runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -652,6 +684,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                             let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                             let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = _util._initBulletState(cScript, speed, angle, attacker, target, cFn);
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
@@ -665,9 +698,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                             newBullet.bulletState.variables.bulletImage = 'none';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                _util._runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    _util._runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -725,7 +762,15 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = 100;
-                            newBullet.bulletState = _util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let isFromBullet = typeof b !== 'undefined' && b !== null;
+                            let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                            let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                            let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                            newBullet.bulletState = _util._initBulletState(cScript, 0, angle, attacker, target, cFn);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                            newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.bulletType = 'laser';
@@ -738,9 +783,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             newBullet.bulletState.variables.radius = 8;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                _util._runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    _util._runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -796,7 +845,15 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 newBullet.destroyResist = true;
                             }
                             newBullet.threatWeight = 100;
-                            newBullet.bulletState = _util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let isFromBullet = typeof b !== 'undefined' && b !== null;
+                            let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                            let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                            let cFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                            newBullet.bulletState = _util._initBulletState(cScript, 0, angle, attacker, target, cFn);
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                            newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
                             inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                             newBullet.bulletState.variables.bulletType = 'laser';
@@ -809,9 +866,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             newBullet.bulletState.variables.radius = 8;
                             newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                             newBullet.sharedEmitterState = state;
-                            newBullet.update = (b, bdt) => {
-                                _util._runCustomBulletScript(b, bdt, attacker, target);
-                            };
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    _util._runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
                             bullets.push(newBullet);
                         }
                         break;
@@ -1151,6 +1212,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                                 let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                                 let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 newBullet.bulletState = _util._initBulletState(childScript, speed, angle, attacker, target, childFn);
                                 newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
@@ -1168,9 +1230,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                 newBullet.bulletState.variables.bulletImage = bImg;
                                 newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                newBullet.update = (childB, childBDT) => {
-                                    _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                };
+                                if (hasScript) {
+                                    newBullet.update = (childB, childBDT) => {
+                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                    };
+                                } else {
+                                    newBullet.update = null;
+                                }
 
                                 bullets.push(newBullet);
                                 break;
@@ -1238,6 +1304,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                                     let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                                     let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                    let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                     newBullet.bulletState = _util._initBulletState(childScript, speed, angle, attacker, target, childFn);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
@@ -1248,9 +1315,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.bulletState.variables.bulletImage = bImg;
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     
                                     bullets.push(newBullet);
                                 }
@@ -1323,6 +1394,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
                                     let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
                                     let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                    let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                     newBullet.bulletState = _util._initBulletState(childScript, speed, angle, attacker, target, childFn);
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
@@ -1333,9 +1405,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.bulletState.variables.bulletImage = bImg;
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     
                                     bullets.push(newBullet);
                                 }
@@ -1393,7 +1469,15 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.destroyResist = true;
                                 }
                                 newBullet.threatWeight = 100;
-                                newBullet.bulletState = _util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                                let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
+                                newBullet.bulletState = _util._initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                                newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
                                 inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                 newBullet.bulletState.variables.bulletType = 'laser';
@@ -1406,9 +1490,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 newBullet.bulletState.variables.radius = 8;
                                 newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                 newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                newBullet.update = (childB, childBDT) => {
-                                    _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                };
+                                if (hasScript) {
+                                    newBullet.update = (childB, childBDT) => {
+                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                    };
+                                } else {
+                                    newBullet.update = null;
+                                }
                                 bullets.push(newBullet);
                                 break;
                             }
@@ -1436,9 +1524,12 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
-                                let startAngle = centerAngle - (spread * (count - 1)) / 2;
-                                let childScript = state.magicCircleScript || [];
-                                let magicCompiledFn = window.compiledDanmaku && state.id ? window.compiledDanmaku[state.id + '_magic'] : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                                let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = startAngle + spread * k;
                                     let angleRad = angle * Math.PI / 180;
@@ -1469,8 +1560,8 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = _util._computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = _util._initBulletState(childScript, speed, angle, attacker, target, magicCompiledFn);
-                                    newBullet.bulletState.magicCircleScript = childScript;
+                                    newBullet.bulletState = _util._initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -1482,9 +1573,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                                     newBullet.bulletState.variables.bulletImage = 'none';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;
@@ -1512,8 +1607,12 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
-                                let childScript = state.magicCircleScript || [];
-                                let magicCompiledFn = window.compiledDanmaku && state.id ? window.compiledDanmaku[state.id + '_magic'] : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                                let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = centerAngle + (360 / count) * k;
                                     let angleRad = angle * Math.PI / 180;
@@ -1544,8 +1643,8 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = _util._computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
-                                    newBullet.bulletState = _util._initBulletState(childScript, speed, angle, attacker, target, magicCompiledFn);
-                                    newBullet.bulletState.magicCircleScript = childScript;
+                                    newBullet.bulletState = _util._initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
@@ -1557,9 +1656,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.bulletState.variables.shrinkTime = newBullet.shrinkTime;
                                     newBullet.bulletState.variables.bulletImage = 'none';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;
@@ -1590,6 +1693,12 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 }
                                 let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
                                 let startAngle = centerAngle - (spread * (count - 1)) / 2;
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                                let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = startAngle + spread * k;
                                     let newBullet = {
@@ -1617,7 +1726,9 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = 100;
-                                    newBullet.bulletState = _util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    newBullet.bulletState = _util._initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                                    newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                     newBullet.bulletState.variables.bulletType = 'laser';
@@ -1630,9 +1741,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.bulletState.variables.radius = 8;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;
@@ -1661,6 +1776,12 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
                                 let bColor = window.DanmakuCompilerRuntime.resolveColorParam('#ff3333', state.variables);
+                                let isFromBullet = typeof b !== 'undefined' && b !== null;
+                                let defaultScript = isFromBullet ? [] : (state.bulletScript || []);
+                                let defaultFn = isFromBullet ? null : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                let childScript = (p.children && p.children.length > 0) ? p.children : defaultScript;
+                                let childFn = (p.children && p.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 for (let k = 0; k < count; k++) {
                                     let angle = centerAngle + (360 / count) * k;
                                     let newBullet = {
@@ -1688,7 +1809,9 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                         newBullet.destroyResist = true;
                                     }
                                     newBullet.threatWeight = 100;
-                                    newBullet.bulletState = _util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                                    newBullet.bulletState = _util._initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                                    newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
                                     inheritEmitterVariablesToBullet(state, newBullet.bulletState);
                                     newBullet.bulletState.variables.bulletType = 'laser';
@@ -1701,9 +1824,13 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                     newBullet.bulletState.variables.radius = 8;
                                     newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : '';
                                     newBullet.sharedEmitterState = state.sharedEmitterState || state;
-                                    newBullet.update = (childB, childBDT) => {
-                                        _util._runCustomBulletScript(childB, childBDT, attacker, target);
-                                    };
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            _util._runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
                                     bullets.push(newBullet);
                                 }
                                 break;
@@ -2131,8 +2258,8 @@ window.compiledDanmaku['danmaku_1_bullet'] = function*(state, b, attacker, targe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['a9rk4v4oo']) {
-        state.onceMap['a9rk4v4oo'] = true;
+      if (!state.onceMap['ybru3wp5r']) {
+        state.onceMap['ybru3wp5r'] = true;
         vars['x'] = 384;
         vars['y'] = 448;
       }
@@ -2219,8 +2346,8 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['qe6kpdrga']) {
-      state.onceMap['qe6kpdrga'] = true;
+    if (!state.onceMap['vu0724q9t']) {
+      state.onceMap['vu0724q9t'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -2333,8 +2460,8 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['jscwkmpew']) {
-      state.onceMap['jscwkmpew'] = true;
+    if (!state.onceMap['zn1gu9ses']) {
+      state.onceMap['zn1gu9ses'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -2538,8 +2665,8 @@ window.compiledDanmaku['danmaku_6_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['dv4uv73jm']) {
-      state.onceMap['dv4uv73jm'] = true;
+    if (!state.onceMap['zzy9az6s0']) {
+      state.onceMap['zzy9az6s0'] = true;
       vars['shotTimer'] = 0;
     }
     vars['speed'] = (vars['speed'] || 0) + (2);
@@ -2707,8 +2834,8 @@ window.compiledDanmaku['danmaku_8_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['358xqd134']) {
-      state.onceMap['358xqd134'] = true;
+    if (!state.onceMap['p9yvnyupd']) {
+      state.onceMap['p9yvnyupd'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         vars['x'] = (vars.spawn !== undefined ? vars.spawn : 0);
       }
@@ -2917,8 +3044,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ijfasc202']) {
-        state.onceMap['ijfasc202'] = true;
+      if (!state.onceMap['yknc2z3c9']) {
+        state.onceMap['yknc2z3c9'] = true;
         vars['x'] = (vars.tx !== undefined ? vars.tx : 0);
         vars['angle'] = 90;
       }
@@ -2931,8 +3058,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
       vars['angle'] = (vars['angle'] || 0) + (random(0,0));
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['wcxe3iyl1']) {
-      state.onceMap['wcxe3iyl1'] = true;
+    if (!state.onceMap['292b5t1ic']) {
+      state.onceMap['292b5t1ic'] = true;
       vars['speed'] = (vars['speed'] || 0) + (40);
     }
     state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
@@ -3102,8 +3229,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (1.4) && ((vars.timer !== undefined ? vars.timer : 0)) <= (2)))) {
         vars['speed'] = 300;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['6q0e0fepg']) {
-          state.onceMap['6q0e0fepg'] = true;
+        if (!state.onceMap['cvyvqu13i']) {
+          state.onceMap['cvyvqu13i'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -3117,8 +3244,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 150;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['z8zqrh0yj']) {
-        state.onceMap['z8zqrh0yj'] = true;
+      if (!state.onceMap['zst8fnfor']) {
+        state.onceMap['zst8fnfor'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -3128,8 +3255,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 100;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['4ma0n8saq']) {
-        state.onceMap['4ma0n8saq'] = true;
+      if (!state.onceMap['0u15mhbsz']) {
+        state.onceMap['0u15mhbsz'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -3197,8 +3324,8 @@ window.compiledDanmaku['danmaku_11_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['uszl1h8pv']) {
-      state.onceMap['uszl1h8pv'] = true;
+    if (!state.onceMap['2ky6g5ufe']) {
+      state.onceMap['2ky6g5ufe'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-2,2));
       vars['speed'] = (vars['speed'] || 0) + (random(0,0));
     }
@@ -3329,15 +3456,15 @@ window.compiledDanmaku['danmaku_13_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['fcpgfbmob']) {
-        state.onceMap['fcpgfbmob'] = true;
+      if (!state.onceMap['pk7h7y0pg']) {
+        state.onceMap['pk7h7y0pg'] = true;
         vars['x'] = 379 + (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3332").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['189huma94']) {
-        state.onceMap['189huma94'] = true;
+      if (!state.onceMap['csv2ur6ia']) {
+        state.onceMap['csv2ur6ia'] = true;
         vars['x'] = 379 - (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
@@ -3453,8 +3580,8 @@ window.compiledDanmaku['danmaku_15_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['c7twr4eqv']) {
-      state.onceMap['c7twr4eqv'] = true;
+    if (!state.onceMap['tnmomrflp']) {
+      state.onceMap['tnmomrflp'] = true;
       vars['yp'] = -40;
     }
     vars['y'] = (vars['y'] || 0) + ((vars.yp !== undefined ? vars.yp : 0) / 10);
@@ -3693,8 +3820,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if (!!(_util.fuzzyEqual((vars.e_t !== undefined ? vars.e_t : 0),1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['im39268s3']) {
-        state.onceMap['im39268s3'] = true;
+      if (!state.onceMap['qgip60297']) {
+        state.onceMap['qgip60297'] = true;
         vars['flag'] = 1;
       }
     }
@@ -3704,8 +3831,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['go5qzyf3j']) {
-          state.onceMap['go5qzyf3j'] = true;
+        if (!state.onceMap['r6pzd1tw2']) {
+          state.onceMap['r6pzd1tw2'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -3713,8 +3840,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['7x2uo00tb']) {
-          state.onceMap['7x2uo00tb'] = true;
+        if (!state.onceMap['jx1vx9jb5']) {
+          state.onceMap['jx1vx9jb5'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -3722,16 +3849,16 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['jagx2z58h']) {
-          state.onceMap['jagx2z58h'] = true;
+        if (!state.onceMap['y6i7tcwbl']) {
+          state.onceMap['y6i7tcwbl'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
       }
       if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['xjpp0vnv7']) {
-          state.onceMap['xjpp0vnv7'] = true;
+        if (!state.onceMap['qguz6b27h']) {
+          state.onceMap['qguz6b27h'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
@@ -3812,8 +3939,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['l24zkybf7']) {
-          state.onceMap['l24zkybf7'] = true;
+        if (!state.onceMap['ddm0lisw2']) {
+          state.onceMap['ddm0lisw2'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -3825,8 +3952,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['6abe2y3uf']) {
-          state.onceMap['6abe2y3uf'] = true;
+        if (!state.onceMap['x86hwi7qa']) {
+          state.onceMap['x86hwi7qa'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -4241,8 +4368,8 @@ window.compiledDanmaku['danmaku_23_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['8ss55kykz']) {
-      state.onceMap['8ss55kykz'] = true;
+    if (!state.onceMap['qwimiof00']) {
+      state.onceMap['qwimiof00'] = true;
       state.waitTimer = Math.max(0.001, 0.02);
       yield;
       vars['speed'] = 200;
@@ -4416,8 +4543,8 @@ window.compiledDanmaku['danmaku_24_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9E76B4").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['9mgew3vyf']) {
-        state.onceMap['9mgew3vyf'] = true;
+      if (!state.onceMap['d35tbk8et']) {
+        state.onceMap['d35tbk8et'] = true;
         vars['xsp'] = random(-200,968);
         vars['x'] = (vars.xsp !== undefined ? vars.xsp : 0);
         vars['y'] = 0;
@@ -4488,8 +4615,8 @@ window.compiledDanmaku['danmaku_25'] = function*(state, b, attacker, target, _ut
     yield;
   }
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['7zf36hube']) {
-    state.onceMap['7zf36hube'] = true;
+  if (!state.onceMap['l2ho013vf']) {
+    state.onceMap['l2ho013vf'] = true;
     vars['w'] = 0.6;
   }
   while (true) {
@@ -4762,8 +4889,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (3)))) {
         vars['speed'] = 320;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['remnqdukc']) {
-          state.onceMap['remnqdukc'] = true;
+        if (!state.onceMap['t7e01twek']) {
+          state.onceMap['t7e01twek'] = true;
           vars['angle'] = (vars['angle'] || 0) + (180);
         }
       }
@@ -4775,8 +4902,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffff99").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['2hnk8fzvd']) {
-        state.onceMap['2hnk8fzvd'] = true;
+      if (!state.onceMap['0cfm1kai3']) {
+        state.onceMap['0cfm1kai3'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "angle", from: "angle", to: "ag", mode: "seconds", duration: "0.6", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -4843,8 +4970,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,(vars.henkat !== undefined ? vars.henkat : 0)))) {
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['ymdbvtpwh']) {
-          state.onceMap['ymdbvtpwh'] = true;
+        if (!state.onceMap['kjmazx4hl']) {
+          state.onceMap['kjmazx4hl'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -4864,8 +4991,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ff88").trim().toLowerCase())) {
       if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['s3yku4elr']) {
-          state.onceMap['s3yku4elr'] = true;
+        if (!state.onceMap['tb97jpk3w']) {
+          state.onceMap['tb97jpk3w'] = true;
           if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -4936,8 +5063,8 @@ window.compiledDanmaku['danmaku_32'] = function*(state, b, attacker, target, _ut
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['h8lfeeyz7']) {
-    state.onceMap['h8lfeeyz7'] = true;
+  if (!state.onceMap['1g6xy4stj']) {
+    state.onceMap['1g6xy4stj'] = true;
     vars['t'] = 1.5;
   }
   vars['i'] = 0;
@@ -5672,8 +5799,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (4)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['onurtef98']) {
-        state.onceMap['onurtef98'] = true;
+      if (!state.onceMap['rgc83q952']) {
+        state.onceMap['rgc83q952'] = true;
         vars['speed'] = 80;
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
@@ -5682,8 +5809,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
     }
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,7.5))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['wwsxwte1r']) {
-        state.onceMap['wwsxwte1r'] = true;
+      if (!state.onceMap['ozs04ibln']) {
+        state.onceMap['ozs04ibln'] = true;
         vars['speed'] = 30;
         vars['color'] = "#dddddd";
       }
@@ -6099,8 +6226,8 @@ window.compiledDanmaku['danmaku_43_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['hah4xv089']) {
-      state.onceMap['hah4xv089'] = true;
+    if (!state.onceMap['qzqjkr7ly']) {
+      state.onceMap['qzqjkr7ly'] = true;
       vars['hitRadius'] = 0;
       if (_util.executeBlock({ type: 'advance', distance: "sp / 4", }, state, b, attacker, target, _util)) {
         yield;
@@ -6160,8 +6287,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['2q0zzqop5']) {
-        state.onceMap['2q0zzqop5'] = true;
+      if (!state.onceMap['7c8l39epr']) {
+        state.onceMap['7c8l39epr'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6169,8 +6296,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['q3laznxdp']) {
-        state.onceMap['q3laznxdp'] = true;
+      if (!state.onceMap['22v9jhji0']) {
+        state.onceMap['22v9jhji0'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6178,8 +6305,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hlanvivny']) {
-        state.onceMap['hlanvivny'] = true;
+      if (!state.onceMap['k42q56xij']) {
+        state.onceMap['k42q56xij'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6187,8 +6314,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['kb9ul8bt2']) {
-        state.onceMap['kb9ul8bt2'] = true;
+      if (!state.onceMap['ir458l6ld']) {
+        state.onceMap['ir458l6ld'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
       }
     }
@@ -6342,8 +6469,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (7);
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['2z1f218n8']) {
-        state.onceMap['2z1f218n8'] = true;
+      if (!state.onceMap['y18cjt697']) {
+        state.onceMap['y18cjt697'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -6351,8 +6478,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['t4ihwezld']) {
-        state.onceMap['t4ihwezld'] = true;
+      if (!state.onceMap['vqap1npmp']) {
+        state.onceMap['vqap1npmp'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -6360,16 +6487,16 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['c2ou3zu8k']) {
-        state.onceMap['c2ou3zu8k'] = true;
+      if (!state.onceMap['8kfrw16s8']) {
+        state.onceMap['8kfrw16s8'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['jd0rvd7s6']) {
-        state.onceMap['jd0rvd7s6'] = true;
+      if (!state.onceMap['ef3pc10u6']) {
+        state.onceMap['ef3pc10u6'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
@@ -6833,8 +6960,8 @@ window.compiledDanmaku['danmaku_52_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hc3u067w1']) {
-        state.onceMap['hc3u067w1'] = true;
+      if (!state.onceMap['ykhn8s2fh']) {
+        state.onceMap['ykhn8s2fh'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -6955,8 +7082,8 @@ window.compiledDanmaku['danmaku_53_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['w6apj7kjm']) {
-        state.onceMap['w6apj7kjm'] = true;
+      if (!state.onceMap['qx89zh33q']) {
+        state.onceMap['qx89zh33q'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -7186,8 +7313,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9457eb").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['vxa38dv5y']) {
-        state.onceMap['vxa38dv5y'] = true;
+      if (!state.onceMap['z23ds1sbm']) {
+        state.onceMap['z23ds1sbm'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -7203,8 +7330,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['luem8fsgi']) {
-        state.onceMap['luem8fsgi'] = true;
+      if (!state.onceMap['xsmjipbpo']) {
+        state.onceMap['xsmjipbpo'] = true;
         vars['warningTime'] = 0.0;
         vars['activeTime'] = 70;
         vars['laserWidth'] = 30;
@@ -7517,8 +7644,8 @@ window.compiledDanmaku['danmaku_58_bullet'] = function*(state, b, attacker, targ
   while (true) {
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['8zmlpmvbl']) {
-      state.onceMap['8zmlpmvbl'] = true;
+    if (!state.onceMap['rgf55rxkb']) {
+      state.onceMap['rgf55rxkb'] = true;
       if (!!(_util.fuzzyEqual((vars.speed !== undefined ? vars.speed : 0) ,140))) {
         vars['curve'] = -1.6;
       }
@@ -7585,8 +7712,8 @@ window.compiledDanmaku['danmaku_59_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['j8czh7jwr']) {
-      state.onceMap['j8czh7jwr'] = true;
+    if (!state.onceMap['u9wyje783']) {
+      state.onceMap['u9wyje783'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() !== String("#33ffff").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
           yield;
@@ -7782,8 +7909,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['k3gd50h09']) {
-        state.onceMap['k3gd50h09'] = true;
+      if (!state.onceMap['cjei3736s']) {
+        state.onceMap['cjei3736s'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -7791,8 +7918,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['skmb4f5lo']) {
-        state.onceMap['skmb4f5lo'] = true;
+      if (!state.onceMap['zlr2gocmd']) {
+        state.onceMap['zlr2gocmd'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -7974,8 +8101,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['sms3tz4vu']) {
-        state.onceMap['sms3tz4vu'] = true;
+      if (!state.onceMap['kd8s1luue']) {
+        state.onceMap['kd8s1luue'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -7983,8 +8110,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['5uzzgf8kw']) {
-        state.onceMap['5uzzgf8kw'] = true;
+      if (!state.onceMap['b3k42niuc']) {
+        state.onceMap['b3k42niuc'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8148,8 +8275,8 @@ window.compiledDanmaku['danmaku_63_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1 + (vars.kasoku !== undefined ? vars.kasoku : 0));
     vars['kasoku'] = (vars['kasoku'] || 0) + (0.02);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['wadlopy9x']) {
-      state.onceMap['wadlopy9x'] = true;
+    if (!state.onceMap['y1m3y6jr4']) {
+      state.onceMap['y1m3y6jr4'] = true;
       vars['angle'] = (vars['angle'] || 0) + (45 + (vars.ofangle !== undefined ? vars.ofangle : 0));
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -8255,8 +8382,8 @@ window.compiledDanmaku['danmaku_64_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + (0.4 * (vars.kakudo !== undefined ? vars.kakudo : 0) - (vars.l !== undefined ? vars.l : 0) * (vars.kakudo !== undefined ? vars.kakudo : 0));
       vars['l'] = (vars['l'] || 0) + (0.000);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['b09649tpq']) {
-        state.onceMap['b09649tpq'] = true;
+      if (!state.onceMap['zz8bj11my']) {
+        state.onceMap['zz8bj11my'] = true;
         vars['speed'] = 100;
       }
       vars['speed'] = (vars['speed'] || 0) + (0.5);
@@ -8354,8 +8481,8 @@ window.compiledDanmaku['danmaku_66_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['z1lr6r5q2']) {
-      state.onceMap['z1lr6r5q2'] = true;
+    if (!state.onceMap['2hq9s6i74']) {
+      state.onceMap['2hq9s6i74'] = true;
       vars['x'] = random(-300,1000);
       vars['y'] = 0;
       vars['angle'] = 90 + 10 * (vars.kakudo !== undefined ? vars.kakudo : 0);
@@ -8428,8 +8555,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['5fsu4dxnt']) {
-        state.onceMap['5fsu4dxnt'] = true;
+      if (!state.onceMap['4t71q3d8r']) {
+        state.onceMap['4t71q3d8r'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "120 + seedrandom[5](-0,50)", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8446,8 +8573,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['r1keijhxy']) {
-        state.onceMap['r1keijhxy'] = true;
+      if (!state.onceMap['nezzjwnmo']) {
+        state.onceMap['nezzjwnmo'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8460,8 +8587,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['fsjdyst2t']) {
-        state.onceMap['fsjdyst2t'] = true;
+      if (!state.onceMap['kjgdp7ar7']) {
+        state.onceMap['kjgdp7ar7'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8528,8 +8655,8 @@ window.compiledDanmaku['danmaku_68_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['l1xgx08ip']) {
-      state.onceMap['l1xgx08ip'] = true;
+    if (!state.onceMap['f8dr1z4d2']) {
+      state.onceMap['f8dr1z4d2'] = true;
       vars['count'] = 0;
       vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
     }
@@ -8689,8 +8816,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['cq0j8qu33']) {
-      state.onceMap['cq0j8qu33'] = true;
+    if (!state.onceMap['0dfs1gs2u']) {
+      state.onceMap['0dfs1gs2u'] = true;
       vars['y'] = (vars['y'] || 0) - (100);
       vars['speed'] = 400;
       vars['x'] = (vars['x'] || 0) + (random(-200,200));
@@ -8701,8 +8828,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!!(abs((vars.y !== undefined ? vars.y : 0)  - (vars.ty !== undefined ? vars.ty : 0)) <= 20)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['9gg3y9mzx']) {
-        state.onceMap['9gg3y9mzx'] = true;
+      if (!state.onceMap['9sourrtvb']) {
+        state.onceMap['9sourrtvb'] = true;
         vars['speed'] = 0;
         vars['angle'] = 90;
         if (!!((vars.x !== undefined ? vars.x : 0) < (vars.tx !== undefined ? vars.tx : 0))) {
@@ -8729,8 +8856,8 @@ window.compiledDanmaku['danmaku_70_magic'] = function*(state, b, attacker, targe
   while (true) {
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['8yl4yr0f9']) {
-      state.onceMap['8yl4yr0f9'] = true;
+    if (!state.onceMap['cbf9dm93o']) {
+      state.onceMap['cbf9dm93o'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-6,6));
     }
     state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
