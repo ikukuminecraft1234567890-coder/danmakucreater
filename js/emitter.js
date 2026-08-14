@@ -198,8 +198,19 @@ function stepEmitter(c, state, attacker, target, dt) {
             let dy = isPlayerSide ? (attacker.y - target.y) : (target.y - attacker.y);
             state.variables.dist = Math.sqrt(dx * dx + dy * dy);
 
+            if (state.parallelThreads) {
+                let allFinished = true;
+                for (let thread of state.parallelThreads) {
+                    syncParallelThreadState(state, thread);
+                    stepEmitter(c, thread, attacker, target, dt);
+                    if (!thread.finished) allFinished = false;
+                }
+                state.finished = allFinished;
+                return;
+            }
+
             // AOTコンパイルされたジェネレータがある場合は、ASTインタプリタをバイパスしてそちらを実行
-            if (state.compiledFn) {
+            if (state.compiledFn && typeof state.compiledFn === 'function') {
                 if (!state.compiledGenerator) {
                     window.DanmakuCompilerRuntime._initBulletState = initBulletState;
                     window.DanmakuCompilerRuntime._runCustomBulletScript = runCustomBulletScript;
@@ -235,17 +246,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                     }
                 }
-                return;
-            }
-
-            if (state.parallelThreads) {
-                let allFinished = true;
-                for (let thread of state.parallelThreads) {
-                    syncParallelThreadState(state, thread);
-                    stepEmitter(c, thread, attacker, target, dt);
-                    if (!thread.finished) allFinished = false;
-                }
-                state.finished = allFinished;
                 return;
             }
 

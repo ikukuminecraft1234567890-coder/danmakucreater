@@ -107,6 +107,38 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
     return js;
 };
 
+window.DanmakuCompiler.isParallelRootBlock = function(block) {
+    return block && ['repeat', 'forever', 'while', 'if', 'once'].includes(block.type);
+};
+
+window.DanmakuCompiler.splitParallelThreadGroups = function(blocks) {
+    const rootBlocks = blocks || [];
+    if (rootBlocks.filter(window.DanmakuCompiler.isParallelRootBlock).length < 2) return null;
+
+    const setupBlocks = [];
+    const threadGroups = [];
+    let currentGroup = null;
+
+    rootBlocks.forEach(block => {
+        if (window.DanmakuCompiler.isParallelRootBlock(block)) {
+            currentGroup = [block];
+            threadGroups.push(currentGroup);
+        } else if (currentGroup) {
+            currentGroup.push(block);
+        } else {
+            setupBlocks.push(block);
+        }
+    });
+
+    if (setupBlocks.length > 0) {
+        threadGroups.forEach(group => {
+            group.unshift(...JSON.parse(JSON.stringify(setupBlocks)));
+        });
+    }
+
+    return threadGroups;
+};
+
 window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     let funcStr = `function*(state, b, attacker, target, _util) {\n`;
     funcStr += `  let vars = state.variables;\n`;

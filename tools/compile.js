@@ -210,8 +210,17 @@ window.DanmakuCompilerRuntime.checkInterval = function(currentVal, interval, sta
             // Compile emitterScript
             let blocks = Array.isArray(danmaku.emitterScript) ? danmaku.emitterScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.emitterScript) : []);
             let compiledBlocks = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(blocks))) : [];
-            let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
-            outputJS += `window.compiledDanmaku['${id}'] = ${funcStr};\n`;
+            let threadGroups = typeof window.DanmakuCompiler.splitParallelThreadGroups === 'function'
+                ? window.DanmakuCompiler.splitParallelThreadGroups(compiledBlocks)
+                : null;
+
+            if (threadGroups && threadGroups.length >= 2) {
+                let funcs = threadGroups.map(group => window.DanmakuCompiler.compileSingle(group));
+                outputJS += `window.compiledDanmaku['${id}'] = [\n  ${funcs.join(',\n  ')}\n];\n`;
+            } else {
+                let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
+                outputJS += `window.compiledDanmaku['${id}'] = ${funcStr};\n`;
+            }
             
             // Compile bulletScript
             let bBlocks = Array.isArray(danmaku.bulletScript) ? danmaku.bulletScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.bulletScript) : []);

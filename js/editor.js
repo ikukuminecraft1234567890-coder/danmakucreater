@@ -1442,6 +1442,8 @@ function customCardMakerSwitchTab(tab) {
             
             activeCards = [ tempCustomCard ];
             activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
+            activeCards[0].emitterState.bulletScript = tempCustomCard.bulletScript || [];
+            activeCards[0].emitterState.magicCircleScript = tempCustomCard.magicCircleScript || [];
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
             customCardDeathEffect = null;
@@ -3731,6 +3733,8 @@ function customCardMakerSwitchMode(mode) {
 
             activeCards = [ tempCustomCard ];
             activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
+            activeCards[0].emitterState.bulletScript = tempCustomCard.bulletScript || [];
+            activeCards[0].emitterState.magicCircleScript = tempCustomCard.magicCircleScript || [];
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
             customCardDeathEffect = null;

@@ -4781,8 +4781,9 @@ function applyAbilityEffect(cardId, owner) {
                 }
             });
 
-            state.parallelThreads = threadGroups.map(group => ({
+            state.parallelThreads = threadGroups.map((group, idx) => ({
                 blocks: group,
+                compiledFn: Array.isArray(state.compiledFn) ? state.compiledFn[idx] : null,
                 pc: 0,
                 waitTimer: 0,
                 stack: [],
@@ -4792,7 +4793,10 @@ function applyAbilityEffect(cardId, owner) {
                 isParallelThread: true,
                 lifetimeOnce: state.lifetimeOnce,
                 constVars: state.constVars,
-                speedScaleApplied: state.speedScaleApplied
+                speedScaleApplied: state.speedScaleApplied,
+                id: state.id,
+                bulletScript: state.bulletScript,
+                magicCircleScript: state.magicCircleScript
             }));
             state.finished = false;
         }
@@ -4803,6 +4807,9 @@ function applyAbilityEffect(cardId, owner) {
             thread.lifetimeOnce = parent.lifetimeOnce;
             thread.constVars = parent.constVars;
             thread.speedScaleApplied = parent.speedScaleApplied;
+            thread.id = parent.id;
+            thread.bulletScript = parent.bulletScript;
+            thread.magicCircleScript = parent.magicCircleScript;
         }
 
         function evalValue(expr, variables, block, key) {
