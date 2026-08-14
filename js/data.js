@@ -1593,6 +1593,10 @@
             const focused = document.activeElement;
             if (focused && (focused.tagName === 'TEXTAREA' || focused.tagName === 'INPUT')) return;
 
+            if (e.key === 'F3' || e.keyCode === 114) {
+                e.preventDefault();
+            }
+
             if (e.key === 'd' || e.key === 'D') {
                 window.showDebugProfiler = !window.showDebugProfiler;
                 window.debugShowHitboxes = !window.debugShowHitboxes;

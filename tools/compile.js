@@ -92,7 +92,35 @@ function compileDanmakuToJS() {
             }
         }
 
-        let switchBody = emitterText.substring(startIndex, endIndex + 1);
+        let switchBody1 = emitterText.substring(startIndex, endIndex); // 最後の '}' を含めない
+        
+        let switchBody2 = "";
+        if (switchMatches.length > 1) {
+            let startIndex2 = switchMatches[1].index;
+            let braceCount2 = 0;
+            let endIndex2 = -1;
+            let started2 = false;
+            for (let i = startIndex2; i < emitterText.length; i++) {
+                if (emitterText[i] === '{') {
+                    braceCount2++;
+                    started2 = true;
+                } else if (emitterText[i] === '}') {
+                    braceCount2--;
+                    if (started2 && braceCount2 === 0) {
+                        endIndex2 = i;
+                        break;
+                    }
+                }
+            }
+            let fullSwitch2 = emitterText.substring(startIndex2, endIndex2);
+            let firstBrace = fullSwitch2.indexOf('{');
+            if (firstBrace !== -1) {
+                switchBody2 = fullSwitch2.substring(firstBrace + 1);
+            }
+        }
+
+        let switchBody = switchBody1 + "\n" + switchBody2 + "\n        }";
+
         let runtimeBlocksCode = switchBody;
         runtimeBlocksCode = runtimeBlocksCode.replace(/block\.params/g, 'p');
         runtimeBlocksCode = runtimeBlocksCode.replace(/block\.type/g, 'p.type');
@@ -106,12 +134,12 @@ function compileDanmakuToJS() {
         // childScript版 (通常 spawn / ring / aim / fan)
         runtimeBlocksCode = runtimeBlocksCode.replace(
             /_util\._initBulletState\(childScript,\s*speed,\s*angle,\s*attacker,\s*target\)/g,
-            "_util._initBulletState(childScript, speed, angle, attacker, target, (window.compiledDanmaku && state.danmakuId) ? (window.compiledDanmaku[state.danmakuId + '_bullet'] || null) : null)"
+            "_util._initBulletState(childScript, speed, angle, attacker, target, (window.compiledDanmaku && state.id) ? (window.compiledDanmaku[state.id + '_bullet'] || null) : null)"
         );
         // 空 script 版 (magicCircle spawn)
         runtimeBlocksCode = runtimeBlocksCode.replace(
             /_util\._initBulletState\(\[\],\s*0,\s*angle,\s*attacker,\s*target\)/g,
-            "_util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.danmakuId) ? (window.compiledDanmaku[state.danmakuId + '_magic'] || null) : null)"
+            "_util._initBulletState([], 0, angle, attacker, target, (window.compiledDanmaku && state.id) ? (window.compiledDanmaku[state.id + '_magic'] || null) : null)"
         );
 
         let outputJS = `// ==========================================

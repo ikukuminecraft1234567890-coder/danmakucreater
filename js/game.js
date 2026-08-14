@@ -18,6 +18,7 @@ window.ceil = Math.ceil;
 
 window.DanmakuCompilerRuntime = window.DanmakuCompilerRuntime || {};
 window.DanmakuCompilerRuntime.rand = (a, b) => {
+  if (window.showDebugProfiler) console.log(`[DEBUG AOT] rand(${a}, ${b}) called`);
   if (b !== undefined) return Number(a || 0) + Math.random() * (Number(b || 0) - Number(a || 0));
   if (a !== undefined) return Math.random() * Number(a || 0);
   return Math.random();

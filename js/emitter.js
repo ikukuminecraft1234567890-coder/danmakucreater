@@ -229,6 +229,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                         state.finished = true;
                         break;
                     }
+                    if (state.waitTimer > 0 || state.waitingTweenName) {
+                        state.waitTimer -= dtRemaining;
+                        dtRemaining = 0;
+                        break;
+                    }
                 }
                 return;
             }
@@ -1302,7 +1307,9 @@ function stepEmitter(c, state, attacker, target, dt) {
             } // 内側ループ
             
             if (brokeToWait || state.waitingTweenName) {
-                // 次のループで waitTimer が消費される
+                state.waitTimer -= dtRemaining;
+                dtRemaining = 0;
+                break;
             } else if (!state.finished) {
                 break;
             }
@@ -1561,6 +1568,9 @@ function stepEmitter(c, state, attacker, target, dt) {
         function runCustomBulletScript(b, dt, attacker, target) {
             let state = b.bulletState;
             if (!state) return;
+            if (window.showDebugProfiler && state.variables.timer === 0) {
+                console.log(`[DEBUG AOT] runCustomBulletScript started for bullet at (${b.x.toFixed(1)}, ${b.y.toFixed(1)})`);
+            }
 
             // ── 超軽量化処理：完了済みの弾は b.update を削除して二度と処理しない ──
             // (Reverted to ensure 100% original behavior)
@@ -1878,6 +1888,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                         const result = state.compiledGenerator.next();
                         if (result.done) { 
                             state.finished = true;
+                            break;
+                        }
+                        if (state.waitTimer > 0 || state.waitingTweenName) {
+                            state.waitTimer -= dtRemaining;
+                            dtRemaining = 0;
                             break;
                         }
                     }
@@ -2914,8 +2929,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                     } // 内側ループ
                     
-                    if (brokeToWait) {
-                        // 次のループで waitTimer が消費される
+                    if (brokeToWait || state.waitingTweenName) {
+                        state.waitTimer -= dtRemaining;
+                        dtRemaining = 0;
+                        break;
                     } else if (!state.finished) {
                         break;
                     }

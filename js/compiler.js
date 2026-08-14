@@ -89,8 +89,8 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             }
             if (block.params) {
                 for (let key in block.params) {
-                    let exprVal = window.DanmakuCompiler.getExpr(block, key, 'undefined');
-                    js += `${key}: ${exprVal}, `;
+                    let rawVal = block.params[key];
+                    js += `${key}: ${JSON.stringify(rawVal)}, `;
                 }
             }
             if (block.children && block.children.length > 0) {
