@@ -565,6 +565,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                         let hasScript = (cScript && cScript.length > 0) || !!cFn;
                         newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
+                        newBullet.bulletState.id = state.id || null;
                         newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = cScript;
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -665,6 +666,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                             let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
+                            newBullet.bulletState.id = state.id || null;
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -762,6 +764,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                             let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
+                            newBullet.bulletState.id = state.id || null;
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -845,6 +848,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                         let hasScript = (cScript && cScript.length > 0) || !!cFn;
                         newBullet.bulletState = initBulletState(cScript, 0, angle, attacker, target, cFn);
+                        newBullet.bulletState.id = state.id || null;
                         newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                         newBullet.bulletState.bulletScript = cScript;
                         newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -931,6 +935,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                             let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
+                            newBullet.bulletState.id = state.id || null;
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -1014,6 +1019,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                             let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, speed, angle, attacker, target, cFn);
+                            newBullet.bulletState.id = state.id || null;
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -1097,6 +1103,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                             let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, 0, angle, attacker, target, cFn);
+                            newBullet.bulletState.id = state.id || null;
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -1180,6 +1187,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                             let hasScript = (cScript && cScript.length > 0) || !!cFn;
                             newBullet.bulletState = initBulletState(cScript, 0, angle, attacker, target, cFn);
+                            newBullet.bulletState.id = state.id || null;
                             newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                             newBullet.bulletState.bulletScript = cScript;
                             newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2241,6 +2249,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                                 let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                newBullet.bulletState.id = state.id || null;
                                 newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2333,6 +2342,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                                     let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                     newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.id = state.id || null;
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2423,6 +2433,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                                     let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                     newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.id = state.id || null;
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2503,6 +2514,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let childFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
                                 let hasScript = (childScript && childScript.length > 0) || !!childFn;
                                 newBullet.bulletState = initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                newBullet.bulletState.id = state.id || null;
                                 newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                 newBullet.bulletState.bulletScript = childScript;
                                 newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2588,6 +2600,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                     newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
                                     newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.id = state.id || null;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2671,6 +2684,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                     newBullet.threatWeight = computeBulletThreatWeight(spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y);
                                     newBullet.bulletState = initBulletState(childScript, speed, angle, attacker, target, childFn);
+                                    newBullet.bulletState.id = state.id || null;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2754,6 +2768,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                     newBullet.threatWeight = 100;
                                     newBullet.bulletState = initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                    newBullet.bulletState.id = state.id || null;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;
@@ -2837,6 +2852,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                     newBullet.threatWeight = 100;
                                     newBullet.bulletState = initBulletState(childScript, 0, angle, attacker, target, childFn);
+                                    newBullet.bulletState.id = state.id || null;
                                     newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
                                     newBullet.bulletState.bulletScript = childScript;
                                     newBullet.bulletState.isPlayerSide = isPlayerSide;

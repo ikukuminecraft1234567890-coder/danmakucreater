@@ -321,6 +321,8 @@ function applyAbilityEffect(cardId, owner) {
             selectedCards.forEach(copy => {
                 if (copy.isCustom) {
                     copy.emitterState = initEmitterState(copy.emitterScript, attacker, target, copy.x_offset || 0, copy.y_offset || 0, copy.id);
+                    copy.emitterState.bulletScript = copy.bulletScript || [];
+                    copy.emitterState.magicCircleScript = copy.magicCircleScript || [];
                 }
             });
 
@@ -4361,6 +4363,8 @@ function applyAbilityEffect(cardId, owner) {
             activeReigekis.length = 0;
             
             activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
+            activeCards[0].emitterState.bulletScript = tempCustomCard.bulletScript || [];
+            activeCards[0].emitterState.magicCircleScript = tempCustomCard.magicCircleScript || [];
             actionTimer = tempCustomCard.duration;
             
             gameState = 'BATTLE';
