@@ -1569,7 +1569,7 @@ while (true) {
         aimAtTarget()
         angle += random(-7,7)
         spawnWay("normal", "#ffdd33", 700, angle, 5, 25, 0, 0, 20, "b_ohuda", "relative", "10")
-        wait(0.02)
+        wait(0.0167)
     }
     for (let i = 0; i < 50; i++) {
         angle += 25
@@ -1580,7 +1580,7 @@ while (true) {
             w += 1
             sp += 30
         }
-        wait(0.04)
+        wait(0.0167)
     }
     for (let i = 0; i < 20; i++) {
         angle = random(-80,80)
