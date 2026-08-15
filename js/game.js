@@ -2970,20 +2970,30 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.fillText('B', 0, 0);
                     ctx.restore();
                 } else if (b.isTrail) {
-                    ctx.save();
                     let history = b.trailHistory || [];
                     if (history.length > 1) {
                         let baseR = b.radius || 8;
+
+                        // 画面外カリング（全ノードが完全に画面外なら描画スキップ）
+                        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+                        for (let k = 0; k < history.length; k++) {
+                            let hx = history[k].x, hy = history[k].y;
+                            if (hx < minX) minX = hx;
+                            if (hx > maxX) maxX = hx;
+                            if (hy < minY) minY = hy;
+                            if (hy > maxY) maxY = hy;
+                        }
+                        let margin = baseR + 20;
+                        if (maxX < -margin || minX > PLAY_WIDTH + margin || maxY < -margin || minY > canvas.height + margin) {
+                            continue;
+                        }
+
+                        ctx.save();
                         let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
                         let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
                         let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
 
-                        let radCache = new Map();
                         function getTrailNodeRadius(age, scale) {
-                            let key = ((age * 100) | 0) + '_' + scale;
-                            let cached = radCache.get(key);
-                            if (cached !== undefined) return cached;
-
                             let res = 0;
                             if (gT > 0 && age < gT) {
                                 let t = age / gT;
@@ -2994,92 +3004,102 @@ function applyAbilityEffect(cardId, owner) {
                                 let t = (age - (gT + kT)) / sT;
                                 res = baseR * scale * Math.cos(t * Math.PI / 2);
                             }
-                            radCache.set(key, res);
                             return res;
                         }
 
-                        function buildRibbonPath(scale) {
-                            let leftPts = [];
-                            let rightPts = [];
-                            for (let k = 0; k < history.length - 1; k++) {
-                                let p1 = history[k];
-                                let p2 = history[k + 1];
-                                let r1 = getTrailNodeRadius(p1.age, scale);
-                                let r2 = getTrailNodeRadius(p2.age, scale);
-                                if (r1 <= 0.05 && r2 <= 0.05) continue;
+                        // 節ごとの法線ベクトルと基準半径(scale=1.0)を事前計算（オブジェクト生成をプールで完全ゼロ化）
+                        if (!window._trailSpine) window._trailSpine = [];
+                        let spine = window._trailSpine;
+                        let spineCount = 0;
 
-                                let dx = p2.x - p1.x;
-                                let dy = p2.y - p1.y;
-                                let dist = Math.hypot(dx, dy);
-                                if (dist < 0.01) continue;
+                        for (let k = 0; k < history.length - 1; k++) {
+                            let p1 = history[k];
+                            let p2 = history[k + 1];
+                            let r1 = getTrailNodeRadius(p1.age, 1.0);
+                            let r2 = getTrailNodeRadius(p2.age, 1.0);
+                            if (r1 <= 0.05 && r2 <= 0.05) continue;
 
-                                let angle = Math.atan2(dy, dx);
-                                let nx = -Math.sin(angle);
-                                let ny = Math.cos(angle);
+                            let dx = p2.x - p1.x;
+                            let dy = p2.y - p1.y;
+                            let dist = Math.hypot(dx, dy);
+                            if (dist < 0.01) continue;
 
-                                if (leftPts.length === 0) {
-                                    leftPts.push({ x: p1.x + nx * r1, y: p1.y + ny * r1 });
-                                    rightPts.push({ x: p1.x - nx * r1, y: p1.y - ny * r1 });
-                                }
-                                leftPts.push({ x: p2.x + nx * r2, y: p2.y + ny * r2 });
-                                rightPts.push({ x: p2.x - nx * r2, y: p2.y - ny * r2 });
+                            let invDist = 1 / dist;
+                            let nx = -dy * invDist;
+                            let ny = dx * invDist;
+
+                            let sp = spine[spineCount];
+                            if (!sp) {
+                                sp = { p1x: 0, p1y: 0, r1: 0, p2x: 0, p2y: 0, r2: 0, nx: 0, ny: 0 };
+                                spine[spineCount] = sp;
                             }
+                            sp.p1x = p1.x; sp.p1y = p1.y; sp.r1 = r1;
+                            sp.p2x = p2.x; sp.p2y = p2.y; sp.r2 = r2;
+                            sp.nx = nx; sp.ny = ny;
+                            spineCount++;
+                        }
 
-                            if (leftPts.length > 1) {
-                                ctx.moveTo(leftPts[0].x, leftPts[0].y);
-                                for (let i = 1; i < leftPts.length; i++) {
-                                    ctx.lineTo(leftPts[i].x, leftPts[i].y);
+                        if (spineCount > 0) {
+                            function buildRibbonDirect(scale) {
+                                let sp0 = spine[0];
+                                ctx.moveTo(sp0.p1x + sp0.nx * (sp0.r1 * scale), sp0.p1y + sp0.ny * (sp0.r1 * scale));
+                                for (let i = 0; i < spineCount; i++) {
+                                    let sp = spine[i];
+                                    ctx.lineTo(sp.p2x + sp.nx * (sp.r2 * scale), sp.p2y + sp.ny * (sp.r2 * scale));
                                 }
-                                for (let i = rightPts.length - 1; i >= 0; i--) {
-                                    ctx.lineTo(rightPts[i].x, rightPts[i].y);
+                                for (let i = spineCount - 1; i >= 0; i--) {
+                                    let sp = spine[i];
+                                    ctx.lineTo(sp.p2x - sp.nx * (sp.r2 * scale), sp.p2y - sp.ny * (sp.r2 * scale));
                                 }
+                                ctx.lineTo(sp0.p1x - sp0.nx * (sp0.r1 * scale), sp0.p1y - sp0.ny * (sp0.r1 * scale));
                                 ctx.closePath();
                             }
-                        }
 
-                        let mainColor = b.color || '#00ffff';
+                            let mainColor = b.color || '#00ffff';
 
-                        // カラー文字解析（HEX/RGB）
-                        function parseRGB(cStr) {
-                            if (!cStr) return { r: 0, g: 255, b: 255 };
-                            if (cStr.startsWith('#')) {
-                                let hex = cStr.slice(1);
-                                if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-                                let num = parseInt(hex, 16);
-                                if (!isNaN(num)) return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-                            }
-                            let m = cStr.match(/\d+/g);
-                            if (m && m.length >= 3) return { r: Number(m[0]), g: Number(m[1]), b: Number(m[2]) };
-                            return { r: 0, g: 255, b: 255 };
-                        }
-                        let baseRGB = parseRGB(mainColor);
-
-                        // 白5割（0.0～0.50）、グラデーション3割（0.50～0.80）、単色2割（0.80～1.00）
-                        // 1. 外側2割（scale 0.80 ～ 1.00）: 単色メインカラー
-                        ctx.fillStyle = mainColor;
-                        ctx.beginPath();
-                        buildRibbonPath(1.0);
-                        ctx.fill();
-
-                        // 2. 中間3割（scale 0.50 ～ 0.80）: 白からメインカラーへの滑らかグラデーション
-                        let steps = 6;
-                        for (let s = steps; s >= 0; s--) {
-                            let ratio = s / steps; // 1.0 (色側 0.80) -> 0.0 (白側 0.50)
-                            let scale = 0.50 + ratio * 0.30; // 0.50 ～ 0.80
-                            let r = Math.round(255 * (1 - ratio) + baseRGB.r * ratio);
-                            let g = Math.round(255 * (1 - ratio) + baseRGB.g * ratio);
-                            let bVal = Math.round(255 * (1 - ratio) + baseRGB.b * ratio);
-                            ctx.fillStyle = `rgb(${r}, ${g}, ${bVal})`;
+                            // 1. 外側メインカラー
+                            ctx.fillStyle = mainColor;
                             ctx.beginPath();
-                            buildRibbonPath(scale);
+                            buildRibbonDirect(1.0);
+                            ctx.fill();
+
+                            // 2. サイズ20以上の極太レーザーのみ多段階グラデーションを描画
+                            if (baseR >= 20) {
+                                function parseRGB(cStr) {
+                                    if (!cStr) return { r: 0, g: 255, b: 255 };
+                                    if (cStr.startsWith('#')) {
+                                        let hex = cStr.slice(1);
+                                        if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+                                        let num = parseInt(hex, 16);
+                                        if (!isNaN(num)) return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+                                    }
+                                    let m = cStr.match(/\d+/g);
+                                    if (m && m.length >= 3) return { r: Number(m[0]), g: Number(m[1]), b: Number(m[2]) };
+                                    return { r: 0, g: 255, b: 255 };
+                                }
+                                let baseRGB = parseRGB(mainColor);
+
+                                let steps = 6;
+                                for (let s = steps; s >= 0; s--) {
+                                    let ratio = s / steps;
+                                    let scale = 0.50 + ratio * 0.30;
+                                    let r = Math.round(255 * (1 - ratio) + baseRGB.r * ratio);
+                                    let g = Math.round(255 * (1 - ratio) + baseRGB.g * ratio);
+                                    let bVal = Math.round(255 * (1 - ratio) + baseRGB.b * ratio);
+                                    ctx.fillStyle = `rgb(${r}, ${g}, ${bVal})`;
+                                    ctx.beginPath();
+                                    buildRibbonDirect(scale);
+                                    ctx.fill();
+                                }
+                            }
+
+                            // 3. 内側：純白コア
+                            ctx.fillStyle = '#ffffff';
+                            ctx.beginPath();
+                            buildRibbonDirect(0.50);
                             ctx.fill();
                         }
-
-                        // 3. 内側5割（scale 0.50以下）: 純白コア
-                        ctx.fillStyle = '#ffffff';
-                        ctx.beginPath();
-                        buildRibbonPath(0.50);
-                        ctx.fill();
+                        ctx.restore();
                     }
                     ctx.restore();
                 } else if (b.isBeam) {
