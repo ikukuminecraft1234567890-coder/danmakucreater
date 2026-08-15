@@ -624,7 +624,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
                         }
-                        if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                        bullets.push(newBullet);
                         break;
                     }
                     case 'spawn_ring':
@@ -715,7 +715,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.update = null;
                             }
                             
-                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                            bullets.push(newBullet);
                         }
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_ring: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, angle=${centerAngle}`);
@@ -813,7 +813,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.update = null;
                             }
                             
-                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                            bullets.push(newBullet);
                         }
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_way: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, spread=${spread}, centerAngle=${centerAngle}`);
@@ -901,7 +901,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         } else {
                             newBullet.update = null;
                         }
-                        if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                        bullets.push(newBullet);
                         break;
                     }
                     case 'spawn_laser_way':
@@ -986,7 +986,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                            bullets.push(newBullet);
                         }
                         break;
                     }
@@ -1070,7 +1070,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                            bullets.push(newBullet);
                         }
                         break;
                     }
@@ -1156,7 +1156,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                            bullets.push(newBullet);
                         }
                         break;
                     }
@@ -1240,7 +1240,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                            bullets.push(newBullet);
                         }
                         break;
                     }
@@ -2307,7 +2307,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.update = null;
                                 }
 
-                                if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                bullets.push(newBullet);
                                 break;
                             }
                             case 'spawn_ring': {
@@ -2393,7 +2393,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.update = null;
                                     }
                                     
-                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                    bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2484,7 +2484,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.update = null;
                                     }
                                     
-                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                    bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2569,7 +2569,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 } else {
                                     newBullet.update = null;
                                 }
-                                if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                bullets.push(newBullet);
                                 break;
                             }
                             case 'spawn_laser_way':
@@ -2653,7 +2653,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                    bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2737,7 +2737,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                    bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2823,7 +2823,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                    bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2907,7 +2907,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
+                                    bullets.push(newBullet);
                                 }
                                 break;
                             }

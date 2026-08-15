@@ -1583,39 +1583,11 @@ function applyAbilityEffect(cardId, owner) {
 
             startGameLoop();
         }
-
-        window.spawnBulletWithDeduplication = function(newBullet, bullets, vars) {
-            if (!window.frameSpawnedBullets) window.frameSpawnedBullets = new Map();
-            let dupKey = `${Math.round(newBullet.x*10)},${Math.round(newBullet.y*10)},${Math.round(newBullet.angle*10)},${Math.round(newBullet.speed*10)},${newBullet.isLaser ? 'laser' : 'normal'},${newBullet.color}`;
-            let existing = window.frameSpawnedBullets.get(dupKey);
-            if (existing) {
-                for (let b of existing) {
-                    let isDup = true;
-                    if (vars) {
-                        for (let k in vars) {
-                            if (b.vars[k] !== vars[k]) { isDup = false; break; }
-                        }
-                        if (isDup) {
-                            for (let k in b.vars) {
-                                if (b.vars[k] !== vars[k]) { isDup = false; break; }
-                            }
-                        }
-                    }
-                    if (isDup) return; // Deduplicated!
-                }
-                existing.push({ vars: Object.assign({}, vars || {}) });
-            } else {
-                window.frameSpawnedBullets.set(dupKey, [{ vars: Object.assign({}, vars || {}) }]);
-            }
-            bullets.push(newBullet);
-        };
-
         function tickSimulation(dt) {
             // エディタ表示中、またはゲーム中(BATTLE)でない場合はシミュレーションを進めない (裏でのエミッターや弾の暴走を完全にブロック)
             if (!isGameRunning || gameState !== 'BATTLE') {
                 return;
             }
-            window.frameSpawnedBullets = new Map();
 
 
             // バトルエフェクトのタイマー更新
