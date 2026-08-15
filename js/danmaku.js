@@ -4678,6 +4678,44 @@ once {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "easy",
+    name: "「ソーメンオブナガシ」",
+    desc: "あまりにも神弾幕すぎる...",
+    duration: 25,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 3; i++) {
+        spawnRing("normal", "#dddddd", 200, angle, 36, 0, 0, 10, "kunai2", "relative", "6")
+        angle += 0.6
+        wait(0.0835)
+    }
+    for (let i = 0; i < 3; i++) {
+        spawnRing("normal", "#dddddd", 200, angle, 36, 0, 0, 10, "kunai2", "relative", "6")
+        angle -= 0.6
+        wait(0.0835)
+    }
+    angle += 5.5555555555
+}
+    `,
+    bulletScript: `
+if (frame == 30 * n) {
+    angle += 60
+    spriteAngle = angle
+    wait(0.5)
+    angle -= 60
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
