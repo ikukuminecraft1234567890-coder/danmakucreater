@@ -4398,7 +4398,7 @@ function applyAbilityEffect(cardId, owner) {
             normalShotTimer = 0;
             
             player.x = PLAY_WIDTH / 2;
-            player.y = canvas.height - 100;
+            player.y = canvas.height * 0.8;
             player.hp = player.maxHp;
             
             cpu.hp = cpu.maxHp;
