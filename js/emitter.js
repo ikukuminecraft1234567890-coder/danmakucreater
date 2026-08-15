@@ -54,7 +54,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             let isPlayerSide = state.isPlayerSide;
 
-            // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
+            // --- tween処琁E��スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
                 state.tweens = state.tweens.filter(tw => {
                     if (tw.isCoordPair) {
@@ -73,7 +73,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             
                             if (tw.isVecStep) {
-                                // 新規：ベクトルベースの等速直線移動（vecstep）
+                                // 新規：�Eクトルベ�Eスの等速直線移動！Eecstep�E�E
                                 let dx = tw.toX - curX;
                                 let dy = tw.toY - curY;
                                 let dist = Math.sqrt(dx * dx + dy * dy);
@@ -88,7 +88,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     isDone = false;
                                 }
                             } else {
-                                // 復元：従来の個別軸加算（step）
+                                // 復允E��従来の個別軸加算！Etep�E�E
                                 nextX = curX + tw.stepX;
                                 nextY = curY + tw.stepY;
                                 
@@ -113,7 +113,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             isDone = (t >= 1);
                         }
                         
-                        // 変数へ書き戻し
+                        // 変数へ書き戻ぁE
                         if (tw.name.includes(',')) {
                             let varNames = tw.name.split(',').map(n => n.trim());
                             state.variables[varNames[0]] = nextX;
@@ -128,7 +128,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         return !isDone;
                     }
                     if (tw.mode === 'step') {
-                        // 毎フレーム固定量加算
+                        // 毎フレーム固定量加箁E
                         let cur = Number(state.variables[tw.name]) || 0;
                         let step = tw.stepVal;
                         let next = cur + step;
@@ -168,11 +168,11 @@ function stepEmitter(c, state, attacker, target, dt) {
 
 
             
-            // コアの現在位置、ターゲットの現在位置、および距離情報を毎フレーム同期
+            // コアの現在位置、ターゲチE��の現在位置、およ�E距離惁E��を毎フレーム同期
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
 
-            // 環境変数 exy, txy (座標ペア) の初期定義
+            // 環墁E��数 exy, txy (座標�Eア) の初期定義
             if (state.variables.ex === undefined) {
                 state.variables.ex = attacker.x;
             }
@@ -189,7 +189,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.exy = `${state.variables.ex},${state.variables.ey}`;
             }
 
-            // 現在スライド移動中かどうか判定
+            // 現在スライド移動中かどぁE��判宁E
             const ownerKey = isPlayerSide ? 'PLAYER' : 'CPU';
             const slideLock = (typeof customOwnerPositionLocks !== 'undefined') ? customOwnerPositionLocks[ownerKey] : null;
             const isSliding = slideLock && slideLock.elapsed < slideLock.duration;
@@ -209,7 +209,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables['txy_y'] = state.variables.ty;
             state.variables['txy.x'] = state.variables.tx;
             state.variables['txy.y'] = state.variables.ty;
-            // プレイヤーの絶対座標（常にプレイヤー側、Y軸は画面下が0の論理座標）
+            // プレイヤーの絶対座標（常にプレイヤー側、Y軸は画面下が0の論理座標！E
             state.variables.player_x = player.x;
             state.variables.player_y = canvas.height - player.y;
             if (!state.isParallelThread) {
@@ -234,7 +234,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 return;
             }
 
-            // AOTコンパイルされたジェネレータがある場合は、ASTインタプリタをバイパスしてそちらを実行
+            // AOTコンパイルされたジェネレータがある場合�E、ASTインタプリタをバイパスしてそちらを実衁E
             if (state.compiledFn && typeof state.compiledFn === 'function') {
                 if (window.DanmakuCompilerRuntime) window.DanmakuCompilerRuntime.currentDt = dt;
                 state.dt = dt;
@@ -278,7 +278,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 return;
             }
 
-            // インラインのparallel{}ブロックのスレッドを毎フレーム実行
+            // インラインのparallel{}ブロチE��のスレチE��を毎フレーム実衁E
             if (state.inlineThreads && state.inlineThreads.length > 0) {
                 for (const group of state.inlineThreads) {
                     if (group.done) continue;
@@ -502,7 +502,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         setCustomOwnerPosition(owner, preset, duration);
                         applyCustomOwnerPositionLock(owner, 0);
                         
-                        // 移動先の座標を取得して ex, ey, exy に即座に反映させ、古い座標への引き戻しを防ぐ
+                        // 移動�Eの座標を取得して ex, ey, exy に即座に反映させ、古ぁE��標への引き戻しを防ぁE
                         if (typeof getCustomOwnerPosition !== 'undefined') {
                             const targetPos = getCustomOwnerPosition(owner, preset);
                             if (targetPos) {
@@ -553,7 +553,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let newBullet = {
                             x: spawnX,
                             y: spawnY,
-                            startX: spawnX, // 初期位置保存
+                            startX: spawnX, // 初期位置保孁E
                             startY: spawnY,
                             vx: Math.cos(angleRad) * speed,
                             vy: Math.sin(angleRad) * speed,
@@ -624,7 +624,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_bullet: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, angle=${angle}`);
                         }
-                        bullets.push(newBullet);
+                        if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         break;
                     }
                     case 'spawn_ring':
@@ -665,7 +665,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let newBullet = {
                                 x: spawnX,
                                 y: spawnY,
-                                startX: spawnX, // 初期位置保存
+                                startX: spawnX, // 初期位置保孁E
                                 startY: spawnY,
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
@@ -715,7 +715,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.update = null;
                             }
                             
-                            bullets.push(newBullet);
+                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         }
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_ring: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, angle=${centerAngle}`);
@@ -763,7 +763,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let newBullet = {
                                 x: spawnX,
                                 y: spawnY,
-                                startX: spawnX, // 初期位置保存
+                                startX: spawnX, // 初期位置保孁E
                                 startY: spawnY,
                                 vx: Math.cos(angleRad) * speed,
                                 vy: Math.sin(angleRad) * speed,
@@ -813,7 +813,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 newBullet.update = null;
                             }
                             
-                            bullets.push(newBullet);
+                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         }
                         if (window.showDebugProfiler) {
                             console.log(`[DEBUG] spawn_way: x=${spawnX.toFixed(1)}, y=${spawnY.toFixed(1)}, color=${bColor}, speed=${speed}, count=${count}, spread=${spread}, centerAngle=${centerAngle}`);
@@ -901,7 +901,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         } else {
                             newBullet.update = null;
                         }
-                        bullets.push(newBullet);
+                        if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         break;
                     }
                     case 'spawn_laser_way':
@@ -986,7 +986,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            bullets.push(newBullet);
+                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         }
                         break;
                     }
@@ -1070,7 +1070,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            bullets.push(newBullet);
+                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         }
                         break;
                     }
@@ -1156,7 +1156,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            bullets.push(newBullet);
+                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         }
                         break;
                     }
@@ -1240,7 +1240,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             } else {
                                 newBullet.update = null;
                             }
-                            bullets.push(newBullet);
+                            if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                         }
                         break;
                     }
@@ -1319,10 +1319,10 @@ function stepEmitter(c, state, attacker, target, dt) {
 
                         let mode    = block.params.mode || 'seconds'; // 'seconds' | 'frames' | 'step'
                         if (!state.tweens) state.tweens = [];
-                        // 同じ変数の既存tweenを上書き
+                        // 同じ変数の既孁Eweenを上書ぁE
                         state.tweens = state.tweens.filter(t => t.name !== varName);
 
-                        // 座標ペア（コンマ区切り文字列）の tween 補間の処理
+                        // 座標�Eア�E�コンマ区刁E��斁E���E�E��E tween 補間の処琁E
                         if (typeof toVal === 'string' && toVal.includes(',')) {
                             let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
                             let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
@@ -1346,7 +1346,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                             elapsed: 0
                                         });
                                     } else {
-                                        // 従来の step モードの復元（各軸独立して加算）
+                                        // 従来の step モード�E復允E��各軸独立して加算！E
                                         let stepX = stepVal;
                                         let stepY = stepVal;
                                         if (fromParts[0] > toParts[0] && stepX > 0) stepX = -stepX;
@@ -1371,7 +1371,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         });
                                     }
                                 } else {
-                                    // 通常の時間ベースの補間
+                                    // 通常の時間ベ�Eスの補間
                                     let total = evalExpr(block.params.duration || '1', state.variables);
                                     if (mode === 'frames') total = Math.max(1, total);
                                     else total = Math.max(0.001, total);
@@ -1389,7 +1389,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         easing: block.params.easing || 'linear'
                                     });
                                 }
-                                // 子変数を即座に初期化
+                                // 子変数を即座に初期匁E
                                 state.variables[varName + '_x'] = fromParts[0];
                                 state.variables[varName + '_y'] = fromParts[1];
                                 state.variables[varName + '.x'] = fromParts[0];
@@ -1431,7 +1431,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (state.waitTimer > 0 || state.waitingTweenName) {
                     break;
                 }
-            } // 内側ループ
+            } // 冁E�EルーチE
             
             if (brokeToWait || state.waitingTweenName) {
                 state.waitTimer -= dtRemaining;
@@ -1440,7 +1440,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             } else if (!state.finished) {
                 break;
             }
-        } // 外側ループ
+        } // 外�EルーチE
     }
 
         function initBulletState(script, initialSpeed, initialAngle, attacker, target, compiledFn) {
@@ -1500,7 +1500,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                 }
             }
-            // 速度ゼロの移動レーザーは線が描画されず配列に残留する
+            // 速度ゼロの移動レーザーは線が描画されず�E列に残留する
             if (b.isLaser && !b.isWarningLaser && !b.isCustomBeam) {
                 if (Math.hypot(b.vx || 0, b.vy || 0) < 1) {
                     return true;
@@ -1599,14 +1599,14 @@ function stepEmitter(c, state, attacker, target, dt) {
         function updateBulletTouchStates() {
             if (!Array.isArray(bullets)) return;
 
-            // 新しくアクティブなカードがセットされた、またはカード切り替え時に即座に要件スキャンを実行する
+            // 新しくアクチE��ブなカードがセチE��された、また�Eカード�Eり替え時に即座に要件スキャンを実行すめE
             let currentCardsRef = (typeof activeCards !== 'undefined') ? activeCards : null;
             if (currentCardsRef !== lastActiveCardsRef) {
                 lastActiveCardsRef = currentCardsRef;
                 checkBulletTouchRequirement();
             }
 
-            // 定期的に弾の接触判定が必要かをチェック (不要なら即時 return)
+            // 定期皁E��弾の接触判定が忁E��かをチェチE�� (不要なら即晁Ereturn)
             if (Math.random() < 0.02) {
                 checkBulletTouchRequirement();
             }
@@ -1628,7 +1628,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             const len = candidates.length;
             if (len === 0) return;
 
-            // 簡易空間分割法 (Grid Spatial Partitioning) の導入
+            // 簡易空間�E割況E(Grid Spatial Partitioning) の導�E
             const cellSize = 64;
             const grid = new Map();
 
@@ -1647,7 +1647,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 list.push(b);
             }
 
-            // 近傍セルの弾同士のみで当たり判定
+            // 近傍セルの弾同士のみで当たり判宁E
             for (let i = 0; i < len; i++) {
                 const a = candidates[i];
                 const ax = a.x;
@@ -1659,7 +1659,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 const col = Math.floor(ax / cellSize);
                 const row = Math.floor(ay / cellSize);
 
-                // 自身と周囲8セルの計9セルを調べる
+                // 自身と周囲8セルの訁Eセルを調べめE
                 for (let dCol = -1; dCol <= 1; dCol++) {
                     for (let dRow = -1; dRow <= 1; dRow++) {
                         const targetKey = `${col + dCol}_${row + dRow}`;
@@ -1669,7 +1669,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         const cellLen = cellBullets.length;
                         for (let j = 0; j < cellLen; j++) {
                             const b = cellBullets[j];
-                            // aId < b._candidateId で重複判定を完全に防ぐ
+                            // aId < b._candidateId で重褁E��定を完�Eに防ぁE
                             if (aId >= b._candidateId || aTeam !== b.team) continue;
 
                             const rr = ar + b._cachedRadius;
@@ -1703,12 +1703,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                 console.log(`[DEBUG AOT] runCustomBulletScript started for bullet at (${b.x.toFixed(1)}, ${b.y.toFixed(1)})`);
             }
 
-            // ── 超軽量化処理：完了済みの弾は b.update を削除して二度と処理しない ──
+            // ── 趁E��量化処琁E��完亁E��みの弾は b.update を削除して二度と処琁E��なぁE──
             // (Reverted to ensure 100% original behavior)
             const _t0 = performance.now();
 
             const _hasTweens = state.tweens && state.tweens.length > 0;            
-            // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
+            // --- tween処琁E��スムーズ移行）を毎フレーム先に適用 ---
             if (state.tweens && state.tweens.length > 0) {
                 state.tweens = state.tweens.filter(tw => {
                     if (tw.isCoordPair) {
@@ -1765,7 +1765,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             isDone = (t >= 1);
                         }
                         
-                        // 変数へ書き戻し
+                        // 変数へ書き戻ぁE
                         if (tw.name.includes(',')) {
                             let varNames = tw.name.split(',').map(n => n.trim());
                             state.variables[varNames[0]] = nextX;
@@ -1815,12 +1815,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                 });
             }
-            const _t1 = performance.now(); // tween完了
+            const _t1 = performance.now(); // tween完亁E
             if (window.bulletDebugCount === undefined) window.bulletDebugCount = 0;
             if (b.bulletDebugId === undefined) {
                 b.bulletDebugId = window.bulletDebugCount++;
             }
-            let shouldLog = window.showDebugProfiler && b.bulletDebugId < 15; // デバッグモード時のみ最初の15発のみログ対象
+            let shouldLog = window.showDebugProfiler && b.bulletDebugId < 15; // チE��チE��モード時のみ最初�E15発のみログ対象
             if (window.currentCardSecond !== undefined) {
                 state.variables.cardSecond = window.currentCardSecond;
                 state.variables.cardFrame = window.currentCardFrame || 0;
@@ -1834,13 +1834,13 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             let isPlayerSide = state.isPlayerSide;
             
-            // 開始時の座標と角度、速度を記録
+            // 開始時の座標と角度、E��度を記録
             let initX = b.x;
             let initY = isPlayerSide ? (canvas.height - b.y) : b.y;
             let initAngle = Number(state.variables.angle) || 0;
             let initSpeed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             
-            // 毎フレーム壁および画面端との接触を判定（スクリプトで使用する場合のみ実行）
+            // 毎フレーム壁およ�E画面端との接触を判定（スクリプトで使用する場合�Eみ実行！E
             if (window.needsWallTouchDetection) {
                 let currentlyTouching;
                 let hitLeftWall = b.x < 10;
@@ -1859,7 +1859,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.bottomWall = hitBottomWall ? 1 : 0;
                 b.wasTouchingWall = currentlyTouching;
 
-                // 新規：画面端（Edge）の判定 (x <= 0 や y <= 0 など、完全に画面外・境界線に達したか)
+                // 新規：画面端�E�Edge�E��E判宁E(x <= 0 めEy <= 0 など、完�Eに画面外�E墁E��線に達したか)
                 let hitLeftEdge = b.x <= 0;
                 let hitRightEdge = b.x >= PLAY_WIDTH;
                 let hitTopEdge = b.y <= 0;
@@ -1885,7 +1885,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.bottomEdge = 0;
             }
 
-            // 弾同士の接触判定（スクリプトで使用する場合のみ実行）
+            // 弾同士の接触判定（スクリプトで使用する場合�Eみ実行！E
             if (window.needsBulletTouchDetection) {
                 let touchingBullet = b.pendingTouchBullet || null;
                 let bulletTouching = !!touchingBullet;
@@ -1901,7 +1901,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.touchingBullet = 0;
             }
             
-            // 初回フレームのみの初期化処理
+            // 初回フレームのみの初期化�E琁E
             if (state.variables.timer === 0) {
                 if (b.isLaser && (state.variables.warningTime === undefined || state.variables.warningTime === null)) {
                     state.variables.warningTime = 1.0;
@@ -1916,7 +1916,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardSecond = window.currentCardSecond;
                 state.variables.cardFrame = window.currentCardFrame || 0;
                 
-                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
+                // コア�E�エミッター�E��E変数同期�E�スクリプトで使用する場合�Eみ実行！E
                 if (window.needsEmitterSync && b.sharedEmitterState && b.sharedEmitterState.variables) {
                     const vars = b.sharedEmitterState.variables;
                     for (let key in vars) {
@@ -1930,7 +1930,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
                 state.variables.cardFrame = Number(b.sharedEmitterState.variables.cardFrame || b.sharedEmitterState.variables.frame || 0);
                 
-                // コア（エミッター）の変数同期（スクリプトで使用する場合のみ実行）
+                // コア�E�エミッター�E��E変数同期�E�スクリプトで使用する場合�Eみ実行！E
                 if (window.needsEmitterSync) {
                     const vars = b.sharedEmitterState.variables;
                     for (let key in vars) {
@@ -1959,7 +1959,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
 
-            // 送信機（エミッター）の現在位置（差分追従方式で上書きを防ぐ）
+            // 送信機（エミッター�E��E現在位置�E�差刁E��従方式で上書きを防ぐ！E
             let emitterDx = attacker.x - (b.prevEmitterX !== undefined ? b.prevEmitterX : attacker.x);
             let emitterDy = attacker.y - (b.prevEmitterY !== undefined ? b.prevEmitterY : attacker.y);
             
@@ -1976,18 +1976,18 @@ function stepEmitter(c, state, attacker, target, dt) {
             b.prevEmitterX = attacker.x;
             b.prevEmitterY = attacker.y;
 
-            // スクリプトで使用する場合のみ、Math.sqrt (平方根) 計算を実行して高速化
+            // スクリプトで使用する場合�Eみ、Math.sqrt (平方根) 計算を実行して高速化
             if (window.needsDistanceCalc) {
                 state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
                 let dx = target.x - b.x;
                 let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
                 state.variables.dist = Math.sqrt(dx * dx + dy * dy);
             } else {
-                state.variables.speed = b.vx * b.vx + b.vy * b.vy === 0 ? 0 : 200; // ダミー値（平方根を回避）
+                state.variables.speed = b.vx * b.vx + b.vy * b.vy === 0 ? 0 : 200; // ダミ�E値�E�平方根を回避�E�E
                 state.variables.dist = 0;
             }
             
-            const _t2 = performance.now(); // セットアップ完了
+            const _t2 = performance.now(); // セチE��アチE�E完亁E
 
             if (!state.finished) {
                 // --- AOT コンパイル済みジェネレータパス ---
@@ -2102,10 +2102,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                 }
                             } else {
-                                // 弾の挙動は、最後まで実行し終えたら自動的に最初からループ実行する
-                                // once は弾生（この弾が存在する間）で一度きり — ループしてもリセットしない
+                                // 弾の挙動は、最後まで実行し終えたら自動的に最初からループ実行すめE
+                                // once は弾生（この弾が存在する間）で一度きり  EループしてもリセチE��しなぁE
                                 state.pc = 0;
-                                state.waitTimer = 0.01; // 1フレーム待機
+                                state.waitTimer = 0.01; // 1フレーム征E��E
                                 brokeToWait = true;
                                 break;
                             }
@@ -2307,7 +2307,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.update = null;
                                 }
 
-                                bullets.push(newBullet);
+                                if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 break;
                             }
                             case 'spawn_ring': {
@@ -2393,7 +2393,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.update = null;
                                     }
                                     
-                                    bullets.push(newBullet);
+                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2484,7 +2484,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         newBullet.update = null;
                                     }
                                     
-                                    bullets.push(newBullet);
+                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2569,7 +2569,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 } else {
                                     newBullet.update = null;
                                 }
-                                bullets.push(newBullet);
+                                if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 break;
                             }
                             case 'spawn_laser_way':
@@ -2653,7 +2653,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    bullets.push(newBullet);
+                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2737,7 +2737,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    bullets.push(newBullet);
+                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2823,7 +2823,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    bullets.push(newBullet);
+                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -2907,7 +2907,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     } else {
                                         newBullet.update = null;
                                     }
-                                    bullets.push(newBullet);
+                                    if (window.spawnBulletWithDeduplication) window.spawnBulletWithDeduplication(newBullet, bullets, state ? state.variables : null); else bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -3151,7 +3151,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (state.waitTimer > 0 || state.waitingTweenName) {
                             break;
                         }
-                    } // 内側ループ
+                    } // 冁E�EルーチE
                     
                     if (brokeToWait || state.waitingTweenName) {
                         state.waitTimer -= dtRemaining;
@@ -3160,11 +3160,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                     } else if (!state.finished) {
                         break;
                     }
-                } // 外側ループ
+                } // 外�EルーチE
                 } // else (インタプリタフォールバック)
             }
             
-            const _t3 = performance.now(); // スクリプト実行完了
+            const _t3 = performance.now(); // スクリプト実行完亁E
 
             // Physics update
             let finalAngleRad = state.variables.angle * Math.PI / 180;
@@ -3175,7 +3175,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             b.vy = Math.sin(finalAngleRad) * state.variables.speed;
             
             // Sync mutated coordinates
-            // xy の変更を x, y に同期 (開始時の initXY から明示的に変化した時のみ同期することで、x や y 単体を個別に変更した際に古い xy でリセットされるのを防ぐ)
+            // xy の変更めEx, y に同期 (開始時の initXY から明示皁E��変化した時�Eみ同期することで、x めEy 単体を個別に変更した際に古ぁExy でリセチE��される�Eを防ぁE
             if (state.variables.xy !== initXY) {
                 let xyParts = String(state.variables.xy).split(',').map(p => parseFloat(p.trim()));
                 if (xyParts.length === 2 && !isNaN(xyParts[0]) && !isNaN(xyParts[1])) {
@@ -3285,7 +3285,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             b.laserWidth = getLaserWidth(b);
             
-            // 設置レーザー（警告線付きビーム）の制御
+            // 設置レーザー�E�警告線付きビ�Eム�E��E制御
             let warnT = parseFloat(state.variables.warningTime) || 0;
             warnT = Math.max(0, warnT);
             let actT = parseFloat(state.variables.activeTime) || 0;
@@ -3300,7 +3300,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
                 
                 if (b.laserMoved) {
-                    // 通常の物理演算に基づく移動量を laserStartX / Y に加算
+                    // 通常の物琁E��算に基づく移動量めElaserStartX / Y に加箁E
                     b.laserStartX += b.vx * dt;
                     b.laserStartY += b.vy * dt;
                     
@@ -3312,7 +3312,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     state.variables.x = b.x;
                     state.variables.y = isPlayerSide ? (canvas.height - b.y) : b.y;
                     
-                    // 二重移動を防ぐために vx, vy はリセットするが、次回のために speed や angle は維持
+                    // 二重移動を防ぐために vx, vy はリセチE��するが、次回�Eために speed めEangle は維持E
                     b.vx = 0;
                     b.vy = 0;
                 } else {
@@ -3333,7 +3333,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 } else if (elapsed < warnT + actT) {
                     b.isWarningLaser = false;
                     b.isLaser = true;
-                    b.isCustomBeam = true; // 設置ビームフラグ
+                    b.isCustomBeam = true; // 設置ビ�Eムフラグ
                 } else {
                     b._expired = true;
                     b.isWarningLaser = false;
@@ -3341,8 +3341,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     b.isCustomBeam = false;
                 }
             }
-            const _t4 = performance.now(); // 物理書き戻し完了
-            // フェーズ別計測を累積
+            const _t4 = performance.now(); // 物琁E��き戻し完亁E
+            // フェーズ別計測を累穁E
             window._bsT = window._bsT || { tw:0, su:0, sc:0, po:0, n:0 };
             window._bsT.tw += _t1 - _t0;
             window._bsT.su += _t2 - _t1;
@@ -3352,7 +3352,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         }
 
         // ==========================================
-        // 自作カード作成画面 (管理・ブロックエディタ)
+        // 自作カード作�E画面 (管琁E�EブロチE��エチE��タ)
         // ==========================================
         function getBlockCost(block) {
             switch (block.type) {
@@ -3458,7 +3458,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             }, 250);
         }
 
-        // 弾の進行方向と自機方向の一致度から脅威度(0.15〜1.0)を算出
+        // 弾の進行方向と自機方向�E一致度から脁E��度(0.15、E.0)を算�E
         function computeBulletThreatWeight(spawnX, spawnY, vx, vy, targetX, targetY) {
             let speed = Math.hypot(vx, vy);
             if (speed < 1) return 0.4;
@@ -3480,12 +3480,12 @@ function stepEmitter(c, state, attacker, target, dt) {
         }
 
         function calculateCustomCardCost(emitterScript, bulletScript) {
-            // 1. 各ブロックの最低基本コストを算出（静的な評価）
+            // 1. 吁E��ロチE��の最低基本コストを算�E�E�静皁E��評価�E�E
             let baseBlockCost = 0;
             (emitterScript || []).forEach(b => baseBlockCost += getBlockCost(b));
             (bulletScript || []).forEach(b => baseBlockCost += getBlockCost(b));
 
-            // 点からレイ（半直線）への最短距離を計算するヘルパー（レーザーの脅威度計算用）
+            // 点からレイ�E�半直線）への最短距離を計算する�Eルパ�E�E�レーザーの脁E��度計算用�E�E
             function getDistanceToRay(px, py, sx, sy, angleDeg) {
                 let angleRad = angleDeg * Math.PI / 180;
                 let dx = Math.cos(angleRad);
@@ -3504,9 +3504,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
             }
 
-            // 2. シミュレーションによる動的コスト計算
-            let simDuration = 15; // スペルカード全体の時間（15秒）
-            let fps = 30; // 30FPSで十分高精度かつ高速
+            // 2. シミュレーションによる動的コスト計箁E
+            let simDuration = 15; // スペルカード�E体�E時間�E�E5秒！E
+            let fps = 30; // 30FPSで十�E高精度かつ高送E
             let dt = 1 / fps;
             let totalFrames = simDuration * fps;
 
@@ -3516,7 +3516,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             let emitterState = initEmitterState(emitterScript, attacker, target);
             let simBullets = [];
 
-            // 実行中のゲームに影響を与えないようにグローバル bullets, magicCircles 配列を退避
+            // 実行中のゲームに影響を与えなぁE��ぁE��グローバル bullets, magicCircles 配�Eを退避
             let originalBullets = bullets;
             let originalMagicCircles = magicCircles;
             bullets = [];
@@ -3551,7 +3551,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     stepEmitter({ bulletScript: bulletScript }, emitterState, attacker, target, dt);
                 }
 
-                // 生成された弾を検知してシミュレーション用配列へ移す（秒間60発まで）
+                // 生�Eされた弾を検知してシミュレーション用配�Eへ移す（秒間60発まで�E�E
                 if (bullets.length > 0) {
                     let spawnedThisFrame = bullets;
                     bullets = [];
@@ -3568,7 +3568,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         totalFired++;
                         totalWeightedThreat += threatWeight;
 
-                        // 異常な無限ループ等でメモリが溢れるのを防ぐため、シミュレート対象は500発に制限
+                        // 異常な無限ループ等でメモリが溢れるのを防ぐため、シミュレート対象は500発に制陁E
                         if (simBullets.length < 500) {
                             simBullets.push({
                                 x: b.x,
@@ -3589,7 +3589,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     });
                 }
 
-                // シミュレーション中の弾の移動 ＆ 近接判定
+                // シミュレーション中の弾の移勁E�E�E近接判宁E
                 for (let i = 0; i < simBullets.length; i++) {
                     let b = simBullets[i];
                     if (b.offScreen) continue;
@@ -3601,7 +3601,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         b.y += b.vy * dt;
                     }
 
-                    // プレイヤーとの距離計算
+                    // プレイヤーとの距離計箁E
                     let distToPlayer;
                     if (b.isLaser) {
                         let angle = (b.bulletState && b.bulletState.variables.angle !== undefined) ? b.bulletState.variables.angle : 0;
@@ -3612,7 +3612,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         distToPlayer = Math.sqrt(pdx * pdx + pdy * pdy);
                     }
 
-                    // 近接加点は弾ごとの脅威度で重み付け（自機狙いは高く、全方位の外れ弾は低く）
+                    // 近接加点は弾ごとの脁E��度で重み付け�E��E機狙ぁE�E高く、�E方位�E外れ弾は低く�E�E
                     let warnT = b.bulletState ? (parseFloat(b.bulletState.variables.warningTime) || 0) : 0;
                     let actT = b.bulletState ? (parseFloat(b.bulletState.variables.activeTime) || 0) : 0;
                     let isBeamThreat = b.isLaser || (warnT > 0 && actT > 0);
@@ -3624,7 +3624,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         closeToPlayerScore += isBeamThreat ? (1.5 * threatW) : threatW;
                     }
 
-                    // 画面外判定
+                    // 画面外判宁E
                     let currentHeight = canvas ? canvas.height : 896;
                     let isOff = (b.x < 0 || b.x > PLAY_WIDTH || b.y < 0 || b.y > currentHeight);
                     if (isOff) {
@@ -3637,36 +3637,36 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                 }
 
-                // すべて処理し終えたら早期ブレイク
+                // すべて処琁E��終えたら早期ブレイク
                 if (emitterState.finished && simBullets.every(b => b.offScreen)) {
                     break;
                 }
             }
 
-            // グローバル bullets, magicCircles 配列を復元
+            // グローバル bullets, magicCircles 配�Eを復允E
             bullets = originalBullets;
             magicCircles = originalMagicCircles;
 
-            // 指標の計算（物理弾数は60発/秒、脅威度は60/秒で上限）
+            // 持E���E計算（物琁E��数は60発/秒、脅威度は60/秒で上限�E�E
             let threatPerSecond = Math.min(MAX_THREAT_PER_SECOND, totalWeightedThreat / simDuration);
             let closeScorePerSecond = closeToPlayerScore / simDuration;
             let fireRatePerSecond = totalFired / simDuration;
             let activeLoadPerFrame = activeBulletLoadScore / Math.max(1, totalFrames);
 
-            // コスト計算式（脅威度＋近接脅威＋弾速）
+            // コスト計算式（脅威度�E�近接脁E��E��弾速！E
             let simCost = Math.sqrt(Math.max(0, threatPerSecond)) * 0.95
                         + Math.sqrt(Math.max(0, closeScorePerSecond)) * 0.75
                         + Math.sqrt(Math.max(0, fireRatePerSecond)) * 0.35
                         + Math.sqrt(Math.max(0, activeLoadPerFrame)) * 0.45;
             let totalCost = simCost + getStaticComplexityCost(baseBlockCost);
 
-            // コストは四捨五入して整数（最低1）
+            // コスト�E四捨五�Eして整数�E�最佁E�E�E
             return Math.max(1, Math.round(totalCost));
         }
 
         function isUuidParam(str) {
             if (!str) return false;
-            // cc_ で始まるローカルUUID、または jb_ で始まるJSONBlob ID
+            // cc_ で始まるローカルUUID、また�E jb_ で始まるJSONBlob ID
             return str.length < 50 && (str.startsWith('cc_') || str.startsWith('jb_') || /^[A-Za-z0-9_-]+$/.test(str));
         }
 
@@ -3681,7 +3681,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             fetch(url)
                 .then(res => {
                     if (!res.ok) {
-                        throw new Error(`データが見つかりません (${res.status})`);
+                        throw new Error(`チE�Eタが見つかりません (${res.status})`);
                     }
                     return res.json();
                 })
@@ -3690,11 +3690,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                     if (callback) callback(imported);
                 })
                 .catch(err => {
-                    alert(`カードのデータ取得に失敗しました。\n\n詳細: ${err.message}`);
+                    alert(`カード�EチE�Eタ取得に失敗しました、En\n詳細: ${err.message}`);
                 });
         }
 
-        // ブロック配列を極小シリアライズするための順番定義
+        // ブロチE��配�Eを極小シリアライズするための頁E��定義
         const BLOCK_PARAM_ORDER = {
             'repeat': ['count', 'indexVar'],
             'forever': [],
@@ -3810,8 +3810,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             let name, cost, desc, duration, emitterData, bulletData, magicCircleData, despawnTime, difficulty;
             
             if (Array.isArray(parsed)) {
-                // 配列形式のデシリアライズ (新フォーマット)
-                name = parsed[0] || '無名カード';
+                // 配�E形式�EチE��リアライズ (新フォーマッチE
+                name = parsed[0] || '無名カーチE;
                 cost = parsed[1] !== undefined ? parsed[1] : 100;
                 desc = parsed[2] || '';
                 duration = parsed[3] !== undefined ? parsed[3] : 10;
@@ -3821,8 +3821,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                 despawnTime = parsed[7] !== undefined ? parsed[7] : 1.5;
                 difficulty = parsed[8] || 'NORMAL';
             } else {
-                // オブジェクト形式のデシリアライズ (旧フォーマット)
-                name = parsed.n || parsed.name || '無名カード';
+                // オブジェクト形式�EチE��リアライズ (旧フォーマッチE
+                name = parsed.n || parsed.name || '無名カーチE;
                 cost = parsed.c !== undefined ? parsed.c : (parsed.cost || 100);
                 desc = parsed.d || parsed.desc || '';
                 duration = parsed.t !== undefined ? parsed.t : (parsed.duration || 10);
@@ -3834,7 +3834,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 magicCircleData = parsed.m !== undefined ? parsed.m : parsed.magicCircleScript;
             }
             
-            // emitterScript の復元
+            // emitterScript の復允E
             let emitterScript = [];
             if (Array.isArray(emitterData)) {
                 if (emitterData.length > 0 && Array.isArray(emitterData[0])) {
@@ -3846,7 +3846,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 emitterScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(emitterData) : [];
             }
             
-            // bulletScript の復元
+            // bulletScript の復允E
             let bulletScript = [];
             if (Array.isArray(bulletData)) {
                 if (bulletData.length > 0 && Array.isArray(bulletData[0])) {
@@ -3858,7 +3858,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 bulletScript = typeof _codeToBlocksBrace === 'function' ? _codeToBlocksBrace(bulletData) : [];
             }
             
-            // magicCircleScript の復元
+            // magicCircleScript の復允E
             let magicCircleScript = [];
             if (Array.isArray(magicCircleData)) {
                 if (magicCircleData.length > 0 && Array.isArray(magicCircleData[0])) {
@@ -3889,7 +3889,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             const card = customCards.find(c => c.id === cardId);
             if (!card) return;
             try {
-                // 配列かつ極小シリアライズされたデータをパック
+                // 配�Eかつ極小シリアライズされたデータをパチE��
                 const miniCard = [
                     card.name,
                     card.cost || 100,
@@ -3910,24 +3910,24 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (compressed) {
                     shareUrl = `${window.location.origin}${window.location.pathname}?card=pk_${compressed}`;
                 } else {
-                    // pakoがロードされていない等の場合のセーフティフォールバック（旧LZString）
+                    // pakoがロードされてぁE��ぁE���E場合�Eセーフティフォールバック�E�旧LZString�E�E
                     const lzCompressed = LZString.compressToEncodedURIComponent(jsonStr);
                     shareUrl = `${window.location.origin}${window.location.pathname}?card=${lzCompressed}`;
                 }
 
-                // クリップボードにコピー
+                // クリチE�Eボ�Eドにコピ�E
                 navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert(`「${card.name.replace('【A】', '')}」の共有URLをコピーしました！\n完全オフライン対応の超圧縮URLです。\n\nURL: ${shareUrl}`);
+                    alert(`、E{card.name.replace('【A、E, '')}」�E共有URLをコピ�Eしました�E�\n完�Eオフライン対応�E趁E��縮URLです、En\nURL: ${shareUrl}`);
                 }).catch(err => {
-                    prompt("共有URLをコピーしてください：", shareUrl);
+                    prompt("共有URLをコピ�Eしてください�E�E, shareUrl);
                 });
             } catch (e) {
-                alert("共有URLの作成に失敗しました: " + e.message);
+                alert("共有URLの作�Eに失敗しました: " + e.message);
             }
         }
 
         function importCustomCardFromCode() {
-            const code = prompt("共有されたURL、コード、またはカードID(UUID)を入力してください：");
+            const code = prompt("共有されたURL、コード、また�EカードID(UUID)を�E力してください�E�E);
             if (!code) return;
             
             let cardDataStr = "";
@@ -3951,31 +3951,31 @@ function stepEmitter(c, state, attacker, target, dt) {
                             decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
                         }
                         if (!decompressed) {
-                            throw new Error("デコンプレスに失敗しました（データ破損の可能性）");
+                            throw new Error("チE��ンプレスに失敗しました�E�データ破損�E可能性�E�E);
                         }
                         const card = parseSharedCard(decompressed);
                         importCard(card);
                     } catch (e) {
-                        alert("データのインポートに失敗しました。正しい共有URLまたはコードを入力してください。\nエラー: " + e.message);
+                        alert("チE�Eタのインポ�Eトに失敗しました。正しい共有URLまた�Eコードを入力してください、Enエラー: " + e.message);
                     }
                 }
             } else {
-                alert("有効なコードが見わからんでした。");
+                alert("有効なコードが見わからんでした、E);
             }
         }
 
         function importCard(card) {
             if (!card.name || !card.emitterScript || !card.bulletScript) {
-                alert("無効なカードデータです。");
+                alert("無効なカードデータです、E);
                 return null;
             }
             
             card.id = 'cc_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-            let baseName = card.name.replace('【A】', '');
-            let name = '【A】' + baseName;
+            let baseName = card.name.replace('【A、E, '');
+            let name = '【A、E + baseName;
             let count = 1;
             while (customCards.some(c => c.name === name)) {
-                name = `【A】${baseName} (${count})`;
+                name = `【A、E{baseName} (${count})`;
                 count++;
             }
             card.name = name;
@@ -3985,13 +3985,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                 localStorage.setItem('touhou_kyoukaisen_custom_cards', JSON.stringify(customCards));
             } catch (e) {}
             
-            alert(`スペルカード「${card.name.replace('【A】', '')}」をインポートしました！`);
+            alert(`スペルカード、E{card.name.replace('【A、E, '')}」をインポ�Eトしました�E�`);
             integrateCustomCards();
             renderCardMakerList();
             return card;
         }
 
-        // --- オフライン用 Deflate (pako.js) + Base64url 圧縮ヘルパー ---
+        // --- オフライン用 Deflate (pako.js) + Base64url 圧縮ヘルパ�E ---
         function deflateAndBase64url(jsonStr) {
             if (typeof pako === 'undefined') return "";
             try {
@@ -4038,7 +4038,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (cardDataStr) {
                 if (isUuidParam(cardDataStr)) {
                     setTimeout(() => {
-                        if (confirm(`共有されたスペルカード (ID: ${cardDataStr}) をインポートして即座にテストプレイしますか？`)) {
+                        if (confirm(`共有されたスペルカーチE(ID: ${cardDataStr}) をインポ�Eトして即座にチE��ト�Eレイしますか�E�`)) {
                             fetchCardByUuid(cardDataStr, (importedCard) => {
                                 if (importedCard) {
                                     customCardMakerOpenEditor(importedCard.id);
@@ -4053,18 +4053,18 @@ function stepEmitter(c, state, attacker, target, dt) {
                     try {
                         let decompressed = "";
                         if (cardDataStr.startsWith('pk_')) {
-                            // 新フォーマット：pako (deflate) による解凍
-                            const cleanB64 = cardDataStr.slice(3); // 'pk_' プレフィックスを除去
+                            // 新フォーマット：pako (deflate) による解凁E
+                            const cleanB64 = cardDataStr.slice(3); // 'pk_' プレフィチE��スを除去
                             decompressed = inflateAndBase64url(cleanB64);
                         } else {
-                            // 旧フォーマット：LZString による解凍
+                            // 旧フォーマット：LZString による解凁E
                             decompressed = LZString.decompressFromEncodedURIComponent(cardDataStr);
                         }
 
                         if (decompressed) {
                             const card = parseSharedCard(decompressed);
                             setTimeout(() => {
-                                if (confirm(`共有されたスペルカード「${card.name.replace('【A】', '')}」をインポートして即座にテストプレイしますか？`)) {
+                                if (confirm(`共有されたスペルカード、E{card.name.replace('【A、E, '')}」をインポ�Eトして即座にチE��ト�Eレイしますか�E�`)) {
                                     const importedCard = importCard(card);
                                     if (importedCard) {
                                         customCardMakerOpenEditor(importedCard.id);
@@ -4076,7 +4076,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }, 500);
                         }
                     } catch (e) {
-                        console.error("URLパラメータからのインポートに失敗:", e);
+                        console.error("URLパラメータからのインポ�Eトに失敁E", e);
                     }
                 }
             }
@@ -4089,7 +4089,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             container.innerHTML = '';
             
             if (customCards.length === 0) {
-                container.innerHTML = '<div style="color:#aaa; font-size:12px; text-align:center; padding:30px 0;">登録されている自作カードはありません。</div>';
+                container.innerHTML = '<div style="color:#aaa; font-size:12px; text-align:center; padding:30px 0;">登録されてぁE��自作カード�Eありません、E/div>';
                 return;
             }
             
@@ -4097,17 +4097,17 @@ function stepEmitter(c, state, attacker, target, dt) {
                 const item = document.createElement('div');
                 item.className = 'custom-card-item';
                 
-                let descText = card.desc ? card.desc.replace('【自作カード】', '') : '';
+                let descText = card.desc ? card.desc.replace('【�E作カード、E, '') : '';
                 
                 item.innerHTML = `
                     <div class="custom-card-info">
-                        <span class="custom-card-title">${card.name.replace('【A】', '')}</span>
+                        <span class="custom-card-title">${card.name.replace('【A、E, '')}</span>
                         <span class="custom-card-desc">${descText}</span>
                     </div>
-                    <span class="custom-card-cost-badge">制限時間: ${getCustomCardDuration(card.duration)}s</span>
+                    <span class="custom-card-cost-badge">制限時閁E ${getCustomCardDuration(card.duration)}s</span>
                     <div class="custom-card-actions">
-                        <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">編集</button>
-                        <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">共有</button>
+                        <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">編雁E/button>
+                        <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">共朁E/button>
                         <button class="custom-card-act-btn btn-delete" onclick="customCardMakerDeleteCard('${card.id}')">削除</button>
                     </div>
                 `;
@@ -4182,14 +4182,14 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (restoreBtn) restoreBtn.style.display = 'inline-block';
             
             if (showNotification) {
-                alert("スペルカードの編集状態を一時保存しました。");
+                alert("スペルカード�E編雁E��態を一時保存しました、E);
             }
         }
 
         function loadCustomCardDraft() {
             let draftStr = localStorage.getItem('custom_card_draft');
             if (!draftStr) {
-                alert("一時保存されたデータがありません。");
+                alert("一時保存されたチE�Eタがありません、E);
                 return;
             }
             
@@ -4197,7 +4197,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 let draftData = JSON.parse(draftStr);
                 customCardMaker.editingId = draftData.editingId;
                 customCardMaker.name = draftData.name || 'カスタムスペル';
-                customCardMaker.desc = draftData.desc || 'オリジナルの弾幕パターン。';
+                customCardMaker.desc = draftData.desc || 'オリジナルの弾幕パターン、E;
                 customCardMaker.duration = getCustomCardDuration(draftData.duration);
                 customCardMaker.maxMisses = draftData.maxMisses !== undefined ? Number(draftData.maxMisses) : 2;
                 customCardMaker.difficulty = draftData.difficulty || 'NORMAL';
@@ -4251,10 +4251,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
                 
                 renderCardMaker();
-                alert("一時保存データから復元しました。");
+                alert("一時保存データから復允E��ました、E);
             } catch (e) {
                 console.error(e);
-                alert("データの復元に失敗しました。");
+                alert("チE�Eタの復允E��失敗しました、E);
             }
         }
 
@@ -4292,7 +4292,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 let card = customCards.find(c => c.id === cardId);
                 let migratedCard = migrateOldCustomCard(card);
                 customCardMaker.editingId = migratedCard.id;
-                customCardMaker.name = migratedCard.name.replace('【A】', '');
+                customCardMaker.name = migratedCard.name.replace('【A、E, '');
                 customCardMaker.desc = migratedCard.desc;
                 customCardMaker.duration = getCustomCardDuration(migratedCard.duration);
                 customCardMaker.x_offset = migratedCard.x_offset || 0;
@@ -4304,11 +4304,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.maxMisses = migratedCard.maxMisses !== undefined ? migratedCard.maxMisses : 2;
                 customCardMaker.difficulty = migratedCard.difficulty || 'NORMAL';
                 customCardMaker.testPassed = true;
-                document.getElementById('card-editor-title').textContent = "スペルカード編集";
+                document.getElementById('card-editor-title').textContent = "スペルカード編雁E;
             } else {
                 customCardMaker.editingId = null;
                 customCardMaker.name = 'カスタムスペル';
-                customCardMaker.desc = 'オリジナルの弾幕パターン。';
+                customCardMaker.desc = 'オリジナルの弾幕パターン、E;
                 customCardMaker.duration = 15;
                 customCardMaker.despawnTime = 1.5;
                 customCardMaker.maxMisses = 2;
@@ -4324,7 +4324,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.bulletScript = [];
                 customCardMaker.magicCircleScript = [];
                 customCardMaker.testPassed = false;
-                document.getElementById('card-editor-title').textContent = "新規スペルカード作成";
+                document.getElementById('card-editor-title').textContent = "新規スペルカード作�E";
             }
             
             customCardMaker.activeTab = 'emitter';
