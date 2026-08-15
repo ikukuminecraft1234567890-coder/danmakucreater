@@ -51,12 +51,38 @@ window.DanmakuCompilerRuntime._getCurrentX = (b, attacker, state) => {
     if (b) {
         return state.variables.x !== undefined ? state.variables.x : b.x;
     }
+    if (state && state.variables) {
+        if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
+            let val = Number(state.variables.ex);
+            if (attacker) attacker.x = val;
+            return val;
+        }
+        if (state.variables.emitter_x !== undefined && !isNaN(Number(state.variables.emitter_x))) {
+            let val = Number(state.variables.emitter_x);
+            if (attacker) attacker.x = val;
+            return val;
+        }
+    }
     return attacker.x;
 };
 
 window.DanmakuCompilerRuntime._getCurrentY = (b, attacker, state, canvasHeight) => {
+    let cH = canvasHeight || (window.canvas ? window.canvas.height : 896);
     if (b) {
-        return state.variables.y !== undefined ? (state.isPlayerSide ? canvasHeight - state.variables.y : state.variables.y) : b.y;
+        return state.variables.y !== undefined ? (state.isPlayerSide ? cH - state.variables.y : state.variables.y) : b.y;
+    }
+    if (state && state.variables) {
+        let isPlayerSide = state.isPlayerSide;
+        if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
+            let val = isPlayerSide ? (cH - Number(state.variables.ey)) : Number(state.variables.ey);
+            if (attacker) attacker.y = val;
+            return val;
+        }
+        if (state.variables.emitter_y !== undefined && !isNaN(Number(state.variables.emitter_y))) {
+            let val = isPlayerSide ? (cH - Number(state.variables.emitter_y)) : Number(state.variables.emitter_y);
+            if (attacker) attacker.y = val;
+            return val;
+        }
     }
     return attacker.y;
 };

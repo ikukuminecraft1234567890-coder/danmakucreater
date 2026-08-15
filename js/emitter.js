@@ -9,6 +9,41 @@ function applyEasing(t, easing) {
     return t; // linear
 }
 
+function syncAttackerFromEmitterVariables(state, attacker) {
+    if (!state || !state.variables || !attacker) return;
+    let isPlayerSide = state.isPlayerSide;
+    let canvasHeight = window.canvas ? window.canvas.height : 896;
+
+    if (state.variables.exy !== undefined) {
+        let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
+        if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
+            attacker.x = curExy[0];
+            attacker.y = isPlayerSide ? (canvasHeight - curExy[1]) : curExy[1];
+            state.variables.ex = curExy[0];
+            state.variables.ey = curExy[1];
+            state.variables.x = attacker.x;
+            state.variables.y = curExy[1];
+            return;
+        }
+    }
+
+    if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
+        attacker.x = Number(state.variables.ex);
+        state.variables.x = attacker.x;
+    } else if (state.variables.emitter_x !== undefined && !isNaN(Number(state.variables.emitter_x))) {
+        attacker.x = Number(state.variables.emitter_x);
+        state.variables.x = attacker.x;
+    }
+
+    if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
+        attacker.y = isPlayerSide ? (canvasHeight - Number(state.variables.ey)) : Number(state.variables.ey);
+        state.variables.y = Number(state.variables.ey);
+    } else if (state.variables.emitter_y !== undefined && !isNaN(Number(state.variables.emitter_y))) {
+        attacker.y = isPlayerSide ? (canvasHeight - Number(state.variables.emitter_y)) : Number(state.variables.emitter_y);
+        state.variables.y = Number(state.variables.emitter_y);
+    }
+}
+
 function stepEmitter(c, state, attacker, target, dt) {
             if (!state) return;
             
@@ -155,29 +190,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.ey = state.variables.y;
                 state.variables.exy = `${attacker.x},${state.variables.y}`;
             } else {
-                // ドット記法およびアンダーバー記法の子変数同期
-                let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
-                if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
-                    state.variables['exy_x'] = curExy[0];
-                    state.variables['exy_y'] = curExy[1];
-                    state.variables['exy.x'] = curExy[0];
-                    state.variables['exy.y'] = curExy[1];
-                    // 敵本体の座標を直接 exy に合わせる（見た目も動く）
-                    attacker.x = curExy[0];
-                    attacker.y = curExy[1];
-                    // x_offset/y_offset は 0 に保つ（発射位置は attacker.x/y 基準になる）
-                    state.variables.x_offset = 0;
-                    state.variables.y_offset = 0;
-                }
-
-                // ex / ey 変数による attacker 座標の更新（exy ととは独立して動作）
-                if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
-                    attacker.x = Number(state.variables.ex);
-                }
-                if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
-                    // ey は Y軸の論理座標系（自機側なら画面下0、敵機側なら画面上0）なので画面座標に変換
-                    attacker.y = isPlayerSide ? (canvas.height - Number(state.variables.ey)) : Number(state.variables.ey);
-                }
+                syncAttackerFromEmitterVariables(state, attacker);
             }
             state.variables.txy = `${state.variables.tx},${state.variables.ty}`;
             state.variables['txy_x'] = state.variables.tx;
@@ -242,12 +255,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                     
                     if (state.waitTimer <= 0 && !state.waitingTweenName) {
                         const result = state.compiledGenerator.next();
+                        syncAttackerFromEmitterVariables(state, attacker);
                         if (result.done) { 
                             state.finished = true;
                             break;
                         }
                     }
                 }
+                syncAttackerFromEmitterVariables(state, attacker);
                 return;
             }
 
@@ -435,6 +450,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let varName = block.params.name;
                         let val = evalValue(block.params.value, state.variables);
                         setScriptVariable(state, varName, val, block.type === 'const_var');
+                        syncAttackerFromEmitterVariables(state, attacker);
                         break;
                     }
                     case 'change_var': {
@@ -443,6 +459,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let delta = block.params.op === '-' ? -val : val;
                         if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
                         if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
+                        syncAttackerFromEmitterVariables(state, attacker);
                         break;
                     }
                     case 'aim_at_target': {
