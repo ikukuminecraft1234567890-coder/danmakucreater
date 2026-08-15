@@ -1580,7 +1580,7 @@ while (true) {
             w += 1
             sp += 30
         }
-        wait(0.0167)
+        wait(0.03)
     }
     for (let i = 0; i < 20; i++) {
         angle = random(-80,80)
