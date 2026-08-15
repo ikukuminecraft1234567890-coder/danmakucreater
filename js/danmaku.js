@@ -4622,6 +4622,62 @@ if (frame == 240..241) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "normal",
+    name: "「ワカサギペンデュラム」",
+    desc: "ナズーリンペンデュラム、好きです。",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 0.1,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    ey = 300
+    spawnRing("normal", "#ff3333", 200, angle, 6, 0, 0, 10, "dangan", "relative", "6")
+    spawnRing("normal", "#3388ff", 200, kasu, 36, 0, 0, 10, "dangan", "relative", "7")
+    kasu += 2
+    wait(0.016)
+}
+while (true) {
+    tween("syutugen", syutugen, 500, "seconds", 2, "easeInOut")
+    wait(2)
+    tween("syutugen", syutugen, -100, "seconds", 2, "easeInOut")
+    wait(2)
+}
+while (true) {
+    tween("angle", angle, 360, "seconds", 4, "easeInOut")
+    wait(4)
+    tween("angle", angle, -360, "seconds", 4, "easeInOut")
+    wait(4)
+    tween("angle", angle, 0, "seconds", 4, "easeInOut")
+    wait(4)
+    tween("angle", angle, -360, "seconds", 4, "easeInOut")
+    wait(4)
+    tween("angle", angle, 360, "seconds", 4, "easeInOut")
+    wait(4)
+    tween("angle", angle, 720, "seconds", 4, "easeInOut")
+    wait(4)
+    tween("angle", angle, 0, "seconds", 4, "easeInOut")
+    wait(4)
+}
+    `,
+    bulletScript: `
+once {
+    if (color==#ff3333) {
+        advance(syutugen)
+    }
+    if (color==#3388ff) {
+        advance(600)
+        spriteAngle = angle
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
