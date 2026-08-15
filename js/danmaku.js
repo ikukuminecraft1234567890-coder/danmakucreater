@@ -4716,6 +4716,39 @@ if (frame == 30 * n) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "夢符「封印結界」",
+    desc: "固定弾",
+    duration: 15,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spx = 0
+    for (let i = 0; i < 38; i++) {
+        kaisuu += 1
+        spawnBullet("normal", "#ff3333", 200, 90, spx, 0, 20, "ohuda", "absolute", "10")
+        spx += 20
+    }
+    wait(0.5)
+}
+    `,
+    bulletScript: `
+once {
+    ransuu = seedrandom[5 + kaisuu](0,1)
+    if (ransuu == 0.5..1) {
+        speed = 150
+    }
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
