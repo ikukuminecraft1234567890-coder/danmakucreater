@@ -4568,6 +4568,60 @@ while (true) {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "normal",
+    name: "「幻視狂言(ファントムディセプション)」",
+    desc: "説明文や作成者名など",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 0.1,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    kaisuu = 0
+    for (let i = 0; i < 700; i++) {
+        spawnBullet("normal", "#ff3333", 300 + spd, angle, 0, 0, 10, "kunai2", "relative", "3")
+        angle += seedrandom[kaisuu](0,360)
+        spd = seedrandom[kaisuu](-250,150)
+        kaisuu += 1
+    }
+    wait(2)
+    kaisuu = 0
+    for (let i = 0; i < 700; i++) {
+        spawnBullet("normal", "#3388ff", 300 + spd, angle, 0, 0, 10, "kunai2", "relative", "3")
+        angle += seedrandom[kaisuu](0,360)
+        spd = seedrandom[kaisuu](-250,150)
+        kaisuu += 1
+    }
+    wait(2)
+}
+    `,
+    bulletScript: `
+once {
+    motospd = speed
+    motocolor = color
+}
+if (frame == 120..121) {
+    speed = 0
+    radius = 0
+    hitRadius = 0
+    color = #aaaaaa
+}
+if (frame == 200..241) {
+    radius = 10
+}
+if (frame == 240..241) {
+    speed = 300
+    color = motocolor
+    hitRadius = 3
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
