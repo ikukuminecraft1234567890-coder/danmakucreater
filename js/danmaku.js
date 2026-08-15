@@ -4627,7 +4627,7 @@ if (frame == 240..241) {
     difficulty: "normal",
     name: "「ワカサギペンデュラム」",
     desc: "ナズーリンペンデュラム、好きです。",
-    duration: 20,            // 制限時間（秒）
+    duration: 28,            // 制限時間（秒）
     maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット

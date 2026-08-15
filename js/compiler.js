@@ -26,6 +26,17 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
     return defaultVal;
 };
 
+// ループの直接の子ブロック（ネストしたループ内は除く）にwaitが含まれるか調べる
+window.DanmakuCompiler.hasDirectWait = function(blocks) {
+    if (!blocks) return false;
+    for (let b of blocks) {
+        if (b.type === 'wait' || b.type === 'tween_var_wait') return true;
+        // if/once の中も探す（ただし forever/while/repeat は別スレッド扱いでスキップ）
+        if ((b.type === 'if' || b.type === 'once') && window.DanmakuCompiler.hasDirectWait(b.children)) return true;
+    }
+    return false;
+};
+
 window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
     let js = "";
     let ind = "  ".repeat(indent);
@@ -49,8 +60,10 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         } else if (t === 'forever') {
             js += ind + `while (true) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
-            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
-            js += ind + `  yield;\n`;
+            if (!window.DanmakuCompiler.hasDirectWait(block.children)) {
+                js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+                js += ind + `  yield;\n`;
+            }
             js += ind + `}\n`;
         } else if (t === 'repeat') {
             let uid = (window.DanmakuCompiler._uid = (window.DanmakuCompiler._uid || 0) + 1);
@@ -77,8 +90,10 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
             js += ind + `while (${cond}) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
-            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
-            js += ind + `  yield;\n`;
+            if (!window.DanmakuCompiler.hasDirectWait(block.children)) {
+                js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+                js += ind + `  yield;\n`;
+            }
             js += ind + `}\n`;
         } else if (t === 'if') {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
