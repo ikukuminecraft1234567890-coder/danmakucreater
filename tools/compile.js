@@ -206,8 +206,8 @@ window.DanmakuCompilerRuntime.checkInterval = function(currentVal, interval, sta
         let compiledCount = 0;
         for (let danmaku of window.sharedDanmakuList) {
             let idx = window.sharedDanmakuList.indexOf(danmaku);
-            
             let id = danmaku.id || ('danmaku_' + idx);
+            // console.log(`Compiling [${idx}] ${danmaku.name}...`);
             
             // Compile emitterScript
             let blocks = Array.isArray(danmaku.emitterScript) ? danmaku.emitterScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.emitterScript) : []);

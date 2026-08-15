@@ -1868,7 +1868,6 @@ while (true) {
         angle2 += random(0,360)
         spawnRing("normal", "#ffdd33", 300, angle2, 10, 0, 0, 15, "b_star", "relative", "7")
         wait(0.2)
-        )
     }
 }
     `,
@@ -4417,7 +4416,7 @@ if (color == #ffffff) {
     y_offset: 0,             // 出現位置の縦オフセット
     despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
-    emitterScript: `s
+    emitterScript: `
 while (true) {
     if (cardSecond == 0..5) {
         offset = 1
