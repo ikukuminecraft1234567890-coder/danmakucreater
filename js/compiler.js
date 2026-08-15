@@ -26,14 +26,13 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
     return defaultVal;
 };
 
-window.DanmakuCompiler.generateBlocksJS = function(blocks, indent, parentYieldVar) {
+window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
     let js = "";
     let ind = "  ".repeat(indent);
     for (let i = 0; i < blocks.length; i++) {
         let block = blocks[i];
         let t = block.type;
         if (t === 'wait') {
-            if (parentYieldVar) js += ind + `${parentYieldVar} = true;\n`;
             js += ind + `state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
             js += ind + `yield;\n`;
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
@@ -48,16 +47,10 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent, parentYieldVa
                 js += ind + `vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${window.DanmakuCompiler.getExpr(block, 'value', '0')});\n`;
             }
         } else if (t === 'forever') {
-            let uid = (window.DanmakuCompiler._uid = (window.DanmakuCompiler._uid || 0) + 1);
-            let yieldFlag = `_hasYield_${uid}`;
-            js += ind + `let ${yieldFlag} = false;\n`;
             js += ind + `while (true) {\n`;
-            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1, yieldFlag);
-            js += ind + `  if (!${yieldFlag}) {\n`;
-            js += ind + `    state.waitTimer = 0.0167;\n`;
-            js += ind + `    yield;\n`;
-            js += ind + `  }\n`;
-            js += ind + `  ${yieldFlag} = false;\n`;
+            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
+            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);\n`;
+            js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'repeat') {
             let uid = (window.DanmakuCompiler._uid = (window.DanmakuCompiler._uid || 0) + 1);
@@ -68,39 +61,33 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent, parentYieldVa
                 js += ind + `let ${prevVar} = ${idxVar};\n`;
                 js += ind + `${idxVar} = 0;\n`;
                 js += ind + `for (let _limit_${uid} = Math.round(${count}); ${idxVar} < _limit_${uid}; ${idxVar}++) {\n`;
-                js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1, parentYieldVar);
+                js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
                 js += ind + `}\n`;
                 js += ind + `${idxVar} = ${prevVar};\n`;
             } else {
                 let idxVar = `_i_${uid}`;
                 js += ind + `for (let _limit_${uid} = Math.round(${count}), ${idxVar} = 0; ${idxVar} < _limit_${uid}; ${idxVar}++) {\n`;
-                js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1, parentYieldVar);
+                js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
                 js += ind + `}\n`;
             }
         } else if (t === 'while') {
-            let uid = (window.DanmakuCompiler._uid = (window.DanmakuCompiler._uid || 0) + 1);
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
-            let yieldFlag = `_hasYield_${uid}`;
-            js += ind + `let ${yieldFlag} = false;\n`;
             js += ind + `while (${cond}) {\n`;
-            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1, yieldFlag);
-            js += ind + `  if (!${yieldFlag}) {\n`;
-            js += ind + `    state.waitTimer = 0.0167;\n`;
-            js += ind + `    yield;\n`;
-            js += ind + `  }\n`;
-            js += ind + `  ${yieldFlag} = false;\n`;
+            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
+            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);\n`;
+            js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'if') {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
             js += ind + `if (${cond}) {\n`;
-            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1, parentYieldVar);
+            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             js += ind + `}\n`;
         } else if (t === 'once') {
             let bid = block.id || Math.random().toString(36).substr(2, 9);
             js += ind + `if (!state.onceMap) state.onceMap = {};\n`;
             js += ind + `if (!state.onceMap['${bid}']) {\n`;
             js += ind + `  state.onceMap['${bid}'] = true;\n`;
-            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1, parentYieldVar);
+            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             js += ind + `}\n`;
         } else {
             js += ind + `if (_util.executeBlock({ type: '${t}', `;
@@ -119,7 +106,6 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent, parentYieldVa
                 js += `compiledFn: ${childFuncStr}, `;
             }
             js += `}, state, b, attacker, target, _util)) {\n`;
-            if (parentYieldVar) js += ind + `  ${parentYieldVar} = true;\n`;
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
         }
