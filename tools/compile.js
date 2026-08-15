@@ -152,8 +152,10 @@ window.DanmakuCompilerRuntime.resolveColorParam = function(val, vars) {
 
 // 実行エンジン (extracted from emitter.js)
 window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, target, _util) {
-    let isPlayerSide = state.isPlayerSide;
+    let isPlayerSide = state ? state.isPlayerSide : false;
     let canvas = window.canvas || {width: 640, height: 960};
+    let PLAY_WIDTH = typeof window.PLAY_WIDTH !== 'undefined' ? window.PLAY_WIDTH : 768;
+    let dt = (state && state.dt !== undefined) ? state.dt : ((window.DanmakuCompilerRuntime && window.DanmakuCompilerRuntime.currentDt) || window.dt || 1 / 60);
     let block = p;
     let brokeToWait = false;
     let advancePC = true;

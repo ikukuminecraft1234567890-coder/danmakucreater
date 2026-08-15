@@ -211,6 +211,8 @@ function stepEmitter(c, state, attacker, target, dt) {
 
             // AOTコンパイルされたジェネレータがある場合は、ASTインタプリタをバイパスしてそちらを実行
             if (state.compiledFn && typeof state.compiledFn === 'function') {
+                if (window.DanmakuCompilerRuntime) window.DanmakuCompilerRuntime.currentDt = dt;
+                state.dt = dt;
                 if (!state.compiledGenerator) {
                     window.DanmakuCompilerRuntime._initBulletState = initBulletState;
                     window.DanmakuCompilerRuntime._runCustomBulletScript = runCustomBulletScript;
@@ -1961,6 +1963,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (!state.finished) {
                 // --- AOT コンパイル済みジェネレータパス ---
                 if (state.compiledFn) {
+                    if (window.DanmakuCompilerRuntime) window.DanmakuCompilerRuntime.currentDt = dt;
+                    state.dt = dt;
                     if (!state.compiledGenerator) {
                         window.DanmakuCompilerRuntime._initBulletState = initBulletState;
                         window.DanmakuCompilerRuntime._runCustomBulletScript = runCustomBulletScript;
