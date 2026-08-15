@@ -58,9 +58,12 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             if (block.params && block.params.indexVar) {
                 let idxVar = `vars['${block.params.indexVar}']`;
                 let prevVar = `_prev_${block.params.indexVar}_${uid}`;
+                let loopIdx = `_loopIdx_${uid}`;
+                // ローカル変数でループカウンターを管理し、vars['i']はスクリプト参照用に同期
+                // これにより並列スレッドがvars['i']を共有してもforカウンターが狂わない
                 js += ind + `let ${prevVar} = ${idxVar};\n`;
-                js += ind + `${idxVar} = 0;\n`;
-                js += ind + `for (let _limit_${uid} = Math.round(${count}); ${idxVar} < _limit_${uid}; ${idxVar}++) {\n`;
+                js += ind + `for (let ${loopIdx} = 0, _limit_${uid} = Math.round(${count}); ${loopIdx} < _limit_${uid}; ${loopIdx}++) {\n`;
+                js += ind + `  ${idxVar} = ${loopIdx};\n`;
                 js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
                 js += ind + `}\n`;
                 js += ind + `${idxVar} = ${prevVar};\n`;
