@@ -4229,7 +4229,7 @@ while (true) {
     spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 13, "b_uroko", "relative", "6")
     kakudo = -1
     spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 13, "b_uroko", "relative", "6")
-    wait(0.002)
+    wait(0.02)
 }
     `,
     bulletScript: `
@@ -4504,6 +4504,41 @@ speed += 1
 once {
     angle += random(-6,6)
 }
+    `
+},
+{
+    difficulty: "Hard",
+    name: "「弾幕の乱」",
+    desc: "ラグテスト用の弾幕を改造してできた。",
+    duration: 25,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 0.1,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    offset += 0
+    for (let i = 0; i < 5; i++) {
+        offset += 40
+        offset = random(0,360)
+        spawnBulletResist("normal", "#ff3333", 80, angle, 384, 600, 15, "kome", "absolute", "3")
+    }
+    offset = 90
+    spawnBulletResist("normal", "#ff3333", 320, angle, 384, 600, 30, "knife", "absolute", "12")
+    angle += 0.8
+    wait(0.016)
+}
+    `,
+    bulletScript: `
+once {
+    advance(200)
+    angle += offset
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
     `
 }
 ];
