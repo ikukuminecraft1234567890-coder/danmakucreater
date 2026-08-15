@@ -33,7 +33,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         let block = blocks[i];
         let t = block.type;
         if (t === 'wait') {
-            js += ind + `state.waitTimer = Math.max(0.001, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.01')});\n`;
+            js += ind + `state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
             js += ind + `yield;\n`;
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
             let varName = block.params.var || block.params.name;
@@ -49,7 +49,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         } else if (t === 'forever') {
             js += ind + `while (true) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
-            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.001);\n`;
+            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);\n`;
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'repeat') {
@@ -68,7 +68,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
             js += ind + `while (${cond}) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
-            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.001);\n`;
+            js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);\n`;
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'if') {
@@ -149,7 +149,7 @@ window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     if (isBulletScript && blocks && blocks.length > 0) {
         funcStr += `  while (true) {\n`;
         funcStr += window.DanmakuCompiler.generateBlocksJS(blocks, 2);
-        funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+        funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);\n`;
         funcStr += `    yield;\n`;
         funcStr += `  }\n`;
     } else {

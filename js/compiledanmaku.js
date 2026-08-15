@@ -35,7 +35,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                     }
                     case 'wait': {
                         let dur = evalExpr(p.duration, state.variables, block, 'duration');
-                        state.waitTimer = Math.max(0.001, dur);
+                        state.waitTimer = Math.max(0.0167, dur);
                         brokeToWait = true;
                         break;
                     }
@@ -1065,7 +1065,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
 
                             case 'wait': {
                                 let dur = evalExpr(p.duration, state.variables, block, 'duration');
-                                state.waitTimer = Math.max(0.001, dur);
+                                state.waitTimer = Math.max(0.0167, dur);
                                 brokeToWait = true;
                                 break;
                             }
@@ -2135,9 +2135,9 @@ window.compiledDanmaku['danmaku_0'] = function*(state, b, attacker, target, _uti
       yield;
     }
     vars['angle'] = (vars['angle'] || 0) + (5);
-    state.waitTimer = Math.max(0.001, 0.1);
+    state.waitTimer = Math.max(0.0167, 0.1);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2157,7 +2157,7 @@ window.compiledDanmaku['danmaku_0_bullet'] = function*(state, b, attacker, targe
       }
       vars['color'] = "#ff33ff";
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2188,9 +2188,9 @@ window.compiledDanmaku['danmaku_1'] = [
       vars['angle2'] = (vars['angle2'] || 0) - (43.5);
     }
     vars['angle'] = (vars['angle'] || 0) + (0.2);
-    state.waitTimer = Math.max(0.001, 0.008);
+    state.waitTimer = Math.max(0.0167, 0.008);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -2211,7 +2211,7 @@ window.compiledDanmaku['danmaku_1'] = [
     }
     vars['xspa'] = 384;
     vars['yspa'] = 448;
-    state.waitTimer = Math.max(0.001, 3);
+    state.waitTimer = Math.max(0.0167, 3);
     yield;
     while (true) {
       if (_util.executeBlock({ type: 'tween_var', name: "xspa", from: "xspa", to: "384", mode: "step", duration: "1", stepVal: "0.1", easing: "linear", }, state, b, attacker, target, _util)) {
@@ -2220,12 +2220,12 @@ window.compiledDanmaku['danmaku_1'] = [
       if (_util.executeBlock({ type: 'tween_var', name: "yspa", from: "yspa", to: "448", mode: "step", duration: "1", stepVal: "0.1", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 3);
+      state.waitTimer = Math.max(0.0167, 3);
       yield;
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -2241,9 +2241,9 @@ window.compiledDanmaku['danmaku_1'] = [
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "200", angle: "0", count: "18", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "poihuru", coordMode: "relative", hitRadius: "7", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.6);
+    state.waitTimer = Math.max(0.0167, 0.6);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -2296,13 +2296,13 @@ window.compiledDanmaku['danmaku_1_bullet'] = function*(state, b, attacker, targe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['pdpmy1e1s']) {
-        state.onceMap['pdpmy1e1s'] = true;
+      if (!state.onceMap['eqwm3naqx']) {
+        state.onceMap['eqwm3naqx'] = true;
         vars['x'] = 384;
         vars['y'] = 448;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2326,7 +2326,7 @@ window.compiledDanmaku['danmaku_2'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2335,7 +2335,7 @@ window.compiledDanmaku['danmaku_2'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 6);
+    state.waitTimer = Math.max(0.0167, 6);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2344,7 +2344,7 @@ window.compiledDanmaku['danmaku_2'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2353,7 +2353,7 @@ window.compiledDanmaku['danmaku_2'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2362,7 +2362,7 @@ window.compiledDanmaku['danmaku_2'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2371,9 +2371,9 @@ window.compiledDanmaku['danmaku_2'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2384,8 +2384,8 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['zuwe5131b']) {
-      state.onceMap['zuwe5131b'] = true;
+    if (!state.onceMap['31k0ccgqu']) {
+      state.onceMap['31k0ccgqu'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -2403,7 +2403,7 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
         if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "300", angle: "rang", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "star", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.2);
+        state.waitTimer = Math.max(0.0167, 0.2);
         yield;
       }
       vars['m'] = 1;
@@ -2411,7 +2411,7 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
     if (!!((vars.m !== undefined ? vars.m : 0) === 1)) {
       vars['speed'] = (vars['speed'] || 0) + (2.5);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2422,7 +2422,7 @@ window.compiledDanmaku['danmaku_2_magic'] = function*(state, b, attacker, target
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (3);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2440,7 +2440,7 @@ window.compiledDanmaku['danmaku_3'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2449,7 +2449,7 @@ window.compiledDanmaku['danmaku_3'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 6);
+    state.waitTimer = Math.max(0.0167, 6);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2458,7 +2458,7 @@ window.compiledDanmaku['danmaku_3'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2467,7 +2467,7 @@ window.compiledDanmaku['danmaku_3'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2476,7 +2476,7 @@ window.compiledDanmaku['danmaku_3'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
     vars['m'] = 0;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -2485,9 +2485,9 @@ window.compiledDanmaku['danmaku_3'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "0", angle: "angle", offsetX: "0", offsetY: "0", radius: "70", bulletImage: "ootama", coordMode: "relative", hitRadius: "70", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 10);
+    state.waitTimer = Math.max(0.0167, 10);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2498,8 +2498,8 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['gg1duja96']) {
-      state.onceMap['gg1duja96'] = true;
+    if (!state.onceMap['mucftitkb']) {
+      state.onceMap['mucftitkb'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -2517,7 +2517,7 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
         if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "300", angle: "rang", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "star", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.05);
+        state.waitTimer = Math.max(0.0167, 0.05);
         yield;
       }
       vars['m'] = 1;
@@ -2525,7 +2525,7 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
     if (!!((vars.m !== undefined ? vars.m : 0) === 1)) {
       vars['speed'] = (vars['speed'] || 0) + (2.5);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2536,7 +2536,7 @@ window.compiledDanmaku['danmaku_3_magic'] = function*(state, b, attacker, target
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (3);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2553,7 +2553,7 @@ window.compiledDanmaku['danmaku_4'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "5", spread: "20", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "ootama", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.1);
+    state.waitTimer = Math.max(0.0167, 0.1);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -2561,7 +2561,7 @@ window.compiledDanmaku['danmaku_4'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle + 50", count: "5", spread: "20", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "ootama", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.1);
+    state.waitTimer = Math.max(0.0167, 0.1);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -2569,7 +2569,7 @@ window.compiledDanmaku['danmaku_4'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle - 50", count: "5", spread: "20", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "ootama", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -2580,12 +2580,12 @@ window.compiledDanmaku['danmaku_4'] = function*(state, b, attacker, target, _uti
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (25);
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 3);
+    state.waitTimer = Math.max(0.0167, 3);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2621,7 +2621,7 @@ window.compiledDanmaku['danmaku_4_bullet'] = function*(state, b, attacker, targe
         vars['laserWidth'] = 20;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2645,7 +2645,7 @@ window.compiledDanmaku['danmaku_5'] = [
     }
     vars['way'] = (vars['way'] || 0) + (2);
     vars['angle'] = (vars['angle'] || 0) + (16);
-    state.waitTimer = Math.max(0.001, 0.26);
+    state.waitTimer = Math.max(0.0167, 0.26);
     yield;
   }
 },
@@ -2658,7 +2658,7 @@ window.compiledDanmaku['danmaku_5'] = [
     if (_util.executeBlock({ type: 'move_owner', preset: "center", duration: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -2675,7 +2675,7 @@ window.compiledDanmaku['danmaku_5_bullet'] = function*(state, b, attacker, targe
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       vars['y'] = -80000;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2698,9 +2698,9 @@ window.compiledDanmaku['danmaku_6'] = function*(state, b, attacker, target, _uti
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "150", angle: "45 + 90 + 90", offsetX: "0", offsetY: "0", radius: "100", bulletImage: "b_knife", coordMode: "relative", hitRadius: "40", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 200);
+    state.waitTimer = Math.max(0.0167, 200);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2711,8 +2711,8 @@ window.compiledDanmaku['danmaku_6_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['rdjsnv99u']) {
-      state.onceMap['rdjsnv99u'] = true;
+    if (!state.onceMap['od7dutwwu']) {
+      state.onceMap['od7dutwwu'] = true;
       vars['shotTimer'] = 0;
     }
     vars['speed'] = (vars['speed'] || 0) + (2);
@@ -2744,7 +2744,7 @@ window.compiledDanmaku['danmaku_6_bullet'] = function*(state, b, attacker, targe
       }
       vars['shotTimer'] = 0;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2755,7 +2755,7 @@ window.compiledDanmaku['danmaku_6_magic'] = function*(state, b, attacker, target
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (5);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2777,18 +2777,18 @@ window.compiledDanmaku['danmaku_7'] = function*(state, b, attacker, target, _uti
       yield;
     }
     if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (0) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (15)))) {
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (15) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (30)))) {
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
     if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (30) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (35)))) {
-      state.waitTimer = Math.max(0.001, 0.0002);
+      state.waitTimer = Math.max(0.0167, 0.0002);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2811,7 +2811,7 @@ window.compiledDanmaku['danmaku_7_bullet'] = function*(state, b, attacker, targe
       vars['speed'] = (vars['speed'] || 0) + (2);
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2836,7 +2836,7 @@ window.compiledDanmaku['danmaku_8'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "300", angle: "90", offsetX: "0", offsetY: "-200", radius: "7", bulletImage: "uroko", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.03);
+      state.waitTimer = Math.max(0.0167, 0.03);
       yield;
     }
   }
@@ -2854,7 +2854,7 @@ window.compiledDanmaku['danmaku_8'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3323", speed: "300", angle: "90", offsetX: "0", offsetY: "-200", radius: "7", bulletImage: "uroko", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.03);
+      state.waitTimer = Math.max(0.0167, 0.03);
       yield;
     }
   }
@@ -2872,7 +2872,7 @@ window.compiledDanmaku['danmaku_8'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3332", speed: "300", angle: "90", offsetX: "0", offsetY: "-200", radius: "7", bulletImage: "uroko", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.03);
+      state.waitTimer = Math.max(0.0167, 0.03);
       yield;
     }
   }
@@ -2883,12 +2883,12 @@ window.compiledDanmaku['danmaku_8'] = [
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    state.waitTimer = Math.max(0.001, 4);
+    state.waitTimer = Math.max(0.0167, 4);
     yield;
     if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#33ffff", speed: "200", angle: "90", offsetX: "0", offsetY: "-150", radius: "6", bulletImage: "none", coordMode: "relative", hitRadius: "", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -2900,8 +2900,8 @@ window.compiledDanmaku['danmaku_8_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['tjtlwbskz']) {
-      state.onceMap['tjtlwbskz'] = true;
+    if (!state.onceMap['c4gxo5agl']) {
+      state.onceMap['c4gxo5agl'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         vars['x'] = (vars.spawn !== undefined ? vars.spawn : 0);
       }
@@ -2917,13 +2917,13 @@ window.compiledDanmaku['danmaku_8_bullet'] = function*(state, b, attacker, targe
         vars['activeTime'] = 1.5;
         vars['laserWidth'] = 900;
       }
-      state.waitTimer = Math.max(0.001, 0.1);
+      state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 896)) {
       vars['y'] = -580000;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -2965,10 +2965,10 @@ window.compiledDanmaku['danmaku_9'] = [
         }
         vars['ys'] = (vars['ys'] || 0) + (100);
       }
-      state.waitTimer = Math.max(0.001, 0.7);
+      state.waitTimer = Math.max(0.0167, 0.7);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
     vars['i'] = 0;
     for (let _limit2 = Math.round(20); vars['i'] < _limit2; vars['i']++) {
@@ -2994,10 +2994,10 @@ window.compiledDanmaku['danmaku_9'] = [
         }
         vars['xs'] = (vars['xs'] || 0) + (100);
       }
-      state.waitTimer = Math.max(0.001, 0.7);
+      state.waitTimer = Math.max(0.0167, 0.7);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
     vars['i'] = 0;
     for (let _limit2 = Math.round(20); vars['i'] < _limit2; vars['i']++) {
@@ -3039,10 +3039,10 @@ window.compiledDanmaku['danmaku_9'] = [
         vars['xs'] = (vars['xs'] || 0) - (71);
         vars['ys'] = (vars['ys'] || 0) + (71);
       }
-      state.waitTimer = Math.max(0.001, 0.7);
+      state.waitTimer = Math.max(0.0167, 0.7);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     vars['i'] = 0;
     for (let _limit2 = Math.round(20); vars['i'] < _limit2; vars['i']++) {
@@ -3084,12 +3084,12 @@ window.compiledDanmaku['danmaku_9'] = [
         vars['xs'] = (vars['xs'] || 0) + (71);
         vars['ys'] = (vars['ys'] || 0) + (71);
       }
-      state.waitTimer = Math.max(0.001, 0.7);
+      state.waitTimer = Math.max(0.0167, 0.7);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3103,9 +3103,9 @@ window.compiledDanmaku['danmaku_9'] = [
     if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "1", angle: "angle", count: "1", spread: "20", offsetX: "xdao", offsetY: "0", radius: "30", bulletImage: "knife", coordMode: "absolute", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -3118,8 +3118,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lbey23a41']) {
-        state.onceMap['lbey23a41'] = true;
+      if (!state.onceMap['0szyl5ihu']) {
+        state.onceMap['0szyl5ihu'] = true;
         vars['x'] = (vars.tx !== undefined ? vars.tx : 0);
         vars['angle'] = 90;
       }
@@ -3132,11 +3132,11 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
       vars['angle'] = (vars['angle'] || 0) + (random(0,0));
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['uzgsmnm52']) {
-      state.onceMap['uzgsmnm52'] = true;
+    if (!state.onceMap['nx33o35in']) {
+      state.onceMap['nx33o35in'] = true;
       vars['speed'] = (vars['speed'] || 0) + (40);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3159,10 +3159,10 @@ window.compiledDanmaku['danmaku_10'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#33ffff", speed: "200", angle: "90", offsetX: "0", offsetY: "-200", radius: "10", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.1);
+      state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3177,10 +3177,10 @@ window.compiledDanmaku['danmaku_10'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#33ffff", speed: "200", angle: "90", offsetX: "0", offsetY: "-200", radius: "10", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.06);
+      state.waitTimer = Math.max(0.0167, 0.06);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3195,10 +3195,10 @@ window.compiledDanmaku['danmaku_10'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#33ffff", speed: "200", angle: "90", offsetX: "0", offsetY: "-200", radius: "10", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.04);
+      state.waitTimer = Math.max(0.0167, 0.04);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3213,10 +3213,10 @@ window.compiledDanmaku['danmaku_10'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ffaa33", speed: "200", angle: "90", offsetX: "0", offsetY: "-200", radius: "30", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "35", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.4);
+      state.waitTimer = Math.max(0.0167, 0.4);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3231,10 +3231,10 @@ window.compiledDanmaku['danmaku_10'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ffaa33", speed: "200", angle: "90", offsetX: "0", offsetY: "-200", radius: "30", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "35", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.4);
+      state.waitTimer = Math.max(0.0167, 0.4);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3254,7 +3254,7 @@ window.compiledDanmaku['danmaku_10'] = [
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) + (10);
-        state.waitTimer = Math.max(0.001, 0.05);
+        state.waitTimer = Math.max(0.0167, 0.05);
         yield;
       }
     }
@@ -3268,7 +3268,7 @@ window.compiledDanmaku['danmaku_10'] = [
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) + (10);
-        state.waitTimer = Math.max(0.001, 0.05);
+        state.waitTimer = Math.max(0.0167, 0.05);
         yield;
       }
     }
@@ -3282,7 +3282,7 @@ window.compiledDanmaku['danmaku_10'] = [
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) + (10);
-        state.waitTimer = Math.max(0.001, 0.05);
+        state.waitTimer = Math.max(0.0167, 0.05);
         yield;
       }
     }
@@ -3296,14 +3296,14 @@ window.compiledDanmaku['danmaku_10'] = [
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) + (10);
-        state.waitTimer = Math.max(0.001, 0.05);
+        state.waitTimer = Math.max(0.0167, 0.05);
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 0.8);
+    state.waitTimer = Math.max(0.0167, 0.8);
     yield;
     vars['angle'] = (vars['angle'] || 0) + (20);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3320,10 +3320,10 @@ window.compiledDanmaku['danmaku_10'] = [
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ffdd33", speed: "400", angle: "angle", count: "3", spread: "30", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "35", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 1);
+      state.waitTimer = Math.max(0.0167, 1);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -3341,8 +3341,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (1.4) && ((vars.timer !== undefined ? vars.timer : 0)) <= (2)))) {
         vars['speed'] = 300;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['mpfwglmwk']) {
-          state.onceMap['mpfwglmwk'] = true;
+        if (!state.onceMap['sx2885bwk']) {
+          state.onceMap['sx2885bwk'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -3356,8 +3356,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 150;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['i3oddf8pf']) {
-        state.onceMap['i3oddf8pf'] = true;
+      if (!state.onceMap['ljf8gg9vb']) {
+        state.onceMap['ljf8gg9vb'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -3367,8 +3367,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 100;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['p4du2uw89']) {
-        state.onceMap['p4du2uw89'] = true;
+      if (!state.onceMap['quliopov0']) {
+        state.onceMap['quliopov0'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -3390,7 +3390,7 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
     if (!!((vars.dist !== undefined ? vars.dist : 0) < 50)) {
       vars['y'] = (vars.y !== undefined ? vars.y : 0);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3413,7 +3413,7 @@ window.compiledDanmaku['danmaku_11'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "1000", angle: "angle + 45", count: "20", spread: "18", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "ootama", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.08);
+      state.waitTimer = Math.max(0.0167, 0.08);
       yield;
     }
     vars['angle'] = 9;
@@ -3422,10 +3422,10 @@ window.compiledDanmaku['danmaku_11'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "1000", angle: "angle + 45", count: "20", spread: "18", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "ootama", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.08);
+      state.waitTimer = Math.max(0.0167, 0.08);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3436,15 +3436,15 @@ window.compiledDanmaku['danmaku_11_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['2f5078m3p']) {
-      state.onceMap['2f5078m3p'] = true;
+    if (!state.onceMap['ij7sm8ane']) {
+      state.onceMap['ij7sm8ane'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-2,2));
       vars['speed'] = (vars['speed'] || 0) + (random(0,0));
     }
     if (!!((((vars.speed !== undefined ? vars.speed : 0)) >= (400) && ((vars.speed !== undefined ? vars.speed : 0)) <= (100000)))) {
       vars['speed'] = (vars['speed'] || 0) + (-5);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3466,7 +3466,7 @@ window.compiledDanmaku['danmaku_12'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "35000", angle: "angle", count: "10", spread: "36", offsetX: "384", offsetY: "448", radius: "10", bulletImage: "marutama", coordMode: "absolute", hitRadius: "4", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
       vars['angle'] = (vars['angle'] || 0) + (2);
     }
@@ -3475,11 +3475,11 @@ window.compiledDanmaku['danmaku_12'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "35000", angle: "angle", count: "10", spread: "36", offsetX: "384", offsetY: "448", radius: "10", bulletImage: "marutama", coordMode: "absolute", hitRadius: "4", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
       vars['angle'] = (vars['angle'] || 0) - (9);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3500,7 +3500,7 @@ window.compiledDanmaku['danmaku_12_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + (180);
       vars['speed'] = 200;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3535,7 +3535,7 @@ window.compiledDanmaku['danmaku_13'] = function*(state, b, attacker, target, _ut
         vars['spd'] = (vars['spd'] || 0) + (20);
       }
       vars['spd'] = 0;
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
     vars['i'] = 0;
@@ -3552,11 +3552,11 @@ window.compiledDanmaku['danmaku_13'] = function*(state, b, attacker, target, _ut
         vars['spd'] = (vars['spd'] || 0) + (20);
       }
       vars['spd'] = 0;
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
     vars['spawnp'] = -10;
-    state.waitTimer = Math.max(0.001, 0.15);
+    state.waitTimer = Math.max(0.0167, 0.15);
     yield;
   }
 };
@@ -3568,15 +3568,15 @@ window.compiledDanmaku['danmaku_13_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hk8cixioj']) {
-        state.onceMap['hk8cixioj'] = true;
+      if (!state.onceMap['8gtc5o3di']) {
+        state.onceMap['8gtc5o3di'] = true;
         vars['x'] = 379 + (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3332").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['869sewzka']) {
-        state.onceMap['869sewzka'] = true;
+      if (!state.onceMap['a18j838b4']) {
+        state.onceMap['a18j838b4'] = true;
         vars['x'] = 379 - (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
@@ -3588,7 +3588,7 @@ window.compiledDanmaku['danmaku_13_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3611,30 +3611,30 @@ window.compiledDanmaku['danmaku_14'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "ey", to: "ty", mode: "vecstep", duration: "1", stepVal: "0.1", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1 - (vars.t !== undefined ? vars.t : 0));
+    state.waitTimer = Math.max(0.0167, 1 - (vars.t !== undefined ? vars.t : 0));
     yield;
-    state.waitTimer = Math.max(0.001, 1 - (vars.t !== undefined ? vars.t : 0));
+    state.waitTimer = Math.max(0.0167, 1 - (vars.t !== undefined ? vars.t : 0));
     yield;
-    state.waitTimer = Math.max(0.001, 0.5);
-    yield;
-    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "200", angle: "0", count: "72", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "b_uroko", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
-      yield;
-    }
-    state.waitTimer = Math.max(0.001, 0.2);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "200", angle: "0", count: "72", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "b_uroko", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.2);
+    state.waitTimer = Math.max(0.0167, 0.2);
     yield;
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "200", angle: "0", count: "72", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "b_uroko", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.2);
+    state.waitTimer = Math.max(0.0167, 0.2);
+    yield;
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "200", angle: "0", count: "72", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "b_uroko", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    state.waitTimer = Math.max(0.0167, 0.2);
     yield;
     vars['t'] = (vars['t'] || 0) + (0.05);
     vars['t2'] = (vars['t2'] || 0) + (0.0175);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3645,7 +3645,7 @@ window.compiledDanmaku['danmaku_14_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['speed'] = (vars['speed'] || 0) + (1);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3668,7 +3668,7 @@ window.compiledDanmaku['danmaku_15'] = [
       yield;
     }
     vars['angle'] = random(-50,50);
-    state.waitTimer = Math.max(0.001, 0.02);
+    state.waitTimer = Math.max(0.0167, 0.02);
     yield;
   }
 },
@@ -3686,9 +3686,9 @@ window.compiledDanmaku['danmaku_15'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "ey", to: "370 + r2", mode: "seconds", duration: "0.4", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -3700,8 +3700,8 @@ window.compiledDanmaku['danmaku_15_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['lh93245f1']) {
-      state.onceMap['lh93245f1'] = true;
+    if (!state.onceMap['qc0sp8j17']) {
+      state.onceMap['qc0sp8j17'] = true;
       vars['yp'] = -40;
     }
     vars['y'] = (vars['y'] || 0) + ((vars.yp !== undefined ? vars.yp : 0) / 10);
@@ -3709,12 +3709,12 @@ window.compiledDanmaku['danmaku_15_bullet'] = function*(state, b, attacker, targ
     if (!!((((vars.yp !== undefined ? vars.yp : 0)) >= (-5) && ((vars.yp !== undefined ? vars.yp : 0)) <= (5)))) {
       vars['SpriteAngle'] = 90;
     }
-    state.waitTimer = Math.max(0.001, 0.00001);
+    state.waitTimer = Math.max(0.0167, 0.00001);
     yield;
     if (!!((((vars.yp !== undefined ? vars.yp : 0)) >= (-5) && ((vars.yp !== undefined ? vars.yp : 0)) <= (5)))) {
       vars['SpriteAngle'] = 90;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3739,7 +3739,7 @@ window.compiledDanmaku['danmaku_16'] = function*(state, b, attacker, target, _ut
       yield;
     }
     vars['angle'] = (vars['angle'] || 0) + (random(-5,5));
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
   }
 };
@@ -3757,7 +3757,7 @@ window.compiledDanmaku['danmaku_16_bullet'] = function*(state, b, attacker, targ
     }
     vars['m'] = (vars['m'] || 0) + (0.0003);
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -3809,7 +3809,7 @@ window.compiledDanmaku['danmaku_17'] = [
     vars['by'] = (vars.y0 !== undefined ? vars.y0 : 0);
     vars['bx2'] = (vars.rx0 !== undefined ? vars.rx0 : 0);
     vars['by2'] = (vars.ry0 !== undefined ? vars.ry0 : 0);
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
     vars['star'] = 1;
     vars['t'] = 0;
@@ -3827,7 +3827,7 @@ window.compiledDanmaku['danmaku_17'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "by2", from: "ry0", to: "ry2", mode: "seconds", duration: "0.3", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
     vars['angle'] = -144 + (vars.base_angle !== undefined ? vars.base_angle : 0);
     vars['angle2'] = 36 + (vars.base_angle !== undefined ? vars.base_angle : 0);
@@ -3843,7 +3843,7 @@ window.compiledDanmaku['danmaku_17'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "by2", from: "ry2", to: "ry4", mode: "seconds", duration: "0.3", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
     vars['angle'] = 0 + (vars.base_angle !== undefined ? vars.base_angle : 0);
     vars['angle2'] = 180 + (vars.base_angle !== undefined ? vars.base_angle : 0);
@@ -3859,7 +3859,7 @@ window.compiledDanmaku['danmaku_17'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "by2", from: "ry4", to: "ry1", mode: "seconds", duration: "0.3", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
     vars['angle'] = 144 + (vars.base_angle !== undefined ? vars.base_angle : 0);
     vars['angle2'] = -36 + (vars.base_angle !== undefined ? vars.base_angle : 0);
@@ -3875,7 +3875,7 @@ window.compiledDanmaku['danmaku_17'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "by2", from: "ry1", to: "ry3", mode: "seconds", duration: "0.3", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
     vars['angle'] = -72 + (vars.base_angle !== undefined ? vars.base_angle : 0);
     vars['angle2'] = 108 + (vars.base_angle !== undefined ? vars.base_angle : 0);
@@ -3891,7 +3891,7 @@ window.compiledDanmaku['danmaku_17'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "by2", from: "ry3", to: "ry0", mode: "seconds", duration: "0.3", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
     vars['star'] = 0;
     vars['angle'] = 90 + (vars.base_angle !== undefined ? vars.base_angle : 0);
@@ -3908,14 +3908,14 @@ window.compiledDanmaku['danmaku_17'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "by2", from: "ry0", to: "cy", mode: "seconds", duration: "0.3", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
-    state.waitTimer = Math.max(0.001, 0.1);
+    state.waitTimer = Math.max(0.0167, 0.1);
     yield;
     vars['t'] = 1;
-    state.waitTimer = Math.max(0.001, 0.3);
+    state.waitTimer = Math.max(0.0167, 0.3);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -3942,9 +3942,9 @@ window.compiledDanmaku['danmaku_17'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 0.00005);
+    state.waitTimer = Math.max(0.0167, 0.00005);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -3957,8 +3957,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if (!!(_util.fuzzyEqual((vars.e_t !== undefined ? vars.e_t : 0),1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['5dkig7au3']) {
-        state.onceMap['5dkig7au3'] = true;
+      if (!state.onceMap['59kva7wrf']) {
+        state.onceMap['59kva7wrf'] = true;
         vars['flag'] = 1;
       }
     }
@@ -3968,8 +3968,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['7p9r78xjw']) {
-          state.onceMap['7p9r78xjw'] = true;
+        if (!state.onceMap['6gr0yimp6']) {
+          state.onceMap['6gr0yimp6'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -3977,8 +3977,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['rhqbolrw9']) {
-          state.onceMap['rhqbolrw9'] = true;
+        if (!state.onceMap['lcwgneghz']) {
+          state.onceMap['lcwgneghz'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -3986,23 +3986,23 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['vwozhwcoa']) {
-          state.onceMap['vwozhwcoa'] = true;
+        if (!state.onceMap['2rp9o3vh6']) {
+          state.onceMap['2rp9o3vh6'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
       }
       if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['up9m72shl']) {
-          state.onceMap['up9m72shl'] = true;
+        if (!state.onceMap['8cr96a81g']) {
+          state.onceMap['8cr96a81g'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
       }
     }
     vars['spriteAngle'] = (vars.spriteAngle !== undefined ? vars.spriteAngle : 0) + 3;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4024,9 +4024,9 @@ window.compiledDanmaku['danmaku_18'] = [
       yield;
     }
     vars['angleg'] = (vars['angleg'] || 0) + (16);
-    state.waitTimer = Math.max(0.001, 0.6);
+    state.waitTimer = Math.max(0.0167, 0.6);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -4060,9 +4060,9 @@ window.compiledDanmaku['danmaku_18'] = [
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.6);
+    state.waitTimer = Math.max(0.0167, 0.6);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -4084,8 +4084,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['pcyjt4r8s']) {
-          state.onceMap['pcyjt4r8s'] = true;
+        if (!state.onceMap['3ma4h2rvw']) {
+          state.onceMap['3ma4h2rvw'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -4097,8 +4097,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['xsgzh3p5a']) {
-          state.onceMap['xsgzh3p5a'] = true;
+        if (!state.onceMap['9o5se9k9g']) {
+          state.onceMap['9o5se9k9g'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -4106,13 +4106,13 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         }
       }
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4137,7 +4137,7 @@ window.compiledDanmaku['danmaku_19'] = function*(state, b, attacker, target, _ut
       }
       vars['angle'] = (vars['angle'] || 0) + (40);
     }
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
     vars['angle'] = random(0,360);
     vars['i'] = 0;
@@ -4147,7 +4147,7 @@ window.compiledDanmaku['danmaku_19'] = function*(state, b, attacker, target, _ut
       }
       vars['angle'] = (vars['angle'] || 0) + (40);
     }
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
     vars['angle'] = random(0,360);
     vars['i'] = 0;
@@ -4157,7 +4157,7 @@ window.compiledDanmaku['danmaku_19'] = function*(state, b, attacker, target, _ut
       }
       vars['angle'] = (vars['angle'] || 0) + (40);
     }
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
     vars['angle'] = random(0,360);
     vars['i'] = 0;
@@ -4167,7 +4167,7 @@ window.compiledDanmaku['danmaku_19'] = function*(state, b, attacker, target, _ut
       }
       vars['angle'] = (vars['angle'] || 0) + (40);
     }
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
     vars['angle'] = random(0,360);
     vars['i'] = 0;
@@ -4177,7 +4177,7 @@ window.compiledDanmaku['danmaku_19'] = function*(state, b, attacker, target, _ut
       }
       vars['angle'] = (vars['angle'] || 0) + (40);
     }
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
     vars['angle'] = random(0,360);
     vars['i'] = 0;
@@ -4187,9 +4187,9 @@ window.compiledDanmaku['danmaku_19'] = function*(state, b, attacker, target, _ut
       }
       vars['angle'] = (vars['angle'] || 0) + (40);
     }
-    state.waitTimer = Math.max(0.001, 50);
+    state.waitTimer = Math.max(0.0167, 50);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4223,7 +4223,7 @@ window.compiledDanmaku['danmaku_19_bullet'] = function*(state, b, attacker, targ
         }
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4249,7 +4249,7 @@ window.compiledDanmaku['danmaku_19_magic'] = function*(state, b, attacker, targe
       vars['speed'] = 1;
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4266,7 +4266,7 @@ window.compiledDanmaku['danmaku_20'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "400", angle: "195", offsetX: "0", offsetY: "0", radius: "50", bulletImage: "ootama", coordMode: "relative", hitRadius: "40", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "400", angle: "-15", offsetX: "0", offsetY: "0", radius: "50", bulletImage: "ootama", coordMode: "relative", hitRadius: "40", }, state, b, attacker, target, _util)) {
       yield;
@@ -4274,9 +4274,9 @@ window.compiledDanmaku['danmaku_20'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "400", angle: "195", offsetX: "0", offsetY: "0", radius: "50", bulletImage: "ootama", coordMode: "relative", hitRadius: "40", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 7);
+    state.waitTimer = Math.max(0.0167, 7);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4299,10 +4299,10 @@ window.compiledDanmaku['danmaku_20_bullet'] = function*(state, b, attacker, targ
         vars['r'] = random(-5,5);
         vars['m'] = random(0,6);
       }
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4322,15 +4322,15 @@ window.compiledDanmaku['danmaku_21'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ffffff", speed: "500", angle: "spangle", count: "16", offsetX: "0", offsetY: "0", radius: "0", bulletImage: "ohuda", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 4 - (vars.w !== undefined ? vars.w : 0));
+    state.waitTimer = Math.max(0.0167, 4 - (vars.w !== undefined ? vars.w : 0));
     yield;
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     vars['w'] = (vars['w'] || 0) + (0.6);
     vars['w2'] = (vars['w2'] || 0) + (0.1);
     vars['w3'] = (vars['w3'] || 0) + (10);
     vars['spangle'] = (vars['spangle'] || 0) + (random(0,360));
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4341,7 +4341,7 @@ window.compiledDanmaku['danmaku_21_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!!((vars.timer !== undefined ? vars.timer : 0) > 0.2)) {
-      state.waitTimer = Math.max(0.001, 0.04);
+      state.waitTimer = Math.max(0.0167, 0.04);
       yield;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "0", angle: "angle", count: "1", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "kome", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
@@ -4362,7 +4362,7 @@ window.compiledDanmaku['danmaku_21_bullet'] = function*(state, b, attacker, targ
     if (!!((((vars.kaku !== undefined ? vars.kaku : 0)) >= (-500) && ((vars.kaku !== undefined ? vars.kaku : 0)) <= (-11)))) {
       vars['flag'] = 0;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4382,7 +4382,7 @@ window.compiledDanmaku['danmaku_21_magic'] = function*(state, b, attacker, targe
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,3 - (vars.w2 !== undefined ? vars.w2 : 0)))) {
       vars['y'] = -546546456;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4400,7 +4400,7 @@ window.compiledDanmaku['danmaku_22'] = [
         yield;
       }
       vars['spx'] = (vars['spx'] || 0) + (60);
-      state.waitTimer = Math.max(0.001, 0.2);
+      state.waitTimer = Math.max(0.0167, 0.2);
       yield;
     }
     vars['i'] = 0;
@@ -4409,10 +4409,10 @@ window.compiledDanmaku['danmaku_22'] = [
         yield;
       }
       vars['spx'] = (vars['spx'] || 0) - (60);
-      state.waitTimer = Math.max(0.001, 0.2);
+      state.waitTimer = Math.max(0.0167, 0.2);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -4430,13 +4430,13 @@ window.compiledDanmaku['danmaku_22'] = [
       if (_util.executeBlock({ type: 'spawn_way_resist', bulletType: "normal", color: "#ff3333", speed: "300", angle: "angle", count: "1 + wa", spread: "5", offsetX: "0", offsetY: "0", radius: "15", bulletImage: "b_poihuru", coordMode: "relative", hitRadius: "7", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.3);
+      state.waitTimer = Math.max(0.0167, 0.3);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     vars['wa'] = (vars['wa'] || 0) + (1);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -4465,11 +4465,11 @@ window.compiledDanmaku['danmaku_22_bullet'] = function*(state, b, attacker, targ
           }
           vars['l'] = 0;
         }
-        state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+        state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
         yield;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4482,7 +4482,7 @@ window.compiledDanmaku['danmaku_22_magic'] = function*(state, b, attacker, targe
     if (!!((vars.timer !== undefined ? vars.timer : 0) > 1)) {
       vars['y'] = -8000;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4495,7 +4495,7 @@ window.compiledDanmaku['danmaku_23'] = [
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['ey'] = 448;
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['i'] = 0;
     for (let _limit2 = Math.round(1000000000000); vars['i'] < _limit2; vars['i']++) {
@@ -4506,10 +4506,10 @@ window.compiledDanmaku['danmaku_23'] = [
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (6);
-      state.waitTimer = Math.max(0.001, 0.5);
+      state.waitTimer = Math.max(0.0167, 0.5);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -4529,16 +4529,16 @@ window.compiledDanmaku['danmaku_23_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['db5u0x9eg']) {
-      state.onceMap['db5u0x9eg'] = true;
-      state.waitTimer = Math.max(0.001, 0.02);
+    if (!state.onceMap['d5o8drb3r']) {
+      state.onceMap['d5o8drb3r'] = true;
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
       vars['speed'] = 200;
       vars['angle'] = (vars['angle'] || 0) + (180);
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0) + (vars.m !== undefined ? vars.m : 0);
     vars['m'] = (vars['m'] || 0) + (5);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4561,7 +4561,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (random(0,360));
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
     vars['i'] = 0;
@@ -4570,7 +4570,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (12.2);
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
     vars['i'] = 0;
@@ -4582,7 +4582,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ffdd33", speed: "700", angle: "angle", count: "5", spread: "25", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "b_ohuda", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
     vars['i'] = 0;
@@ -4598,7 +4598,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
         vars['w'] = (vars['w'] || 0) + (1);
         vars['sp'] = (vars['sp'] || 0) + (30);
       }
-      state.waitTimer = Math.max(0.001, 0.04);
+      state.waitTimer = Math.max(0.0167, 0.04);
       yield;
     }
     vars['i'] = 0;
@@ -4607,7 +4607,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#3388ff", speed: "700", angle: "-90 + angle", count: "3", spread: "10", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "b_star", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     vars['i'] = 0;
@@ -4616,7 +4616,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#9E76B4", speed: "700", angle: "90", count: "1", spread: "10", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "poihuru", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
     vars['i'] = 0;
@@ -4627,7 +4627,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) + (random(0,360));
-        state.waitTimer = Math.max(0.001, 0.01);
+        state.waitTimer = Math.max(0.0167, 0.01);
         yield;
       }
       vars['i'] = 0;
@@ -4636,7 +4636,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) + (12.2);
-        state.waitTimer = Math.max(0.001, 0.02);
+        state.waitTimer = Math.max(0.0167, 0.02);
         yield;
       }
       vars['i'] = 0;
@@ -4648,7 +4648,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
         if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ffdd33", speed: "700", angle: "angle", count: "5", spread: "25", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "b_ohuda", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.02);
+        state.waitTimer = Math.max(0.0167, 0.02);
         yield;
       }
       vars['i'] = 0;
@@ -4664,7 +4664,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
           vars['w'] = (vars['w'] || 0) + (1);
           vars['sp'] = (vars['sp'] || 0) + (30);
         }
-        state.waitTimer = Math.max(0.001, 0.04);
+        state.waitTimer = Math.max(0.0167, 0.04);
         yield;
       }
       vars['i'] = 0;
@@ -4673,7 +4673,7 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
         if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#3388ff", speed: "700", angle: "-90 + angle", count: "3", spread: "10", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "b_star", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.05);
+        state.waitTimer = Math.max(0.0167, 0.05);
         yield;
       }
       vars['i'] = 0;
@@ -4682,11 +4682,11 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
         if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#9E76B4", speed: "700", angle: "90", count: "1", spread: "10", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "poihuru", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.02);
+        state.waitTimer = Math.max(0.0167, 0.02);
         yield;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4704,8 +4704,8 @@ window.compiledDanmaku['danmaku_24_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9E76B4").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hstqocx1l']) {
-        state.onceMap['hstqocx1l'] = true;
+      if (!state.onceMap['z8qpqfmk6']) {
+        state.onceMap['z8qpqfmk6'] = true;
         vars['xsp'] = random(-200,968);
         vars['x'] = (vars.xsp !== undefined ? vars.xsp : 0);
         vars['y'] = 0;
@@ -4715,7 +4715,7 @@ window.compiledDanmaku['danmaku_24_bullet'] = function*(state, b, attacker, targ
       }
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4743,10 +4743,10 @@ window.compiledDanmaku['danmaku_25'] = [
       if (_util.executeBlock({ type: 'spawn_way_resist', bulletType: "normal", color: "#ff3333", speed: "100", angle: "90", count: "1", spread: "0", offsetX: "xp + ex - 700", offsetY: "ey", radius: "10", bulletImage: "none", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.4);
+    state.waitTimer = Math.max(0.0167, 0.4);
     yield;
     vars['yp'] = 0;
     vars['i'] = 0;
@@ -4758,10 +4758,10 @@ window.compiledDanmaku['danmaku_25'] = [
       if (_util.executeBlock({ type: 'spawn_way_resist', bulletType: "normal", color: "#ff3333", speed: "100", angle: "180", count: "1", spread: "0", offsetX: "ex", offsetY: "ey + yp - 700", radius: "10", bulletImage: "none", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     vars['mx'] = random(200,568);
     if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "mx", mode: "seconds", duration: "1", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
@@ -4771,9 +4771,9 @@ window.compiledDanmaku['danmaku_25'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "ey", to: "my", mode: "seconds", duration: "1", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1.2);
+    state.waitTimer = Math.max(0.0167, 1.2);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -4783,8 +4783,8 @@ window.compiledDanmaku['danmaku_25'] = [
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['tt8rkwxvc']) {
-    state.onceMap['tt8rkwxvc'] = true;
+  if (!state.onceMap['gchtzh1so']) {
+    state.onceMap['gchtzh1so'] = true;
     vars['w'] = 0.6;
   }
 },
@@ -4798,12 +4798,12 @@ window.compiledDanmaku['danmaku_25'] = [
       yield;
     }
     vars['fff'] = (vars['fff'] || 0) + (5);
-    state.waitTimer = Math.max(0.001, 0.4);
+    state.waitTimer = Math.max(0.0167, 0.4);
     yield;
-    state.waitTimer = Math.max(0.001, (vars.w !== undefined ? vars.w : 0));
+    state.waitTimer = Math.max(0.0167, (vars.w !== undefined ? vars.w : 0));
     yield;
     vars['w'] = (vars['w'] || 0) - (0.005);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -4820,7 +4820,7 @@ window.compiledDanmaku['danmaku_25_bullet'] = function*(state, b, attacker, targ
       vars['activeTime'] = 2;
       vars['laserWidth'] = 12;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4849,9 +4849,9 @@ window.compiledDanmaku['danmaku_26'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#33ff88", speed: "100", angle: "-90 + m", count: "3", spread: "60", offsetX: "tx", offsetY: "896", radius: "20", bulletImage: "b_knife", coordMode: "absolute", hitRadius: "4", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.07);
+    state.waitTimer = Math.max(0.0167, 0.07);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4885,12 +4885,12 @@ window.compiledDanmaku['danmaku_27'] = [
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffdd33", speed: "200", angle: "angle", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "light", coordMode: "relative", hitRadius: "30", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.04);
+      state.waitTimer = Math.max(0.0167, 0.04);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 6);
+    state.waitTimer = Math.max(0.0167, 6);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -4928,7 +4928,7 @@ window.compiledDanmaku['danmaku_27_bullet'] = function*(state, b, attacker, targ
           vars['auraRange'] = (vars['auraRange'] || 0) + (1);
           vars['auraIntensity'] = (vars['auraIntensity'] || 0) - (0.1);
           vars['hitRadius'] = (vars['hitRadius'] || 0) + (12);
-          state.waitTimer = Math.max(0.001, 0.03);
+          state.waitTimer = Math.max(0.0167, 0.03);
           yield;
         }
         vars['i'] = 0;
@@ -4937,7 +4937,7 @@ window.compiledDanmaku['danmaku_27_bullet'] = function*(state, b, attacker, targ
           vars['auraIntensity'] = (vars['auraIntensity'] || 0) - (0.1);
           vars['hitRadius'] = (vars['hitRadius'] || 0) - (8);
           vars['radius'] = (vars['radius'] || 0) - (2);
-          state.waitTimer = Math.max(0.001, 0.03);
+          state.waitTimer = Math.max(0.0167, 0.03);
           yield;
         }
         vars['y'] = -8000;
@@ -4947,7 +4947,7 @@ window.compiledDanmaku['danmaku_27_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + (5);
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -4970,9 +4970,9 @@ window.compiledDanmaku['danmaku_28'] = [
       yield;
     }
     vars['angle2'] = (vars['angle2'] || 0) + (6);
-    state.waitTimer = Math.max(0.001, 0.02 - (vars.t !== undefined ? vars.t : 0));
+    state.waitTimer = Math.max(0.0167, 0.02 - (vars.t !== undefined ? vars.t : 0));
     yield;
-    state.waitTimer = Math.max(0.001, 0.01);
+    state.waitTimer = Math.max(0.0167, 0.01);
     yield;
     vars['t'] = (vars['t'] || 0) + (0.00001);
   }
@@ -4990,7 +4990,7 @@ window.compiledDanmaku['danmaku_28'] = [
     if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#33ffff", speed: "200", angle: "angle", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "light", coordMode: "relative", hitRadius: "30", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.8);
+    state.waitTimer = Math.max(0.0167, 0.8);
     yield;
   }
 }
@@ -5028,10 +5028,10 @@ window.compiledDanmaku['danmaku_29'] = [
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#fffffe", speed: "spd", angle: "angle2", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "light", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "maspa_long", }, state, b, attacker, target, _util)) {
       yield;
@@ -5045,14 +5045,14 @@ window.compiledDanmaku['danmaku_29'] = [
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ffff99", speed: "1500", angle: "ang", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "light", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.000005);
+      state.waitTimer = Math.max(0.0167, 0.000005);
       yield;
       vars['angle'] = (vars['angle'] || 0) + (0.001);
     }
     vars['sp'] = 0;
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -5067,10 +5067,10 @@ window.compiledDanmaku['danmaku_29'] = [
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffdd33", speed: "300", angle: "angle2", count: "10", offsetX: "0", offsetY: "0", radius: "15", bulletImage: "b_star", coordMode: "relative", hitRadius: "7", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.2);
+      state.waitTimer = Math.max(0.0167, 0.2);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -5085,8 +5085,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (3)))) {
         vars['speed'] = 320;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['fv9ymhhai']) {
-          state.onceMap['fv9ymhhai'] = true;
+        if (!state.onceMap['3gbbfit3q']) {
+          state.onceMap['3gbbfit3q'] = true;
           vars['angle'] = (vars['angle'] || 0) + (180);
         }
       }
@@ -5098,8 +5098,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffff99").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['l8ylem50t']) {
-        state.onceMap['l8ylem50t'] = true;
+      if (!state.onceMap['g6136z5hw']) {
+        state.onceMap['g6136z5hw'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "angle", from: "angle", to: "ag", mode: "seconds", duration: "0.6", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -5108,7 +5108,7 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
       }
     }
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (3);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5153,7 +5153,7 @@ window.compiledDanmaku['danmaku_30'] = function*(state, b, attacker, target, _ut
       }
       vars['angle'] = (vars['angle'] || 0) + (5);
     }
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
   }
 };
@@ -5166,8 +5166,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,(vars.henkat !== undefined ? vars.henkat : 0)))) {
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['ymsf2x7i8']) {
-          state.onceMap['ymsf2x7i8'] = true;
+        if (!state.onceMap['6l97ggfhn']) {
+          state.onceMap['6l97ggfhn'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -5187,8 +5187,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ff88").trim().toLowerCase())) {
       if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['noqgtogkd']) {
-          state.onceMap['noqgtogkd'] = true;
+        if (!state.onceMap['v7mscil3f']) {
+          state.onceMap['v7mscil3f'] = true;
           if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -5200,7 +5200,7 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
         vars['speed'] = 100;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5225,9 +5225,9 @@ window.compiledDanmaku['danmaku_31'] = [
       yield;
     }
     vars['angle'] = (vars['angle'] || 0) + (5.2);
-    state.waitTimer = Math.max(0.001, 0.05);
+    state.waitTimer = Math.max(0.0167, 0.05);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -5238,7 +5238,7 @@ window.compiledDanmaku['danmaku_31'] = [
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['ex'] = (vars.tx !== undefined ? vars.tx : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -5250,7 +5250,7 @@ window.compiledDanmaku['danmaku_31_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['speed'] = (vars['speed'] || 0) + (1);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5268,8 +5268,8 @@ window.compiledDanmaku['danmaku_32'] = [
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['uusbrtnqn']) {
-    state.onceMap['uusbrtnqn'] = true;
+  if (!state.onceMap['1yg1dd416']) {
+    state.onceMap['1yg1dd416'] = true;
     vars['t'] = 1.5;
   }
 },
@@ -5284,9 +5284,9 @@ window.compiledDanmaku['danmaku_32'] = [
       yield;
     }
     vars['angle'] = random(0,360);
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
-    state.waitTimer = Math.max(0.001, (vars.t !== undefined ? vars.t : 0));
+    state.waitTimer = Math.max(0.0167, (vars.t !== undefined ? vars.t : 0));
     yield;
     vars['t'] = (vars['t'] || 0) - (0.05);
   }
@@ -5298,14 +5298,14 @@ window.compiledDanmaku['danmaku_32_bullet'] = function*(state, b, attacker, targ
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#6200ff", speed: "120", angle: "angle", count: "4", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "light", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5336,7 +5336,7 @@ window.compiledDanmaku['danmaku_33'] = function*(state, b, attacker, target, _ut
       yield;
     }
     vars['ang'] = (vars['ang'] || 0) + (4 + random(1,6));
-    state.waitTimer = Math.max(0.001, 0.06);
+    state.waitTimer = Math.max(0.0167, 0.06);
     yield;
   }
 };
@@ -5359,11 +5359,11 @@ window.compiledDanmaku['danmaku_33_bullet'] = function*(state, b, attacker, targ
         if (!!(_util.fuzzyEqual((vars.l !== undefined ? vars.l : 0) ,3))) {
           vars['l'] = 0;
         }
-        state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+        state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
         yield;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5385,7 +5385,7 @@ window.compiledDanmaku['danmaku_34'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "charge2", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1.15);
+    state.waitTimer = Math.max(0.0167, 1.15);
     yield;
     if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ff3333", speed: "50", angle: "-90", count: "4 + w", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "light", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
       yield;
@@ -5393,7 +5393,7 @@ window.compiledDanmaku['danmaku_34'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "don00", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 3.5);
+    state.waitTimer = Math.max(0.0167, 3.5);
     yield;
     vars['w'] = (vars['w'] || 0) + (1);
   }
@@ -5416,7 +5416,7 @@ window.compiledDanmaku['danmaku_34_bullet'] = function*(state, b, attacker, targ
       }
       vars['y'] = -80000;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5430,7 +5430,7 @@ window.compiledDanmaku['danmaku_34_magic'] = function*(state, b, attacker, targe
       vars['radius'] = (vars['radius'] || 0) - (0.2);
       vars['hitRadius'] = (vars['hitRadius'] || 0) - (0.2);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5455,9 +5455,9 @@ window.compiledDanmaku['danmaku_35'] = [
       yield;
     }
     vars['angle'] = random(40,140);
-    state.waitTimer = Math.max(0.001, 0.05);
+    state.waitTimer = Math.max(0.0167, 0.05);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -5467,7 +5467,7 @@ window.compiledDanmaku['danmaku_35'] = [
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
     vars['r'] = random(-50,100);
     if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "100 + r", mode: "seconds", duration: "0.5", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
@@ -5485,7 +5485,7 @@ window.compiledDanmaku['danmaku_35'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['r'] = random(-50,100);
     if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "700 + r", mode: "seconds", duration: "0.5", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
@@ -5503,7 +5503,7 @@ window.compiledDanmaku['danmaku_35'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['r'] = random(-50,100);
     if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "100 + r", mode: "seconds", duration: "0.5", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
@@ -5521,7 +5521,7 @@ window.compiledDanmaku['danmaku_35'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['r'] = random(-50,100);
     if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "700 + r", mode: "seconds", duration: "0.5", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
@@ -5539,7 +5539,7 @@ window.compiledDanmaku['danmaku_35'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "384", mode: "seconds", duration: "0.5", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
       yield;
@@ -5555,9 +5555,9 @@ window.compiledDanmaku['danmaku_35'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 4);
+    state.waitTimer = Math.max(0.0167, 4);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -5570,9 +5570,9 @@ window.compiledDanmaku['danmaku_35'] = [
     if (_util.executeBlock({ type: 'spawn_way_resist', bulletType: "normal", color: "#ff3333", speed: "1000", angle: "-90", count: "25", spread: "7", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "b_knife", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.05);
+    state.waitTimer = Math.max(0.0167, 0.05);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -5589,10 +5589,10 @@ window.compiledDanmaku['danmaku_35'] = [
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ffffff", speed: "300", angle: "angle", count: "8", spread: "12", offsetX: "0", offsetY: "0", radius: "12", bulletImage: "uroko", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.7);
+      state.waitTimer = Math.max(0.0167, 0.7);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -5609,10 +5609,10 @@ window.compiledDanmaku['danmaku_35'] = [
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "300", angle: "0", count: "36", offsetX: "0", offsetY: "0", radius: "8", bulletImage: "light", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.3);
+      state.waitTimer = Math.max(0.0167, 0.3);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -5634,7 +5634,7 @@ window.compiledDanmaku['danmaku_35_bullet'] = function*(state, b, attacker, targ
         vars['angle'] = (vars['angle'] || 0) + (random(-15,15));
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5665,12 +5665,12 @@ window.compiledDanmaku['danmaku_36'] = function*(state, b, attacker, target, _ut
     }
     vars['spdd'] = 0;
     vars['ang'] = 0;
-    state.waitTimer = Math.max(0.001, 1.5);
+    state.waitTimer = Math.max(0.0167, 1.5);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1.5);
+    state.waitTimer = Math.max(0.0167, 1.5);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
       yield;
@@ -5685,14 +5685,14 @@ window.compiledDanmaku['danmaku_36'] = function*(state, b, attacker, target, _ut
       vars['ang'] = (vars['ang'] || 0) + (1);
     }
     vars['spdd'] = 0;
-    state.waitTimer = Math.max(0.001, 1.5);
+    state.waitTimer = Math.max(0.0167, 1.5);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1.5);
+    state.waitTimer = Math.max(0.0167, 1.5);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5711,7 +5711,7 @@ window.compiledDanmaku['danmaku_36_bullet'] = function*(state, b, attacker, targ
       }
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5743,7 +5743,7 @@ window.compiledDanmaku['danmaku_37'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ac008f", speed: "200", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "light", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
       yield;
@@ -5760,9 +5760,9 @@ window.compiledDanmaku['danmaku_37'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5795,7 +5795,7 @@ window.compiledDanmaku['danmaku_38'] = [
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffaa33", speed: "200", angle: "0", count: "6", offsetX: "384", offsetY: "448", radius: "6", bulletImage: "none", coordMode: "absolute", hitRadius: "#ff3333", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     while (true) {
       vars['i'] = 0;
@@ -5804,7 +5804,7 @@ window.compiledDanmaku['danmaku_38'] = [
           yield;
         }
         vars['xp'] = (vars['xp'] || 0) + (20);
-        state.waitTimer = Math.max(0.001, 0.16);
+        state.waitTimer = Math.max(0.0167, 0.16);
         yield;
         if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
           yield;
@@ -5816,7 +5816,7 @@ window.compiledDanmaku['danmaku_38'] = [
           yield;
         }
         vars['xp'] = (vars['xp'] || 0) - (20);
-        state.waitTimer = Math.max(0.001, 0.16);
+        state.waitTimer = Math.max(0.0167, 0.16);
         yield;
         if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
           yield;
@@ -5839,7 +5839,7 @@ window.compiledDanmaku['danmaku_38'] = [
           }
           vars['xp'] = (vars['xp'] || 0) + (20);
           vars['yp'] = (vars['yp'] || 0) + (23.5789473684);
-          state.waitTimer = Math.max(0.001, 0.16);
+          state.waitTimer = Math.max(0.0167, 0.16);
           yield;
           if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
             yield;
@@ -5861,19 +5861,19 @@ window.compiledDanmaku['danmaku_38'] = [
           }
           vars['xp'] = (vars['xp'] || 0) - (20);
           vars['yp'] = (vars['yp'] || 0) - (23.5789473684);
-          state.waitTimer = Math.max(0.001, 0.16);
+          state.waitTimer = Math.max(0.0167, 0.16);
           yield;
           if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
             yield;
           }
         }
-        state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+        state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
         yield;
       }
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -5896,7 +5896,7 @@ window.compiledDanmaku['danmaku_38'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -5915,7 +5915,7 @@ window.compiledDanmaku['danmaku_38_bullet'] = function*(state, b, attacker, targ
         vars['angle'] = (vars['angle'] || 0) + (0.2);
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5936,9 +5936,9 @@ window.compiledDanmaku['danmaku_39'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff661f", speed: "200", angle: "angle", offsetX: "xsp", offsetY: "896", radius: "10", bulletImage: "light", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.02);
+    state.waitTimer = Math.max(0.0167, 0.02);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5960,7 +5960,7 @@ window.compiledDanmaku['danmaku_39_bullet'] = function*(state, b, attacker, targ
         vars['auraRange'] = (vars['auraRange'] || 0) + (2.5);
         vars['auraIntensity'] = (vars['auraIntensity'] || 0) - (0.1);
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (12);
-        state.waitTimer = Math.max(0.001, 0.03);
+        state.waitTimer = Math.max(0.0167, 0.03);
         yield;
       }
       vars['i'] = 0;
@@ -5969,12 +5969,12 @@ window.compiledDanmaku['danmaku_39_bullet'] = function*(state, b, attacker, targ
         vars['auraIntensity'] = (vars['auraIntensity'] || 0) - (0.01);
         vars['hitRadius'] = (vars['hitRadius'] || 0) - (4);
         vars['radius'] = (vars['radius'] || 0) - (1);
-        state.waitTimer = Math.max(0.001, 0.03);
+        state.waitTimer = Math.max(0.0167, 0.03);
         yield;
       }
       vars['y'] = -8000;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -5996,7 +5996,7 @@ window.compiledDanmaku['danmaku_39_magic'] = function*(state, b, attacker, targe
       vars['speed'] = (vars['speed'] || 0) + (1.5);
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6013,12 +6013,12 @@ window.compiledDanmaku['danmaku_40'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "180", to: "448", mode: "seconds", duration: "3", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 3);
+    state.waitTimer = Math.max(0.0167, 3);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "charge2", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1.5);
+    state.waitTimer = Math.max(0.0167, 1.5);
     yield;
     while (true) {
       if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
@@ -6033,13 +6033,13 @@ window.compiledDanmaku['danmaku_40'] = function*(state, b, attacker, target, _ut
           }
         }
         vars['angle'] = (vars['angle'] || 0) + (6);
-        state.waitTimer = Math.max(0.001, 0.025);
+        state.waitTimer = Math.max(0.0167, 0.025);
         yield;
       }
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6051,8 +6051,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (4)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['e30tjpwyp']) {
-        state.onceMap['e30tjpwyp'] = true;
+      if (!state.onceMap['v7vieta1i']) {
+        state.onceMap['v7vieta1i'] = true;
         vars['speed'] = 80;
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
@@ -6061,13 +6061,13 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
     }
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,7.5))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['m0nkh25r5']) {
-        state.onceMap['m0nkh25r5'] = true;
+      if (!state.onceMap['hbwuit2w5']) {
+        state.onceMap['hbwuit2w5'] = true;
         vars['speed'] = 30;
         vars['color'] = "#dddddd";
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6107,7 +6107,7 @@ window.compiledDanmaku['danmaku_41'] = [
         yield;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -6126,7 +6126,7 @@ window.compiledDanmaku['danmaku_41'] = [
         if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.15);
+        state.waitTimer = Math.max(0.0167, 0.15);
         yield;
       }
       if (!!(_util.fuzzyEqual((vars.cardSecond !== undefined ? vars.cardSecond : 0) ,5))) {
@@ -6156,7 +6156,7 @@ window.compiledDanmaku['danmaku_41'] = [
         if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.15);
+        state.waitTimer = Math.max(0.0167, 0.15);
         yield;
       }
       if (!!(_util.fuzzyEqual((vars.cardSecond !== undefined ? vars.cardSecond : 0) ,30))) {
@@ -6186,7 +6186,7 @@ window.compiledDanmaku['danmaku_41'] = [
         if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.08);
+        state.waitTimer = Math.max(0.0167, 0.08);
         yield;
       }
       if (!!(_util.fuzzyEqual((vars.cardSecond !== undefined ? vars.cardSecond : 0) ,55))) {
@@ -6210,7 +6210,7 @@ window.compiledDanmaku['danmaku_41'] = [
         }
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -6223,9 +6223,9 @@ window.compiledDanmaku['danmaku_41'] = [
     if (_util.executeBlock({ type: 'tween_var', name: "agg", from: "0", to: "360", mode: "seconds", duration: "15", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 15);
+    state.waitTimer = Math.max(0.0167, 15);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -6320,7 +6320,7 @@ window.compiledDanmaku['danmaku_41_bullet'] = function*(state, b, attacker, targ
       }
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6352,10 +6352,10 @@ window.compiledDanmaku['danmaku_42'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (4);
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['stop'] = 1;
     vars['kaisi'] = 0.1;
@@ -6368,7 +6368,7 @@ window.compiledDanmaku['danmaku_42'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (6.5);
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
     vars['i'] = 0;
@@ -6379,19 +6379,19 @@ window.compiledDanmaku['danmaku_42'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) - (-2);
-      state.waitTimer = Math.max(0.001, 0.02);
+      state.waitTimer = Math.max(0.0167, 0.02);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
     vars['stop'] = 2;
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['stop'] = 0;
-    state.waitTimer = Math.max(0.001, 1.5 - (vars.minus !== undefined ? vars.minus : 0));
+    state.waitTimer = Math.max(0.0167, 1.5 - (vars.minus !== undefined ? vars.minus : 0));
     yield;
     vars['minus'] = (vars['minus'] || 0) + (0.1);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6425,7 +6425,7 @@ window.compiledDanmaku['danmaku_42_bullet'] = function*(state, b, attacker, targ
         vars['speed'] = 600;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6444,7 +6444,7 @@ window.compiledDanmaku['danmaku_43'] = function*(state, b, attacker, target, _ut
   while (true) {
     vars['i'] = 0;
     for (let _limit2 = Math.round(2); vars['i'] < _limit2; vars['i']++) {
-      state.waitTimer = Math.max(0.001, 1.5);
+      state.waitTimer = Math.max(0.0167, 1.5);
       yield;
       vars['sp'] = 550;
       vars['ll'] = 4;
@@ -6455,13 +6455,13 @@ window.compiledDanmaku['danmaku_43'] = function*(state, b, attacker, target, _ut
         if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ff3333", speed: "0", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "light", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.03);
+        state.waitTimer = Math.max(0.0167, 0.03);
         yield;
         vars['ll'] = (vars['ll'] || 0) - (0.02);
       }
-      state.waitTimer = Math.max(0.001, 2);
+      state.waitTimer = Math.max(0.0167, 2);
       yield;
-      state.waitTimer = Math.max(0.001, 1.5);
+      state.waitTimer = Math.max(0.0167, 1.5);
       yield;
       vars['sp'] = 550;
       vars['ll'] = 4;
@@ -6472,16 +6472,16 @@ window.compiledDanmaku['danmaku_43'] = function*(state, b, attacker, target, _ut
         if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#3333ff", speed: "0", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "light", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
           yield;
         }
-        state.waitTimer = Math.max(0.001, 0.03);
+        state.waitTimer = Math.max(0.0167, 0.03);
         yield;
         vars['ll'] = (vars['ll'] || 0) - (0.02);
       }
-      state.waitTimer = Math.max(0.001, 2);
+      state.waitTimer = Math.max(0.0167, 2);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 20);
+    state.waitTimer = Math.max(0.0167, 20);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6492,21 +6492,21 @@ window.compiledDanmaku['danmaku_43_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['q8e7p7tin']) {
-      state.onceMap['q8e7p7tin'] = true;
+    if (!state.onceMap['5tw5bdpva']) {
+      state.onceMap['5tw5bdpva'] = true;
       vars['hitRadius'] = 0;
       if (_util.executeBlock({ type: 'advance', distance: "sp / 4", }, state, b, attacker, target, _util)) {
         yield;
       }
       vars['speed'] = 50;
-      state.waitTimer = Math.max(0.001, 0.5);
+      state.waitTimer = Math.max(0.0167, 0.5);
       yield;
       vars['hitRadius'] = 3;
     }
     if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (3) && ((vars.timer !== undefined ? vars.timer : 0)) <= (6)))) {
       vars['speed'] = (vars['speed'] || 0) + (1);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6524,14 +6524,14 @@ window.compiledDanmaku['danmaku_44'] = function*(state, b, attacker, target, _ut
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['ey'] = 448;
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
     if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ff3333", speed: "200", angle: "0", count: "6", offsetX: "0", offsetY: "0", radius: "45", bulletImage: "ootama", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 9);
+    state.waitTimer = Math.max(0.0167, 9);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6553,8 +6553,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['qa7b7q31j']) {
-        state.onceMap['qa7b7q31j'] = true;
+      if (!state.onceMap['b8jtkdu95']) {
+        state.onceMap['b8jtkdu95'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6562,8 +6562,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['8c4bqnj2c']) {
-        state.onceMap['8c4bqnj2c'] = true;
+      if (!state.onceMap['6xkg9p4z6']) {
+        state.onceMap['6xkg9p4z6'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6571,8 +6571,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['8zfsbt0mf']) {
-        state.onceMap['8zfsbt0mf'] = true;
+      if (!state.onceMap['7ba63t4hs']) {
+        state.onceMap['7ba63t4hs'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6580,12 +6580,12 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ly8n1a23b']) {
-        state.onceMap['ly8n1a23b'] = true;
+      if (!state.onceMap['wf9d7173i']) {
+        state.onceMap['wf9d7173i'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6602,7 +6602,7 @@ window.compiledDanmaku['danmaku_45'] = function*(state, b, attacker, target, _ut
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     vars['angle'] = random(0,360);
     if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ff3333", speed: "300", angle: "0", count: "7", offsetX: "0", offsetY: "0", radius: "60", bulletImage: "ootama", coordMode: "relative", hitRadius: "40", }, state, b, attacker, target, _util)) {
@@ -6611,9 +6611,9 @@ window.compiledDanmaku['danmaku_45'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "shot_raw", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 3);
+    state.waitTimer = Math.max(0.0167, 3);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6632,7 +6632,7 @@ window.compiledDanmaku['danmaku_45_bullet'] = function*(state, b, attacker, targ
         yield;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6645,7 +6645,7 @@ window.compiledDanmaku['danmaku_45_magic'] = function*(state, b, attacker, targe
     if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (1) && ((vars.timer !== undefined ? vars.timer : 0)) <= (4)))) {
       vars['speed'] = (vars['speed'] || 0) + (0.4);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6670,7 +6670,7 @@ window.compiledDanmaku['danmaku_46'] = function*(state, b, attacker, target, _ut
       yield;
     }
     vars['angle'] = (vars['angle'] || 0) + (random(0,40));
-    state.waitTimer = Math.max(0.001, 0.2);
+    state.waitTimer = Math.max(0.0167, 0.2);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_way', bulletType: "laser", color: "#ff3333", radius: "6", speed: "450", angle: "angle", count: "2", spread: "45", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
       yield;
@@ -6691,10 +6691,10 @@ window.compiledDanmaku['danmaku_46_bullet'] = function*(state, b, attacker, targ
       vars['frame2'] = (vars['frame2'] || 0) + (1);
       vars['l'] = (vars['l'] || 0) + (1);
       vars['angle'] = (vars.baseAngle !== undefined ? vars.baseAngle : 0) - (vars.amp !== undefined ? vars.amp : 0) * sin((vars.frame2 !== undefined ? vars.frame2 : 0) * 360 / (vars.period !== undefined ? vars.period : 0));
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6718,11 +6718,11 @@ window.compiledDanmaku['danmaku_47'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "0", angle: "angle", count: "18 + way", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 3);
+    state.waitTimer = Math.max(0.0167, 3);
     yield;
     vars['offset'] = (vars['offset'] || 0) + (3);
     vars['way'] = (vars['way'] || 0) + (1);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6735,8 +6735,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (7);
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['oxfp0svy5']) {
-        state.onceMap['oxfp0svy5'] = true;
+      if (!state.onceMap['y8ru7eftt']) {
+        state.onceMap['y8ru7eftt'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -6744,8 +6744,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['mbk2x99sb']) {
-        state.onceMap['mbk2x99sb'] = true;
+      if (!state.onceMap['6q7uaw6g3']) {
+        state.onceMap['6q7uaw6g3'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -6753,16 +6753,16 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['4ys551s4a']) {
-        state.onceMap['4ys551s4a'] = true;
+      if (!state.onceMap['9oh9i24sk']) {
+        state.onceMap['9oh9i24sk'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ri4veoh9d']) {
-        state.onceMap['ri4veoh9d'] = true;
+      if (!state.onceMap['b33plyf41']) {
+        state.onceMap['b33plyf41'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
@@ -6770,7 +6770,7 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     if (!!((((vars.speed !== undefined ? vars.speed : 0)) >= (0) && ((vars.speed !== undefined ? vars.speed : 0)) <= (400)))) {
       vars['speed'] = (vars['speed'] || 0) + (3);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6798,12 +6798,12 @@ window.compiledDanmaku['danmaku_48'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'play_sound', soundName: "laser_heavy", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 2);
+      state.waitTimer = Math.max(0.0167, 2);
       yield;
       if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 3);
+      state.waitTimer = Math.max(0.0167, 3);
       yield;
     }
     vars['i'] = 0;
@@ -6817,7 +6817,7 @@ window.compiledDanmaku['danmaku_48'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'play_sound', soundName: "laser_heavy", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 1);
+      state.waitTimer = Math.max(0.0167, 1);
       yield;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
@@ -6828,17 +6828,17 @@ window.compiledDanmaku['danmaku_48'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'play_sound', soundName: "laser_heavy", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 1);
+      state.waitTimer = Math.max(0.0167, 1);
       yield;
       if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 1);
+      state.waitTimer = Math.max(0.0167, 1);
       yield;
       if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 2);
+      state.waitTimer = Math.max(0.0167, 2);
       yield;
     }
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -6850,7 +6850,7 @@ window.compiledDanmaku['danmaku_48'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "laser_heavy", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.6666666667);
+    state.waitTimer = Math.max(0.0167, 0.6666666667);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -6861,7 +6861,7 @@ window.compiledDanmaku['danmaku_48'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "laser_heavy", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.6666666667);
+    state.waitTimer = Math.max(0.0167, 0.6666666667);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -6872,24 +6872,24 @@ window.compiledDanmaku['danmaku_48'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'play_sound', soundName: "laser_heavy", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.6666666667);
+    state.waitTimer = Math.max(0.0167, 0.6666666667);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.6666666667);
+    state.waitTimer = Math.max(0.0167, 0.6666666667);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.6666666667);
+    state.waitTimer = Math.max(0.0167, 0.6666666667);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "boon01", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 20);
+    state.waitTimer = Math.max(0.0167, 20);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6907,10 +6907,10 @@ window.compiledDanmaku['danmaku_48_bullet'] = function*(state, b, attacker, targ
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ffdd33", speed: "1", angle: "spangle", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "light", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.007);
+      state.waitTimer = Math.max(0.0167, 0.007);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6923,7 +6923,7 @@ window.compiledDanmaku['danmaku_48_magic'] = function*(state, b, attacker, targe
     if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (2) && ((vars.timer !== undefined ? vars.timer : 0)) <= (3)))) {
       vars['speed'] = (vars['speed'] || 0) + (2);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -6935,31 +6935,31 @@ window.compiledDanmaku['danmaku_49'] = function*(state, b, attacker, target, _ut
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['angle'] = (vars['angle'] || 0) + (random(0,360));
-    state.waitTimer = Math.max(0.001, 3);
+    state.waitTimer = Math.max(0.0167, 3);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "1", speed: "400", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#33ffff", radius: "1", speed: "500", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "400", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#33ffff", radius: "6", speed: "500", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['ex'] = 384 + random(-100,100);
     vars['ey'] = 400 + random(-100,100);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7000,7 +7000,7 @@ window.compiledDanmaku['danmaku_49_bullet'] = function*(state, b, attacker, targ
     if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (5.5) && ((vars.timer !== undefined ? vars.timer : 0)) <= (6)))) {
       vars['angle'] = (vars['angle'] || 0) + (1);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7018,21 +7018,21 @@ window.compiledDanmaku['danmaku_50'] = function*(state, b, attacker, target, _ut
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['angle'] = (vars['angle'] || 0) + (random(0,360));
-    state.waitTimer = Math.max(0.001, 4);
+    state.waitTimer = Math.max(0.0167, 4);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "400", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#33ffff", radius: "6", speed: "500", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['ex'] = 384 + random(-100,100);
     vars['ey'] = 400 + random(-100,100);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7073,7 +7073,7 @@ window.compiledDanmaku['danmaku_50_bullet'] = function*(state, b, attacker, targ
     if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (5.5) && ((vars.timer !== undefined ? vars.timer : 0)) <= (6)))) {
       vars['angle'] = (vars['angle'] || 0) + (1);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7093,9 +7093,9 @@ window.compiledDanmaku['danmaku_51'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "1", angle: "angle", offsetX: "0", offsetY: "0", radius: "0", bulletImage: "none", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 6);
+    state.waitTimer = Math.max(0.0167, 6);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7117,7 +7117,7 @@ window.compiledDanmaku['danmaku_51_bullet'] = function*(state, b, attacker, targ
       }
     }
     vars['speed'] = (vars['speed'] || 0) + (-30);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7134,7 +7134,7 @@ window.compiledDanmaku['danmaku_51_magic'] = function*(state, b, attacker, targe
     if (!!((vars.timer !== undefined ? vars.timer : 0) > 6)) {
       vars['y'] = -80000;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7146,7 +7146,7 @@ window.compiledDanmaku['danmaku_52'] = function*(state, b, attacker, target, _ut
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['ey'] = 348;
-    state.waitTimer = Math.max(0.001, 0.2);
+    state.waitTimer = Math.max(0.0167, 0.2);
     yield;
     vars['heru'] = 600000;
     if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3332", speed: "120", angle: "angle", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "light", coordMode: "relative", hitRadius: "30", }, state, b, attacker, target, _util)) {
@@ -7169,7 +7169,7 @@ window.compiledDanmaku['danmaku_52'] = function*(state, b, attacker, target, _ut
         vars['ikouangle'] = (vars['ikouangle'] || 0) + (0.25);
       }
       vars['ikouangle'] = (vars['ikouangle'] || 0) + (3.5);
-      state.waitTimer = Math.max(0.001, 0.035);
+      state.waitTimer = Math.max(0.0167, 0.035);
       yield;
       if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
         yield;
@@ -7196,19 +7196,19 @@ window.compiledDanmaku['danmaku_52'] = function*(state, b, attacker, target, _ut
         vars['ikouangle'] = (vars['ikouangle'] || 0) + (2);
         vars['heru'] = (vars['heru'] || 0) - (0.01);
       }
-      state.waitTimer = Math.max(0.001, 0.03);
+      state.waitTimer = Math.max(0.0167, 0.03);
       yield;
       if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 2.2 - (vars.hakkyou !== undefined ? vars.hakkyou : 0));
+    state.waitTimer = Math.max(0.0167, 2.2 - (vars.hakkyou !== undefined ? vars.hakkyou : 0));
     yield;
-    state.waitTimer = Math.max(0.001, 1 - (vars.hakkyou2 !== undefined ? vars.hakkyou2 : 0));
+    state.waitTimer = Math.max(0.0167, 1 - (vars.hakkyou2 !== undefined ? vars.hakkyou2 : 0));
     yield;
     vars['hakkyou'] = (vars['hakkyou'] || 0) + (1);
     vars['hakkyou'] = (vars['hakkyou'] || 0) + (0.5);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7226,8 +7226,8 @@ window.compiledDanmaku['danmaku_52_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['qnkn3wp18']) {
-        state.onceMap['qnkn3wp18'] = true;
+      if (!state.onceMap['5kddivlvc']) {
+        state.onceMap['5kddivlvc'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -7247,10 +7247,10 @@ window.compiledDanmaku['danmaku_52_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 0;
     }
     if (!!((vars.frame !== undefined ? vars.frame : 0) > 305)) {
-      state.waitTimer = Math.max(0.001, 99999);
+      state.waitTimer = Math.max(0.0167, 99999);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7268,7 +7268,7 @@ window.compiledDanmaku['danmaku_53'] = function*(state, b, attacker, target, _ut
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['ey'] = 348;
-    state.waitTimer = Math.max(0.001, 0.2);
+    state.waitTimer = Math.max(0.0167, 0.2);
     yield;
     vars['heru'] = 600000;
     if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3332", speed: "120", angle: "angle", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "light", coordMode: "relative", hitRadius: "30", }, state, b, attacker, target, _util)) {
@@ -7291,7 +7291,7 @@ window.compiledDanmaku['danmaku_53'] = function*(state, b, attacker, target, _ut
         vars['ikouangle'] = (vars['ikouangle'] || 0) + (0.25);
       }
       vars['ikouangle'] = (vars['ikouangle'] || 0) + (3.5);
-      state.waitTimer = Math.max(0.001, 0.035);
+      state.waitTimer = Math.max(0.0167, 0.035);
       yield;
       if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
         yield;
@@ -7318,19 +7318,19 @@ window.compiledDanmaku['danmaku_53'] = function*(state, b, attacker, target, _ut
         vars['ikouangle'] = (vars['ikouangle'] || 0) + (2);
         vars['heru'] = (vars['heru'] || 0) - (0.01);
       }
-      state.waitTimer = Math.max(0.001, 0.03);
+      state.waitTimer = Math.max(0.0167, 0.03);
       yield;
       if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
         yield;
       }
     }
-    state.waitTimer = Math.max(0.001, 2.2 - (vars.hakkyou !== undefined ? vars.hakkyou : 0));
+    state.waitTimer = Math.max(0.0167, 2.2 - (vars.hakkyou !== undefined ? vars.hakkyou : 0));
     yield;
-    state.waitTimer = Math.max(0.001, 1 - (vars.hakkyou2 !== undefined ? vars.hakkyou2 : 0));
+    state.waitTimer = Math.max(0.0167, 1 - (vars.hakkyou2 !== undefined ? vars.hakkyou2 : 0));
     yield;
     vars['hakkyou'] = (vars['hakkyou'] || 0) + (1);
     vars['hakkyou'] = (vars['hakkyou'] || 0) + (0.5);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7348,8 +7348,8 @@ window.compiledDanmaku['danmaku_53_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['gfr06psrd']) {
-        state.onceMap['gfr06psrd'] = true;
+      if (!state.onceMap['oum6nmicp']) {
+        state.onceMap['oum6nmicp'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -7369,10 +7369,10 @@ window.compiledDanmaku['danmaku_53_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 0;
     }
     if (!!((vars.frame !== undefined ? vars.frame : 0) > 305)) {
-      state.waitTimer = Math.max(0.001, 99999);
+      state.waitTimer = Math.max(0.0167, 99999);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7402,10 +7402,10 @@ window.compiledDanmaku['danmaku_54'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "400", angle: "-90 + angle2", offsetX: "0", offsetY: "0", radius: "19", bulletImage: "kome", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.016);
+      state.waitTimer = Math.max(0.0167, 0.016);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7423,7 +7423,7 @@ window.compiledDanmaku['danmaku_54_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 300;
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7448,7 +7448,7 @@ window.compiledDanmaku['danmaku_55'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_beam', warningTime: "1.0", activeTime: "0", laserWidth: "60", angle: "90 - 60", offsetX: "0", offsetY: "0", coordMode: "relative", hitRadius: "#ff3333", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 1);
+      state.waitTimer = Math.max(0.0167, 1);
       yield;
       if (_util.executeBlock({ type: 'spawn_trail_resist', bulletType: "trail", color: "#00ffff", speed: "1000", angle: "90 + 60", offsetX: "0", offsetY: "0", radius: "20", growTime: "0.2", keepTime: "2", shrinkTime: "0.0001", round: "true", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
@@ -7459,12 +7459,12 @@ window.compiledDanmaku['danmaku_55'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'play_sound', soundName: "laser_heavy", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 4);
+      state.waitTimer = Math.max(0.0167, 4);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 400);
+    state.waitTimer = Math.max(0.0167, 400);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7494,13 +7494,13 @@ window.compiledDanmaku['danmaku_55_bullet'] = function*(state, b, attacker, targ
       }
     }
     if (!!((((vars.second !== undefined ? vars.second : 0)) >= (15) && ((vars.second !== undefined ? vars.second : 0)) <= (30000)))) {
-      state.waitTimer = Math.max(0.001, 99999999);
+      state.waitTimer = Math.max(0.0167, 99999999);
       yield;
     }
     if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7514,10 +7514,10 @@ window.compiledDanmaku['danmaku_55_magic'] = function*(state, b, attacker, targe
       vars['speed'] = 200;
     }
     if (!!((((vars.second !== undefined ? vars.second : 0)) >= (4) && ((vars.second !== undefined ? vars.second : 0)) <= (30000)))) {
-      state.waitTimer = Math.max(0.001, 99999999);
+      state.waitTimer = Math.max(0.0167, 99999999);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7532,12 +7532,12 @@ window.compiledDanmaku['danmaku_56'] = [
     if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.1);
+    state.waitTimer = Math.max(0.0167, 0.1);
     yield;
     if (_util.executeBlock({ type: 'play_sound', soundName: "charge2", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
     while (true) {
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#9457eb", speed: "700", angle: "angle", count: "7", offsetX: "0", offsetY: "0", radius: "12", bulletImage: "light", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
@@ -7547,12 +7547,12 @@ window.compiledDanmaku['danmaku_56'] = [
       if (_util.executeBlock({ type: 'play_sound', soundName: "shot", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.016);
+      state.waitTimer = Math.max(0.0167, 0.016);
       yield;
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -7570,9 +7570,9 @@ window.compiledDanmaku['danmaku_56'] = [
     if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "90", offsetX: "768", offsetY: "0", radius: "6", bulletImage: "none", coordMode: "absolute", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -7593,8 +7593,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9457eb").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['q0sv8k2we']) {
-        state.onceMap['q0sv8k2we'] = true;
+      if (!state.onceMap['ak6ehlhoy']) {
+        state.onceMap['ak6ehlhoy'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -7610,8 +7610,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['6q6ls70y2']) {
-        state.onceMap['6q6ls70y2'] = true;
+      if (!state.onceMap['3n336sg56']) {
+        state.onceMap['3n336sg56'] = true;
         vars['warningTime'] = 0.0;
         vars['activeTime'] = 70;
         vars['laserWidth'] = 30;
@@ -7632,7 +7632,7 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
         }
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7670,12 +7670,12 @@ window.compiledDanmaku['danmaku_57'] = function*(state, b, attacker, target, _ut
       }
       vars['spawnAngle1'] = (vars['spawnAngle1'] || 0) + (36);
       vars['spawnAngle2'] = (vars['spawnAngle2'] || 0) - (36);
-      state.waitTimer = Math.max(0.001, 0.13);
+      state.waitTimer = Math.max(0.0167, 0.13);
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1.2);
+    state.waitTimer = Math.max(0.0167, 1.2);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7691,7 +7691,7 @@ window.compiledDanmaku['danmaku_57_bullet'] = function*(state, b, attacker, targ
     if ((String((vars.param !== undefined ? vars.param : "")).trim().toLowerCase() === String("5").trim().toLowerCase())) {
       vars['angle'] = (vars['angle'] || 0) + (0.35);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7730,7 +7730,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['baseAngle'] = random(0,360);
-      state.waitTimer = Math.max(0.001, 5);
+      state.waitTimer = Math.max(0.0167, 5);
       yield;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
@@ -7752,7 +7752,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['baseAngle'] = random(0,360);
-      state.waitTimer = Math.max(0.001, 5);
+      state.waitTimer = Math.max(0.0167, 5);
       yield;
     }
     vars['i'] = 0;
@@ -7777,7 +7777,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['baseAngle'] = (vars['baseAngle'] || 0) + (36);
-      state.waitTimer = Math.max(0.001, 5);
+      state.waitTimer = Math.max(0.0167, 5);
       yield;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
@@ -7798,7 +7798,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#33e0ff", speed: "141", angle: "baseAngle", count: "24", offsetX: "64 * 1.5", offsetY: "-80 * 1.5", radius: "20", bulletImage: "ohuda", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 5);
+      state.waitTimer = Math.max(0.0167, 5);
       yield;
     }
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
@@ -7821,7 +7821,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
       yield;
     }
     vars['baseAngle'] = random(0,360);
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -7843,7 +7843,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
       yield;
     }
     vars['baseAngle'] = random(0,360);
-    state.waitTimer = Math.max(0.001, 5);
+    state.waitTimer = Math.max(0.0167, 5);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -7865,7 +7865,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
       yield;
     }
     vars['baseAngle'] = random(0,360);
-    state.waitTimer = Math.max(0.001, 7);
+    state.waitTimer = Math.max(0.0167, 7);
     yield;
     vars['i'] = 0;
     for (let _limit2 = Math.round(20); vars['i'] < _limit2; vars['i']++) {
@@ -7888,7 +7888,7 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ff3333", speed: "140", angle: "baseAngle", count: "32", offsetX: "64 * 1.5", offsetY: "-80 * 1.5", radius: "20", bulletImage: "ohuda", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 3.5);
+      state.waitTimer = Math.max(0.0167, 3.5);
       yield;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
@@ -7909,10 +7909,10 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ff3333", speed: "141", angle: "baseAngle", count: "32", offsetX: "64 * 1.5", offsetY: "-80 * 1.5", radius: "20", bulletImage: "ohuda", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 3.5);
+      state.waitTimer = Math.max(0.0167, 3.5);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7924,8 +7924,8 @@ window.compiledDanmaku['danmaku_58_bullet'] = function*(state, b, attacker, targ
   while (true) {
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['622npo2d0']) {
-      state.onceMap['622npo2d0'] = true;
+    if (!state.onceMap['1e9l5abft']) {
+      state.onceMap['1e9l5abft'] = true;
       if (!!(_util.fuzzyEqual((vars.speed !== undefined ? vars.speed : 0) ,140))) {
         vars['curve'] = -1.6;
       }
@@ -7943,7 +7943,7 @@ window.compiledDanmaku['danmaku_58_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + ((vars.curve !== undefined ? vars.curve : 0) / 6);
       vars['y'] = (vars['y'] || 0) + (1);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -7965,9 +7965,9 @@ window.compiledDanmaku['danmaku_59'] = [
       yield;
     }
     vars['angle'] = (vars['angle'] || 0) + (random(0,360));
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -7986,9 +7986,9 @@ window.compiledDanmaku['danmaku_59'] = [
     if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#33ffff", speed: "1000", angle: "angle", count: "10", spread: "6", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "kome", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.016);
+    state.waitTimer = Math.max(0.0167, 0.016);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -8000,8 +8000,8 @@ window.compiledDanmaku['danmaku_59_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['ejo24ztee']) {
-      state.onceMap['ejo24ztee'] = true;
+    if (!state.onceMap['7227sn7rk']) {
+      state.onceMap['7227sn7rk'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() !== String("#33ffff").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
           yield;
@@ -8021,7 +8021,7 @@ window.compiledDanmaku['danmaku_59_bullet'] = function*(state, b, attacker, targ
         }
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8044,7 +8044,7 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "6", spread: "1", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "light", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
     vars['i'] = 0;
@@ -8053,7 +8053,7 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "700", angle: "angle", count: "6", spread: "2", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "light", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
     vars['i'] = 0;
@@ -8064,7 +8064,7 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffaa33", speed: "900", angle: "angle", count: "21", offsetX: "0", offsetY: "0", radius: "40", bulletImage: "ootama", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.1);
+      state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
     vars['angle'] = 0;
@@ -8077,7 +8077,7 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (20);
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
     vars['i'] = 0;
@@ -8094,10 +8094,10 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
         }
         vars['spd'] = (vars['spd'] || 0) + (50);
         vars['wa'] = (vars['wa'] || 0) - (1);
-        state.waitTimer = Math.max(0.001, 0.02);
+        state.waitTimer = Math.max(0.0167, 0.02);
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     vars['i'] = 0;
@@ -8110,7 +8110,7 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#3388ff", speed: "800", angle: "0", count: "18", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "light", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     vars['i'] = 0;
@@ -8118,7 +8118,7 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#884898", speed: "800", angle: "frame * 3", count: "18", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "light", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     while (true) {
@@ -8126,7 +8126,7 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
       for (let _limit3 = Math.round(2); vars['i'] < _limit3; vars['i']++) {
         vars['i'] = 0;
         for (let _limit4 = Math.round(5); vars['i'] < _limit4; vars['i']++) {
-          state.waitTimer = Math.max(0.001, 0.06);
+          state.waitTimer = Math.max(0.0167, 0.06);
           yield;
           vars['rspx'] = _util.seedrandom(6 + (vars.seedcount !== undefined ? vars.seedcount : 0), 0, 768, vars);
           vars['seedcount'] = (vars['seedcount'] || 0) + (1);
@@ -8167,10 +8167,10 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
         vars['spd'] = (vars['spd'] || 0) + (80);
         vars['wa'] = (vars['wa'] || 0) - (1);
       }
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8197,8 +8197,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['f8i6l9gwk']) {
-        state.onceMap['f8i6l9gwk'] = true;
+      if (!state.onceMap['rlmblokmq']) {
+        state.onceMap['rlmblokmq'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8206,14 +8206,14 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['eqoe6nara']) {
-        state.onceMap['eqoe6nara'] = true;
+      if (!state.onceMap['tk9h3bd6a']) {
+        state.onceMap['tk9h3bd6a'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8236,7 +8236,7 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "6", spread: "1", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "None", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
     vars['i'] = 0;
@@ -8245,7 +8245,7 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "700", angle: "angle", count: "6", spread: "2", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "None", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
     vars['i'] = 0;
@@ -8256,7 +8256,7 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffaa33", speed: "900", angle: "angle", count: "21", offsetX: "0", offsetY: "0", radius: "40", bulletImage: "ootama", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.1);
+      state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
     vars['angle'] = 0;
@@ -8269,7 +8269,7 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (20);
-      state.waitTimer = Math.max(0.001, 0.01);
+      state.waitTimer = Math.max(0.0167, 0.01);
       yield;
     }
     vars['i'] = 0;
@@ -8286,10 +8286,10 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
         }
         vars['spd'] = (vars['spd'] || 0) + (50);
         vars['wa'] = (vars['wa'] || 0) - (1);
-        state.waitTimer = Math.max(0.001, 0.02);
+        state.waitTimer = Math.max(0.0167, 0.02);
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     vars['i'] = 0;
@@ -8302,7 +8302,7 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#3388ff", speed: "800", angle: "0", count: "18", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "None", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     vars['i'] = 0;
@@ -8310,7 +8310,7 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#884898", speed: "800", angle: "frame * 3", count: "18", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "None", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     while (true) {
@@ -8318,7 +8318,7 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
       for (let _limit3 = Math.round(2); vars['i'] < _limit3; vars['i']++) {
         vars['i'] = 0;
         for (let _limit4 = Math.round(5); vars['i'] < _limit4; vars['i']++) {
-          state.waitTimer = Math.max(0.001, 0.06);
+          state.waitTimer = Math.max(0.0167, 0.06);
           yield;
           vars['rspx'] = _util.seedrandom(6 + (vars.seedcount !== undefined ? vars.seedcount : 0), 0, 768, vars);
           vars['seedcount'] = (vars['seedcount'] || 0) + (1);
@@ -8359,10 +8359,10 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
         vars['spd'] = (vars['spd'] || 0) + (80);
         vars['wa'] = (vars['wa'] || 0) - (1);
       }
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8389,8 +8389,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['eliqg1kjf']) {
-        state.onceMap['eliqg1kjf'] = true;
+      if (!state.onceMap['2492ogvux']) {
+        state.onceMap['2492ogvux'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8398,14 +8398,14 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ib8tqwyzl']) {
-        state.onceMap['ib8tqwyzl'] = true;
+      if (!state.onceMap['9ij37kbgo']) {
+        state.onceMap['9ij37kbgo'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8428,14 +8428,14 @@ window.compiledDanmaku['danmaku_62'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "7", speed: "800", angle: "angle", count: "24", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['angle'] = (vars['angle'] || 0) + (random(-70,70));
     vars['bairitu'] = -1;
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "7", speed: "800", angle: "angle", count: "24", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
@@ -8449,7 +8449,7 @@ window.compiledDanmaku['danmaku_62'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "7", speed: "60", angle: "angle + 5", count: "36", offsetX: "0", offsetY: "0", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['bairitu'] = 0;
     vars['type'] = 3;
@@ -8462,10 +8462,10 @@ window.compiledDanmaku['danmaku_62'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffffff", speed: "800", angle: "angle", count: "37", offsetX: "0", offsetY: "0", radius: "18", bulletImage: "b_marutama", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 1);
+    state.waitTimer = Math.max(0.0167, 1);
     yield;
     vars['angle'] = (vars['angle'] || 0) + (random(-70,70));
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8484,7 +8484,7 @@ window.compiledDanmaku['danmaku_62_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = (vars['speed'] || 0) + (4);
       vars['angle'] = (vars['angle'] || 0) + (1.5 * (vars.bairitu !== undefined ? vars.bairitu : 0));
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8548,9 +8548,9 @@ window.compiledDanmaku['danmaku_63'] = function*(state, b, attacker, target, _ut
       }
     }
     vars['theta'] = (vars['theta'] || 0) + (12);
-    state.waitTimer = Math.max(0.001, 0.02);
+    state.waitTimer = Math.max(0.0167, 0.02);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8563,12 +8563,12 @@ window.compiledDanmaku['danmaku_63_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1 + (vars.kasoku !== undefined ? vars.kasoku : 0));
     vars['kasoku'] = (vars['kasoku'] || 0) + (0.02);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['m43kz4cql']) {
-      state.onceMap['m43kz4cql'] = true;
+    if (!state.onceMap['cuq5srwq1']) {
+      state.onceMap['cuq5srwq1'] = true;
       vars['angle'] = (vars['angle'] || 0) + (45 + (vars.ofangle !== undefined ? vars.ofangle : 0));
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8587,7 +8587,7 @@ window.compiledDanmaku['danmaku_64'] = [
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['ey'] = 448;
-    state.waitTimer = Math.max(0.001, 0.1);
+    state.waitTimer = Math.max(0.0167, 0.1);
     yield;
     while (true) {
       vars['angle'] = (vars['angle'] || 0) + (_util.seedrandom(50 + (vars.kaisu !== undefined ? vars.kaisu : 0), 0, 500, vars));
@@ -8612,7 +8612,7 @@ window.compiledDanmaku['danmaku_64'] = [
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) + (3);
-        state.waitTimer = Math.max(0.001, 0.1);
+        state.waitTimer = Math.max(0.0167, 0.1);
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (_util.seedrandom(50 + (vars.kaisu !== undefined ? vars.kaisu : 0), 0, 500, vars));
@@ -8637,13 +8637,13 @@ window.compiledDanmaku['danmaku_64'] = [
           yield;
         }
         vars['angle'] = (vars['angle'] || 0) - (3);
-        state.waitTimer = Math.max(0.001, 0.1);
+        state.waitTimer = Math.max(0.0167, 0.1);
         yield;
       }
-      state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+      state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 },
@@ -8653,7 +8653,7 @@ window.compiledDanmaku['danmaku_64'] = [
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    state.waitTimer = Math.max(0.001, 0.5);
+    state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_laser_way', bulletType: "laser", color: "#33ffff", radius: "6", speed: "800", angle: "-90 + 50", count: "7", spread: "10", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.01", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
@@ -8661,9 +8661,9 @@ window.compiledDanmaku['danmaku_64'] = [
     if (_util.executeBlock({ type: 'spawn_laser_way', bulletType: "laser", color: "#33ffff", radius: "6", speed: "800", angle: "-90 - 50", count: "7", spread: "10", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.01", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.4);
+    state.waitTimer = Math.max(0.0167, 0.4);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 }
@@ -8678,8 +8678,8 @@ window.compiledDanmaku['danmaku_64_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + (0.4 * (vars.kakudo !== undefined ? vars.kakudo : 0) - (vars.l !== undefined ? vars.l : 0) * (vars.kakudo !== undefined ? vars.kakudo : 0));
       vars['l'] = (vars['l'] || 0) + (0.000);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['r1hhjnt9x']) {
-        state.onceMap['r1hhjnt9x'] = true;
+      if (!state.onceMap['gybym5asx']) {
+        state.onceMap['gybym5asx'] = true;
         vars['speed'] = 100;
       }
       vars['speed'] = (vars['speed'] || 0) + (0.5);
@@ -8701,7 +8701,7 @@ window.compiledDanmaku['danmaku_64_bullet'] = function*(state, b, attacker, targ
       }
     }
     vars['radius'] = 10;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8724,11 +8724,11 @@ window.compiledDanmaku['danmaku_65'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + ((vars.angled !== undefined ? vars.angled : 0));
-      state.waitTimer = Math.max(0.001, 0.016 / 8);
+      state.waitTimer = Math.max(0.0167, 0.016 / 8);
       yield;
     }
     vars['angled'] = _util.seedrandom((vars.second !== undefined ? vars.second : 0), -5000, 10, vars);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8739,7 +8739,7 @@ window.compiledDanmaku['danmaku_65_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['speed'] = (vars['speed'] || 0) + (2);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8764,9 +8764,9 @@ window.compiledDanmaku['danmaku_66'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle", offsetX: "0", offsetY: "0", radius: "13", bulletImage: "b_uroko", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.02);
+    state.waitTimer = Math.max(0.0167, 0.02);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8777,15 +8777,15 @@ window.compiledDanmaku['danmaku_66_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['w7qhyo24o']) {
-      state.onceMap['w7qhyo24o'] = true;
+    if (!state.onceMap['wyck2sa6d']) {
+      state.onceMap['wyck2sa6d'] = true;
       vars['x'] = random(-300,1000);
       vars['y'] = 0;
       vars['angle'] = 90 + 10 * (vars.kakudo !== undefined ? vars.kakudo : 0);
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     }
     vars['speed'] = (vars['speed'] || 0) + (5);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8837,9 +8837,9 @@ window.compiledDanmaku['danmaku_67'] = function*(state, b, attacker, target, _ut
       vars['angle'] = (vars['angle'] || 0) + (10);
       vars['spd'] = (vars['spd'] || 0) + (2.5);
     }
-    state.waitTimer = Math.max(0.001, 2);
+    state.waitTimer = Math.max(0.0167, 2);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8851,8 +8851,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['3pl0ig8up']) {
-        state.onceMap['3pl0ig8up'] = true;
+      if (!state.onceMap['3sy0a7iy8']) {
+        state.onceMap['3sy0a7iy8'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "120 + seedrandom[5](-0,50)", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8869,8 +8869,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['avfxx7acm']) {
-        state.onceMap['avfxx7acm'] = true;
+      if (!state.onceMap['blcersnxk']) {
+        state.onceMap['blcersnxk'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8883,8 +8883,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['s8l6wgcpq']) {
-        state.onceMap['s8l6wgcpq'] = true;
+      if (!state.onceMap['0e7e0uatk']) {
+        state.onceMap['0e7e0uatk'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8896,7 +8896,7 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = 20;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8914,7 +8914,7 @@ window.compiledDanmaku['danmaku_68'] = function*(state, b, attacker, target, _ut
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['ey'] = 448;
-    state.waitTimer = Math.max(0.001, 0.03);
+    state.waitTimer = Math.max(0.0167, 0.03);
     yield;
     vars['ey'] = 448;
     if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (0) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (10)))) {
@@ -8940,7 +8940,7 @@ window.compiledDanmaku['danmaku_68'] = function*(state, b, attacker, target, _ut
         yield;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -8951,8 +8951,8 @@ window.compiledDanmaku['danmaku_68_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['0z0ywhq9c']) {
-      state.onceMap['0z0ywhq9c'] = true;
+    if (!state.onceMap['j6mdo57pr']) {
+      state.onceMap['j6mdo57pr'] = true;
       vars['count'] = 0;
       vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
     }
@@ -9003,7 +9003,7 @@ window.compiledDanmaku['danmaku_68_bullet'] = function*(state, b, attacker, targ
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       vars['y'] = -80000;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -9026,7 +9026,7 @@ window.compiledDanmaku['danmaku_69'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = random(0,20);
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (4) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (10)))) {
@@ -9035,7 +9035,7 @@ window.compiledDanmaku['danmaku_69'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = random(0,20);
-      state.waitTimer = Math.max(0.001, 0.05);
+      state.waitTimer = Math.max(0.0167, 0.05);
       yield;
     }
     if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (10) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (18)))) {
@@ -9044,17 +9044,17 @@ window.compiledDanmaku['danmaku_69'] = function*(state, b, attacker, target, _ut
         yield;
       }
       vars['angle'] = random(0,20);
-      state.waitTimer = Math.max(0.001, 0.1);
+      state.waitTimer = Math.max(0.0167, 0.1);
       yield;
       vars['offset'] = -1;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "50", angle: "angle", count: "26", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "virus", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
       vars['angle'] = random(0,20);
-      state.waitTimer = Math.max(0.001, 0.1);
+      state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -9069,7 +9069,7 @@ window.compiledDanmaku['danmaku_69_bullet'] = function*(state, b, attacker, targ
     }
     vars['speed'] = 300;
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (7);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -9093,12 +9093,12 @@ window.compiledDanmaku['danmaku_70'] = function*(state, b, attacker, target, _ut
     if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle + 180", offsetX: "-spx", offsetY: "850", radius: "15", bulletImage: "light", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    state.waitTimer = Math.max(0.001, 0.03);
+    state.waitTimer = Math.max(0.0167, 0.03);
     yield;
-    state.waitTimer = Math.max(0.001, 0.1-(vars.hindo !== undefined ? vars.hindo : 0));
+    state.waitTimer = Math.max(0.0167, 0.1-(vars.hindo !== undefined ? vars.hindo : 0));
     yield;
     vars['hindo'] = (vars['hindo'] || 0) + (0.001);
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -9109,8 +9109,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['r0fm1mbnm']) {
-      state.onceMap['r0fm1mbnm'] = true;
+    if (!state.onceMap['v84ug1iaw']) {
+      state.onceMap['v84ug1iaw'] = true;
       vars['y'] = (vars['y'] || 0) - (100);
       vars['speed'] = 400;
       vars['x'] = (vars['x'] || 0) + (random(-200,200));
@@ -9121,8 +9121,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!!(abs((vars.y !== undefined ? vars.y : 0)  - (vars.ty !== undefined ? vars.ty : 0)) <= 20)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['zgdp61ak6']) {
-        state.onceMap['zgdp61ak6'] = true;
+      if (!state.onceMap['q4w7px4qz']) {
+        state.onceMap['q4w7px4qz'] = true;
         vars['speed'] = 0;
         vars['angle'] = 90;
         if (!!((vars.x !== undefined ? vars.x : 0) < (vars.tx !== undefined ? vars.tx : 0))) {
@@ -9137,7 +9137,7 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
         vars['y'] = -80000;
       }
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -9149,11 +9149,11 @@ window.compiledDanmaku['danmaku_70_magic'] = function*(state, b, attacker, targe
   while (true) {
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['sp8chpicx']) {
-      state.onceMap['sp8chpicx'] = true;
+    if (!state.onceMap['ylqln909l']) {
+      state.onceMap['ylqln909l'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-6,6));
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -9178,9 +9178,9 @@ window.compiledDanmaku['danmaku_71'] = function*(state, b, attacker, target, _ut
       yield;
     }
     vars['angle'] = (vars['angle'] || 0) + (0.8);
-    state.waitTimer = Math.max(0.001, 0.016);
+    state.waitTimer = Math.max(0.0167, 0.016);
     yield;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
@@ -9191,15 +9191,15 @@ window.compiledDanmaku['danmaku_71_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['bp4mupw2m']) {
-      state.onceMap['bp4mupw2m'] = true;
+    if (!state.onceMap['8l03rnanh']) {
+      state.onceMap['8l03rnanh'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "200", }, state, b, attacker, target, _util)) {
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + ((vars.offset !== undefined ? vars.offset : 0));
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     }
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.0167);
     yield;
   }
 };
