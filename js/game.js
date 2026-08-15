@@ -24,10 +24,7 @@ window.DanmakuCompilerRuntime.rand = (a, b) => {
   return Math.random();
 };
 window.DanmakuCompilerRuntime.seedrandom = (baseSeed, a, b, vars) => {
-  let n = vars.n !== undefined ? vars.n : 0;
-  let t = vars.t !== undefined ? vars.t : 0;
-  let seed = Math.floor(Number(baseSeed)) + Math.floor(n) * 2654435761 + Math.floor(t * 1000) * 314159265;
-  let s = (seed >>> 0) + 0x6D2B79F5;
+  let s = (Math.floor(Number(baseSeed)) >>> 0) + 0x6D2B79F5;
   s = Math.imul(s ^ (s >>> 15), s | 1);
   s ^= s + Math.imul(s ^ (s >>> 7), s | 61);
   let r = ((s ^ (s >>> 14)) >>> 0) / 4294967296;
@@ -5187,10 +5184,7 @@ function applyAbilityEffect(cardId, owner) {
                     '  return __random();' +
                     '};' +
                     'const __seedrandom = (baseSeed, a, b, vars) => {' +
-                    '  let n = vars.n !== undefined ? vars.n : 0;' +
-                    '  let t = vars.t !== undefined ? vars.t : 0;' +
-                    '  let seed = Math.floor(Number(baseSeed)) + Math.floor(n) * 2654435761 + Math.floor(t * 1000) * 314159265;' +
-                    '  let s = (seed >>> 0) + 0x6D2B79F5;' +
+                    '  let s = (Math.floor(Number(baseSeed)) >>> 0) + 0x6D2B79F5;' +
                     '  s = Math.imul(s ^ (s >>> 15), s | 1);' +
                     '  s ^= s + Math.imul(s ^ (s >>> 7), s | 61);' +
                     '  let r = ((s ^ (s >>> 14)) >>> 0) / 4294967296;' +
