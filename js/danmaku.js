@@ -4639,7 +4639,7 @@ while (true) {
     spawnRing("normal", "#ff3333", 200, angle, 6, 0, 0, 10, "dangan", "relative", "6")
     spawnRing("normal", "#3388ff", 200, kasu, 36, 0, 0, 10, "dangan", "relative", "7")
     kasu += 2
-    wait(0.0167)
+    wait(0.02)
 }
 while (true) {
     tween("syutugen", syutugen, 500, "seconds", 2, "easeInOut")
