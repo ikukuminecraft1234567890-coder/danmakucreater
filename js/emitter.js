@@ -390,7 +390,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                     case 'wait': {
                         let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
-                        state.waitTimer = Math.max(0.0167, dur);
+                        state.waitTimer = dur;
                         brokeToWait = true;
                         break;
                     }
@@ -2123,7 +2123,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         switch (block.type) {
                             case 'wait': {
                                 let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
-                                state.waitTimer = Math.max(0.0167, dur);
+                                state.waitTimer = dur;
                                 brokeToWait = true;
                                 break;
                             }
