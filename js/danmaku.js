@@ -3209,7 +3209,7 @@ while (true) {
             spawnBullet("normal", "#ff3333", 240, angle + 180 + 6, 0, 0, 20, "b_ohuda", "relative", "4")
             spawnBullet("normal", "#3333ff", 240, angle + 6, 0, 0, 20, "ohuda", "relative", "4")
             spawnBullet("normal", "#3333ff", 240, angle + 180 - 6, 0, 0, 20, "b_ohuda", "relative", "4")
-        for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
             angle += 0.7
             ikouangle += 2
             heru -= 0.01
@@ -3290,7 +3290,7 @@ while (true) {
     }
     heru = 1.6
     for (let i = 0; i < 52; i++) {
-        for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
             spawnBullet("normal", "#ff3333", 240, angle - 6, 0, 0, 20, "ohuda", "relative", "4")
             spawnBullet("normal", "#ff3333", 240, angle + 180 + 6, 0, 0, 20, "b_ohuda", "relative", "4")
             spawnBullet("normal", "#3333ff", 240, angle + 6, 0, 0, 20, "ohuda", "relative", "4")

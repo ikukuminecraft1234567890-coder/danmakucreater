@@ -53,17 +53,23 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'repeat') {
+            let uid = (window.DanmakuCompiler._uid = (window.DanmakuCompiler._uid || 0) + 1);
             let count = window.DanmakuCompiler.getExpr(block, 'count', '1');
             if (block.params && block.params.indexVar) {
                 let idxVar = `vars['${block.params.indexVar}']`;
+                let prevVar = `_prev_${block.params.indexVar}_${uid}`;
+                js += ind + `let ${prevVar} = ${idxVar};\n`;
                 js += ind + `${idxVar} = 0;\n`;
-                js += ind + `for (let _limit${indent} = Math.round(${count}); ${idxVar} < _limit${indent}; ${idxVar}++) {\n`;
+                js += ind + `for (let _limit_${uid} = Math.round(${count}); ${idxVar} < _limit_${uid}; ${idxVar}++) {\n`;
+                js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
+                js += ind + `}\n`;
+                js += ind + `${idxVar} = ${prevVar};\n`;
             } else {
-                let idxVar = `_i${indent}`;
-                js += ind + `for (let _limit${indent} = Math.round(${count}), ${idxVar} = 0; ${idxVar} < _limit${indent}; ${idxVar}++) {\n`;
+                let idxVar = `_i_${uid}`;
+                js += ind + `for (let _limit_${uid} = Math.round(${count}), ${idxVar} = 0; ${idxVar} < _limit_${uid}; ${idxVar}++) {\n`;
+                js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
+                js += ind + `}\n`;
             }
-            js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
-            js += ind + `}\n`;
         } else if (t === 'while') {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
             js += ind + `while (${cond}) {\n`;
