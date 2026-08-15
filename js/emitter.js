@@ -14,33 +14,38 @@ function syncAttackerFromEmitterVariables(state, attacker) {
     let isPlayerSide = state.isPlayerSide;
     let canvasHeight = window.canvas ? window.canvas.height : 896;
 
-    if (state.variables.exy !== undefined) {
-        let curExy = String(state.variables.exy).split(',').map(p => parseFloat(p.trim()));
-        if (curExy.length === 2 && !isNaN(curExy[0]) && !isNaN(curExy[1])) {
-            attacker.x = curExy[0];
-            attacker.y = isPlayerSide ? (canvasHeight - curExy[1]) : curExy[1];
-            state.variables.ex = curExy[0];
-            state.variables.ey = curExy[1];
-            state.variables.x = attacker.x;
-            state.variables.y = curExy[1];
-            return;
-        }
-    }
+    let targetX = null;
+    let targetY = null;
 
     if (state.variables.ex !== undefined && !isNaN(Number(state.variables.ex))) {
-        attacker.x = Number(state.variables.ex);
-        state.variables.x = attacker.x;
+        targetX = Number(state.variables.ex);
     } else if (state.variables.emitter_x !== undefined && !isNaN(Number(state.variables.emitter_x))) {
-        attacker.x = Number(state.variables.emitter_x);
-        state.variables.x = attacker.x;
+        targetX = Number(state.variables.emitter_x);
     }
 
     if (state.variables.ey !== undefined && !isNaN(Number(state.variables.ey))) {
-        attacker.y = isPlayerSide ? (canvasHeight - Number(state.variables.ey)) : Number(state.variables.ey);
-        state.variables.y = Number(state.variables.ey);
+        targetY = Number(state.variables.ey);
     } else if (state.variables.emitter_y !== undefined && !isNaN(Number(state.variables.emitter_y))) {
-        attacker.y = isPlayerSide ? (canvasHeight - Number(state.variables.emitter_y)) : Number(state.variables.emitter_y);
-        state.variables.y = Number(state.variables.emitter_y);
+        targetY = Number(state.variables.emitter_y);
+    }
+
+    if (targetX !== null) {
+        attacker.x = targetX;
+        state.variables.x = targetX;
+    }
+    if (targetY !== null) {
+        attacker.y = isPlayerSide ? (canvasHeight - targetY) : targetY;
+        state.variables.y = targetY;
+    }
+
+    if (targetX !== null || targetY !== null) {
+        let curX = targetX !== null ? targetX : attacker.x;
+        let curY = targetY !== null ? targetY : (isPlayerSide ? (canvasHeight - attacker.y) : attacker.y);
+        state.variables.exy = `${curX},${curY}`;
+        state.variables['exy_x'] = curX;
+        state.variables['exy_y'] = curY;
+        state.variables['exy.x'] = curX;
+        state.variables['exy.y'] = curY;
     }
 }
 
@@ -164,21 +169,26 @@ function stepEmitter(c, state, attacker, target, dt) {
 
             
             // コアの現在位置、ターゲットの現在位置、および距離情報を毎フレーム同期
-            state.variables.x = attacker.x;
-            state.variables.y = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
 
             // 環境変数 exy, txy (座標ペア) の初期定義
-            if (state.variables.exy === undefined) {
-                state.variables.exy = `${attacker.x},${state.variables.y}`;
-            }
             if (state.variables.ex === undefined) {
                 state.variables.ex = attacker.x;
             }
             if (state.variables.ey === undefined) {
-                state.variables.ey = state.variables.y;
+                state.variables.ey = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
             }
+            if (state.variables.x === undefined) {
+                state.variables.x = state.variables.ex;
+            }
+            if (state.variables.y === undefined) {
+                state.variables.y = state.variables.ey;
+            }
+            if (state.variables.exy === undefined) {
+                state.variables.exy = `${state.variables.ex},${state.variables.ey}`;
+            }
+
             // 現在スライド移動中かどうか判定
             const ownerKey = isPlayerSide ? 'PLAYER' : 'CPU';
             const slideLock = (typeof customOwnerPositionLocks !== 'undefined') ? customOwnerPositionLocks[ownerKey] : null;
@@ -187,8 +197,10 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (isSliding) {
                 // スライド中なら、ex / ey / exy をスライド中の現在座標にリアルタイム同期する
                 state.variables.ex = attacker.x;
-                state.variables.ey = state.variables.y;
-                state.variables.exy = `${attacker.x},${state.variables.y}`;
+                state.variables.ey = isPlayerSide ? (canvas.height - attacker.y) : attacker.y;
+                state.variables.exy = `${attacker.x},${state.variables.ey}`;
+                state.variables.x = attacker.x;
+                state.variables.y = state.variables.ey;
             } else {
                 syncAttackerFromEmitterVariables(state, attacker);
             }

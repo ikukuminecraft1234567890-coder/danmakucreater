@@ -5041,6 +5041,10 @@ function applyAbilityEffect(cardId, owner) {
                     state.variables[name + '_y'] = parts[1];
                     state.variables[name + '.x'] = parts[0];
                     state.variables[name + '.y'] = parts[1];
+                    if (name === 'exy') {
+                        state.variables.ex = parts[0];
+                        state.variables.ey = parts[1];
+                    }
                 }
             }
         }
