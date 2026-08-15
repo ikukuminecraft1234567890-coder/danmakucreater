@@ -33,7 +33,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         let block = blocks[i];
         let t = block.type;
         if (t === 'wait') {
-            js += ind + `state.waitTimer = ${window.DanmakuCompiler.getExpr(block, 'duration', '0')};\n`;
+            js += ind + `state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
             js += ind + `yield;\n`;
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
             let varName = block.params.var || block.params.name;
