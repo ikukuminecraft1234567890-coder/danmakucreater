@@ -2642,7 +2642,7 @@ spriteAngle = angle
     maxMisses: 1,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 0,        // 画面外に弾が出てから消滅するまでの時間
+    despawnTime: 0.1,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
 while (true) {
@@ -2724,7 +2724,7 @@ if (color==#3333ff) {
     maxMisses: 2,
     x_offset: 0,             // 出現位置否横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 0,        // 画面外に弾が出てから消滅するまでの時間
+    despawnTime: 0.1,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
 while (true) {
@@ -4535,6 +4535,35 @@ once {
     angle += offset
     spriteAngle = angle
 }
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+},
+{
+    difficulty: "hard",
+    name: "「アリュージョンクロック」",
+    desc: "なんと、1000発程度が飛び交う。物量弾幕",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 0.1,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    wait(0.1)
+    for (let i = 0; i < 36; i++) {
+        spawnBullet("normal", "#ff3333", 500, -angle, 0, 0, 8, "dangan", "relative", "6")
+        spawnBullet("normal", "#ffdd33", 400, angle, 0, 0, 8, "dangan", "relative", "6")
+        spawnBullet("normal", "#33ff88", 300, -angle, 0, 0, 8, "dangan", "relative", "6")
+        angle += 5
+    }
+    angle += 160.5
+}
+    `,
+    bulletScript: `
+        // 弾挙動の独自コード
     `,
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
