@@ -4518,7 +4518,7 @@ once {
     emitterScript: `
 while (true) {
     offset += 0
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
         offset += 40
         offset = random(0,360)
         spawnBulletResist("normal", "#ff3333", 80, angle, 384, 600, 15, "kome", "absolute", "3")
