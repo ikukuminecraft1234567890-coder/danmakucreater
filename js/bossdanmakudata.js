@@ -192,7 +192,66 @@ if (color==#999999) {
         magicCircleScript: `
         
         `
+    },{
+        id: "spell_rush1_non_2",
+        name: "",
+        hp: 1600,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+spd = 0
+    for (let i = 0; i < 10; i++) {
+        spawnRing("normal", "#ff3333", 300 + spd, angle, 12, 0, 0, 9, "kunai1", "relative", "6")
+angle += 1
+spd -= 5
+wait(0.0167)
     }
+    angle += 10
+    wait(0.2)
+}
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_2",
+        name: "「バタフライガン」",
+        hp: 1200,
+        duration: 50,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+    for (let i = 0; i < 30; i++) {
+        spawnBullet("normal", "#ff3333", 600, angle, 100, 0, 9, "dangan", "relative", "5")
+        spawnBullet("normal", "#ff3333", 600, angle, -100, 0, 9, "dangan", "relative", "5")
+        wait(0.0167 * 2)
+    }
+    wait(0.5)
+    spawnRing("normal", "#ffdd33", 200, 0, 36, 0, 0, 30, "tyoudan", "relative", "15")
+    spawnRing("normal", "#33ff88", 400, 0, 36, 0, 0, 30, "tyoudan", "relative", "15")
+    spawnRing("normal", "#3388ff", 600, 0, 36, 0, 0, 30, "tyoudan", "relative", "15")
+    wait(0.5)
+}
+        `,
+        bulletScript: `
+if (color==#ff3333) {
+    once {
+        aimAtTarget()
+        angle += random(-5,5)
+        spriteAngle = angle
+    }
+}
+        `,
+        magicCircleScript: ``
+
+        }
 ];
 
 

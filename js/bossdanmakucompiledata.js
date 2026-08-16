@@ -89,6 +89,18 @@ window.compiledBossDanmakuList = [
     "emitterScript": "\nwhile (true) {\nspd = 0\n    for (let i = 0; i < 10; i++) {\n        spawnRing(\"normal\", \"#ff3333\", 300 + spd, angle, 12, 0, 0, 9, \"kunai1\", \"relative\", \"6\")\nangle += 1\nspd -= 5\nwait(0.0167)\n    }\n    angle += 10\n    wait(0.2)\n}\n        ",
     "bulletScript": "\n\n        ",
     "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_2",
+    "name": "「バタフライガン」",
+    "hp": 1200,
+    "duration": 50,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 30; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 600, angle, 100, 0, 9, \"dangan\", \"relative\", \"5\")\n        spawnBullet(\"normal\", \"#ff3333\", 600, angle, -100, 0, 9, \"dangan\", \"relative\", \"5\")\n        wait(0.0167 * 2)\n    }\n    wait(0.5)\n    spawnRing(\"normal\", \"#ffdd33\", 200, 0, 36, 0, 0, 30, \"tyoudan\", \"relative\", \"15\")\n    spawnRing(\"normal\", \"#33ff88\", 400, 0, 36, 0, 0, 30, \"tyoudan\", \"relative\", \"15\")\n    spawnRing(\"normal\", \"#3388ff\", 600, 0, 36, 0, 0, 30, \"tyoudan\", \"relative\", \"15\")\n    wait(0.5)\n}\n        ",
+    "bulletScript": "\nif (color==#ff3333) {\n    once {\n        aimAtTarget()\n        angle += random(-5,5)\n        spriteAngle = angle\n    }\n}\n        ",
+    "magicCircleScript": ""
   }
 ];
 window.bossDanmakuList = window.compiledBossDanmakuList;
@@ -398,8 +410,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['avvj56wnp']) {
-          state.onceMap['avvj56wnp'] = true;
+        if (!state.onceMap['8hn7p2v7n']) {
+          state.onceMap['8hn7p2v7n'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -447,6 +459,68 @@ window.compiledBossDanmaku['spell_rush1_non_2_bullet'] = window.compiledDanmaku[
   const seedrandom = _util.seedrandom;
 };
 window.compiledBossDanmaku['spell_rush1_non_2_magic'] = window.compiledDanmaku['spell_rush1_non_2_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_2'] = window.compiledDanmaku['spell_rush1_2'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  while (true) {
+    let _prev_i_153 = vars['i'];
+    for (let _loopIdx_153 = 0, _limit_153 = Math.round(30); _loopIdx_153 < _limit_153; _loopIdx_153++) {
+      vars['i'] = _loopIdx_153;
+      if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "600", angle: "angle", offsetX: "100", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "600", angle: "angle", offsetX: "-100", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      state.waitTimer = Math.max(0.0167, 0.0167 * 2);
+      yield;
+    }
+    vars['i'] = _prev_i_153;
+    state.waitTimer = Math.max(0.0167, 0.5);
+    yield;
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffdd33", speed: "200", angle: "0", count: "36", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#33ff88", speed: "400", angle: "0", count: "36", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#3388ff", speed: "600", angle: "0", count: "36", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    state.waitTimer = Math.max(0.0167, 0.5);
+    yield;
+  }
+};
+window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spell_rush1_2_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  while (true) {
+    if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
+      if (!state.onceMap) state.onceMap = {};
+      if (!state.onceMap['n13pu9ioi']) {
+        state.onceMap['n13pu9ioi'] = true;
+        if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
+          yield;
+        }
+        vars['angle'] = (vars['angle'] || 0) + (random(-5,5));
+        vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
+      }
+    }
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    yield;
+  }
+};
+window.compiledBossDanmaku['spell_rush1_2_magic'] = window.compiledDanmaku['spell_rush1_2_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;

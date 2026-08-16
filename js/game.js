@@ -2395,6 +2395,10 @@ function applyAbilityEffect(cardId, owner) {
                             if (!player.recentHits) player.recentHits = [];
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
+                            // 食らいボム猶予タイマー開始（まだ動いていなければ8フレーム）
+                            if (isCustomCardTesting && !(player.deathbombTimer > 0)) {
+                                player.deathbombTimer = 8 / 60; // 8f ≈ 0.1333秒
+                            }
 
                             if (!isCustomCardTesting && !b.destroyResist) {
                                 if (useFastRemove) { b._dead = true; continue; }
@@ -2687,7 +2691,15 @@ function applyAbilityEffect(cardId, owner) {
                 if (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) {
                     window.playerInvincibleTimer -= dt;
                     player.pendingDamage = 0; // 無敵中はダメージを無効化
+                    player.deathbombTimer = 0; // 無敵中は食らいボム猶予不要
                 }
+
+                // 食らいボム猶予タイマーのカウントダウン
+                if (player.deathbombTimer > 0) {
+                    player.deathbombTimer -= dt;
+                    if (player.deathbombTimer < 0) player.deathbombTimer = 0;
+                }
+
 
                 // 耐えた時の小さな爆発パーティクルの更新
                 if (window.miniExplosionEffect) {
@@ -2780,7 +2792,7 @@ function applyAbilityEffect(cardId, owner) {
                     return; // エフェクト中はダメージ判定・終了チェックをスキップ
                 }
 
-                if (player.pendingDamage > 0) {
+                if (player.pendingDamage > 0 && !(player.deathbombTimer > 0)) {
                     if (typeof window.playerMissCount !== 'number') {
                         window.playerMissCount = 0;
                     }
@@ -4930,12 +4942,20 @@ function applyAbilityEffect(cardId, owner) {
             if (player.bombs <= 0) return;
             if (customCardDeathEffect || window.customCardClearEffect) return;
 
+            // 食らいボム判定（被弾後8f以内にボムを押した場合）
+            let isDeathBomb = player.deathbombTimer > 0;
+            if (isDeathBomb) {
+                // 被弾をキャンセル（生存）
+                player.pendingDamage = 0;
+                player.deathbombTimer = 0;
+            }
+
             window.spellBombCount = (window.spellBombCount || 0) + 1;
             window.spellBonusFailed = true;
             window.spellCurrentBonus = 0;
             player.bombs--;
-            // 無敵時間半分: 0.75秒（ボム無敵時間中もショット発射可能）
-            window.playerInvincibleTimer = 0.75;
+            // 食らいボムは通常ボムより短い無敵時間（0.5秒 vs 0.75秒）
+            window.playerInvincibleTimer = isDeathBomb ? 0.5 : 0.75;
             window.miniExplosionEffect = null; // 赤い火花演出なし
 
             // 回転する長持続（1.0秒）の衝撃波（波紋）の生成 (半径 480px = 通常の2倍以上)
@@ -5071,6 +5091,7 @@ function applyAbilityEffect(cardId, owner) {
 
             player.pendingDamage = 0; // 被弾ダメージを完全リセット
             player.pendingHeal = 0;
+            player.deathbombTimer = 0;
             player.recentHits = [];
             player.isInvincible = false;
             player.invincibleTimer = 0;
