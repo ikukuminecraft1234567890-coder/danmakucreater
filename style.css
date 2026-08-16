@@ -27,8 +27,8 @@ html,
             position: relative;
             width: 92vw;
             height: calc(92vw * 896 / 768);
-            max-width: calc(92vh * 768 / 896);
-            max-height: 92vh;
+            max-width: calc((100dvh - 105px) * 768 / 896);
+            max-height: calc(100dvh - 105px);
             aspect-ratio: 768 / 896;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
             border-radius: 12px;
@@ -1881,41 +1881,34 @@ html,
         .difficulty-hard { background: linear-gradient(135deg, #ff416c, #ff4b2b) !important; }
         .difficulty-lunatic { background: linear-gradient(135deg, #f80759, #bc4e9c) !important; }
 
-        /* モバイルボムボタン（半透明表示） */
+        /* 画面外モバイルボムボタン（キャンバス外・画面右下に固定配置） */
         .mobile-bomb-btn {
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
-            width: 68px;
-            height: 68px;
+            position: fixed;
+            bottom: max(14px, env(safe-area-inset-bottom, 14px));
+            right: max(16px, env(safe-area-inset-right, 16px));
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 26, 83, 0.45) 0%, rgba(119, 0, 34, 0.35) 100%);
-            border: 2px solid rgba(255, 153, 187, 0.5);
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 14px;
+            background: radial-gradient(circle, #ff1a53 0%, #770022 100%);
+            border: 2.5px solid #ff99bb;
+            color: #ffffff;
+            font-size: 15px;
             font-weight: bold;
             letter-spacing: 1px;
-            text-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
-            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.25), inset 0 0 10px rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            opacity: 0.55;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 0, 85, 0.6);
             cursor: pointer;
-            z-index: 100;
+            z-index: 10000;
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
-            transition: transform 0.08s, filter 0.08s, opacity 0.15s;
+            transition: transform 0.08s, filter 0.08s;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .mobile-bomb-btn:hover {
-            opacity: 0.8;
-        }
         .mobile-bomb-btn:active {
             transform: scale(0.90);
-            opacity: 0.95;
             filter: brightness(1.3);
         }
         .mobile-bomb-btn.hidden {

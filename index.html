@@ -575,11 +575,6 @@ while (true) {
             </div>
         </div>
 
-        <!-- 画面外モバイルボムボタン (ゲームコンテナ右下にフロート) -->
-        <button id="mobile-bomb-button" class="mobile-bomb-btn hidden">
-            <span>BOMB</span>
-        </button>
-
         <!-- ポーズメニュー オーバーレイ -->
         <div id="pause-modal" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;">
             <div style="width: 280px; background: #131326; border: 1.5px solid #ff3366; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 51, 102, 0.45); padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; box-sizing: border-box;">
@@ -610,7 +605,12 @@ while (true) {
                 </div>
             </div>
         </div>
-    </div>
+    </div> <!-- /#gameContainer -->
+
+    <!-- 画面外モバイルボムボタン (ゲームキャンバスの外側に配置) -->
+    <button id="mobile-bomb-button" class="mobile-bomb-btn hidden">
+        <span>BOMB</span>
+    </button>
 
 
 
