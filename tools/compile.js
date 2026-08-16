@@ -341,6 +341,7 @@ window.bossDanmakuList = window.compiledBossDanmakuList;
         
     } catch (e) {
         console.error("Compilation failed:", e);
+        process.exit(1);
     }
 }
 

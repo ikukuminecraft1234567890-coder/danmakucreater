@@ -2744,12 +2744,12 @@ function applyAbilityEffect(cardId, owner) {
                         return dist > sw.r;
                     });
 
-                    // ボムの範囲内の敵（ボス・CPU）に毎秒50ダメージ
+                    // ボムの範囲内の敵（ボス・CPU）に毎秒100ダメージ
                     if (isCustomCardTesting && window.isBossMode && typeof cpu !== 'undefined' && cpu.hp > 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
                         let cpuHitR = (typeof cpu.hitboxRadius === 'number') ? cpu.hitboxRadius : 20;
                         let distCpu = Math.sqrt((cpu.x - sw.x) ** 2 + (cpu.y - sw.y) ** 2);
                         if (distCpu <= sw.r + cpuHitR) {
-                            let bombDmg = 50 * dt;
+                            let bombDmg = 100 * dt;
                             cpu.hp = Math.max(0, cpu.hp - bombDmg);
 
                             // 敵被弾SE

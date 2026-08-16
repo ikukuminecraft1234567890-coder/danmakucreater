@@ -133,7 +133,7 @@ if (isBounced) {
         id: "spell_rush1_non_1",
         name: "",
         hp: 1000,
-        duration: 25,
+        duration: 40,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
@@ -141,9 +141,9 @@ if (isBounced) {
 while (true) {
     ey = 300
     aimAtTarget()
-    spawnWay("normal", "#ff3333", 500, angle, 2, 30, 0, 0, 9, "dangan", "relative", "6")
-    spawnWay("normal", "#ff3333", 500, angle, 3, 2, 0, 0, 9, "dangan", "relative", "6")
-    spawnWay("normal", "#ff3333", 500, angle + 180, 5, 60, 0, 0, 9, "dangan", "relative", "6")
+    spawnWay("normal", "#ff3333", 500, angle, 2, 90, 0, 0, 9, "dangan", "relative", "6")
+    spawnWay("normal", "#ff3333", 500, angle, 3, 2, 0, 0, 9, "dangan", "relative", "3")
+    spawnWay("normal", "#ff3333", 500, angle + 180, 5, 50, 0, 0, 9, "dangan", "relative", "6")
     wait(0.0167 * 4)
 }
         `,

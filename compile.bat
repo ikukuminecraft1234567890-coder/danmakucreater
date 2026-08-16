@@ -1,3 +1,7 @@
 @echo off
 node tools/compile.js
-pause
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo [ERROR] コンパイル中にエラーが発生しました。
+    pause
+)

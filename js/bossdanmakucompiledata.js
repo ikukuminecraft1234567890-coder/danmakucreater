@@ -58,11 +58,11 @@ window.compiledBossDanmakuList = [
     "id": "spell_rush1_non_1",
     "name": "",
     "hp": 1000,
-    "duration": 25,
+    "duration": 40,
     "x_offset": 0,
     "y_offset": 0,
     "despawnTime": 1.5,
-    "emitterScript": "\nwhile (true) {\n    ey = 300\n    aimAtTarget()\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 2, 30, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 3, 2, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle + 180, 5, 60, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    wait(0.0167 * 4)\n}\n        ",
+    "emitterScript": "\nwhile (true) {\n    ey = 300\n    aimAtTarget()\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 2, 90, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 3, 2, 0, 0, 9, \"dangan\", \"relative\", \"3\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle + 180, 5, 50, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    wait(0.0167 * 4)\n}\n        ",
     "bulletScript": "\n        ",
     "magicCircleScript": ""
   },
@@ -325,13 +325,13 @@ window.compiledBossDanmaku['spell_rush1_non_1'] = window.compiledDanmaku['spell_
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
     }
-    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "2", spread: "30", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "2", spread: "90", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "3", spread: "2", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "3", spread: "2", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
       yield;
     }
-    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle + 180", count: "5", spread: "60", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle + 180", count: "5", spread: "50", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
     state.waitTimer = Math.max(0.0167, 0.0167 * 4);
@@ -410,8 +410,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['8hn7p2v7n']) {
-          state.onceMap['8hn7p2v7n'] = true;
+        if (!state.onceMap['mb88i61nm']) {
+          state.onceMap['mb88i61nm'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -507,8 +507,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['n13pu9ioi']) {
-        state.onceMap['n13pu9ioi'] = true;
+      if (!state.onceMap['jb12v83al']) {
+        state.onceMap['jb12v83al'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
