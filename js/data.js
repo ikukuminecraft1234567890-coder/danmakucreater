@@ -1637,6 +1637,14 @@
                 }
             }
 
+            // 開発者モード時: Lキーで超攻撃モード切り替え
+            if (e.key === 'l' || e.key === 'L') {
+                const isDev = typeof isDeveloperEnvironment === 'function' ? isDeveloperEnvironment() : (typeof window.isDeveloperEnvironment === 'function' ? window.isDeveloperEnvironment() : false);
+                if (isDev && typeof window.toggleDevHyper === 'function') {
+                    window.toggleDevHyper();
+                }
+            }
+
             keyboardState[e.key] = true;
 
             // 1. タイトル画面表示中（メニュー操作時）のキーボード・仮想フォーカス処理
@@ -1786,6 +1794,16 @@
                         const isDev = typeof isDeveloperEnvironment === 'function' ? isDeveloperEnvironment() : (typeof window.isDeveloperEnvironment === 'function' ? window.isDeveloperEnvironment() : false);
                         if (isDev && typeof window.toggleDevInvincible === 'function') {
                             window.toggleDevInvincible();
+                        }
+                    }
+
+                    // 開発者モード時: Lボタン (Button 5) による超攻撃モード切り替え
+                    const btnL = gp.buttons[5] && gp.buttons[5].pressed;
+                    const prevL_btn = prevGamepadButtons[5] || false;
+                    if (btnL && !prevL_btn) {
+                        const isDev = typeof isDeveloperEnvironment === 'function' ? isDeveloperEnvironment() : (typeof window.isDeveloperEnvironment === 'function' ? window.isDeveloperEnvironment() : false);
+                        if (isDev && typeof window.toggleDevHyper === 'function') {
+                            window.toggleDevHyper();
                         }
                     }
 

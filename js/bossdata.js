@@ -33,7 +33,9 @@ const bossList = [
             "spell_rush1_non_1",
             "spell_rush1_1",
             "spell_rush1_non_2",
-            "spell_rush1_2"
+            "spell_rush1_2",
+            "spell_rush1_non_3",
+            "spell_rush1_3",
         ]
     }
 ];

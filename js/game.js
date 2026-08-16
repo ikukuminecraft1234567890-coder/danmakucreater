@@ -2000,6 +2000,7 @@ function applyAbilityEffect(cardId, owner) {
                         // 常時発射：通常ショット（同時攻撃、死亡・被弾待機中は発射不可、ボム無敵中は発射可能）
                         normalShotTimer += dt;
                         let shotInterval = (window.isBossMode) ? 0.07 : 0.14; // ボス戦は連射速度2倍
+                        if (window.devHyperMode) shotInterval *= 0.1; // 開発者超攻撃モード: 10倍連射
                         if (normalShotTimer >= shotInterval) {
                             normalShotTimer = 0;
                             let canPlayerShoot = (!customCardDeathEffect && !window.customCardClearEffect && (!player.respawnDelay || player.respawnDelay <= 0) && player.hp > 0);
@@ -2704,10 +2705,10 @@ function applyAbilityEffect(cardId, owner) {
                     player.deathbombTimer = 0; // 無敵中は食らいボム猶予不要
                 }
 
-                // 開発者無敵モード中はダメージを常時ゼロ
+                // 開発者無敵モード中はダメージを常時ゼロ（deathbombTimerは残して被弾サークル表示を維持）
                 if (window.devInvincibleMode) {
                     player.pendingDamage = 0;
-                    player.deathbombTimer = 0;
+                    // deathbombTimer は消さない → 被弾タイミングの可視化を維持
                 }
 
                 // 食らいボム猶予タイマーのカウントダウン
@@ -2867,7 +2868,7 @@ function applyAbilityEffect(cardId, owner) {
                     return; // エフェクト中はダメージ判定・終了チェックをスキップ
                 }
 
-                if (player.pendingDamage > 0 && !(player.deathbombTimer > 0)) {
+                if (player.pendingDamage > 0 && !(player.deathbombTimer > 0) && !window.devInvincibleMode) {
                     if (window.playSound) {
                         window.playSound('se_pldead00');
                     }
@@ -5192,6 +5193,17 @@ function applyAbilityEffect(cardId, owner) {
                 console.log('[DEV] 無敵モード ON 🛡️✨');
             } else {
                 console.log('[DEV] 無敵モード OFF');
+            }
+        };
+
+        // 開発者専用: 超攻撃モード切り替え（Lボタン）
+        window.devHyperMode = false;
+        window.toggleDevHyper = function() {
+            window.devHyperMode = !window.devHyperMode;
+            if (window.devHyperMode) {
+                console.log('[DEV] 超攻撃モード ON ⚡10x FIRE');
+            } else {
+                console.log('[DEV] 超攻撃モード OFF');
             }
         };
 
