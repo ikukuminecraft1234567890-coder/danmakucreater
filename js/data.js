@@ -1797,9 +1797,9 @@
                         }
                     }
 
-                    // 開発者モード時: Lボタン (Button 5) による超攻撃モード切り替え
-                    const btnL = gp.buttons[5] && gp.buttons[5].pressed;
-                    const prevL_btn = prevGamepadButtons[5] || false;
+                    // 開発者モード時: Lボタン (Button 4) による超攻撃モード切り替え
+                    const btnL = gp.buttons[4] && gp.buttons[4].pressed;
+                    const prevL_btn = prevGamepadButtons[4] || false;
                     if (btnL && !prevL_btn) {
                         const isDev = typeof isDeveloperEnvironment === 'function' ? isDeveloperEnvironment() : (typeof window.isDeveloperEnvironment === 'function' ? window.isDeveloperEnvironment() : false);
                         if (isDev && typeof window.toggleDevHyper === 'function') {
