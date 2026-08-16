@@ -1870,6 +1870,10 @@ function applyAbilityEffect(cardId, owner) {
                     let ease = Math.sin(p * Math.PI / 2);
                     player.y = player.respawnStartY + (player.respawnTargetY - player.respawnStartY) * ease;
                     player.x = PLAY_WIDTH / 2;
+                    if (player.respawnTimer <= 0) {
+                        player.respawnTimer = 0;
+                        player.bombLockTimer = 1.0; // 復活してから1秒間ボム禁止
+                    }
                 } else {
                     // 自機・敵機の移動処理（統合入力マネージャ inputState を参照 - 斜め移動の正規化処理を追加）
                     let dx = 0;
@@ -2703,6 +2707,12 @@ function applyAbilityEffect(cardId, owner) {
                     if (player.deathbombTimer < 0) player.deathbombTimer = 0;
                 }
 
+                // 復活後ボム禁止タイマーのカウントダウン
+                if (player.bombLockTimer > 0) {
+                    player.bombLockTimer -= dt;
+                    if (player.bombLockTimer < 0) player.bombLockTimer = 0;
+                }
+
 
                 // 耐えた時の小さな爆発パーティクルの更新
                 if (window.miniExplosionEffect) {
@@ -2821,6 +2831,7 @@ function applyAbilityEffect(cardId, owner) {
                             let hitY = player.y;
                             player.respawnDelay = 0.5;
                             player.respawnTimer = 0.6;
+                            player.bombLockTimer = 2.1; // リスポーン中(1.1s)〜復活後1秒までボム禁止
                             player.respawnStartY = canvas.height + 40;
                             player.respawnTargetY = canvas.height * 0.8;
                             player.x = PLAY_WIDTH / 2;
@@ -4938,6 +4949,8 @@ function applyAbilityEffect(cardId, owner) {
             if (!isGameRunning || !isCustomCardTesting) return;
             if (player.bombs <= 0) return;
             if (customCardDeathEffect || window.customCardClearEffect) return;
+            if (player.respawnDelay > 0 || player.respawnTimer > 0) return; // リスポーン中
+            if (player.bombLockTimer > 0) return; // 復活後1秒間はボム使用不可
 
             // 食らいボム判定（被弾後8f以内にボムを押した場合）
             let isDeathBomb = player.deathbombTimer > 0;
@@ -5089,6 +5102,7 @@ function applyAbilityEffect(cardId, owner) {
             player.pendingDamage = 0; // 被弾ダメージを完全リセット
             player.pendingHeal = 0;
             player.deathbombTimer = 0;
+            player.bombLockTimer = 0;
             player.recentHits = [];
             player.isInvincible = false;
             player.invincibleTimer = 0;
