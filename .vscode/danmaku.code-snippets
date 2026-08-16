@@ -187,6 +187,94 @@
         ],
         "description": "最小値〜最大値のランダムな数値を返します。"
     },
+
+    "img: kome (米弾)": {
+        "prefix": ["kome", "grain"],
+        "body": ["\"kome\""],
+        "description": "米弾画像アセットキー"
+    },
+    "img: ohuda (お札)": {
+        "prefix": ["ohuda", "huda"],
+        "body": ["\"ohuda\""],
+        "description": "お札弾画像アセットキー"
+    },
+    "img: star (星弾)": {
+        "prefix": ["star"],
+        "body": ["\"star\""],
+        "description": "星弾画像アセットキー"
+    },
+    "img: b_star (大星弾)": {
+        "prefix": ["b_star", "bigstar"],
+        "body": ["\"b_star\""],
+        "description": "大星弾画像アセットキー"
+    },
+    "img: onmyoutama (陰陽玉)": {
+        "prefix": ["onmyoutama", "onmyo"],
+        "body": ["\"onmyoutama\""],
+        "description": "陰陽玉画像アセットキー"
+    },
+    "img: marutama (丸弾)": {
+        "prefix": ["marutama", "circle"],
+        "body": ["\"marutama\""],
+        "description": "丸弾画像アセットキー"
+    },
+    "img: ootama (大玉)": {
+        "prefix": ["ootama", "bigball"],
+        "body": ["\"ootama\""],
+        "description": "大玉画像アセットキー"
+    },
+    "img: poihuru (ポイフル弾)": {
+        "prefix": ["poihuru"],
+        "body": ["\"poihuru\""],
+        "description": "ポイフル弾画像アセットキー"
+    },
+    "img: uroko (鱗弾)": {
+        "prefix": ["uroko", "scale"],
+        "body": ["\"uroko\""],
+        "description": "鱗弾画像アセットキー"
+    },
+    "img: sword (剣弾)": {
+        "prefix": ["sword"],
+        "body": ["\"sword\""],
+        "description": "剣弾画像アセットキー"
+    },
+    "img: knife (ナイフ弾)": {
+        "prefix": ["knife"],
+        "body": ["\"knife\""],
+        "description": "ナイフ弾画像アセットキー"
+    },
+    "img: kunai1 (クナイ弾1)": {
+        "prefix": ["kunai1"],
+        "body": ["\"kunai1\""],
+        "description": "クナイ弾1画像アセットキー"
+    },
+    "img: kunai2 (クナイ弾2)": {
+        "prefix": ["kunai2"],
+        "body": ["\"kunai2\""],
+        "description": "クナイ弾2画像アセットキー"
+    },
+    "img: virus (ウイルス弾)": {
+        "prefix": ["virus"],
+        "body": ["\"virus\""],
+        "description": "ウイルス弾画像アセットキー"
+    },
+    "img: dangan (弾丸)": {
+        "prefix": ["dangan", "bullet"],
+        "body": ["\"dangan\""],
+        "description": "弾丸画像アセットキー"
+    },
+
+    "coord: relative (相対座標)": {
+        "prefix": ["relative"],
+        "body": ["\"relative\""],
+        "description": "ボス・発射元基準の相対座標"
+    },
+    "coord: absolute (絶対座標)": {
+        "prefix": ["absolute"],
+        "body": ["\"absolute\""],
+        "description": "画面左上基準の絶対座標"
+    },
+
     "Boss Spell Template (ボススペルカード定義の雛形)": {
         "prefix": ["spellTemplate", "bossSpell"],
         "body": [
