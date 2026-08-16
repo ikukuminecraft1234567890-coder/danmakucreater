@@ -3980,13 +3980,11 @@ function customCardMakerSwitchMode(mode) {
             let rawSpellName = (spell.name !== undefined && spell.name !== null) ? String(spell.name).replace(/^【A】/, '').trim() : '';
             let hasSpellName = rawSpellName.length > 0;
 
-            let bLives = (boss && (boss.playerLives !== undefined ? boss.playerLives : (boss.lives !== undefined ? boss.lives : (boss.life !== undefined ? boss.life : 3))));
-            let initLives = Math.max(1, parseInt(bLives, 10) || 3);
-            let bossMaxMisses = initLives - 1;
-
-            let bBombs = (boss && (boss.playerBombs !== undefined ? boss.playerBombs : (boss.bombs !== undefined ? boss.bombs : 2)));
-            let initBombs = Math.max(0, parseInt(bBombs, 10) || 0);
-            window.playerDefaultBombs = initBombs;
+            // 残機数（現在の機体を除く残機ストック数＝ミス可能回数。残機0なら1度死んだら即ゲームオーバー、残機2なら2回ミス可能）
+            let bLives = (boss && (boss.playerLives !== undefined ? boss.playerLives : (boss.lives !== undefined ? boss.lives : (boss.life !== undefined ? boss.life : 2))));
+            let bossMaxMisses = (boss && (boss.playerLives !== undefined || boss.lives !== undefined || boss.life !== undefined))
+                ? Math.max(0, parseInt(bLives, 10) || 0)
+                : 2;
 
             let tempSpellCard = {
                 id: spell.id || (`boss_${bIdx}_spell_${spellIdx}`),
@@ -4047,8 +4045,8 @@ function customCardMakerSwitchMode(mode) {
                 window.playerMissCount = 0;
                 window.playerMaxMisses = bossMaxMisses;
                 window.totalScore = 0;
-                player.bombs = initBombs;
-                player.maxBombs = initBombs;
+                player.bombs = 2; // ボムは固定2個
+                player.maxBombs = 2;
             }
             window.playerInvincibleTimer = 0;
             window.miniExplosionEffect = null;

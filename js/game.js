@@ -2800,7 +2800,7 @@ function applyAbilityEffect(cardId, owner) {
                             if (window.playSound) {
                                 window.playSound('se_pldead00');
                             }
-                            player.bombs = (typeof window.playerDefaultBombs === 'number') ? window.playerDefaultBombs : 2; // 被弾時に残ボム破棄＆初期ボム数を再付与
+                            player.bombs = 2; // 被弾時に残ボム破棄＆新たに2個付与
                             bullets.length = 0;
                             magicCircles.length = 0;
                             
