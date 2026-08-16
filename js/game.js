@@ -4981,15 +4981,6 @@ function applyAbilityEffect(cardId, owner) {
                 angle: 0
             };
 
-            // 範囲内の敵弾を即座に消去（自機の弾は消さない）
-            bullets = bullets.filter(b => {
-                const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
-                if (isLaserOrBeam || b.destroyResist) return true;
-                if (b.team === 'PLAYER') return true;
-                let dist = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
-                return dist > 480;
-            });
-
             if (window.soundManager && typeof window.soundManager.playSE === 'function') {
                 window.soundManager.playSE('bomb');
             }
