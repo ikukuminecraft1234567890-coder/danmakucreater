@@ -28,7 +28,7 @@ const bossList = [
         name: "ラッシュ1",
         color: "#ff3366",
         devOnly: true, // 開発中ボス（開発者以外非表示）
-        playerLives: 2, // 残機2（2回ミス可能）
+        playerLives: 4, // 残機2（2回ミス可能）
         spells: [
             "spell_rush1_non_1",
             "spell_rush1_1",

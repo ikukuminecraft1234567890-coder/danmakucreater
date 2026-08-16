@@ -150,9 +150,73 @@ while (true) {
         bulletScript: `
         `,
         magicCircleScript: ``
+    },{
+        id: "spell_rush1_1",
+        name: "飛翔「ストライクバーン」",
+        hp: 2000,
+        duration: 40,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+        while (true) {
+    angle = random(0,360)
+    muki = 1
+    spawnRing("normal", "#999999", 200, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#999999", 300, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#999999", 400, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#999999", 500, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    muki = -1
+    spawnRing("normal", "#999999", 200, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#999999", 300, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#999999", 400, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#999999", 500, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    muki = 0
+    spawnRing("normal", "#ff3333", 200, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#ff3333", 300, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#ff3333", 400, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    spawnRing("normal", "#ff3333", 500, angle, 36, 0, 0, 9, "dangan", "relative", "6")
+    wait(1.67)
+}
+        `,
+        bulletScript: `
+if (color==#999999) {
+    if (frame ==20..21) {
+        once {
+            angle += 10 * muki
+            spriteAngle = angle
+        }
+    }
+}
+        `,
+        magicCircleScript: `
+        
+        `
     }
 ];
+
 
 if (typeof window !== 'undefined') {
     window.bossDanmakuList = bossDanmakuList;
 }
+
+
+/*
+,{
+        id: "spell_base_non_",
+        name: "Base Spell",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        }
+*/

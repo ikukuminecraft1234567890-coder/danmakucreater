@@ -65,6 +65,18 @@ window.compiledBossDanmakuList = [
     "emitterScript": "\nwhile (true) {\n    ey = 300\n    aimAtTarget()\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 2, 30, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 3, 2, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle + 180, 5, 60, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    wait(0.0167 * 4)\n}\n        ",
     "bulletScript": "\n        ",
     "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_1",
+    "name": "飛翔「ストライクバーン」",
+    "hp": 2000,
+    "duration": 40,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n        while (true) {\n    angle = random(0,360)\n    muki = 1\n    spawnRing(\"normal\", \"#999999\", 200, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#999999\", 300, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#999999\", 400, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#999999\", 500, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    muki = -1\n    spawnRing(\"normal\", \"#999999\", 200, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#999999\", 300, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#999999\", 400, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#999999\", 500, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    muki = 0\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#ff3333\", 300, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#ff3333\", 400, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#ff3333\", 500, angle, 36, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    wait(1.67)\n}\n        ",
+    "bulletScript": "\nif (color==#999999) {\n    if (frame ==20..21) {\n        once {\n            angle += 10 * muki\n            spriteAngle = angle\n        }\n    }\n}\n        ",
+    "magicCircleScript": "\n        \n        "
   }
 ];
 window.bossDanmakuList = window.compiledBossDanmakuList;
@@ -309,6 +321,83 @@ window.compiledBossDanmaku['spell_rush1_non_1_bullet'] = window.compiledDanmaku[
   const seedrandom = _util.seedrandom;
 };
 window.compiledBossDanmaku['spell_rush1_non_1_magic'] = window.compiledDanmaku['spell_rush1_non_1_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_1'] = window.compiledDanmaku['spell_rush1_1'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  while (true) {
+    vars['angle'] = random(0,360);
+    vars['muki'] = 1;
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "200", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "300", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "400", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "500", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    vars['muki'] = -1;
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "200", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "300", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "400", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#999999", speed: "500", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    vars['muki'] = 0;
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "300", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "400", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "36", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    state.waitTimer = Math.max(0.0167, 1.67);
+    yield;
+  }
+};
+window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spell_rush1_1_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  while (true) {
+    if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
+      if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
+        if (!state.onceMap) state.onceMap = {};
+        if (!state.onceMap['hqrye7kof']) {
+          state.onceMap['hqrye7kof'] = true;
+          vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
+          vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
+        }
+      }
+    }
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    yield;
+  }
+};
+window.compiledBossDanmaku['spell_rush1_1_magic'] = window.compiledDanmaku['spell_rush1_1_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
