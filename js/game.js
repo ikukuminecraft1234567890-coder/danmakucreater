@@ -1818,6 +1818,9 @@ function applyAbilityEffect(cardId, owner) {
                             let b = bullets[j];
                             if (b.team === 'CPU') {
                                 if (b.hitRadius === 0) continue;
+                                if (b.destroyResist) continue;
+                                const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
+                                if (isLaserOrBeam) continue;
                                 let distSq = (b.x - r.x) ** 2 + (b.y - r.y) ** 2;
                                 let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
                                 if (distSq < (r.radius + bHitR) ** 2) {
@@ -1840,6 +1843,9 @@ function applyAbilityEffect(cardId, owner) {
                             let b = bullets[j];
                             if (b.team === 'PLAYER') {
                                 if (b.hitRadius === 0) continue;
+                                if (b.destroyResist) continue;
+                                const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
+                                if (isLaserOrBeam) continue;
                                 let distSq = (b.x - r.x) ** 2 + (b.y - r.y) ** 2;
                                 let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
                                 if (distSq < (r.radius + bHitR) ** 2) {
@@ -2889,7 +2895,10 @@ function applyAbilityEffect(cardId, owner) {
                             player.pendingDamage = 0;
                             window.playerInvincibleTimer = 4.0; // ボス戦は無敵時間4秒
                             player.bombs = 2; // 被弾時に残ボム破棄＆新たに2個付与
-                            bullets.length = 0;
+                            bullets = bullets.filter(b => {
+                                const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
+                                return isLaserOrBeam || b.destroyResist;
+                            });
                             magicCircles.length = 0;
                             
                             // 0.5秒間はその場に演出を出し、その後下からにょきっと復活

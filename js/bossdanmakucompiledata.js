@@ -116,7 +116,7 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_3",
-    "name": "「破壊光線」",
+    "name": "雷撃「破壊電磁砲」",
     "hp": 2500,
     "duration": 50,
     "x_offset": 0,
@@ -135,6 +135,30 @@ window.compiledBossDanmakuList = [
     "y_offset": 0,
     "despawnTime": 1.5,
     "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 30; i++) {\n        spd = 0\n        for (let i = 0; i < 3; i++) {\n            spawnRing(\"normal\", \"#ff3333\", 200 + spd, angle, 4, 0, 0, 8, \"dangan\", \"relative\", \"4\")\n            spd += 50\n        }\n        angle += 9.346\n        wait(0.0167 * 3)\n    }\n    wait(0.5)\n    idousakix = 384 + random(-100,100)\n    idousakiy = 200 + random(-100,100)\n    tween(\"ex\", ex, idousakix, \"seconds\", 0.6, \"easeOut\")\n    tween(\"ey\", ey, idousakiy, \"seconds\", 0.6, \"easeOut\")\n    wait(0.8)\n}\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_4",
+    "name": "「」",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_non_5",
+    "name": "",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
     "bulletScript": "\n\n        ",
     "magicCircleScript": ""
   },
@@ -554,8 +578,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['bqv3hpfte']) {
-          state.onceMap['bqv3hpfte'] = true;
+        if (!state.onceMap['4a2swq419']) {
+          state.onceMap['4a2swq419'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -651,8 +675,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lty0wrqtr']) {
-        state.onceMap['lty0wrqtr'] = true;
+      if (!state.onceMap['trje9cinc']) {
+        state.onceMap['trje9cinc'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -830,6 +854,44 @@ window.compiledBossDanmaku['spell_rush1_non_4_bullet'] = window.compiledDanmaku[
   const seedrandom = _util.seedrandom;
 };
 window.compiledBossDanmaku['spell_rush1_non_4_magic'] = window.compiledDanmaku['spell_rush1_non_4_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush1_4'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_4_bullet'] = window.compiledDanmaku['spell_rush1_4_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_4_magic'] = window.compiledDanmaku['spell_rush1_4_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_non_5'] = window.compiledDanmaku['spell_rush1_non_5'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_5_bullet'] = window.compiledDanmaku['spell_rush1_non_5_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_5_magic'] = window.compiledDanmaku['spell_rush1_non_5_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;

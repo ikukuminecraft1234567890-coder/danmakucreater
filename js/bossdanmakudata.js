@@ -278,7 +278,7 @@ while (true) {
 
         },{
         id: "spell_rush1_3",
-        name: "「破壊光線」",
+        name: "雷撃「破壊電磁砲」",
         hp: 2500,
         duration: 50,
         x_offset: 0,
@@ -343,6 +343,38 @@ while (true) {
     tween("ey", ey, idousakiy, "seconds", 0.6, "easeOut")
     wait(0.8)
 }
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_4",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_non_5",
+        name: "",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
         `,
         bulletScript: `
 
@@ -445,7 +477,8 @@ while (true) {
         `,
         magicCircleScript: ``
 
-        },{
+        }
+        ,{
         id: "spell_rush1_8",
         name: "「」",
         hp: 1000,
