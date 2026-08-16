@@ -3997,6 +3997,10 @@ function customCardMakerSwitchMode(mode) {
             const spell = getBossSpell(spellRef);
             if (!spell) {
                 console.error("Spell not found:", spellRef);
+                alert(`スペルデータが見つかりません: ${spellRef}\n「compile.bat」を実行してコンパイルされているか確認してください。`);
+                if (typeof endCustomCardTest === 'function') {
+                    endCustomCardTest(false);
+                }
                 return;
             }
             let emitterScript = [];

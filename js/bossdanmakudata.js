@@ -252,7 +252,7 @@ if (color==#ff3333) {
         magicCircleScript: ``
 
         },{
-        id: "spell_base_non_3",
+        id: "spell_rush1_non_3",
         name: "",
         hp: 1600,
         duration: 25,
