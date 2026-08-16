@@ -317,6 +317,182 @@ laserWidth = 12
         `,
         magicCircleScript: ``
 
+        },{
+        id: "spell_rush1_non_4",
+        name: "",
+        hp: 2000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+    for (let i = 0; i < 30; i++) {
+        spd = 0
+        for (let i = 0; i < 3; i++) {
+            spawnRing("normal", "#ff3333", 200 + spd, angle, 4, 0, 0, 8, "dangan", "relative", "4")
+            spd += 50
+        }
+        angle += 9.346
+        wait(0.0167 * 3)
+    }
+    wait(0.5)
+    idousakix = 384 + random(-100,100)
+    idousakiy = 200 + random(-100,100)
+    tween("ex", ex, idousakix, "seconds", 0.6, "easeOut")
+    tween("ey", ey, idousakiy, "seconds", 0.6, "easeOut")
+    wait(0.8)
+}
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_5",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_non_6",
+        name: "",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_6",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_non_7",
+        name: "",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_7",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_non_8",
+        name: "",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_8",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_9",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_10",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
         }
 ];
 

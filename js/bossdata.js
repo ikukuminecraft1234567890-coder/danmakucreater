@@ -15,7 +15,7 @@ const bossList = [
         name: "博麗 霊夢",
         color: "#ff3366",
         devOnly: false, // 公開ボス
-        playerLives: 2, // 残機2（2回ミス可能）
+        playerLives: 2,
         spells: [
             "spell_reimu_non_1",
             "spell_reimu_1",
@@ -28,7 +28,7 @@ const bossList = [
         name: "ラッシュ1",
         color: "#ff3366",
         devOnly: true, // 開発中ボス（開発者以外非表示）
-        playerLives: 4, // 残機2（2回ミス可能）
+        playerLives: 3,
         spells: [
             "spell_rush1_non_1",
             "spell_rush1_1",
@@ -36,6 +36,18 @@ const bossList = [
             "spell_rush1_2",
             "spell_rush1_non_3",
             "spell_rush1_3",
+            "spell_rush1_non_4",
+            "spell_rush1_4",
+            "spell_rush1_non_5",
+            "spell_rush1_5",
+            "spell_rush1_non_6",
+            "spell_rush1_6",
+            "spell_rush1_non_7",
+            "spell_rush1_7",
+            "spell_rush1_non_8",
+            "spell_rush1_8",
+            "spell_rush1_non_9",
+            "spell_rush1_non_10",
         ]
     }
 ];

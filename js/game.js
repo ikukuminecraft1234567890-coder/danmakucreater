@@ -4511,18 +4511,31 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.fillStyle = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.color) ? currentBoss.color : '#88ffaa';
                         ctx.fillText(bossName, 12, 16);
 
-                        // ボス残機星マーク (★★★★)
-                        let totalSpells = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.spells) ? currentBoss.spells.length : 1;
-                        let currentSpellIdx = (typeof currentBossSpellIndex === 'number') ? currentBossSpellIndex : 0;
-                        let remainingSpells = Math.max(0, totalSpells - currentSpellIdx);
-                        
+                        // ボス残機星マーク (★★★★: 通常弾幕は除外して名前付きスペルカードの残数のみ表示)
                         let starStr = '';
-                        for (let si = 0; si < remainingSpells; si++) starStr += '★';
-                        ctx.font = "bold 13px sans-serif";
-                        ctx.fillStyle = 'rgba(0,0,0,0.85)';
-                        ctx.fillText(starStr, 13, 38);
-                        ctx.fillStyle = '#88ffaa';
-                        ctx.fillText(starStr, 12, 37);
+                        if (typeof currentBoss !== 'undefined' && currentBoss && Array.isArray(currentBoss.spells)) {
+                            let currentSpellIdx = (typeof currentBossSpellIndex === 'number') ? currentBossSpellIndex : 0;
+                            let remainingSpellCount = 0;
+                            for (let si = currentSpellIdx; si < currentBoss.spells.length; si++) {
+                                let spellRef = currentBoss.spells[si];
+                                let spellObj = (typeof getBossSpell === 'function') ? getBossSpell(spellRef) : null;
+                                let isNamedSpell = spellObj && spellObj.name && String(spellObj.name).trim().length > 0;
+                                if (isNamedSpell) {
+                                    remainingSpellCount++;
+                                }
+                            }
+                            for (let si = 0; si < remainingSpellCount; si++) starStr += '★';
+                        } else {
+                            starStr = '★';
+                        }
+                        
+                        if (starStr.length > 0) {
+                            ctx.font = "bold 13px sans-serif";
+                            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                            ctx.fillText(starStr, 13, 38);
+                            ctx.fillStyle = '#88ffaa';
+                            ctx.fillText(starStr, 12, 37);
+                        }
                     }
 
                     // 4. 右上 スペル名 ＆ 発動時アニメーション（通常弾幕時はスキップ）

@@ -125,6 +125,126 @@ window.compiledBossDanmakuList = [
     "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, 0, 0, 6, \"none\", \"relative\", \"#ff3333\")\n    angle += 10\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, 0, 0, 6, \"none\", \"relative\", \"#ff3333\")\n    wait(1)\n    angle = random(0,360)\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, 250, 150, 6, \"none\", \"relative\", \"#ff3333\")\n    angle += 10\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, 250, 150, 6, \"none\", \"relative\", \"#ff3333\")\n    angle = random(0,360)\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, -250, 150, 6, \"none\", \"relative\", \"#ff3333\")\n    angle += 10\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, -250, 150, 6, \"none\", \"relative\", \"#ff3333\")\n    angle = random(0,360)\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, 100, -50, 6, \"none\", \"relative\", \"#ff3333\")\n    angle += 10\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, 100, -50, 6, \"none\", \"relative\", \"#ff3333\")\n    angle = random(0,360)\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, -100, -50, 6, \"none\", \"relative\", \"#ff3333\")\n    angle += 10\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 18, -100, -50, 6, \"none\", \"relative\", \"#ff3333\")\n    wait(1)\n}\n        ",
     "bulletScript": "\nwarningTime = 1\nactiveTime = 1\nlaserWidth = 12\n        ",
     "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_non_4",
+    "name": "",
+    "hp": 2000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 30; i++) {\n        spd = 0\n        for (let i = 0; i < 3; i++) {\n            spawnRing(\"normal\", \"#ff3333\", 200 + spd, angle, 4, 0, 0, 8, \"dangan\", \"relative\", \"4\")\n            spd += 50\n        }\n        angle += 9.346\n        wait(0.0167 * 3)\n    }\n    wait(0.5)\n    idousakix = 384 + random(-100,100)\n    idousakiy = 200 + random(-100,100)\n    tween(\"ex\", ex, idousakix, \"seconds\", 0.6, \"easeOut\")\n    tween(\"ey\", ey, idousakiy, \"seconds\", 0.6, \"easeOut\")\n    wait(0.8)\n}\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_5",
+    "name": "「」",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_non_6",
+    "name": "",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_6",
+    "name": "「」",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_non_7",
+    "name": "",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_7",
+    "name": "「」",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_non_8",
+    "name": "",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_8",
+    "name": "「」",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_9",
+    "name": "「」",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "id": "spell_rush1_10",
+    "name": "「」",
+    "hp": 1000,
+    "duration": 25,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n\n        ",
+    "bulletScript": "\n\n        ",
+    "magicCircleScript": ""
   }
 ];
 window.bossDanmakuList = window.compiledBossDanmakuList;
@@ -434,8 +554,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['b50ut5g3l']) {
-          state.onceMap['b50ut5g3l'] = true;
+        if (!state.onceMap['bqv3hpfte']) {
+          state.onceMap['bqv3hpfte'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -531,8 +651,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['9gvoc0sfl']) {
-        state.onceMap['9gvoc0sfl'] = true;
+      if (!state.onceMap['lty0wrqtr']) {
+        state.onceMap['lty0wrqtr'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -659,6 +779,228 @@ window.compiledBossDanmaku['spell_rush1_3_bullet'] = window.compiledDanmaku['spe
   }
 };
 window.compiledBossDanmaku['spell_rush1_3_magic'] = window.compiledDanmaku['spell_rush1_3_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_non_4'] = window.compiledDanmaku['spell_rush1_non_4'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  while (true) {
+    let _prev_i_154 = vars['i'];
+    for (let _loopIdx_154 = 0, _limit_154 = Math.round(30); _loopIdx_154 < _limit_154; _loopIdx_154++) {
+      vars['i'] = _loopIdx_154;
+      vars['spd'] = 0;
+      let _prev_i_155 = vars['i'];
+      for (let _loopIdx_155 = 0, _limit_155 = Math.round(3); _loopIdx_155 < _limit_155; _loopIdx_155++) {
+        vars['i'] = _loopIdx_155;
+        if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "200 + spd", angle: "angle", count: "4", offsetX: "0", offsetY: "0", radius: "8", bulletImage: "dangan", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
+          yield;
+        }
+        vars['spd'] = (vars['spd'] || 0) + (50);
+      }
+      vars['i'] = _prev_i_155;
+      vars['angle'] = (vars['angle'] || 0) + (9.346);
+      state.waitTimer = Math.max(0.0167, 0.0167 * 3);
+      yield;
+    }
+    vars['i'] = _prev_i_154;
+    state.waitTimer = Math.max(0.0167, 0.5);
+    yield;
+    vars['idousakix'] = 384 + random(-100,100);
+    vars['idousakiy'] = 200 + random(-100,100);
+    if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "idousakix", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "ey", to: "idousakiy", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    state.waitTimer = Math.max(0.0167, 0.8);
+    yield;
+  }
+};
+window.compiledBossDanmaku['spell_rush1_non_4_bullet'] = window.compiledDanmaku['spell_rush1_non_4_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_4_magic'] = window.compiledDanmaku['spell_rush1_non_4_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_5'] = window.compiledDanmaku['spell_rush1_5'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_5_bullet'] = window.compiledDanmaku['spell_rush1_5_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_5_magic'] = window.compiledDanmaku['spell_rush1_5_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_non_6'] = window.compiledDanmaku['spell_rush1_non_6'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_6_bullet'] = window.compiledDanmaku['spell_rush1_non_6_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_6_magic'] = window.compiledDanmaku['spell_rush1_non_6_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_6'] = window.compiledDanmaku['spell_rush1_6'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_6_bullet'] = window.compiledDanmaku['spell_rush1_6_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_6_magic'] = window.compiledDanmaku['spell_rush1_6_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_non_7'] = window.compiledDanmaku['spell_rush1_non_7'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_7_bullet'] = window.compiledDanmaku['spell_rush1_non_7_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_7_magic'] = window.compiledDanmaku['spell_rush1_non_7_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_7'] = window.compiledDanmaku['spell_rush1_7'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_7_bullet'] = window.compiledDanmaku['spell_rush1_7_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_7_magic'] = window.compiledDanmaku['spell_rush1_7_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_non_8'] = window.compiledDanmaku['spell_rush1_non_8'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_8_bullet'] = window.compiledDanmaku['spell_rush1_non_8_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_non_8_magic'] = window.compiledDanmaku['spell_rush1_non_8_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_8'] = window.compiledDanmaku['spell_rush1_8'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_8_bullet'] = window.compiledDanmaku['spell_rush1_8_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_8_magic'] = window.compiledDanmaku['spell_rush1_8_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_9'] = window.compiledDanmaku['spell_rush1_9'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_9_bullet'] = window.compiledDanmaku['spell_rush1_9_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_9_magic'] = window.compiledDanmaku['spell_rush1_9_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+
+window.compiledBossDanmaku['spell_rush1_10'] = window.compiledDanmaku['spell_rush1_10'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_10_bullet'] = window.compiledDanmaku['spell_rush1_10_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+};
+window.compiledBossDanmaku['spell_rush1_10_magic'] = window.compiledDanmaku['spell_rush1_10_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
