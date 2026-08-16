@@ -55,51 +55,15 @@ window.compiledBossDanmakuList = [
     "magicCircleScript": ""
   },
   {
-    "id": "spell_marisa_non_1",
+    "id": "spell_rush1_non_1",
     "name": "",
     "hp": 1000,
     "duration": 25,
     "x_offset": 0,
     "y_offset": 0,
     "despawnTime": 1.5,
-    "emitterScript": "\nwhile (true) {\n    angle += 5\n    spawnRing(\"normal\", \"#ffee22\", 190, angle, 12, 0, 0, 8, \"star\", \"relative\", 6)\n    spawnRing(\"normal\", \"#33ffcc\", 300, angle + 15, 12, 0, 0, 20, \"kome\", \"relative\", 4)\n    wait(0.2)\n}\n        ",
-    "bulletScript": "\nspeed = 200\n        ",
-    "magicCircleScript": ""
-  },
-  {
-    "id": "spell_marisa_1",
-    "name": "恋符「マスタースパーク・ライト」",
-    "hp": 1500,
-    "duration": 30,
-    "x_offset": 0,
-    "y_offset": 0,
-    "despawnTime": 1.5,
-    "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    spawnRing(\"normal\", \"#ffee33\", 180, angle, 8, 0, 0, 18, \"b_star\", \"relative\", 14)\n    for (let j = 0; j < 6; j++) {\n        spawnRing(\"normal\", \"#33ffaa\", 240, angle + rand(-30, 30), 12, 0, 0, 8, \"star\", \"relative\", 6)\n        wait(0.08)\n    }\n    wait(0.5)\n}\n        ",
-    "bulletScript": "\nspeed = 220\nangle_velocity = 20\n        ",
-    "magicCircleScript": ""
-  },
-  {
-    "id": "spell_marisa_non_2",
-    "name": "",
-    "hp": 1300,
-    "duration": 25,
-    "x_offset": 0,
-    "y_offset": 0,
-    "despawnTime": 1.5,
-    "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    spawnRing(\"normal\", \"#ff9900\", 170, angle, 6, 0, 0, 18, \"b_star\", \"relative\", 14)\n    for (let m = 0; m < 4; m++) {\n        spawnRing(\"normal\", \"#ffff44\", 220 + m * 15, angle + m * 10, 10, 0, 0, 8, \"star\", \"relative\", 6)\n        wait(0.08)\n    }\n    wait(0.35)\n}\n        ",
-    "bulletScript": "\nspeed = 210\n        ",
-    "magicCircleScript": ""
-  },
-  {
-    "id": "spell_marisa_2",
-    "name": "彗星「ブレイジングスター」",
-    "hp": 2200,
-    "duration": 40,
-    "x_offset": 0,
-    "y_offset": 0,
-    "despawnTime": 1.5,
-    "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    for (let k = 0; k < 16; k++) {\n        spawnRing(\"normal\", \"#ffdd44\", 260, angle + k * 12, 16, 0, 0, 10, \"star\", \"relative\", 7)\n        wait(0.06)\n    }\n    wait(0.7)\n}\n        ",
-    "bulletScript": "\nspeed = 240\nwait(0.3)\nangle_velocity = -15\n        ",
+    "emitterScript": "\nwhile (true) {\n    ey = 300\n    aimAtTarget()\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 2, 30, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 3, 2, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    spawnWay(\"normal\", \"#ff3333\", 500, angle + 180, 5, 60, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    wait(0.0167 * 4)\n}\n        ",
+    "bulletScript": "\n        ",
     "magicCircleScript": ""
   }
 ];
@@ -315,168 +279,36 @@ window.compiledBossDanmaku['spell_reimu_2_magic'] = window.compiledDanmaku['spel
   const seedrandom = _util.seedrandom;
 };
 
-window.compiledBossDanmaku['spell_marisa_non_1'] = window.compiledDanmaku['spell_marisa_non_1'] = function*(state, b, attacker, target, _util) {
+window.compiledBossDanmaku['spell_rush1_non_1'] = window.compiledDanmaku['spell_rush1_non_1'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    vars['angle'] = (vars['angle'] || 0) + (5);
-    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffee22", speed: "190", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "8", bulletImage: "star", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
-      yield;
-    }
-    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#33ffcc", speed: "300", angle: "angle + 15", count: "12", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "kome", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
-      yield;
-    }
-    state.waitTimer = Math.max(0.0167, 0.2);
-    yield;
-  }
-};
-window.compiledBossDanmaku['spell_marisa_non_1_bullet'] = window.compiledDanmaku['spell_marisa_non_1_bullet'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-  while (true) {
-    vars['speed'] = 200;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
-    yield;
-  }
-};
-window.compiledBossDanmaku['spell_marisa_non_1_magic'] = window.compiledDanmaku['spell_marisa_non_1_magic'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-};
-
-window.compiledBossDanmaku['spell_marisa_1'] = window.compiledDanmaku['spell_marisa_1'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-  while (true) {
+    vars['ey'] = 300;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
     }
-    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffee33", speed: "180", angle: "angle", count: "8", offsetX: "0", offsetY: "0", radius: "18", bulletImage: "b_star", coordMode: "relative", hitRadius: "14", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "2", spread: "30", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    let _prev_j_152 = vars['j'];
-    for (let _loopIdx_152 = 0, _limit_152 = Math.round(6); _loopIdx_152 < _limit_152; _loopIdx_152++) {
-      vars['j'] = _loopIdx_152;
-      if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#33ffaa", speed: "240", angle: "angle + rand(-30, 30)", count: "12", offsetX: "0", offsetY: "0", radius: "8", bulletImage: "star", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
-        yield;
-      }
-      state.waitTimer = Math.max(0.0167, 0.08);
+    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle", count: "3", spread: "2", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
       yield;
     }
-    vars['j'] = _prev_j_152;
-    state.waitTimer = Math.max(0.0167, 0.5);
+    if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "500", angle: "angle + 180", count: "5", spread: "60", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    state.waitTimer = Math.max(0.0167, 0.0167 * 4);
     yield;
   }
 };
-window.compiledBossDanmaku['spell_marisa_1_bullet'] = window.compiledDanmaku['spell_marisa_1_bullet'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-  while (true) {
-    vars['speed'] = 220;
-    vars['angle_velocity'] = 20;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
-    yield;
-  }
-};
-window.compiledBossDanmaku['spell_marisa_1_magic'] = window.compiledDanmaku['spell_marisa_1_magic'] = function*(state, b, attacker, target, _util) {
+window.compiledBossDanmaku['spell_rush1_non_1_bullet'] = window.compiledDanmaku['spell_rush1_non_1_bullet'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
 };
-
-window.compiledBossDanmaku['spell_marisa_non_2'] = window.compiledDanmaku['spell_marisa_non_2'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-  while (true) {
-    if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
-      yield;
-    }
-    if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff9900", speed: "170", angle: "angle", count: "6", offsetX: "0", offsetY: "0", radius: "18", bulletImage: "b_star", coordMode: "relative", hitRadius: "14", }, state, b, attacker, target, _util)) {
-      yield;
-    }
-    let _prev_m_153 = vars['m'];
-    for (let _loopIdx_153 = 0, _limit_153 = Math.round(4); _loopIdx_153 < _limit_153; _loopIdx_153++) {
-      vars['m'] = _loopIdx_153;
-      if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffff44", speed: "220 + m * 15", angle: "angle + m * 10", count: "10", offsetX: "0", offsetY: "0", radius: "8", bulletImage: "star", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
-        yield;
-      }
-      state.waitTimer = Math.max(0.0167, 0.08);
-      yield;
-    }
-    vars['m'] = _prev_m_153;
-    state.waitTimer = Math.max(0.0167, 0.35);
-    yield;
-  }
-};
-window.compiledBossDanmaku['spell_marisa_non_2_bullet'] = window.compiledDanmaku['spell_marisa_non_2_bullet'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-  while (true) {
-    vars['speed'] = 210;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
-    yield;
-  }
-};
-window.compiledBossDanmaku['spell_marisa_non_2_magic'] = window.compiledDanmaku['spell_marisa_non_2_magic'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-};
-
-window.compiledBossDanmaku['spell_marisa_2'] = window.compiledDanmaku['spell_marisa_2'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-  while (true) {
-    if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
-      yield;
-    }
-    let _prev_k_154 = vars['k'];
-    for (let _loopIdx_154 = 0, _limit_154 = Math.round(16); _loopIdx_154 < _limit_154; _loopIdx_154++) {
-      vars['k'] = _loopIdx_154;
-      if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffdd44", speed: "260", angle: "angle + k * 12", count: "16", offsetX: "0", offsetY: "0", radius: "10", bulletImage: "star", coordMode: "relative", hitRadius: "7", }, state, b, attacker, target, _util)) {
-        yield;
-      }
-      state.waitTimer = Math.max(0.0167, 0.06);
-      yield;
-    }
-    vars['k'] = _prev_k_154;
-    state.waitTimer = Math.max(0.0167, 0.7);
-    yield;
-  }
-};
-window.compiledBossDanmaku['spell_marisa_2_bullet'] = window.compiledDanmaku['spell_marisa_2_bullet'] = function*(state, b, attacker, target, _util) {
-  let vars = state.variables;
-  const random = _util.rand;
-  const rand = _util.rand;
-  const seedrandom = _util.seedrandom;
-  while (true) {
-    vars['speed'] = 240;
-    state.waitTimer = Math.max(0.0167, 0.3);
-    yield;
-    vars['angle_velocity'] = -15;
-    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
-    yield;
-  }
-};
-window.compiledBossDanmaku['spell_marisa_2_magic'] = window.compiledDanmaku['spell_marisa_2_magic'] = function*(state, b, attacker, target, _util) {
+window.compiledBossDanmaku['spell_rush1_non_1_magic'] = window.compiledDanmaku['spell_rush1_non_1_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;

@@ -20,6 +20,18 @@ const bossList = [
             "spell_reimu_non_2",
             "spell_reimu_2"
         ]
+    },
+    {
+        id: "boss_rush1",
+        name: "ラッシュ1",
+        color: "#ff3366",
+        playerLives: 2, // 残機2（2回ミス可能）
+        spells: [
+            "spell_rush1_non_1",
+            "spell_rush1_1",
+            "spell_rush1_non_2",
+            "spell_rush1_2"
+        ]
     }
 ];
 

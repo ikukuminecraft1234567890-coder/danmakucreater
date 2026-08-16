@@ -128,9 +128,9 @@ if (isBounced) {
         magicCircleScript: ``
     },
 
-    // ── 霧雨 魔理沙 ──────────────────────────────────────
+    //ラッシュ1
     {
-        id: "spell_marisa_non_1",
+        id: "spell_rush1_non_1",
         name: "",
         hp: 1000,
         duration: 25,
@@ -139,88 +139,15 @@ if (isBounced) {
         despawnTime: 1.5,
         emitterScript: `
 while (true) {
-    angle += 5
-    spawnRing("normal", "#ffee22", 190, angle, 12, 0, 0, 8, "star", "relative", 6)
-    spawnRing("normal", "#33ffcc", 300, angle + 15, 12, 0, 0, 20, "kome", "relative", 4)
-    wait(0.2)
-}
-        `,
-        bulletScript: `
-speed = 200
-        `,
-        magicCircleScript: ``
-    },
-    {
-        id: "spell_marisa_1",
-        name: "恋符「マスタースパーク・ライト」",
-        hp: 1500,
-        duration: 30,
-        x_offset: 0,
-        y_offset: 0,
-        despawnTime: 1.5,
-        emitterScript: `
-while (true) {
+    ey = 300
     aimAtTarget()
-    spawnRing("normal", "#ffee33", 180, angle, 8, 0, 0, 18, "b_star", "relative", 14)
-    for (let j = 0; j < 6; j++) {
-        spawnRing("normal", "#33ffaa", 240, angle + rand(-30, 30), 12, 0, 0, 8, "star", "relative", 6)
-        wait(0.08)
-    }
-    wait(0.5)
+    spawnWay("normal", "#ff3333", 500, angle, 2, 30, 0, 0, 9, "dangan", "relative", "6")
+    spawnWay("normal", "#ff3333", 500, angle, 3, 2, 0, 0, 9, "dangan", "relative", "6")
+    spawnWay("normal", "#ff3333", 500, angle + 180, 5, 60, 0, 0, 9, "dangan", "relative", "6")
+    wait(0.0167 * 4)
 }
         `,
         bulletScript: `
-speed = 220
-angle_velocity = 20
-        `,
-        magicCircleScript: ``
-    },
-    {
-        id: "spell_marisa_non_2",
-        name: "",
-        hp: 1300,
-        duration: 25,
-        x_offset: 0,
-        y_offset: 0,
-        despawnTime: 1.5,
-        emitterScript: `
-while (true) {
-    aimAtTarget()
-    spawnRing("normal", "#ff9900", 170, angle, 6, 0, 0, 18, "b_star", "relative", 14)
-    for (let m = 0; m < 4; m++) {
-        spawnRing("normal", "#ffff44", 220 + m * 15, angle + m * 10, 10, 0, 0, 8, "star", "relative", 6)
-        wait(0.08)
-    }
-    wait(0.35)
-}
-        `,
-        bulletScript: `
-speed = 210
-        `,
-        magicCircleScript: ``
-    },
-    {
-        id: "spell_marisa_2",
-        name: "彗星「ブレイジングスター」",
-        hp: 2200,
-        duration: 40,
-        x_offset: 0,
-        y_offset: 0,
-        despawnTime: 1.5,
-        emitterScript: `
-while (true) {
-    aimAtTarget()
-    for (let k = 0; k < 16; k++) {
-        spawnRing("normal", "#ffdd44", 260, angle + k * 12, 16, 0, 0, 10, "star", "relative", 7)
-        wait(0.06)
-    }
-    wait(0.7)
-}
-        `,
-        bulletScript: `
-speed = 240
-wait(0.3)
-angle_velocity = -15
         `,
         magicCircleScript: ``
     }
