@@ -140,7 +140,7 @@ const DSL_FUNCTIONS = [
     },
     {
         name: 'tween',
-        snippet: 'tween("${1|angle,speed,x_offset,y_offset,radius,scale|}", ${2:0}, ${3:360}, "${4|seconds,frames,step,vecstep|}", ${5:1.0}, "${6|linear,easeIn,easeOut,easeInOut|}")',
+        snippet: 'tween("${1|angle,speed,x_offset,y_offset,radius,scale|}", ${2:0}, ${3:360}, "${4|seconds,frames,step,vecstep|}\", ${5:1.0}, \"${6|linear,easeIn,easeOut,easeInOut|}\")',
         doc: '指定した変数を時間をかけて滑らかに変化させます。',
         params: ['varName', 'fromVal', 'toVal', 'mode', 'duration', 'easing']
     },
@@ -285,18 +285,18 @@ function activate(context) {
                     items.push(item);
                 }
 
-                // Add bullet images and sound effects as quick references
+                // Add bullet images as reference
                 for (const img of BULLET_IMAGES) {
-                    const item = new vscode.CompletionItem(`img_${img.label}`, vscode.CompletionItemKind.EnumMember);
+                    const item = new vscode.CompletionItem(img.label, vscode.CompletionItemKind.EnumMember);
                     item.detail = `弾画像: ${img.desc}`;
-                    item.insertText = `"${img.insertText}"`;
+                    item.insertText = img.insertText;
                     items.push(item);
                 }
 
                 return items;
             }
         },
-        '(', ',', '"', "'", '`', ' '
+        '(', ',', '"', "'", '`', ' ', ''
     );
 
     // 2. Signature Help Provider
@@ -342,7 +342,31 @@ function activate(context) {
         '(', ','
     );
 
-    context.subscriptions.push(completionProvider, signatureProvider);
+    // 3. Auto Trigger Suggestion on Cursor Movement (Zero-Typing Popup!)
+    let suggestDebounceTimer = null;
+    const selectionChangeDisposable = vscode.window.onDidChangeTextEditorSelection((e) => {
+        if (!e.textEditor || !e.selections || e.selections.length === 0) return;
+        const selection = e.selections[0];
+        if (!selection.isEmpty) return;
+
+        const doc = e.textEditor.document;
+        if (!['javascript', 'javascriptreact', 'typescript'].includes(doc.languageId)) return;
+
+        const pos = selection.active;
+        const lineText = doc.lineAt(pos.line).text;
+        const prefix = lineText.substring(0, pos.character);
+
+        // Check if cursor is inside function call or quotes
+        const matchFunc = prefix.match(/(\b\w+)\s*\(([^)]*)$/);
+        if (matchFunc) {
+            clearTimeout(suggestDebounceTimer);
+            suggestDebounceTimer = setTimeout(() => {
+                vscode.commands.executeCommand('editor.action.triggerSuggest');
+            }, 60);
+        }
+    });
+
+    context.subscriptions.push(completionProvider, signatureProvider, selectionChangeDisposable);
 }
 
 function deactivate() {}
