@@ -1,6 +1,5 @@
 {
     "spawnRing (全方位弾・リング弾)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnRing", "ring"],
         "body": [
             "spawnRing(\"${1|normal,trail,laser|}\", \"${2:#ff3344}\", ${3:170}, ${4:angle}, ${5:16}, ${6:0}, ${7:0}, ${8:20}, \"${9|ohuda,kome,star,b_star,onmyoutama,marutama,ootama,poihuru,uroko,sword,knife,kunai1,kunai2,virus,dangan,none|}\", \"${10|relative,absolute|}\", ${11:6})"
@@ -8,7 +7,6 @@
         "description": "全方位リング弾を生成します。引数: (bulletType, color, speed, angle, count, offsetX, offsetY, radius, bulletImage, coordMode, hitRadius)"
     },
     "spawnWay (Way弾・扇状弾)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnWay", "way"],
         "body": [
             "spawnWay(\"${1|normal,trail,laser|}\", \"${2:#ff3344}\", ${3:180}, ${4:angle}, ${5:3}, ${6:30}, ${7:0}, ${8:0}, ${9:20}, \"${10|ohuda,kome,star,b_star,onmyoutama,marutama,ootama,poihuru,uroko,sword,knife,kunai1,kunai2,virus,dangan,none|}\", \"${11|relative,absolute|}\", ${12:6})"
@@ -16,7 +14,6 @@
         "description": "扇状（Way）に弾を生成します。引数: (bulletType, color, speed, angle, count, spread, offsetX, offsetY, radius, bulletImage, coordMode, hitRadius)"
     },
     "spawnStraight / spawnBullet (単発弾)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnStraight", "spawnBullet", "straight"],
         "body": [
             "spawnStraight(\"${1|normal,trail,laser|}\", \"${2:#ff3344}\", ${3:200}, ${4:angle}, ${5:0}, ${6:0}, ${7:20}, \"${8|ohuda,kome,star,b_star,onmyoutama,marutama,ootama,poihuru,uroko,sword,knife,kunai1,kunai2,virus,dangan,none|}\", \"${9|relative,absolute|}\", ${10:6})"
@@ -24,7 +21,6 @@
         "description": "単発の直線弾を生成します。引数: (bulletType, color, speed, angle, offsetX, offsetY, radius, bulletImage, coordMode, hitRadius)"
     },
     "spawnTrail (軌跡弾・トレイル弾)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnTrail", "trail"],
         "body": [
             "spawnTrail(\"${1:#00ffff}\", ${2:200}, ${3:angle}, ${4:0}, ${5:0}, ${6:8}, ${7:0.2}, ${8:0.3}, ${9:0.5}, ${10:true}, \"${11|relative,absolute|}\", ${12:6})"
@@ -32,7 +28,6 @@
         "description": "光の尾を引くトレイル弾を生成します。引数: (color, speed, angle, offsetX, offsetY, radius, growTime, keepTime, shrinkTime, round, coordMode, hitRadius)"
     },
     "spawnBeam (極太レーザー)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnBeam", "beam"],
         "body": [
             "spawnBeam(${1:1.0}, ${2:1.5}, ${3:12}, ${4:angle}, ${5:0}, ${6:0}, \"${7|relative,absolute|}\", ${8:8})"
@@ -40,7 +35,6 @@
         "description": "予告線付きの極太ビーム（レーザー）を生成します。引数: (warningTime, activeTime, laserWidth, angle, offsetX, offsetY, coordMode, hitRadius)"
     },
     "spawnLaserWay (Wayレーザー)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnLaserWay", "laserway"],
         "body": [
             "spawnLaserWay(\"${1:#ff3333}\", ${2:6}, ${3:200}, ${4:angle}, ${5:3}, ${6:45}, ${7:0}, ${8:0}, ${9:0.2}, ${10:0.3}, ${11:0.5}, ${12:true}, \"${13|relative,absolute|}\", ${14:6})"
@@ -48,7 +42,6 @@
         "description": "扇状に伸びるレーザー弾を生成します。"
     },
     "spawnLaserRing (リングレーザー)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnLaserRing", "laserring"],
         "body": [
             "spawnLaserRing(\"${1:#ff3333}\", ${2:6}, ${3:200}, ${4:angle}, ${5:12}, ${6:0}, ${7:0}, ${8:0.2}, ${9:0.3}, ${10:0.5}, ${11:true}, \"${12|relative,absolute|}\", ${13:6})"
@@ -56,7 +49,6 @@
         "description": "全方位に伸びるリングレーザーを生成します。"
     },
     "spawnMagicCircle (魔法陣・子機)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spawnMagicCircle", "magiccircle"],
         "body": [
             "spawnMagicCircle(\"${1:#ff00ff}\", ${2:30}, ${3:3.0}, ${4:0}, ${5:0}, \"${6|relative,absolute|}\")"
@@ -64,7 +56,6 @@
         "description": "独自スクリプトを実行する魔法陣（ビット/子機）を配置します。"
     },
     "aimAtTarget (自機狙い角度計算)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["aimAtTarget", "aim"],
         "body": [
             "aimAtTarget()"
@@ -72,7 +63,6 @@
         "description": "ターゲット（自機）の方向へ発射角度（angle）を自動計算・設定します。"
     },
     "aimAt (指定座標狙い角度計算)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["aimAt"],
         "body": [
             "aimAt(${1:targetX}, ${2:targetY})"
@@ -80,7 +70,6 @@
         "description": "指定したXY座標へ発射角度（angle）を計算・設定します。"
     },
     "moveTo (瞬間移動)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["moveTo"],
         "body": [
             "moveTo(${1:0}, ${2:0})"
@@ -88,7 +77,6 @@
         "description": "発射元（ボス等）を指定の座標へ即座に移動させます。"
     },
     "slideTo (スムーズ移動)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["slideTo"],
         "body": [
             "slideTo(${1:0}, ${2:0}, ${3:1.0})"
@@ -96,7 +84,6 @@
         "description": "発射元（ボス等）を指定の座標へ指定秒数かけて移動させます。引数: (x, y, duration)"
     },
     "wait (待機)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["wait"],
         "body": [
             "wait(${1:0.2})"
@@ -104,7 +91,6 @@
         "description": "指定秒数だけ処理を待機します。"
     },
     "repeat (指定回数ループ)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["repeat"],
         "body": [
             "repeat(${1:10}) {",
@@ -114,7 +100,6 @@
         "description": "指定した回数だけ処理を繰り返します。"
     },
     "while true (無限ループ)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["while true", "while", "loop"],
         "body": [
             "while (true) {",
@@ -124,7 +109,6 @@
         "description": "弾幕のメイン発射ループを作成します。"
     },
     "for loop (インデックス付きループ)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["for", "forloop"],
         "body": [
             "for (let ${1:i} = 0; ${1:i} < ${2:10}; ${1:i}++) {",
@@ -134,7 +118,6 @@
         "description": "インデックス変数付きの繰り返し処理を作成します。"
     },
     "tween (変数アニメーション・イージング)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["tween"],
         "body": [
             "tween(\"${1|angle,speed,x_offset,y_offset,radius,scale|}\", ${2:0}, ${3:360}, \"${4|seconds,frames,step,vecstep|}\", ${5:1.0}, \"${6|linear,easeIn,easeOut,easeInOut|}\")"
@@ -142,7 +125,6 @@
         "description": "指定した変数を時間をかけて滑らかに変化させます。"
     },
     "tweenWait (完了待機付き変数アニメーション)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["tweenWait"],
         "body": [
             "tweenWait(\"${1|angle,speed,x_offset,y_offset,radius,scale|}\", ${2:0}, ${3:360}, \"${4|seconds,frames,step,vecstep|}\", ${5:1.0}, \"${6|linear,easeIn,easeOut,easeInOut|}\")"
@@ -150,7 +132,6 @@
         "description": "変数の変化が完了するまで待機する tween 処理を行います。"
     },
     "tweenAngle (角度アニメーション)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["tweenAngle"],
         "body": [
             "tweenAngle(${1:0}, ${2:360}, \"${3|seconds,frames|}\", ${4:1.0}, \"${5|linear,easeIn,easeOut,easeInOut|}\")"
@@ -158,7 +139,6 @@
         "description": "発射角度（angle）を時間をかけて滑らかに回転させます。"
     },
     "playSound (SE・効果音再生)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["playSound", "se"],
         "body": [
             "playSound(\"${1|shot,tan00,kira00,cat00,damage00,damage01,cardget,fault,pldead00,timeout|}\")"
@@ -166,7 +146,6 @@
         "description": "指定した効果音（SE）を再生します。"
     },
     "slow (弾速低下)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["slow"],
         "body": [
             "slow(${1:0.5}, ${2:0})"
@@ -174,7 +153,6 @@
         "description": "弾速を減速させます。引数: (effect, delay)"
     },
     "fast (弾速加速)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["fast"],
         "body": [
             "fast(${1:2.0}, ${2:0})"
@@ -182,7 +160,6 @@
         "description": "弾速を加速させます。引数: (effect, delay)"
     },
     "bounce (画面端バウンス)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["bounce"],
         "body": [
             "bounce()"
@@ -190,7 +167,6 @@
         "description": "弾が画面端に触れた際に跳ね返るように設定します。"
     },
     "homing (誘導弾)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["homing"],
         "body": [
             "homing(${1:3.0})"
@@ -198,7 +174,6 @@
         "description": "弾が自機を追尾するホーミング弾になります。"
     },
     "once (初回1回のみ実行)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["once"],
         "body": [
             "once"
@@ -206,7 +181,6 @@
         "description": "弾生成時の初回1フレームのみ実行されるブロックを宣言します。"
     },
     "rand (乱数生成)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["rand", "random"],
         "body": [
             "rand(${1:-15}, ${2:15})"
@@ -214,7 +188,6 @@
         "description": "最小値〜最大値のランダムな数値を返します。"
     },
     "Boss Spell Template (ボススペルカード定義の雛形)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["spellTemplate", "bossSpell"],
         "body": [
             "{",
@@ -241,7 +214,6 @@
         "description": "ボススペルカードの完全な定義テンプレートを挿入します。"
     },
     "Boss Definition Template (ボス本体定義の雛形)": {
-        "scope": "javascript,javascriptreact,typescript,plaintext",
         "prefix": ["bossTemplate", "bossDef"],
         "body": [
             "{",

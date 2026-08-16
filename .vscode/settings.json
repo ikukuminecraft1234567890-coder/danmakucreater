@@ -4,9 +4,18 @@
         "comments": "on",
         "strings": "on"
     },
+    "[javascript]": {
+        "editor.quickSuggestions": {
+            "other": "on",
+            "comments": "on",
+            "strings": "on"
+        }
+    },
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestOnTriggerCharacters": true,
     "editor.tabCompletion": "on",
     "editor.snippetSuggestions": "top",
-    "editor.suggest.snippetsPreventQuickSuggestions": false,
-    "editor.wordBasedSuggestions": "allDocuments"
+    "editor.wordBasedSuggestions": "allDocuments",
+    "editor.suggest.showWords": true,
+    "editor.suggest.showSnippets": true
 }
