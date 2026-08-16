@@ -5155,29 +5155,52 @@ function applyAbilityEffect(cardId, owner) {
                 const x = clientX - rect.left;
                 const y = clientY - rect.top;
                 
-                // 左上 or 右上のダブルタップ判定
-                if (y < 120) {
-                    let zone = null;
-                    if (x < 120) {
-                        zone = 'left';
-                    } else if (x > rect.width - 120) {
-                        zone = 'right';
-                    }
+                // テストプレイ(開発環境)かどうか判定 (カードメーカーテストプレイ / 共有弾幕テスト)
+                const isDevTestPlay = isCustomCardTesting && (!window.isBossMode || (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource !== 'boss'));
 
-                    if (zone) {
-                        let now = performance.now();
-                        if (lastTopTapZone === zone && (now - lastTopTapTime < 400)) {
-                            // ダブルタップ成功！ポーズを開く
-                            lastTopTapTime = 0;
-                            lastTopTapZone = null;
-                            if (typeof openPauseMenu === 'function') {
-                                openPauseMenu();
+                // 上部コーナー判定 (上部 130px、左右 130px)
+                if (y < 130) {
+                    if (x < 130) {
+                        // 【左上】
+                        if (isDevTestPlay) {
+                            // 開発環境・テストプレイ: 1タップで即座にリトライ！
+                            if (typeof window.retryCurrentCard === 'function') {
+                                window.retryCurrentCard();
                             }
                             return true;
                         } else {
-                            // 1回目のタップを記憶
-                            lastTopTapTime = now;
-                            lastTopTapZone = zone;
+                            // 本番ボス戦: 誤操作防止のためダブルタップでポーズメニュー表示
+                            let now = performance.now();
+                            if (lastTopTapZone === 'left' && (now - lastTopTapTime < 400)) {
+                                lastTopTapTime = 0;
+                                lastTopTapZone = null;
+                                if (typeof openPauseMenu === 'function') openPauseMenu();
+                                return true;
+                            } else {
+                                lastTopTapTime = now;
+                                lastTopTapZone = 'left';
+                            }
+                        }
+                    } else if (x > rect.width - 130) {
+                        // 【右上】
+                        if (isDevTestPlay) {
+                            // 開発環境・テストプレイ: 1タップで即座にホーム（エディタ）に戻る！
+                            if (typeof endCustomCardTest === 'function') {
+                                endCustomCardTest(false);
+                            }
+                            return true;
+                        } else {
+                            // 本番ボス戦: 誤操作防止のためダブルタップでポーズメニュー表示
+                            let now = performance.now();
+                            if (lastTopTapZone === 'right' && (now - lastTopTapTime < 400)) {
+                                lastTopTapTime = 0;
+                                lastTopTapZone = null;
+                                if (typeof openPauseMenu === 'function') openPauseMenu();
+                                return true;
+                            } else {
+                                lastTopTapTime = now;
+                                lastTopTapZone = 'right';
+                            }
                         }
                     }
                 }
