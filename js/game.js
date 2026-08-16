@@ -4964,19 +4964,20 @@ function applyAbilityEffect(cardId, owner) {
             window.spellBonusFailed = true;
             window.spellCurrentBonus = 0;
             player.bombs--;
-            // 食らいボムは通常ボムより短い無敵時間（0.5秒 vs 0.75秒）
-            window.playerInvincibleTimer = isDeathBomb ? 0.5 : 0.75;
+            player.bombLockTimer = 1.0; // ボム使用後1秒間はボム再使用不可
+            // ボム持続時間2倍に合わせて無敵時間も延長（通常1.5秒、食らいボム1.0秒）
+            window.playerInvincibleTimer = isDeathBomb ? 1.0 : 1.5;
             window.miniExplosionEffect = null; // 赤い火花演出なし
 
-            // 回転する長持続（1.0秒）の衝撃波（波紋）の生成 (半径 480px = 通常の2倍以上)
+            // 回転する長持続（2.0秒 = 2倍）の衝撃波（波紋）の生成 (半径 600px)
             window.miniExplosionShockwave = {
                 x: player.x,
                 y: player.y,
-                r: 15,
-                maxR: 480, // 広範囲の弾消し
-                speed: 480, // 1秒で最大480px
-                life: 1.0,
-                maxLife: 1.0,
+                r: 20,
+                maxR: 600, // 広範囲の弾消し
+                speed: 300, // 2秒で最大600px
+                life: 2.0,
+                maxLife: 2.0,
                 angle: 0
             };
 
