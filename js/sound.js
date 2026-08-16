@@ -44,6 +44,8 @@ class SoundManager {
             'se_tan00': 'tan00',
             'damage00': 'damage00',
             'se_damage00': 'damage00',
+            'piko': 'damage00',
+            'se_piko': 'damage00',
             'damage01': 'damage01',
             'se_damage01': 'damage01',
             'boon00': 'boon00',
@@ -88,46 +90,45 @@ class SoundManager {
 
     init() {
         if (this.initialized) return;
-        if (this.useHtml5Audio) {
-            this.initialized = true;
-            return;
-        }
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        this.ctx = new AudioContextClass();
         this.initialized = true;
 
-        // 音割れ（クリッピング）防止用のダイナミクス・コンプレッサーの作成
-        try {
-            this.compressor = this.ctx.createDynamicsCompressor();
-            this.compressor.threshold.setValueAtTime(-24, this.ctx.currentTime);
-            this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
-            this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
-            this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
-            this.compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
-            this.compressor.connect(this.ctx.destination);
-        } catch (e) {
-            console.error('Failed to create DynamicsCompressor:', e);
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+            try {
+                this.ctx = new AudioContextClass();
+                // 音割れ（クリッピング）防止用のダイナミクス・コンプレッサーの作成
+                this.compressor = this.ctx.createDynamicsCompressor();
+                this.compressor.threshold.setValueAtTime(-24, this.ctx.currentTime);
+                this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
+                this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
+                this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+                this.compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
+                this.compressor.connect(this.ctx.destination);
+            } catch (e) {
+                console.warn('AudioContext creation error:', e);
+            }
         }
 
-        // 音声ファイルの事前ロードとデコード
-        Object.entries(this.files).forEach(([key, path]) => {
-            fetch(path)
-                .then(res => {
-                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                    return res.arrayBuffer();
-                })
-                .then(arrayBuffer => {
-                    if (this.ctx) {
-                        return this.ctx.decodeAudioData(arrayBuffer);
-                    }
-                    throw new Error("AudioContext is null");
-                })
-                .then(buffer => {
-                    this.buffers[key] = buffer;
-                })
-                .catch(err => console.error('Failed to load/decode sound:', path, err));
-        });
+        // http/https の場合は音声ファイルを事前ロードしてデコード
+        if (!this.useHtml5Audio && this.ctx) {
+            Object.entries(this.files).forEach(([key, path]) => {
+                fetch(path)
+                    .then(res => {
+                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                        return res.arrayBuffer();
+                    })
+                    .then(arrayBuffer => {
+                        if (this.ctx) {
+                            return this.ctx.decodeAudioData(arrayBuffer);
+                        }
+                        throw new Error("AudioContext is null");
+                    })
+                    .then(buffer => {
+                        this.buffers[key] = buffer;
+                    })
+                    .catch(err => console.error('Failed to load/decode sound:', path, err));
+            });
+        }
 
         // ユーザーの最初の操作で AudioContext を再開（ブラウザの自動再生ポリシー対応）
         const resumeCtx = () => {
@@ -205,19 +206,23 @@ class SoundManager {
         if (this.ctx && this.ctx.state === 'suspended') {
             this.ctx.resume();
         }
-        if (!this.ctx) return;
+        if (!this.ctx) {
+            this.playHtml5('damage00');
+            return;
+        }
         try {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             const now = this.ctx.currentTime;
 
-            // シャープなピコッ音 (880Hz -> 1800Hz)
+            // シャープで聞き取りやすいピコッ音 (1000Hz -> 2200Hz)
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(900, now);
-            osc.frequency.exponentialRampToValueAtTime(1850, now + 0.04);
+            osc.frequency.setValueAtTime(1000, now);
+            osc.frequency.exponentialRampToValueAtTime(2200, now + 0.05);
 
-            gain.gain.setValueAtTime(this.volume * 0.75, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+            let vol = Math.max(0.25, this.volume * 1.2);
+            gain.gain.setValueAtTime(vol, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
 
             osc.connect(gain);
             if (this.compressor) {
@@ -227,9 +232,10 @@ class SoundManager {
             }
 
             osc.start(now);
-            osc.stop(now + 0.07);
+            osc.stop(now + 0.09);
         } catch (e) {
             console.error('Error playing piko sound:', e);
+            this.playHtml5('damage00');
         }
     }
 }

@@ -2403,7 +2403,9 @@ function applyAbilityEffect(cardId, owner) {
                             if (isCustomCardTesting && !(player.deathbombTimer > 0)) {
                                 player.deathbombTimer = 8 / 60; // 8f ≈ 0.1333秒
                                 player.deathbombMaxTimer = 8 / 60;
-                                if (window.playSound) {
+                                if (window.soundManager && typeof window.soundManager.playPiko === 'function') {
+                                    window.soundManager.playPiko();
+                                } else if (window.playSound) {
                                     window.playSound('piko');
                                 }
                             }
