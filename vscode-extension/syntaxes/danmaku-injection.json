@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Danmaku DSL Injection",
+  "scopeName": "danmaku.injection",
+  "injectionSelector": "L:string.template.js, L:string.template.ts",
+  "patterns": [
+    {
+      "name": "keyword.control.danmaku",
+      "match": "\\b(while|repeat|forever|for|if|aif|once)\\b"
+    },
+    {
+      "name": "support.function.danmaku",
+      "match": "\\b(spawnRing|spawnWay|spawnStraight|spawnBullet|spawnTrail|spawnTrailResist|spawnBeam|spawnBeamResist|spawnLaserWay|spawnLaserWayResist|spawnLaserRing|spawnLaserRingResist|spawnBeamWay|spawnBeamWayResist|spawnBeamRing|spawnBeamRingResist|spawnMagicCircle|aimAtTarget|aimAt|moveTo|slideTo|wait|playSound|slow|fast|bounce|homing|advance|tween|tweenWait|tweenAngle|tweenAngleWait|rand|sin|cos|tan|abs|min|max|floor|round|sqrt)\\b"
+    },
+    {
+      "name": "variable.language.danmaku",
+      "match": "\\b(angle|speed|x_offset|y_offset|x|y|second|frame|cardSecond|cardFrame|spriteAngle|targetX|targetY|emitter_x|emitter_y|bulletType|color|radius|hitRadius|spread|count|duration|growTime|keepTime|shrinkTime|laserWidth|warningTime|activeTime|effect|delay|turnSpeed)\\b"
+    },
+    {
+      "name": "constant.language.bulletimage.danmaku",
+      "match": "\"(ohuda|kome|star|b_star|onmyoutama|marutama|ootama|poihuru|uroko|sword|knife|kunai1|kunai2|virus|dangan|none)\"|'(ohuda|kome|star|b_star|onmyoutama|marutama|ootama|poihuru|uroko|sword|knife|kunai1|kunai2|virus|dangan|none)'"
+    },
+    {
+      "name": "constant.language.coordmode.danmaku",
+      "match": "\"(relative|absolute)\"|'(relative|absolute)'"
+    },
+    {
+      "name": "constant.other.color.hex.danmaku",
+      "match": "#[0-9a-fA-F]{3,8}\\b"
+    },
+    {
+      "name": "constant.numeric.danmaku",
+      "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
+    },
+    {
+      "name": "comment.line.double-slash.danmaku",
+      "match": "//.*$"
+    }
+  ]
+}

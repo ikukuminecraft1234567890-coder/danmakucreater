@@ -1,0 +1,36 @@
+{
+  "name": "danmaku-dsl",
+  "displayName": "弾幕クリエイト DSL サポート (Danmaku DSL)",
+  "description": "東方風弾幕クリエイトのカスタムDSL用 構文ハイライト・文脈予測変換・シグネチャヘルプ拡張機能",
+  "version": "1.0.0",
+  "publisher": "danmaku-creator",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "workspaceContains:js/danmaku.js",
+    "workspaceContains:js/bossdanmakudata.js"
+  ],
+  "contributes": {
+    "grammars": [
+      {
+        "scopeName": "danmaku.injection",
+        "path": "./syntaxes/danmaku-injection.json",
+        "injectTo": [
+          "source.js",
+          "source.ts",
+          "source.js.jsx",
+          "source.ts.tsx"
+        ]
+      }
+    ]
+  }
+}
