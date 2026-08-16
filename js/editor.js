@@ -3836,6 +3836,22 @@ function customCardMakerSwitchMode(mode) {
         }
         window.showBossListScreen = showBossListScreen;
 
+        function isDeveloperEnvironment() {
+            if (typeof window === 'undefined') return false;
+            try {
+                // 1. ローカル開発環境 (localhost, 127.0.0.1, file://)
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:') {
+                    return true;
+                }
+                // 2. URLパラメータ (?dev=1, ?debug=1)
+                if (location.search.includes('dev=1') || location.search.includes('debug=1')) {
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+        window.isDeveloperEnvironment = isDeveloperEnvironment;
+
         function renderBossList() {
             const container = document.getElementById('boss-list-container');
             if (!container) return;
@@ -3846,7 +3862,19 @@ function customCardMakerSwitchMode(mode) {
                 return;
             }
 
-            bossList.forEach((boss, bIdx) => {
+            const isDev = isDeveloperEnvironment();
+
+            // 開発者以外には devOnly: true のボスを非表示
+            const availableBosses = bossList
+                .map((boss, originalIndex) => ({ boss, originalIndex }))
+                .filter(({ boss }) => !boss.devOnly || isDev);
+
+            if (availableBosses.length === 0) {
+                container.innerHTML = '<div style="color:#888; font-size:12px; text-align:center; padding:50px 0; border:1.5px dashed rgba(255,255,255,0.1); border-radius:8px;">現在挑戦可能なボスはいません。</div>';
+                return;
+            }
+
+            availableBosses.forEach(({ boss, originalIndex }) => {
                 const cardDiv = document.createElement('div');
                 cardDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,51,102,0.3); border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: border-color 0.2s;`;
                 cardDiv.onmouseover = () => { cardDiv.style.borderColor = 'rgba(255,51,102,0.8)'; };
@@ -3862,20 +3890,28 @@ function customCardMakerSwitchMode(mode) {
                 titleSpan.style.cssText = `font-weight: bold; color: ${boss.color || '#ff88aa'}; font-size: 16px; text-shadow: 0 0 8px rgba(255,51,102,0.5); vertical-align: middle;`;
                 titleSpan.textContent = boss.name;
 
+                if (boss.devOnly) {
+                    const devBadge = document.createElement('span');
+                    devBadge.style.cssText = 'margin-left: 8px; font-size: 10px; color: #ffcc00; background: rgba(255,204,0,0.15); border: 1px solid rgba(255,204,0,0.5); padding: 1px 6px; border-radius: 4px; vertical-align: middle; font-weight: bold;';
+                    devBadge.textContent = '開発中';
+                    infoDiv.appendChild(titleSpan);
+                    infoDiv.appendChild(devBadge);
+                } else {
+                    infoDiv.appendChild(titleSpan);
+                }
+
                 let hiScore = (typeof getBossHighScore === 'function') ? getBossHighScore(boss.id) : 0;
 
                 const hiScoreSpan = document.createElement('span');
                 hiScoreSpan.style.cssText = 'margin-left: 12px; font-size: 11px; color: #66ffcc; background: rgba(0,255,200,0.12); border: 1px solid rgba(0,255,200,0.3); padding: 2px 7px; border-radius: 4px; vertical-align: middle; font-family: monospace; font-weight: bold;';
                 hiScoreSpan.textContent = `Hi-Score: ${hiScore.toLocaleString()}`;
-
-                infoDiv.appendChild(titleSpan);
                 infoDiv.appendChild(hiScoreSpan);
 
                 const playBtn = document.createElement('button');
                 playBtn.className = 'menu-btn';
                 playBtn.style.cssText = `width: 80px; height: 32px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #660022 0%, #2a0011 100%); border-color: #ff3366; text-shadow: 0 0 6px rgba(255,51,102,0.8); font-weight: bold; flex-shrink: 0;`;
                 playBtn.textContent = '挑む！';
-                playBtn.onclick = () => playBossBattle(bIdx, 0, false);
+                playBtn.onclick = () => playBossBattle(originalIndex, 0, false);
 
                 cardDiv.appendChild(infoDiv);
                 cardDiv.appendChild(playBtn);
