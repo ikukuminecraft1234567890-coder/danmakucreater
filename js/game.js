@@ -2395,9 +2395,12 @@ function applyAbilityEffect(cardId, owner) {
                             if (!player.recentHits) player.recentHits = [];
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
-                            // 食らいボム猶予タイマー開始（まだ動いていなければ8フレーム）
+                            // 食らいボム猶予タイマー開始（まだ動いていなければ8フレーム）＆被弾音再生
                             if (isCustomCardTesting && !(player.deathbombTimer > 0)) {
                                 player.deathbombTimer = 8 / 60; // 8f ≈ 0.1333秒
+                                if (window.playSound) {
+                                    window.playSound('se_pldead00');
+                                }
                             }
 
                             if (!isCustomCardTesting && !b.destroyResist) {
@@ -2809,9 +2812,6 @@ function applyAbilityEffect(cardId, owner) {
                         if (window.isBossMode) {
                             player.pendingDamage = 0;
                             window.playerInvincibleTimer = 4.0; // ボス戦は無敵時間4秒
-                            if (window.playSound) {
-                                window.playSound('se_pldead00');
-                            }
                             player.bombs = 2; // 被弾時に残ボム破棄＆新たに2個付与
                             bullets.length = 0;
                             magicCircles.length = 0;
@@ -2885,9 +2885,6 @@ function applyAbilityEffect(cardId, owner) {
                     } else {
                         // 死亡エフェクト開始（3秒） - ゲームオーバー時は画面全体の弾を消さない
                         if (window.isBossMode) {
-                            if (window.playSound) {
-                                window.playSound('se_pldead00');
-                            }
                             if (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id && typeof updateBossHighScore === 'function') {
                                 updateBossHighScore(currentBoss.id, window.totalScore || 0);
                             }
