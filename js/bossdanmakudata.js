@@ -251,6 +251,72 @@ if (color==#ff3333) {
         `,
         magicCircleScript: ``
 
+        },{
+        id: "spell_base_non_3",
+        name: "",
+        hp: 1600,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+    aimAtTarget()
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
+    angleoffset += 10
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
+    angleoffset += 10
+    wait(0.0167)
+}
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush1_3",
+        name: "「破壊光線」",
+        hp: 2500,
+        duration: 50,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+    aimAtTarget()
+    spawnRing("normal", "#ff3333", 200, angle, 18, 0, 0, 6, "none", "relative", "#ff3333")
+    angle += 10
+    spawnRing("normal", "#ff3333", 200, angle, 18, 0, 0, 6, "none", "relative", "#ff3333")
+    wait(1)
+    angle = random(0,360)
+    spawnRing("normal", "#ff3333", 200, angle, 18, 250, 150, 6, "none", "relative", "#ff3333")
+    angle += 10
+    spawnRing("normal", "#ff3333", 200, angle, 18, 250, 150, 6, "none", "relative", "#ff3333")
+    angle = random(0,360)
+    spawnRing("normal", "#ff3333", 200, angle, 18, -250, 150, 6, "none", "relative", "#ff3333")
+    angle += 10
+    spawnRing("normal", "#ff3333", 200, angle, 18, -250, 150, 6, "none", "relative", "#ff3333")
+    angle = random(0,360)
+    spawnRing("normal", "#ff3333", 200, angle, 18, 100, -50, 6, "none", "relative", "#ff3333")
+    angle += 10
+    spawnRing("normal", "#ff3333", 200, angle, 18, 100, -50, 6, "none", "relative", "#ff3333")
+    angle = random(0,360)
+    spawnRing("normal", "#ff3333", 200, angle, 18, -100, -50, 6, "none", "relative", "#ff3333")
+    angle += 10
+    spawnRing("normal", "#ff3333", 200, angle, 18, -100, -50, 6, "none", "relative", "#ff3333")
+    wait(1)
+}
+        `,
+        bulletScript: `
+warningTime = 1
+activeTime = 1
+laserWidth = 12
+        `,
+        magicCircleScript: ``
+
         }
 ];
 

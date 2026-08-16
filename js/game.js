@@ -2095,7 +2095,7 @@ function applyAbilityEffect(cardId, owner) {
                 const _tc1          = turnCount > 1;
                 const _acLen2       = activeCards.length >= 2;
                 const _isCustomTest = isCustomCardTesting;
-                const _pInv         = player.isInvincible || (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0);
+                const _pInv         = player.isInvincible || (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) || window.devInvincibleMode === true;
                 const _cInv         = cpu.isInvincible;
                 const _pHitR        = player.hitboxRadius;
                 const _pGrazeR      = player.grazeRadius;
@@ -2702,6 +2702,12 @@ function applyAbilityEffect(cardId, owner) {
                     window.playerInvincibleTimer -= dt;
                     player.pendingDamage = 0; // 無敵中はダメージを無効化
                     player.deathbombTimer = 0; // 無敵中は食らいボム猶予不要
+                }
+
+                // 開発者無敵モード中はダメージを常時ゼロ
+                if (window.devInvincibleMode) {
+                    player.pendingDamage = 0;
+                    player.deathbombTimer = 0;
                 }
 
                 // 食らいボム猶予タイマーのカウントダウン
@@ -3959,14 +3965,59 @@ function applyAbilityEffect(cardId, owner) {
             let showPlayer = true;
             if (player.respawnDelay && player.respawnDelay > 0) {
                 showPlayer = false;
+            } else if (window.devInvincibleMode) {
+                showPlayer = true; // 無敵DEVモード中は常に表示（点滅なし）
             } else if (isCustomCardTesting && typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) {
                 showPlayer = (Math.floor(performance.now() / 80) % 2 === 0);
             }
  
             if (showPlayer) {
+                // --- 開発者黄金オーラ（後ろに描画）---
+                if (window.devInvincibleMode) {
+                    const now = performance.now();
+                    const pulse = 0.6 + 0.4 * Math.sin(now / 180); // 呼吸するパルス
+                    const rotAngle = (now / 400) % (Math.PI * 2);
+                    ctx.save();
+                    ctx.translate(player.x, player.y);
+
+                    // 外側の放射グロー
+                    const outerR = 38 + 8 * pulse;
+                    const gGlow = ctx.createRadialGradient(0, 0, 8, 0, 0, outerR);
+                    gGlow.addColorStop(0,   `rgba(255, 240, 80, ${0.55 * pulse})`);
+                    gGlow.addColorStop(0.5, `rgba(255, 200, 0, ${0.35 * pulse})`);
+                    gGlow.addColorStop(1,   'rgba(255, 180, 0, 0)');
+                    ctx.fillStyle = gGlow;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // 回転する8角星形スパーク
+                    ctx.rotate(rotAngle);
+                    ctx.strokeStyle = `rgba(255, 230, 50, ${0.7 * pulse})`;
+                    ctx.lineWidth = 1.5;
+                    const spikes = 8, innerR2 = 18, outerR2 = 30;
+                    ctx.beginPath();
+                    for (let s = 0; s < spikes * 2; s++) {
+                        const r2 = s % 2 === 0 ? outerR2 : innerR2;
+                        const a = (s * Math.PI) / spikes;
+                        if (s === 0) ctx.moveTo(Math.cos(a) * r2, Math.sin(a) * r2);
+                        else ctx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    ctx.restore();
+                }
+
                 ctx.save();
                 ctx.translate(player.x, player.y);
                 if (pFlipX) ctx.scale(-1, 1);
+
+                // devInvincibleMode 時は黄金tintを自機スプライトに重ねる
+                if (window.devInvincibleMode) {
+                    ctx.filter = 'sepia(1) saturate(5) hue-rotate(10deg) brightness(1.4)';
+                }
+
                 if (pImg && pImg.complete && pImg.naturalWidth > 0 && pImg.src.indexOf("dummy") === -1) {
                     let spriteW = pImg.naturalWidth >= 192 ? 48 : pImg.naturalWidth;
                     let spriteH = pImg.naturalHeight >= 48 ? 48 : pImg.naturalHeight;
@@ -3981,6 +4032,7 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.textBaseline = 'middle';
                     ctx.fillText("自機", 0, 0);
                 }
+                ctx.filter = 'none';
                 ctx.restore();
             }
 
@@ -5131,6 +5183,17 @@ function applyAbilityEffect(cardId, owner) {
             }
         }
         window.togglePauseMenu = togglePauseMenu;
+
+        // 開発者専用: 永続無敵モード切り替え（Gキー / ZLボタン）
+        window.devInvincibleMode = false;
+        window.toggleDevInvincible = function() {
+            window.devInvincibleMode = !window.devInvincibleMode;
+            if (window.devInvincibleMode) {
+                console.log('[DEV] 無敵モード ON 🛡️✨');
+            } else {
+                console.log('[DEV] 無敵モード OFF');
+            }
+        };
 
         function showPauseConfirm(actionType) {
             const confirmModal = document.getElementById('pause-confirm-modal');

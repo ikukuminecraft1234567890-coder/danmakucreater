@@ -1629,6 +1629,14 @@
                 window.debugShowHitboxes = !window.debugShowHitboxes;
             }
 
+            // 開発者モード時: Gキーで黄金無敵モード切り替え
+            if (e.key === 'g' || e.key === 'G') {
+                const isDev = typeof isDeveloperEnvironment === 'function' ? isDeveloperEnvironment() : (typeof window.isDeveloperEnvironment === 'function' ? window.isDeveloperEnvironment() : false);
+                if (isDev && typeof window.toggleDevInvincible === 'function') {
+                    window.toggleDevInvincible();
+                }
+            }
+
             keyboardState[e.key] = true;
 
             // 1. タイトル画面表示中（メニュー操作時）のキーボード・仮想フォーカス処理
@@ -1769,6 +1777,16 @@
                     // 霊撃 (設定されたカスタムボタンを使用)
                     if (gp.buttons[gamepadConfig.bomb] && gp.buttons[gamepadConfig.bomb].pressed) {
                         inputState.bomb = true;
+                    }
+
+                    // 開発者モード時: ZLボタン (Button 6) による黄金無敵モード切り替え
+                    const btnZL = gp.buttons[6] && gp.buttons[6].pressed;
+                    const prevZL = prevGamepadButtons[6] || false;
+                    if (btnZL && !prevZL) {
+                        const isDev = typeof isDeveloperEnvironment === 'function' ? isDeveloperEnvironment() : (typeof window.isDeveloperEnvironment === 'function' ? window.isDeveloperEnvironment() : false);
+                        if (isDev && typeof window.toggleDevInvincible === 'function') {
+                            window.toggleDevInvincible();
+                        }
                     }
 
                     // コントローラーの + ボタン (Button 9: Start / +) によるポーズ切り替え
