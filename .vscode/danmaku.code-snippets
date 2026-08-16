@@ -13,7 +13,7 @@
             "    emitterScript: `",
             "while (true) {",
             "    aimAtTarget()",
-            "    spawnRing(\"normal\", \"${5:#ff3344}\", ${6:170}, angle, ${7:16}, 0, 0, 20, \"${8|ohuda,kome,star,b_star,onmyoutama,marutama,ootama,poihuru,uroko,sword,knife,kunai1,kunai2,virus,dangan|}\", \"relative\", 6)",
+            "    spawnRing(\"normal\", \"${5:#ff3344}\", ${6:170}, angle, ${7:16}, 0, 0, 20, \"${8|ohuda,kome,star,b_star,onmyoutama,marutama,ootama,poihuru,uroko,sword,knife,kunai1,kunai2,virus,dangan,tyoudan|}\", \"relative\", 6)",
             "    wait(${9:0.35})",
             "}",
             "    `,",

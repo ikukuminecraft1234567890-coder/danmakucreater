@@ -1,0 +1,350 @@
+================================================================================
+【東方境界線 / 弾幕クリエイト】弾幕スクリプト完全作成ガイド（最新版）
+================================================================================
+このテキストの手順とテンプレートに従って記述すれば、誰でも簡単に新しい弾幕を作成・追加できます。
+
+--------------------------------------------------------------------------------
+■ 1. 弾幕データの登録場所と基本構造
+--------------------------------------------------------------------------------
+自作弾幕は 【js/danmaku.js】（通常・共有弾幕）または 【js/bossdanmakudata.js】（ボス専用スペルカード）の配列内に追加します。
+
+▼ 共有弾幕（js/danmaku.js）の基本テンプレート：
+--------------------------------------------------------------------------------
+    {
+        difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+        name: "スペル名",           // 弾幕名・スペルカード名
+        desc: "弾幕の説明や作成者名",
+        duration: 20,               // 制限時間（秒）
+        maxMisses: 2,               // 許容被弾回数
+        x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+        y_offset: 0,                // 出現位置の縦オフセット
+        despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+        emitterScript: `
+// --- 発射台（コア・ボス）の挙動スクリプト ---
+while (true) {
+    aimAtTarget()
+    spawnRing("normal", "#ff3344", 180, angle, 16, 0, 0, 8, "star", "relative", 6)
+    wait(0.2)
+}
+        `,
+        bulletScript: `
+// --- 発射された弾ごとの挙動スクリプト（毎フレーム実行） ---
+// （特殊な変化をさせない場合は空でもOK）
+        `,
+        magicCircleScript: ``
+    },
+--------------------------------------------------------------------------------
+
+▼ ボス専用弾幕（js/bossdanmakudata.js）の基本テンプレート：
+--------------------------------------------------------------------------------
+    {
+        id: "spell_bossname_1",     // 一意のID（bossdata.jsで指定）
+        name: "夢符「幻想郷の境界」", // 通常弾幕の場合は空文字 ""
+        hp: 1200,                   // ボスのHP
+        duration: 30,               // 制限時間（秒）
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+    aimAtTarget()
+    spawnRing("normal", "#ff3344", 170, angle, 16, 0, 0, 20, "ohuda", "relative", 6)
+    wait(0.35)
+}
+        `,
+        bulletScript: `
+speed = 170
+        `,
+        magicCircleScript: ``
+    },
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+■ 2. 弾幕スクリプトの基本構文ルール
+--------------------------------------------------------------------------------
+1. 【波括弧スタイル推奨】
+   `while (true) { ... }` や `repeat(10) { ... }` のように波括弧 `{ }` で囲みます。
+2. 【コメント】
+   `// ここはコメント` の形式で1行コメントを書けます。
+3. 【変数の宣言・代入】
+   `angle = 0`
+   `speed = 200`
+   `val += 5`（加算） / `val -= 5`（減算）
+4. 【待機（ウェイト）】
+   `wait(0.1)` : 0.1秒待機（while (true) などの無限ループ内には必ず wait を入れること！）
+5. 【ループ構文】
+   ・指定回数ループ:
+     `repeat(12) { ... }` または `for (let i = 0; i < 12; i++) { ... }`
+     ※多重ループ（ネスト）時は `for (let i = 0; ...)` と `for (let j = 0; ...)` のように変数名を変えてください。
+   ・無限ループ:
+     `while (true) { ... }` または `forever() { ... }`
+   ・条件付きループ:
+     `while (count < 10) { ... }`
+6. 【条件分岐構文】
+   ・通常IF:
+     `if (second >= 5.0) { ... }`
+   ・一度だけ実行（ONCE）:
+     `once { ... }`（弾やエミッタの生存期間中に1度だけ実行）
+   ・範囲条件（レンジ）:
+     `if (frame == 10..60) { ... }`（10〜60フレームの間）
+     `if (second == 2.0..4.0) { ... }`（2〜4秒の間）
+   ・周期条件:
+     `if (cardSecond == 5 * n) { ... }`（5秒、10秒、15秒…ごとに発動）
+   ・並列実行（並列スレッド）:
+     emitterScript 内で複数の `while (true) { ... }` を並べて書くと、自動的に並列動作します。
+
+
+--------------------------------------------------------------------------------
+■ 3. 弾の生成コマンド（全種類一覧）
+--------------------------------------------------------------------------------
+引数の指定順序に注意してください。
+
+◆ 1. 直線弾・単発弾の生成
+spawnStraight(bulletType, color, speed, angle, offsetX, offsetY, radius, bulletImage, coordMode, hitRadius)
+（※ spawnBullet も同等）
+例: spawnStraight("normal", "#ff3344", 200, angle, 0, 0, 8, "star", "relative", 6)
+
+◆ 2. 全方位リング弾（全方位弾）の生成
+spawnRing(bulletType, color, speed, angle, count, offsetX, offsetY, radius, bulletImage, coordMode, hitRadius)
+例: spawnRing("normal", "#33aaff", 180, angle, 16, 0, 0, 20, "ohuda", "relative", 6)
+・count: 発射数（例: 16発）
+・angle: 基準角度（自機狙いや回転角度）
+
+◆ 3. 扇状弾（Way弾）の生成
+spawnWay(bulletType, color, speed, angle, count, spread, offsetX, offsetY, radius, bulletImage, coordMode, hitRadius)
+例: spawnWay("normal", "#ffcc00", 220, angle, 5, 45, 0, 0, 16, "kome", "relative", 6)
+・count: 弾数（奇数推奨: 3, 5, 7...）
+・spread: 全体の拡散角度（例: 45度幅）
+
+◆ 4. トレイル弾（軌跡弾・レーザー風）の生成
+spawnTrail(color, speed, angle, offsetX, offsetY, radius, growTime, keepTime, shrinkTime, round, coordMode, hitRadius)
+例: spawnTrail("#00ffff", 200, angle, 0, 0, 8, 0.2, 0.3, 0.5, true, "relative", 6)
+・growTime: 伸びる時間 (秒)
+・keepTime: 維持時間 (秒)
+・shrinkTime: 縮んで消える時間 (秒)
+・round: 先端を丸くするか (true / false)
+
+◆ 5. 極太ビーム（警告線あり貫通レーザー）の生成
+spawnBeam(warningTime, activeTime, laserWidth, angle, offsetX, offsetY, coordMode, hitRadius)
+例: spawnBeam(1.0, 1.5, 24, angle, 0, 0, "relative", 12)
+・warningTime: 予告線（赤細線）の表示秒数（例: 1.0秒）
+・activeTime: ビーム照射時間（例: 1.5秒）
+・laserWidth: ビームの太さ（例: 24px）
+
+◆ 6. レーザーWay弾 / レーザーリング弾
+spawnLaserWay(color, radius, speed, angle, count, spread, offsetX, offsetY, growTime, keepTime, shrinkTime, round, coordMode, hitRadius)
+spawnLaserRing(color, radius, speed, angle, count, offsetX, offsetY, growTime, keepTime, shrinkTime, round, coordMode, hitRadius)
+
+◆ 7. 極太ビームWay / ビームリング
+spawnBeamWay(warningTime, activeTime, laserWidth, angle, count, spread, offsetX, offsetY, coordMode, hitRadius)
+spawnBeamRing(warningTime, activeTime, laserWidth, angle, count, offsetX, offsetY, coordMode, hitRadius)
+
+◆ 8. 魔法陣（子機）の生成
+spawnMagicCircle(color, offsetX, offsetY)
+※ 生成された魔法陣は magicCircleScript に従って弾を撃ちます。
+
+
+--------------------------------------------------------------------------------
+■ 4. パラメータ一覧・定数定義
+--------------------------------------------------------------------------------
+
+【弾画像（bulletImage）】
+  "none"        : 通常の光る丸弾（デフォルト）
+  "kome"        : 米弾（小さく鋭い）
+  "ohuda"       : お札弾（長方形・回転）
+  "star"        : 小星弾
+  "b_star"      : 大星弾
+  "onmyoutama"  : 陰陽玉（回転する大玉）
+  "marutama"    : 丸弾
+  "ootama"      : 超大玉
+  "poihuru"     : ポイフル弾（カプセル状楕円）
+  "uroko"       : 鱗弾
+  "sword"       : 剣弾
+  "knife"       : ナイフ弾
+  "kunai1"      : クナイ弾（標準）
+  "kunai2"      : クナイ弾（細身）
+  "virus"       : ウイルス弾
+  "dangan"      : 弾丸（拳銃弾）
+  "tyoudan"     : 蝶弾（蝶の形をした弾）
+
+【座標モード（coordMode）】
+  "relative"    : ボス/発射元の現在位置基準（通常はこれ）
+  "absolute"    : 画面全体の絶対座標 (X: 0〜768, Y: 0〜896)
+
+【弾種（bulletType）】
+  "normal"      : 通常弾
+  "trail"       : トレイル弾
+  "laser"       : レーザー弾
+
+【効果音（playSound）】
+  playSound("shot")     : 自機ショット音
+  playSound("tan00")    : 敵弾発射音
+  playSound("kira00")   : キラキラ音
+  playSound("cat00")    : スペル宣言・集中音
+  playSound("damage00") : 通常被弾音
+  playSound("damage01") : 瀕死被弾音
+  playSound("cardget")  : スペルカード取得音
+  playSound("pldead00") : 自機撃破音
+  playSound("timeout")  : 時間切れ音
+  playSound("fault")    : 警告音
+
+
+--------------------------------------------------------------------------------
+■ 5. 移動・制御・アニメーションコマンド
+--------------------------------------------------------------------------------
+◆ 1. 自機狙い（角度計算）
+aimAtTarget()
+・現在の発射元から相手（自機）の方向を計算し、変数 `angle` に自動代入します。
+
+◆ 2. 指定座標狙い
+aimAt(x, y)
+・指定した座標 (x, y) の方向を変数 `angle` に代入します。
+
+◆ 3. ボス/発射元の移動
+moveTo(x, y) または moveTo("center")
+slideTo(x, y, duration)
+・`slideTo(384, 200, 1.5)` : 1.5秒かけて (384, 200) に滑らかに移動。
+
+◆ 4. スムーズな数値遷移（Tween）
+tween("変数名", 開始値, 終了値, モード, 時間/ステップ, イージング)
+・モード:
+  "seconds" : 指定秒数かけて遷移（例: `tween("angle", 0, 360, "seconds", 2.0, "easeInOut")`）
+  "step"    : 毎フレーム固定値加算（例: `tween("x", 100, 600, "step", 2)`）
+  "vecstep" : ベクトル等速直線移動
+・イージング: "linear", "easeIn", "easeOut", "easeInOut"
+
+◆ 5. 弾専用の制御コマンド（bulletScript内で使用）
+・bounce()           : 画面端（壁）に当たった時に反射する
+・homing(旋回速度)   : 相手に向かって旋回追尾する（例: `homing(90)`）
+・slow(倍率, 遅延秒) : 弾速を減速する（例: `slow(0.3, 0.5)` : 0.5秒後に速度0.3倍）
+・fast(倍率, 遅延秒) : 弾速を加速する（例: `fast(2.0, 1.0)` : 1.0秒後に速度2倍）
+・advance(距離)      : 現在の角度方向に指定px瞬間前進
+
+
+--------------------------------------------------------------------------------
+■ 6. スクリプト内で使える組み込み変数と関数
+--------------------------------------------------------------------------------
+【組み込み変数】
+  second      : 発生からの経過時間（秒）
+  frame       : 発生からの経過フレーム数 (60フレーム=1秒)
+  cardSecond  : スペルカード全体の経過時間（秒）
+  cardFrame   : スペルカード全体の経過フレーム数
+  x, y        : 現在座標 (画面幅 768, 高さ 896)
+  angle       : 進行角度（0度:右, 90度:下, 180度:左, 270度:上）
+  speed       : 現在の移動速度
+  dist        : 自機（ターゲット）との直線距離
+  tx, ty      : 自機（ターゲット）の現在座標
+  ex, ey      : 発射元（ボス）の現在座標
+
+【弾専用の変数（bulletScript内）】
+  color       : 弾のカラーコード（例: "#ff3344"）
+  radius      : 弾の見た目のサイズ半径
+  hitRadius   : 当たり判定の半径（0にすると無害な飾り弾になる）
+  spriteAngle : 画像スプライトの回転角度（`spriteAngle = angle` で進行方向を向く）
+  timer       : その弾が生まれてからの経過秒数
+  isBounced   : 画面端に反射した瞬間 1 になる
+  touchingWall: 壁に接触中 1 になる
+  isTouchBullet: 他の弾と接触した瞬間 1 になる
+  e_変数名    : emitterScript で設定した変数を弾側からリアルタイム参照（例: `e_phase`）
+
+【組み込み数学関数】
+  sin(deg), cos(deg), tan(deg) : 三角関数（※角度は度数法 0〜360度）
+  atan2(y, x)                  : 逆正接
+  sqrt(v), pow(a, b), abs(v)   : 平方根、べき乗、絶対値
+  min(a, b), max(a, b)         : 最小値、最大値
+  floor(v), ceil(v), round(v)  : 切り捨て、切り上げ、四捨五入
+  rand(min, max)               : 指定範囲の乱数を取得（例: `rand(-15, 15)`）
+  seedrandom[seed](min, max)   : シード値固定の乱数
+
+
+--------------------------------------------------------------------------------
+■ 7. 実践作成サンプル集
+--------------------------------------------------------------------------------
+
+▼ サンプル1：自機狙い＆回転交差弾
+--------------------------------------------------------------------------------
+emitterScript: `
+angle1 = 0
+angle2 = 0
+while (true) {
+    aimAtTarget()
+    base = angle
+    spawnRing("normal", "#ff3344", 180, base + angle1, 16, 0, 0, 8, "star", "relative", 6)
+    spawnRing("normal", "#33aaff", 180, base - angle2, 16, 0, 0, 8, "star", "relative", 6)
+    angle1 += 7
+    angle2 += 7
+    playSound("tan00")
+    wait(0.15)
+}
+`
+bulletScript: `
+// 1秒後に減速して色を変え、再加速
+if (timer == 0.8..1.2) {
+    speed = 40
+}
+if (timer >= 1.2) {
+    once {
+        color = "#ffff33"
+        speed = 220
+    }
+}
+`
+--------------------------------------------------------------------------------
+
+▼ サンプル2：停止してから自機へ突撃するナイフ弾
+--------------------------------------------------------------------------------
+emitterScript: `
+while (true) {
+    aimAtTarget()
+    spawnWay("normal", "#ff5533", 400, angle, 7, 60, 0, 0, 14, "knife", "relative", 6)
+    playSound("tan00")
+    wait(1.0)
+}
+`
+bulletScript: `
+// 発射直後に急停止
+if (frame == 1..15) {
+    speed -= 25
+}
+// 0.6秒後に自機を再ロックオンして突撃
+if (second >= 0.6) {
+    once {
+        aimAtTarget()
+        spriteAngle = angle
+        color = "#00ffcc"
+        speed = 350
+        playSound("kira00")
+    }
+}
+`
+--------------------------------------------------------------------------------
+
+▼ サンプル3：予告線付き極太レーザー＋ばらまき弾（並列スレッド）
+--------------------------------------------------------------------------------
+emitterScript: `
+// スレッド1: 極太ビーム
+while (true) {
+    aimAtTarget()
+    playSound("cat00")
+    spawnBeam(1.2, 1.8, 30, angle, 0, 0, "relative", 15)
+    wait(4.0)
+}
+// スレッド2: 周囲にばらまく米弾（並列動作）
+while (true) {
+    spawnRing("normal", "#ffaa00", 140, rand(0, 360), 20, 0, 0, 12, "kome", "relative", 4)
+    wait(0.3)
+}
+`
+bulletScript: `
+`
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+■ 8. ゲームへの反映方法（超重要！）
+--------------------------------------------------------------------------------
+1. `js/danmaku.js` または `js/bossdanmakudata.js` に弾幕コードを追加・保存します。
+2. フォルダ内の 【compile.bat】 をダブルクリック（またはコマンドプロンプトで `node tools/compile.js`）を実行します。
+3. 自動的に `js/compiledanmaku.js` / `js/bossdanmakucompiledata.js` が生成・更新され、ブラウザでゲーム（index.html）を再読み込みすれば即座にプレイできます！
+================================================================================

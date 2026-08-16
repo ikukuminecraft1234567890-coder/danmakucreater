@@ -649,6 +649,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
                                     <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
                                     <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
+                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
@@ -704,6 +705,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
                                     <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
                                     <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
+                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
@@ -758,6 +760,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
                                     <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
                                     <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
+                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
@@ -815,6 +818,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
                                     <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
                                     <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
+                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
@@ -871,6 +875,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
                                     <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
                                     <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
+                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
@@ -930,6 +935,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
                                     <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
                                     <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
+                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
                                 </select>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
