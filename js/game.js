@@ -2399,11 +2399,12 @@ function applyAbilityEffect(cardId, owner) {
                             if (!player.recentHits) player.recentHits = [];
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
-                            // 食らいボム猶予タイマー開始（まだ動いていなければ8フレーム）＆被弾音再生
+                            // 食らいボム猶予タイマー開始（まだ動いていなければ8フレーム）＆ピコ音再生
                             if (isCustomCardTesting && !(player.deathbombTimer > 0)) {
                                 player.deathbombTimer = 8 / 60; // 8f ≈ 0.1333秒
+                                player.deathbombMaxTimer = 8 / 60;
                                 if (window.playSound) {
-                                    window.playSound('se_pldead00');
+                                    window.playSound('piko');
                                 }
                             }
 
@@ -2806,6 +2807,9 @@ function applyAbilityEffect(cardId, owner) {
                 }
 
                 if (player.pendingDamage > 0 && !(player.deathbombTimer > 0)) {
+                    if (window.playSound) {
+                        window.playSound('se_pldead00');
+                    }
                     if (typeof window.playerMissCount !== 'number') {
                         window.playerMissCount = 0;
                     }
@@ -4047,6 +4051,57 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.strokeStyle = outerColor;
                 ctx.lineWidth = 1;
                 ctx.stroke();
+            }
+
+            // 食らいボム猶予サークル（被弾瞬間に現れ、猶予8fで自機中心へと収縮する可視化円）
+            if (isCustomCardTesting && player.deathbombTimer > 0) {
+                ctx.save();
+                let maxT = player.deathbombMaxTimer || (8 / 60);
+                let progress = Math.max(0, Math.min(1, player.deathbombTimer / maxT)); // 1.0 -> 0.0
+                let radius = Math.max(1, 56 * progress); // 56px -> 0pxに収縮
+
+                // サークル内部の薄い危険警告フィル
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 0, 80, ' + (0.22 * progress) + ')';
+                ctx.fill();
+
+                // 外側ネオン発光リング
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ff0055';
+                ctx.lineWidth = 3.5;
+                ctx.shadowBlur = 16;
+                ctx.shadowColor = '#ff0055';
+                ctx.stroke();
+
+                // 内側ホワイトコアリング
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = '#ffffff';
+                ctx.stroke();
+
+                // ターゲットロック風十字ガイドライン（四方から収縮）
+                let markLen = 12 * progress;
+                if (markLen > 2) {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(player.x, player.y - radius - markLen);
+                    ctx.lineTo(player.x, player.y - radius);
+                    ctx.moveTo(player.x, player.y + radius);
+                    ctx.lineTo(player.x, player.y + radius + markLen);
+                    ctx.moveTo(player.x - radius - markLen, player.y);
+                    ctx.lineTo(player.x - radius, player.y);
+                    ctx.moveTo(player.x + radius, player.y);
+                    ctx.lineTo(player.x + radius + markLen, player.y);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
             }
 
             // 耐えた時の小さな爆発エフェクトの描画

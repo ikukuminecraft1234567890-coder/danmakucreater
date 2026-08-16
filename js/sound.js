@@ -198,6 +198,40 @@ class SoundManager {
             console.error('Error playing sound:', name, e);
         }
     }
+
+    // 食らいボム猶予開始時用の「ピコっ」電子音を即時生成・再生
+    playPiko() {
+        if (!this.initialized) this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        if (!this.ctx) return;
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const now = this.ctx.currentTime;
+
+            // シャープなピコッ音 (880Hz -> 1800Hz)
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(900, now);
+            osc.frequency.exponentialRampToValueAtTime(1850, now + 0.04);
+
+            gain.gain.setValueAtTime(this.volume * 0.75, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+            osc.connect(gain);
+            if (this.compressor) {
+                gain.connect(this.compressor);
+            } else {
+                gain.connect(this.ctx.destination);
+            }
+
+            osc.start(now);
+            osc.stop(now + 0.07);
+        } catch (e) {
+            console.error('Error playing piko sound:', e);
+        }
+    }
 }
 
 // グローバルインスタンスの作成
@@ -205,5 +239,10 @@ window.soundManager = new SoundManager();
 
 // グローバルな playSound 関数の定義
 window.playSound = function(name) {
+    if (name === 'piko' || name === 'se_piko') {
+        window.soundManager.playPiko();
+        return;
+    }
     window.soundManager.play(name);
 };
+
