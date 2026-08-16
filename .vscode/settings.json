@@ -11,14 +11,13 @@
             "strings": "on"
         }
     },
+    "editor.parameterHints.enabled": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestOnTriggerCharacters": true,
-    "editor.parameterHints.enabled": true,
-    "editor.parameterHints.cycle": true,
     "editor.tabCompletion": "on",
     "editor.snippetSuggestions": "top",
     "editor.wordBasedSuggestions": "allDocuments",
-    "editor.suggest.showWords": true,
+    "editor.suggest.showWords": false,
     "editor.suggest.showSnippets": true,
     "editor.suggest.showValues": true,
     "editor.suggest.showConstants": true,
