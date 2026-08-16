@@ -2743,6 +2743,59 @@ function applyAbilityEffect(cardId, owner) {
                         let dist = Math.sqrt((b.x - sw.x) ** 2 + (b.y - sw.y) ** 2);
                         return dist > sw.r;
                     });
+
+                    // ボムの範囲内の敵（ボス・CPU）に毎秒50ダメージ
+                    if (isCustomCardTesting && window.isBossMode && typeof cpu !== 'undefined' && cpu.hp > 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
+                        let cpuHitR = (typeof cpu.hitboxRadius === 'number') ? cpu.hitboxRadius : 20;
+                        let distCpu = Math.sqrt((cpu.x - sw.x) ** 2 + (cpu.y - sw.y) ** 2);
+                        if (distCpu <= sw.r + cpuHitR) {
+                            let bombDmg = 50 * dt;
+                            cpu.hp = Math.max(0, cpu.hp - bombDmg);
+
+                            // 敵被弾SE
+                            if (window.playSound && cpu.hp > 0) {
+                                let now = performance.now();
+                                if (!cpu.lastDamageSETime || now - cpu.lastDamageSETime >= 100) {
+                                    cpu.lastDamageSETime = now;
+                                    let hpRatio = cpu.maxHp > 0 ? (cpu.hp / cpu.maxHp) : 1.0;
+                                    if (hpRatio <= 0.10) {
+                                        window.playSound('se_damage01');
+                                    } else {
+                                        window.playSound('se_damage00');
+                                    }
+                                }
+                            }
+
+                            // 撃破判定
+                            if (cpu.hp <= 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
+                                bullets.length = 0;
+                                magicCircles.length = 0;
+
+                                if (window.playSound) {
+                                    window.playSound('se_tan00');
+                                }
+
+                                let currentCardObj = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
+                                let isNonSpell = !currentCardObj || !currentCardObj.name || !currentCardObj.name.trim();
+
+                                if (isNonSpell) {
+                                    window.spellClearResult = null;
+                                    window.spellTransitionTimer = 0;
+                                    if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                                        if (typeof playBossBattle === 'function') {
+                                            playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
+                                        }
+                                    } else {
+                                        triggerCustomCardClear();
+                                    }
+                                } else {
+                                    window.spellTransitionTimer = 1.5;
+                                    window.spellBonusFailed = true; // ボム使用撃破のためボーナスは失敗
+                                    window.spellClearResult = { type: 'FAILED', timer: 1.5 };
+                                }
+                            }
+                        }
+                    }
                     
                     if (sw.life <= 0) {
                         window.miniExplosionShockwave = null;
