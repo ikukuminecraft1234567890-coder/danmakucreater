@@ -200,7 +200,7 @@ class SoundManager {
         }
     }
 
-    // 食らいボム猶予開始時用の「ピコっ」電子音を即時生成・再生
+    // 食らいボム猶予開始時用の「ピコっ」電子音を即時生成・再生（2音高速ステップ）
     playPiko() {
         if (!this.initialized) this.init();
         if (this.ctx && this.ctx.state === 'suspended') {
@@ -215,14 +215,17 @@ class SoundManager {
             const gain = this.ctx.createGain();
             const now = this.ctx.currentTime;
 
-            // シャープで聞き取りやすいピコッ音 (1000Hz -> 2200Hz)
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(1000, now);
-            osc.frequency.exponentialRampToValueAtTime(2200, now + 0.05);
+            // クッキリした高音の「ピ・コッ」2音高速ステップ（三角波で耳触りの良いレトロピコ音）
+            osc.type = 'triangle';
+            // 前半 0.02秒: 1760Hz (A6) -> 「ピ」
+            osc.frequency.setValueAtTime(1760, now);
+            // 後半 0.03秒: 2640Hz (E7) -> 「コッ」
+            osc.frequency.setValueAtTime(2640, now + 0.022);
 
-            let vol = Math.max(0.25, this.volume * 1.2);
+            let vol = Math.max(0.3, this.volume * 1.5);
             gain.gain.setValueAtTime(vol, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+            gain.gain.setValueAtTime(vol * 0.9, now + 0.022);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
 
             osc.connect(gain);
             if (this.compressor) {
@@ -232,7 +235,7 @@ class SoundManager {
             }
 
             osc.start(now);
-            osc.stop(now + 0.09);
+            osc.stop(now + 0.06);
         } catch (e) {
             console.error('Error playing piko sound:', e);
             this.playHtml5('damage00');
