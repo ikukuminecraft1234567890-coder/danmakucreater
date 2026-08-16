@@ -3980,6 +3980,14 @@ function customCardMakerSwitchMode(mode) {
             let rawSpellName = (spell.name !== undefined && spell.name !== null) ? String(spell.name).replace(/^【A】/, '').trim() : '';
             let hasSpellName = rawSpellName.length > 0;
 
+            let bLives = (boss && (boss.playerLives !== undefined ? boss.playerLives : (boss.lives !== undefined ? boss.lives : (boss.life !== undefined ? boss.life : 3))));
+            let initLives = Math.max(1, parseInt(bLives, 10) || 3);
+            let bossMaxMisses = initLives - 1;
+
+            let bBombs = (boss && (boss.playerBombs !== undefined ? boss.playerBombs : (boss.bombs !== undefined ? boss.bombs : 2)));
+            let initBombs = Math.max(0, parseInt(bBombs, 10) || 0);
+            window.playerDefaultBombs = initBombs;
+
             let tempSpellCard = {
                 id: spell.id || (`boss_${bIdx}_spell_${spellIdx}`),
                 name: rawSpellName,
@@ -3988,7 +3996,7 @@ function customCardMakerSwitchMode(mode) {
                 x_offset: Number(spell.x_offset) || 0,
                 y_offset: Number(spell.y_offset) || 0,
                 despawnTime: parseFloat(spell.despawnTime) || 1.5,
-                maxMisses: 2, // 3ライフ (2回ミス可能)
+                maxMisses: bossMaxMisses,
                 difficulty: formattedDiff,
                 pattern: 'boss_' + bIdx + '_' + spellIdx,
                 interval: 0.1,
@@ -4037,10 +4045,10 @@ function customCardMakerSwitchMode(mode) {
             player.respawnTimer = 0;
             if (!isNextSpell) {
                 window.playerMissCount = 0;
-                window.playerMaxMisses = 2; // 3ライフ
+                window.playerMaxMisses = bossMaxMisses;
                 window.totalScore = 0;
-                player.bombs = 2; // 初期ボム2個
-                player.maxBombs = 2;
+                player.bombs = initBombs;
+                player.maxBombs = initBombs;
             }
             window.playerInvincibleTimer = 0;
             window.miniExplosionEffect = null;

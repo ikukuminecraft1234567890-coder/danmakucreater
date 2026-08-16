@@ -1,14 +1,21 @@
 /**
  * ボス情報データの一覧 (bossdata.js)
  * 
- * ボスの名前、肩書、説明、テーマカラー、および使用するスペル一覧（js/bossdanmakudata.js に定義したスペルIDの配列）を定義します。
- * 通常 → スペカ → 通常 → スペカ の構成となっています。
+ * 各ボスの設定項目:
+ * - id: ボス識別子 (string)
+ * - name: ボス名 (string)
+ * - color: テーマカラー (string)
+ * - playerLives: 自機残機数 (number, デフォルト: 3 ※2回ミス可能)
+ * - playerBombs: 初期ボム数 (number, デフォルト: 2)
+ * - spells: 使用するスペルIDの配列 (js/bossdanmakudata.js に定義)
  */
 const bossList = [
     {
         id: "boss_reimu",
         name: "博麗 霊夢",
         color: "#ff3366",
+        playerLives: 3, // 自機残機数
+        playerBombs: 2, // 初期ボム数
         spells: [
             "spell_reimu_non_1",
             "spell_reimu_1",
