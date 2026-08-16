@@ -20,6 +20,7 @@ const BULLET_IMAGES = [
     { label: 'kunai2', desc: 'クナイ弾2', insertText: 'kunai2' },
     { label: 'virus', desc: 'ウイルス弾', insertText: 'virus' },
     { label: 'dangan', desc: '弾丸', insertText: 'dangan' },
+    { label: 'tyoudan', desc: '蝶弾 (蝶型の弾)', insertText: 'tyoudan' },
     { label: 'none', desc: '通常丸弾', insertText: 'none' }
 ];
 

@@ -5066,6 +5066,15 @@ function applyAbilityEffect(cardId, owner) {
             window.miniExplosionShockwave = null;
             player.respawnDelay = 0;
             player.respawnTimer = 0;
+            player.respawnStartY = 0;
+            player.respawnTargetY = 0;
+
+            player.pendingDamage = 0; // 被弾ダメージを完全リセット
+            player.pendingHeal = 0;
+            player.recentHits = [];
+            player.isInvincible = false;
+            player.invincibleTimer = 0;
+            player.grazeCount = 0;
 
             window.spellMissCount = 0;
             window.spellBombCount = 0;
@@ -5083,6 +5092,10 @@ function applyAbilityEffect(cardId, owner) {
             
             player.x = PLAY_WIDTH / 2;
             player.y = canvas.height * 0.8;
+            player.targetX = player.x;
+            player.targetY = player.y;
+            player.prevX = player.x;
+            player.prevY = player.y;
             player.hp = player.maxHp;
             if (window.isBossMode) {
                 player.bombs = (typeof window.playerDefaultBombs === 'number') ? window.playerDefaultBombs : 2;
@@ -5090,6 +5103,8 @@ function applyAbilityEffect(cardId, owner) {
             
             cpu.hp = cpu.maxHp;
             cpu.pendingDamage = 0;
+            cpu.pendingHeal = 0;
+            cpu.recentHits = [];
             
             bullets.length = 0;
             magicCircles.length = 0;
@@ -5600,7 +5615,7 @@ function applyAbilityEffect(cardId, owner) {
             if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) return s.substring(1, s.length - 1);
             if (variables && variables[s] !== undefined) return variables[s];
             if (isCssColorLiteral(s)) return s;
-            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko'].includes(s)) return s;
+            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2'].includes(s)) return s;
             // "12,522" のようなコンマ区切り座標リテラルは数式評価せずそのまま文字列として返す
             if (/^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?$/.test(s)) return s;
             return evalExpr(expr, variables || {}, block, key);
@@ -5612,7 +5627,7 @@ function applyAbilityEffect(cardId, owner) {
                 raw = raw.substring(1, raw.length - 1);
             }
             if (variables && variables[raw] !== undefined) return String(variables[raw]);
-            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko'].includes(raw)) return raw;
+            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2'].includes(raw)) return raw;
             // カンマ区切りの座標指定（例: x0,y0 など）の各大要素を個別に evalExpr する
             if (raw.includes(',')) {
                 let parts = raw.split(',').map(part => {

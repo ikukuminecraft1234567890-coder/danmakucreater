@@ -18,7 +18,7 @@
     },
     {
       "name": "constant.language.bulletimage.danmaku",
-      "match": "\"(ohuda|kome|star|b_star|onmyoutama|marutama|ootama|poihuru|uroko|sword|knife|kunai1|kunai2|virus|dangan|none)\"|'(ohuda|kome|star|b_star|onmyoutama|marutama|ootama|poihuru|uroko|sword|knife|kunai1|kunai2|virus|dangan|none)'"
+      "match": "\"(ohuda|kome|star|b_star|onmyoutama|marutama|ootama|poihuru|uroko|sword|knife|kunai1|kunai2|virus|dangan|tyoudan|butterfly|none)\"|'(ohuda|kome|star|b_star|onmyoutama|marutama|ootama|poihuru|uroko|sword|knife|kunai1|kunai2|virus|dangan|tyoudan|butterfly|none)'"
     },
     {
       "name": "constant.language.coordmode.danmaku",

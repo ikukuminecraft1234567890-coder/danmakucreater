@@ -3776,6 +3776,10 @@ function customCardMakerSwitchMode(mode) {
             player.targetY = player.y;
             player.prevX = player.x;
             player.prevY = player.y;
+            player.respawnDelay = 0;
+            player.respawnTimer = 0;
+            player.respawnStartY = 0;
+            player.respawnTargetY = 0;
             player.isInvincible = false;
             player.invincibleTimer = 0;
             player.hp = 1000;
@@ -4127,6 +4131,10 @@ function customCardMakerSwitchMode(mode) {
                 cpu.prevX = cpu.x;
                 cpu.prevY = cpu.y;
             }
+            player.respawnDelay = 0;
+            player.respawnTimer = 0;
+            player.respawnStartY = 0;
+            player.respawnTargetY = 0;
             player.isInvincible = false;
             player.invincibleTimer = 0;
             player.hp = 1000;

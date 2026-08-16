@@ -14,8 +14,8 @@ echo.
 echo [2/2] Pushing danmaku, boss data, and related assets...
 echo.
 
-git add js/danmaku.js js/compiledanmaku.js js/bossdanmakudata.js js/bossdata.js js/bossdanmakucompiledata.js se/
-git commit -m "Update danmaku, boss data, and sound assets"
+git add js/danmaku.js js/compiledanmaku.js js/bossdanmakudata.js js/bossdata.js js/bossdanmakucompiledata.js se/ *.png
+git commit -m "Update danmaku, boss data, and sound/image assets"
 git push origin main
 
 echo.
