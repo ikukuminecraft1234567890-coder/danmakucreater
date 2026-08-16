@@ -1352,12 +1352,15 @@ function customCardMakerSwitchTab(tab) {
             let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(currentDiffVal) : currentDiffVal.toUpperCase();
 
             let rawName = document.getElementById('custom-card-name').value.trim() || 'テスト弾幕';
-            let testName = (isCompiled ? '【A】' : '【未コンパイル】') + rawName;
+            let testName = (isCompiled ? '' : '【未コンパイル】') + rawName;
+
+            let hpInput = document.getElementById('custom-card-hp') ? parseInt(document.getElementById('custom-card-hp').value, 10) || 0 : 0;
 
             let tempCustomCard = {
                 id: 'custom_test',
                 name: testName,
                 duration: cardDuration,
+                hp: hpInput,
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
@@ -1391,12 +1394,24 @@ function customCardMakerSwitchTab(tab) {
             }
             
             isCustomCardTesting = true;
+            window.isBossMode = hpInput > 0;
             if (typeof checkBulletTouchRequirement === 'function') {
                 checkBulletTouchRequirement();
             }
             currentTestPlaySource = 'maker';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            window.spellMissCount = 0;
+            window.spellBombCount = 0;
+            window.spellMaxBonus = 10000000;
+            window.spellCurrentBonus = window.spellMaxBonus;
+            window.spellBonusFailed = false;
+            window.spellClearResult = null;
+            window.spellTransitionTimer = 0;
+            window.lastTimeoutSecond = 11;
+            window.spellDeclarationTimer = 2.8;
+            if (window.isBossMode && window.playSound) window.playSound('se_cat00');
+            player.respawnTimer = 0;
             window.playerMissCount = 0;
             window.playerMaxMisses = tempCustomCard.maxMisses;
             window.playerInvincibleTimer = 0;
@@ -1406,6 +1421,16 @@ function customCardMakerSwitchTab(tab) {
             setCardMakerScreenActive(false);
             document.getElementById('titleScreen').style.display = 'none';
             isGameRunning = true;
+
+            // モバイルボムボタンの表示切り替え（ボス戦モード時のみ表示）
+            const bombBtn = document.getElementById('mobile-bomb-button');
+            if (bombBtn) {
+                if (window.isBossMode && window.mobileBombSetting !== 'double_tap') {
+                    bombBtn.classList.remove('hidden');
+                } else {
+                    bombBtn.classList.add('hidden');
+                }
+            }
             
             // テストプレイ開始時に全キー入力をリセット（スタックキー防止）
             for (let k in keyboardState) keyboardState[k] = false;
@@ -1430,8 +1455,8 @@ function customCardMakerSwitchTab(tab) {
             player.pendingDamage = 0;
             player.pendingHeal = 0;
             player.grazeCount = 0;
-            player.bombs = 0;
-            player.maxBombs = 0;
+            player.bombs = window.isBossMode ? 2 : 0;
+            player.maxBombs = window.isBossMode ? 2 : 0;
             player.passives = [];
             player.recentHits = [];
             
@@ -1441,7 +1466,8 @@ function customCardMakerSwitchTab(tab) {
             cpu.targetY = cpu.y;
             cpu.prevX = cpu.x;
             cpu.prevY = cpu.y;
-            cpu.hp = 1000;
+            cpu.hp = hpInput > 0 ? hpInput : 1000;
+            cpu.maxHp = hpInput > 0 ? hpInput : 1000;
             cpu.pendingDamage = 0;
             cpu.pendingHeal = 0;
             cpu.grazeCount = 0;
@@ -1472,7 +1498,9 @@ function customCardMakerSwitchTab(tab) {
         let currentTestPlaySource = 'maker';
 
         function endCustomCardTest(success) {
+            if (typeof resumeGameFromPause === 'function') resumeGameFromPause();
             isCustomCardTesting = false;
+            window.isBossMode = false;
             isGameRunning = false;
             gameState = 'TITLE';
             customCardDeathEffect = null;
@@ -1483,6 +1511,8 @@ function customCardMakerSwitchTab(tab) {
             
             const bombBtn = document.getElementById('mobileBombBtn');
             if (bombBtn) bombBtn.style.display = 'none';
+            const mBombBtn = document.getElementById('mobile-bomb-button');
+            if (mBombBtn) mBombBtn.classList.add('hidden');
             const overlay = document.getElementById('battleOverlay');
             if (overlay) overlay.classList.add('hidden');
             
@@ -1496,9 +1526,17 @@ function customCardMakerSwitchTab(tab) {
                 saveClearedSharedDanmaku(currentSharedDanmakuName, isNoMiss, missCount, isInfMisses);
             }
             
+            if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id) {
+                if (typeof updateBossHighScore === 'function') {
+                    updateBossHighScore(currentBoss.id, window.totalScore || 0);
+                }
+            }
+
             if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared') {
                 showScreen('screen-shared-danmaku');
                 renderSharedDanmakuList();
+            } else if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss') {
+                showBossListScreen();
             } else {
                 showScreen('screen-card-maker');
                 // プレイ結果による成否メッセージ表示を非表示にする
@@ -1524,14 +1562,11 @@ function customCardMakerSwitchTab(tab) {
             let cost = 0;
             // テストクリア状態の確認をバイパスします
 
-            let nameInput = document.getElementById('custom-card-name').value.trim() || 'カスタムスペル';
+            let nameInput = document.getElementById('custom-card-name').value.trim().replace(/^【A】/, '') || 'カスタムスペル';
             let descInput = document.getElementById('custom-card-desc').value.trim() || 'オリジナルの弾幕パターン。';
             let cardDuration = getCustomCardDuration(document.getElementById('custom-card-duration') ? document.getElementById('custom-card-duration').value : customCardMaker.duration);
             customCardMaker.duration = cardDuration;
 
-            if (!nameInput.startsWith('【A】')) {
-                nameInput = '【A】' + nameInput;
-            }
             if (!descInput.startsWith('【自作カード】')) {
                 descInput = '【自作カード】' + descInput;
             }
@@ -1539,12 +1574,14 @@ function customCardMakerSwitchTab(tab) {
             let xOffsetInput = document.getElementById('custom-card-x-offset') ? Number(document.getElementById('custom-card-x-offset').value) || 0 : 0;
             let yOffsetInput = document.getElementById('custom-card-y-offset') ? Number(document.getElementById('custom-card-y-offset').value) || 0 : 0;
 
+            let hpInput = document.getElementById('custom-card-hp') ? parseInt(document.getElementById('custom-card-hp').value, 10) || 0 : 0;
             let cardId = customCardMaker.editingId || ('custom_' + Date.now());
             let cardData = {
                 id: cardId,
                 name: nameInput,
                 desc: descInput,
                 duration: cardDuration,
+                hp: hpInput,
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
@@ -3643,10 +3680,13 @@ function customCardMakerSwitchMode(mode) {
             let cardDiffVal = sharedCard.difficulty || 'NORMAL';
             let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(cardDiffVal) : cardDiffVal.toUpperCase();
 
+            let cardHp = parseInt(sharedCard.hp, 10) || 0;
+
             let tempCustomCard = {
                 id: sharedCard.id || ('danmaku_' + idx),
-                name: sharedCard.name.startsWith('【A】') ? sharedCard.name : '【A】' + sharedCard.name,
+                name: (sharedCard.name || '共有弾幕').replace(/^【A】/, ''),
                 duration: cardDuration,
+                hp: cardHp,
                 x_offset: xOffset,
                 y_offset: yOffset,
                 despawnTime: despawnTime,
@@ -3682,12 +3722,24 @@ function customCardMakerSwitchMode(mode) {
             }
 
             isCustomCardTesting = true;
+            window.isBossMode = cardHp > 0;
             if (typeof checkBulletTouchRequirement === 'function') {
                 checkBulletTouchRequirement();
             }
             currentTestPlaySource = 'shared';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            window.spellMissCount = 0;
+            window.spellBombCount = 0;
+            window.spellMaxBonus = 10000000;
+            window.spellCurrentBonus = window.spellMaxBonus;
+            window.spellBonusFailed = false;
+            window.spellClearResult = null;
+            window.spellTransitionTimer = 0;
+            window.lastTimeoutSecond = 11;
+            window.spellDeclarationTimer = 2.8;
+            if (window.isBossMode && window.playSound) window.playSound('se_cat00');
+            player.respawnTimer = 0;
             window.playerMissCount = 0;
             window.playerMaxMisses = tempCustomCard.maxMisses;
             window.playerInvincibleTimer = 0;
@@ -3697,6 +3749,16 @@ function customCardMakerSwitchMode(mode) {
             setCardMakerScreenActive(false);
             document.getElementById('titleScreen').style.display = 'none';
             isGameRunning = true;
+
+            // モバイルボムボタンの表示切り替え（ボス戦モード時のみ表示）
+            const bombBtn = document.getElementById('mobile-bomb-button');
+            if (bombBtn) {
+                if (window.isBossMode && window.mobileBombSetting !== 'double_tap') {
+                    bombBtn.classList.remove('hidden');
+                } else {
+                    bombBtn.classList.add('hidden');
+                }
+            }
 
             // キー入力状態のリセット
             for (let k in keyboardState) keyboardState[k] = false;
@@ -3721,8 +3783,8 @@ function customCardMakerSwitchMode(mode) {
             player.pendingDamage = 0;
             player.pendingHeal = 0;
             player.grazeCount = 0;
-            player.bombs = 0;
-            player.maxBombs = 0;
+            player.bombs = window.isBossMode ? 2 : 0;
+            player.maxBombs = window.isBossMode ? 2 : 0;
             player.passives = [];
             player.recentHits = [];
 
@@ -3732,7 +3794,8 @@ function customCardMakerSwitchMode(mode) {
             cpu.targetY = cpu.y;
             cpu.prevX = cpu.x;
             cpu.prevY = cpu.y;
-            cpu.hp = 1000;
+            cpu.hp = cardHp > 0 ? cardHp : 1000;
+            cpu.maxHp = cardHp > 0 ? cardHp : 1000;
             cpu.pendingDamage = 0;
             cpu.pendingHeal = 0;
             cpu.grazeCount = 0;
@@ -3759,3 +3822,305 @@ function customCardMakerSwitchMode(mode) {
             timeAccumulator = 0;
             startGameLoop();
         }
+
+        // ==========================================
+        // ボスモード（ボスに挑戦！）管理システム
+        // ==========================================
+        let currentBoss = null;
+        let currentBossIndex = 0;
+        let currentBossSpellIndex = 0;
+
+        function showBossListScreen() {
+            showScreen('screen-boss-list');
+            renderBossList();
+        }
+        window.showBossListScreen = showBossListScreen;
+
+        function renderBossList() {
+            const container = document.getElementById('boss-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (typeof bossList === 'undefined' || bossList.length === 0) {
+                container.innerHTML = '<div style="color:#888; font-size:12px; text-align:center; padding:50px 0; border:1.5px dashed rgba(255,255,255,0.1); border-radius:8px;">登録されているボスがいません。「js/bossdanmakudata.js」にデータを追加してください。</div>';
+                return;
+            }
+
+            bossList.forEach((boss, bIdx) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,51,102,0.3); border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: border-color 0.2s;`;
+                cardDiv.onmouseover = () => { cardDiv.style.borderColor = 'rgba(255,51,102,0.8)'; };
+                cardDiv.onmouseout = () => { cardDiv.style.borderColor = 'rgba(255,51,102,0.3)'; };
+
+                const infoDiv = document.createElement('div');
+                infoDiv.style.flex = '1';
+                infoDiv.style.paddingRight = '12px';
+                infoDiv.style.display = 'flex';
+                infoDiv.style.alignItems = 'center';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.style.cssText = `font-weight: bold; color: ${boss.color || '#ff88aa'}; font-size: 16px; text-shadow: 0 0 8px rgba(255,51,102,0.5); vertical-align: middle;`;
+                titleSpan.textContent = boss.name;
+
+                let hiScore = (typeof getBossHighScore === 'function') ? getBossHighScore(boss.id) : 0;
+
+                const hiScoreSpan = document.createElement('span');
+                hiScoreSpan.style.cssText = 'margin-left: 12px; font-size: 11px; color: #66ffcc; background: rgba(0,255,200,0.12); border: 1px solid rgba(0,255,200,0.3); padding: 2px 7px; border-radius: 4px; vertical-align: middle; font-family: monospace; font-weight: bold;';
+                hiScoreSpan.textContent = `Hi-Score: ${hiScore.toLocaleString()}`;
+
+                infoDiv.appendChild(titleSpan);
+                infoDiv.appendChild(hiScoreSpan);
+
+                const playBtn = document.createElement('button');
+                playBtn.className = 'menu-btn';
+                playBtn.style.cssText = `width: 80px; height: 32px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #660022 0%, #2a0011 100%); border-color: #ff3366; text-shadow: 0 0 6px rgba(255,51,102,0.8); font-weight: bold; flex-shrink: 0;`;
+                playBtn.textContent = '挑む！';
+                playBtn.onclick = () => playBossBattle(bIdx, 0, false);
+
+                cardDiv.appendChild(infoDiv);
+                cardDiv.appendChild(playBtn);
+                container.appendChild(cardDiv);
+            });
+        }
+        window.renderBossList = renderBossList;
+
+        function getBossHighScore(bossId) {
+            if (!bossId) return 0;
+            try {
+                return parseInt(localStorage.getItem('danmaku_boss_hiscore_' + bossId) || '0', 10);
+            } catch (e) {
+                return 0;
+            }
+        }
+        window.getBossHighScore = getBossHighScore;
+
+        function updateBossHighScore(bossId, score) {
+            if (!bossId || typeof score !== 'number' || isNaN(score)) return;
+            try {
+                let key = 'danmaku_boss_hiscore_' + bossId;
+                let prev = parseInt(localStorage.getItem(key) || '0', 10);
+                if (score > prev) {
+                    localStorage.setItem(key, String(score));
+                }
+            } catch (e) {
+                console.error('Failed to save boss high score:', e);
+            }
+        }
+        window.updateBossHighScore = updateBossHighScore;
+
+        function getBossSpell(spellRef) {
+            if (!spellRef) return null;
+            if (typeof spellRef === 'object') return spellRef;
+            let spellId = String(spellRef).trim();
+            if (typeof window.compiledBossDanmakuList !== 'undefined' && Array.isArray(window.compiledBossDanmakuList)) {
+                let s = window.compiledBossDanmakuList.find(item => item.id === spellId || item.name === spellId);
+                if (s) return s;
+            }
+            if (typeof bossDanmakuList !== 'undefined' && Array.isArray(bossDanmakuList)) {
+                let s = bossDanmakuList.find(item => item.id === spellId || item.name === spellId);
+                if (s) return s;
+            }
+            return null;
+        }
+        window.getBossSpell = getBossSpell;
+
+        function playBossBattle(bIdxOrBoss, spellIdx = 0, isNextSpell = false) {
+            let bIdx = typeof bIdxOrBoss === 'number' ? bIdxOrBoss : -1;
+            if (bIdx === -1 && typeof bossList !== 'undefined') {
+                bIdx = bossList.findIndex(b => b === bIdxOrBoss || b.id === bIdxOrBoss || (bIdxOrBoss && b.id === bIdxOrBoss.id));
+            }
+            if (bIdx === -1 || typeof bossList === 'undefined' || !bossList[bIdx]) return;
+            const boss = bossList[bIdx];
+            if (!boss.spells || boss.spells.length === 0) return;
+            if (spellIdx >= boss.spells.length) {
+                // ボス戦完全制覇！
+                if (typeof triggerCustomCardClear === 'function') {
+                    triggerCustomCardClear();
+                }
+                return;
+            }
+
+            currentBoss = boss;
+            currentBossIndex = bIdx;
+            currentBossSpellIndex = spellIdx;
+            currentTestPlaySource = 'boss';
+
+            const spellRef = boss.spells[spellIdx];
+            const spell = getBossSpell(spellRef);
+            if (!spell) {
+                console.error("Spell not found:", spellRef);
+                return;
+            }
+            let emitterScript = [];
+            if (typeof spell.emitterScript === 'string') {
+                emitterScript = codeToBlocks(spell.emitterScript);
+            } else if (Array.isArray(spell.emitterScript)) {
+                emitterScript = spell.emitterScript;
+            }
+
+            let bulletScript = [];
+            if (typeof spell.bulletScript === 'string') {
+                bulletScript = codeToBlocks(spell.bulletScript);
+            } else if (Array.isArray(spell.bulletScript)) {
+                bulletScript = spell.bulletScript;
+            }
+
+            let magicCircleScript = [];
+            if (typeof spell.magicCircleScript === 'string') {
+                magicCircleScript = codeToBlocks(spell.magicCircleScript);
+            } else if (Array.isArray(spell.magicCircleScript)) {
+                magicCircleScript = spell.magicCircleScript;
+            }
+
+            let cardDuration = parseFloat(spell.duration) || 30;
+            let bossHp = parseInt(spell.hp, 10) || 1500;
+            let spellDiff = spell.difficulty || 'NORMAL';
+            let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(spellDiff) : spellDiff.toUpperCase();
+
+            let rawSpellName = (spell.name !== undefined && spell.name !== null) ? String(spell.name).replace(/^【A】/, '').trim() : '';
+            let hasSpellName = rawSpellName.length > 0;
+
+            let tempSpellCard = {
+                id: spell.id || (`boss_${bIdx}_spell_${spellIdx}`),
+                name: rawSpellName,
+                duration: cardDuration,
+                hp: bossHp,
+                x_offset: Number(spell.x_offset) || 0,
+                y_offset: Number(spell.y_offset) || 0,
+                despawnTime: parseFloat(spell.despawnTime) || 1.5,
+                maxMisses: 2, // 3ライフ (2回ミス可能)
+                difficulty: formattedDiff,
+                pattern: 'boss_' + bIdx + '_' + spellIdx,
+                interval: 0.1,
+                rawCost: 0,
+                cost: 0,
+                desc: spell.desc || (hasSpellName ? `${boss.name} のスペルカード` : `${boss.name} の通常攻撃`),
+                isCustom: true,
+                emitterScript: emitterScript,
+                bulletScript: bulletScript,
+                magicCircleScript: magicCircleScript
+            };
+
+            window.cpuDifficulty = formattedDiff;
+            window.currentDifficulty = formattedDiff;
+
+            let testCardIdx = defaultCards.active.findIndex(c => c.id === tempSpellCard.id);
+            if (testCardIdx !== -1) {
+                defaultCards.active[testCardIdx] = tempSpellCard;
+            } else {
+                defaultCards.active.push(tempSpellCard);
+            }
+
+            isCustomCardTesting = true;
+            window.isBossMode = true;
+            if (typeof resumeGameFromPause === 'function') resumeGameFromPause();
+            if (typeof checkBulletTouchRequirement === 'function') {
+                checkBulletTouchRequirement();
+            }
+
+            window.isNonSpell = !hasSpellName;
+
+            window.currentCardSecond = 0;
+            window.currentCardFrame = 0;
+            window.spellMissCount = 0;
+            window.spellBombCount = 0;
+            window.spellMaxBonus = (tempSpellCard && tempSpellCard.bonusScore) ? parseInt(tempSpellCard.bonusScore, 10) : 10000000;
+            window.spellCurrentBonus = window.spellMaxBonus;
+            window.spellBonusFailed = false;
+            window.spellClearResult = null;
+            window.spellTransitionTimer = 0;
+            window.lastTimeoutSecond = 11;
+            window.spellDeclarationTimer = hasSpellName ? 2.8 : 0;
+            if (hasSpellName && window.playSound) {
+                window.playSound('se_cat00');
+            }
+            player.respawnTimer = 0;
+            if (!isNextSpell) {
+                window.playerMissCount = 0;
+                window.playerMaxMisses = 2; // 3ライフ
+                window.totalScore = 0;
+                player.bombs = 2; // 初期ボム2個
+                player.maxBombs = 2;
+            }
+            window.playerInvincibleTimer = 0;
+            window.miniExplosionEffect = null;
+            window.miniExplosionShockwave = null;
+
+            setCardMakerScreenActive(false);
+            document.getElementById('titleScreen').style.display = 'none';
+            isGameRunning = true;
+
+            // モバイルボムボタンの表示切り替え
+            const bombBtn = document.getElementById('mobile-bomb-button');
+            if (bombBtn) {
+                if (window.mobileBombSetting !== 'double_tap') {
+                    bombBtn.classList.remove('hidden');
+                } else {
+                    bombBtn.classList.add('hidden');
+                }
+            }
+
+            // キー入力状態のリセット
+            for (let k in keyboardState) keyboardState[k] = false;
+
+            bullets.length = 0;
+            magicCircles.length = 0;
+            activeReigekis.length = 0;
+            reigekiCutinTimer = 0;
+            prevBombInput = false;
+            activeEffects.length = 0;
+
+            if (!isNextSpell) {
+                player.x = PLAY_WIDTH / 2;
+                player.y = canvas.height * 0.8;
+                player.targetX = player.x;
+                player.targetY = player.y;
+                player.prevX = player.x;
+                player.prevY = player.y;
+
+                cpu.x = PLAY_WIDTH / 2;
+                cpu.y = canvas.height * 0.2;
+                cpu.targetX = cpu.x;
+                cpu.targetY = cpu.y;
+                cpu.prevX = cpu.x;
+                cpu.prevY = cpu.y;
+            }
+            player.isInvincible = false;
+            player.invincibleTimer = 0;
+            player.hp = 1000;
+            player.maxHp = 1000;
+            player.pendingDamage = 0;
+            player.pendingHeal = 0;
+            player.grazeCount = 0;
+            player.passives = [];
+            player.recentHits = [];
+
+            cpu.hp = bossHp;
+            cpu.maxHp = bossHp;
+            cpu.pendingDamage = 0;
+            cpu.pendingHeal = 0;
+            cpu.grazeCount = 0;
+            cpu.bombs = 0;
+            cpu.maxBombs = 0;
+            cpu.passives = [];
+            cpu.recentHits = [];
+
+            gameState = 'BATTLE';
+            battlePhase = 'ACTION';
+            turnOwner = 'CPU';
+            turnCount = 1;
+
+            activeCards = [ tempSpellCard ];
+            activeCards[0].emitterState = initEmitterState(tempSpellCard.emitterScript, cpu, player, tempSpellCard.x_offset || 0, tempSpellCard.y_offset || 0, tempSpellCard.id);
+            activeCards[0].emitterState.bulletScript = tempSpellCard.bulletScript || [];
+            activeCards[0].emitterState.magicCircleScript = tempSpellCard.magicCircleScript || [];
+            actionTimer = tempSpellCard.duration;
+            customCardTestEmitterDone = false;
+            customCardDeathEffect = null;
+            normalShotTimer = 0;
+
+            lastTime = performance.now();
+            timeAccumulator = 0;
+            startGameLoop();
+        }
+        window.playBossBattle = playBossBattle;

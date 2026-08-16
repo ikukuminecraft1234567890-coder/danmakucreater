@@ -1880,3 +1880,37 @@ html,
         .difficulty-normal { background: linear-gradient(135deg, #00c6ff, #0072ff) !important; }
         .difficulty-hard { background: linear-gradient(135deg, #ff416c, #ff4b2b) !important; }
         .difficulty-lunatic { background: linear-gradient(135deg, #f80759, #bc4e9c) !important; }
+
+        /* モバイルボムボタン */
+        .mobile-bomb-btn {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff1a53 0%, #770022 100%);
+            border: 2.5px solid #ff99bb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+            box-shadow: 0 6px 20px rgba(255, 0, 85, 0.6), inset 0 0 12px rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            transition: transform 0.08s, filter 0.08s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .mobile-bomb-btn:active {
+            transform: scale(0.90);
+            filter: brightness(1.3);
+        }
+        .mobile-bomb-btn.hidden {
+            display: none !important;
+        }

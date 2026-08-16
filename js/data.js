@@ -69,7 +69,8 @@
             bomb: 1,       // B (Button 1)
             cardPrev: 4,   // L1
             cardNext: 5,   // R1
-            confirm: 0     // A
+            confirm: 0,    // A
+            pause: 9       // + / Start (Button 9)
         };
 
 // ==========================================
@@ -108,21 +109,21 @@
         // ==========================================
         const defaultCards = {
             active: [
-                { id: 'a1', name: '【A】星弓「スターボウ」', duration: 15, pattern: 'starbow', interval: 0.28, cost: 4, desc: '【移植スペル】五方に放たれた虹色の光弾が、光の尾を残しながら美しく大旋回する。' },
-                { id: 'a2', name: '【A】獄符「ヘルカーブ」', duration: 15, pattern: 'hellcurve', interval: 0.15, cost: 2, desc: '【移植スペル】相手に向けて交差するように、赤と黄の対の螺旋を描くカーブ弾を連射する。' },
-                { id: 'a3', name: '【A】狙い3WAY弾', duration: 15, pattern: '3way', interval: 0.12, cost: 1, desc: '相手に向かって扇状に広がる大粒の3方向狙い弾を超高速連射する。' },
-                { id: 'a4', name: '【A】設置弾', duration: 20, pattern: 'place', interval: 0.8, cost: 1, desc: 'ゆっくり漂う巨大な設置型の球体を放つ。' },
-                { id: 'a5', name: '【A】高密度弾', duration: 15, pattern: 'dense', interval: 0.25, cost: 2, desc: '前方へ扇状に密度の高い弾を連射する。' },
+                { id: 'a1', name: '星弓「スターボウ」', duration: 15, pattern: 'starbow', interval: 0.28, cost: 4, desc: '【移植スペル】五方に放たれた虹色の光弾が、光の尾を残しながら美しく大旋回する。' },
+                { id: 'a2', name: '獄符「ヘルカーブ」', duration: 15, pattern: 'hellcurve', interval: 0.15, cost: 2, desc: '【移植スペル】相手に向けて交差するように、赤と黄の対の螺旋を描くカーブ弾を連射する。' },
+                { id: 'a3', name: '狙い3WAY弾', duration: 15, pattern: '3way', interval: 0.12, cost: 1, desc: '相手に向かって扇状に広がる大粒の3方向狙い弾を超高速連射する。' },
+                { id: 'a4', name: '設置弾', duration: 20, pattern: 'place', interval: 0.8, cost: 1, desc: 'ゆっくり漂う巨大な設置型の球体を放つ。' },
+                { id: 'a5', name: '高密度弾', duration: 15, pattern: 'dense', interval: 0.25, cost: 2, desc: '前方へ扇状に密度の高い弾を連射する。' },
                 // 靈刻門からの移植スペル
-                { id: 'a6', name: '【A】エボリューション', duration: 16, pattern: 'evolution', interval: 0.45, cost: 3, desc: '【靈刻門】直進する親弾から左右に子弾が分裂する。' },
-                { id: 'a7', name: '【A】消える魔球', duration: 14, pattern: 'vanishing', interval: 0.5, cost: 2, desc: '【靈刻門】静止後、赤く輝き超高速で相手を再追尾する。' },
-                { id: 'a8', name: '【A】スパイラル', duration: 10, pattern: 'spiral', interval: 0.08, cost: 1, desc: '【靈刻門】回転しながら全方位へ放ち、途中で逆回転する。' },
-                { id: 'a9', name: '【A】クロスカーブ', duration: 15, pattern: 'cross', interval: 0.9, cost: 2, desc: '【新スペル】発射時の相手方向を基準に、後方から放たれた大量の弾がゆっくりカーブして美しくX字クロスする。' },
-                { id: 'a10', name: '【A】霊符「夢想妙珠」', duration: 15, pattern: 'myouju', interval: 3.5, cost: 4, desc: '【博麗霊夢】自機の周囲を回転しながら広がり、その後相手を強力に自動追尾する虹色の光弾を放つ。' },
-                { id: 'a11', name: '【A】恋符「マスタースパーク」', duration: 26, pattern: 'masterspark', interval: 99.0, cost: 4, desc: '【霧雨魔理沙】移動速度が激減する代わりに、画面を埋め尽くす極太の七色ビームを前方に照射する。' },
-                { id: 'a12', name: '【A】神槍「スピア・オブ・グングニル」', duration: 8, pattern: 'gungnir', interval: 1.2, cost: 7, desc: '【レミリア】全てを貫通する超高速の紅い槍を投げ、衝突時に大爆発を起こして破片を撒き散らす。' },
-                { id: 'a13', name: '【A】突符「チャージ曲がり角」', duration: 15, pattern: 'charge_corner', interval: 0.3, cost: 7, desc: '【靈刻門】放射状に放たれた弾が一度静止し、直角に分裂して急加速する。' },
-                { id: 'a14', name: '【A】「オーバードライブ」', duration: 20, pattern: 'overdrive', interval: 22.0, cost: 6, desc: '【靈刻門】極限の弾幕。周囲を回る赤弾のチャージ突進、交差する格子弾幕、最後に跳ね返る桜弾の3フェーズを連続展開する。' }
+                { id: 'a6', name: 'エボリューション', duration: 16, pattern: 'evolution', interval: 0.45, cost: 3, desc: '【靈刻門】直進する親弾から左右に子弾が分裂する。' },
+                { id: 'a7', name: '消える魔球', duration: 14, pattern: 'vanishing', interval: 0.5, cost: 2, desc: '【靈刻門】静止後、赤く輝き超高速で相手を再追尾する。' },
+                { id: 'a8', name: 'スパイラル', duration: 10, pattern: 'spiral', interval: 0.08, cost: 1, desc: '【靈刻門】回転しながら全方位へ放ち、途中で逆回転する。' },
+                { id: 'a9', name: 'クロスカーブ', duration: 15, pattern: 'cross', interval: 0.9, cost: 2, desc: '【新スペル】発射時の相手方向を基準に、後方から放たれた大量の弾がゆっくりカーブして美しくX字クロスする。' },
+                { id: 'a10', name: '霊符「夢想妙珠」', duration: 15, pattern: 'myouju', interval: 3.5, cost: 4, desc: '【博麗霊夢】自機の周囲を回転しながら広がり、その後相手を強力に自動追尾する虹色の光弾を放つ。' },
+                { id: 'a11', name: '恋符「マスタースパーク」', duration: 26, pattern: 'masterspark', interval: 99.0, cost: 4, desc: '【霧雨魔理沙】移動速度が激減する代わりに、画面を埋め尽くす極太の七色ビームを前方に照射する。' },
+                { id: 'a12', name: '神槍「スピア・オブ・グングニル」', duration: 8, pattern: 'gungnir', interval: 1.2, cost: 7, desc: '【レミリア】全てを貫通する超高速の紅い槍を投げ、衝突時に大爆発を起こして破片を撒き散らす。' },
+                { id: 'a13', name: '突符「チャージ曲がり角」', duration: 15, pattern: 'charge_corner', interval: 0.3, cost: 7, desc: '【靈刻門】放射状に放たれた弾が一度静止し、直角に分裂して急加速する。' },
+                { id: 'a14', name: '「オーバードライブ」', duration: 20, pattern: 'overdrive', interval: 22.0, cost: 6, desc: '【靈刻門】極限の弾幕。周囲を回る赤弾のチャージ突進、交差する格子弾幕、最後に跳ね返る桜弾の3フェーズを連続展開する。' }
             ],
             ability: [
                 { id: 'ab1', name: '【急】霊力充填', desc: '【即時アビリティ】自身のボム（霊撃）を即座に1つ回復する。' },
@@ -396,7 +397,8 @@
             bomb: '霊撃(ボム)',
             cardPrev: 'フォーカス左移動',
             cardNext: 'フォーカス右移動',
-            confirm: 'カード選択/決定'
+            confirm: 'カード選択/決定',
+            pause: 'ポーズ(+ / Start)'
         };
 
         let prevGamepadAxes = [];
@@ -446,6 +448,8 @@
             if (savedHitboxColor) {
                 window.hitboxColorSetting = savedHitboxColor;
             }
+            const savedMobileBomb = localStorage.getItem('touhou_kyoukaisen_mobile_bomb');
+            window.mobileBombSetting = savedMobileBomb || 'button';
         } catch (e) { }
 
         function renderKeyConfig() {
@@ -596,6 +600,13 @@
                     localStorage.setItem('touhou_kyoukaisen_hitbox_color', window.hitboxColorSetting);
                 } catch (e) {}
             }
+            const mobileBombSelect = document.getElementById('setting-mobile-bomb');
+            if (mobileBombSelect) {
+                window.mobileBombSetting = mobileBombSelect.value;
+                try {
+                    localStorage.setItem('touhou_kyoukaisen_mobile_bomb', window.mobileBombSetting);
+                } catch (e) {}
+            }
             const volumeSlider = document.getElementById('setting-se-volume');
             if (volumeSlider) {
                 window.seVolumeSetting = parseInt(volumeSlider.value, 10);
@@ -637,6 +648,10 @@
             if (select) {
                 select.value = window.hitboxColorSetting || 'red';
             }
+            const mobileBombSelect = document.getElementById('setting-mobile-bomb');
+            if (mobileBombSelect) {
+                mobileBombSelect.value = window.mobileBombSetting || 'button';
+            }
         }
         window.openConfigScreen = openConfigScreen;
 
@@ -663,7 +678,8 @@
                     bomb: 1,       // B
                     cardPrev: 4,   // L1
                     cardNext: 5,   // R1
-                    confirm: 0     // A
+                    confirm: 0,    // A
+                    pause: 9       // + / Start
                 };
                 activeConfiguringKey = null;
                 activeConfiguringGamepadAction = null;
@@ -1271,6 +1287,7 @@
             window.bulletImages[name] = img;
         });
         window.bulletImages['onmyoudama'] = window.bulletImages['onmyoutama'];
+        window.bulletImages['grain'] = window.bulletImages['kome'];
 
         const reimuImg = new Image();
         reimuImg.src = "data:image/png;base64,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";
@@ -1329,7 +1346,7 @@
             x: PLAY_WIDTH / 2, y: canvas.height * 0.2,
             hp: 1000, maxHp: 1000, pendingDamage: 0, pendingHeal: 0, grazeCount: 0,
             recentHits: [], // 被弾履歴 (デスボム用)
-            hitboxRadius: 4, grazeRadius: 30, speed: 200,
+            hitboxRadius: 40, grazeRadius: 45, speed: 200,
             deck: [], hand: [], passives: [], targetX: PLAY_WIDTH / 2, targetY: 180,
             prevX: PLAY_WIDTH / 2, moveDir: 0,
             bombs: 3,
@@ -1593,6 +1610,15 @@
             const focused = document.activeElement;
             if (focused && (focused.tagName === 'TEXTAREA' || focused.tagName === 'INPUT')) return;
 
+            // ポーズキー判定: ESCキー または +キー（+ / ; / NumpadAdd）
+            if (isGameRunning && (e.key === 'Escape' || e.key === '+' || e.key === ';' || e.code === 'NumpadAdd' || e.key === 'Add' || e.key === '=')) {
+                e.preventDefault();
+                if (typeof window.togglePauseMenu === 'function') {
+                    window.togglePauseMenu();
+                }
+                return;
+            }
+
             if (e.key === 'F3' || e.keyCode === 114) {
                 e.preventDefault();
             }
@@ -1742,6 +1768,71 @@
                     // 霊撃 (設定されたカスタムボタンを使用)
                     if (gp.buttons[gamepadConfig.bomb] && gp.buttons[gamepadConfig.bomb].pressed) {
                         inputState.bomb = true;
+                    }
+
+                    // コントローラーの + ボタン (Button 9: Start / +) によるポーズ切り替え
+                    const pauseBtnIdx = (typeof gamepadConfig !== 'undefined' && gamepadConfig.pause !== undefined) ? gamepadConfig.pause : 9;
+                    const btnPause = (gp.buttons[pauseBtnIdx] && gp.buttons[pauseBtnIdx].pressed) || (gp.buttons[9] && gp.buttons[9].pressed);
+                    const prevPause = (prevGamepadButtons[pauseBtnIdx] || prevGamepadButtons[9]) || false;
+
+                    if (btnPause && !prevPause && isGameRunning) {
+                        if (typeof window.togglePauseMenu === 'function') {
+                            window.togglePauseMenu();
+                        }
+                    }
+
+                    // ポーズメニュー表示中のコントローラー操作（十字キー/スティックで選択、Aボタンで決定）
+                    if (window.isGamePaused) {
+                        const pauseModal = document.getElementById('pause-modal');
+                        const confirmModal = document.getElementById('pause-confirm-modal');
+                        let activeModal = (confirmModal && !confirmModal.classList.contains('hidden')) ? confirmModal : pauseModal;
+                        if (activeModal && !activeModal.classList.contains('hidden')) {
+                            const buttons = Array.from(activeModal.querySelectorAll('button:not([disabled])'));
+                            if (buttons.length > 0) {
+                                let focusedIdx = buttons.findIndex(b => document.activeElement === b);
+                                if (focusedIdx === -1) {
+                                    focusedIdx = 0;
+                                    buttons[0].focus();
+                                }
+
+                                const stickUp = gp.axes[1] < -0.5;
+                                const stickDown = gp.axes[1] > 0.5;
+                                const stickLeft = gp.axes[0] < -0.5;
+                                const stickRight = gp.axes[0] > 0.5;
+                                const dpadUp = gp.buttons[12] && gp.buttons[12].pressed;
+                                const dpadDown = gp.buttons[13] && gp.buttons[13].pressed;
+                                const dpadLeft = gp.buttons[14] && gp.buttons[14].pressed;
+                                const dpadRight = gp.buttons[15] && gp.buttons[15].pressed;
+
+                                const prevStickUp = (prevGamepadAxes[1] !== undefined) ? (prevGamepadAxes[1] < -0.5) : false;
+                                const prevStickDown = (prevGamepadAxes[1] !== undefined) ? (prevGamepadAxes[1] > 0.5) : false;
+                                const prevStickLeft = (prevGamepadAxes[0] !== undefined) ? (prevGamepadAxes[0] < -0.5) : false;
+                                const prevStickRight = (prevGamepadAxes[0] !== undefined) ? (prevGamepadAxes[0] > 0.5) : false;
+                                const prevDpadUp = prevGamepadButtons[12] || false;
+                                const prevDpadDown = prevGamepadButtons[13] || false;
+                                const prevDpadLeft = prevGamepadButtons[14] || false;
+                                const prevDpadRight = prevGamepadButtons[15] || false;
+
+                                const moveUp = (stickUp && !prevStickUp) || (dpadUp && !prevDpadUp) || (stickLeft && !prevStickLeft) || (dpadLeft && !prevDpadLeft);
+                                const moveDown = (stickDown && !prevStickDown) || (dpadDown && !prevDpadDown) || (stickRight && !prevStickRight) || (dpadRight && !prevDpadRight);
+
+                                if (moveUp) {
+                                    focusedIdx = (focusedIdx - 1 + buttons.length) % buttons.length;
+                                    buttons[focusedIdx].focus();
+                                } else if (moveDown) {
+                                    focusedIdx = (focusedIdx + 1) % buttons.length;
+                                    buttons[focusedIdx].focus();
+                                }
+
+                                const confirmBtnIdx = (typeof gamepadConfig !== 'undefined' && gamepadConfig.confirm !== undefined) ? gamepadConfig.confirm : 0;
+                                const btnConfirm = gp.buttons[confirmBtnIdx] && gp.buttons[confirmBtnIdx].pressed;
+                                const prevConfirm = prevGamepadButtons[confirmBtnIdx] || false;
+
+                                if (btnConfirm && !prevConfirm) {
+                                    buttons[focusedIdx].click();
+                                }
+                            }
+                        }
                     }
 
                     // PLANNINGフェーズ時の選択＆決定処理

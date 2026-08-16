@@ -32,13 +32,16 @@
 
             <!-- 1. メニュー画面 -->
             <div id="screen-menu" class="selection-group">
-                <button class="menu-btn" onclick="showScreen('screen-card-maker'); renderCardMakerList();" style="background: linear-gradient(135deg, #005544 0%, #002211 100%); border-color: #00ffcc; text-shadow: 0 0 8px rgba(0, 255, 200, 0.6); font-weight: bold; width: 280px; height: 60px; font-size: 20px; margin-bottom: 15px;">
+                <button class="menu-btn" onclick="showScreen('screen-card-maker'); renderCardMakerList();" style="background: linear-gradient(135deg, #005544 0%, #002211 100%); border-color: #00ffcc; text-shadow: 0 0 8px rgba(0, 255, 200, 0.6); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
                     弾幕クリエイトを開始する
                 </button>
-                <button class="menu-btn" onclick="showSharedDanmakuScreen();" style="background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6); font-weight: bold; width: 280px; height: 60px; font-size: 20px; margin-bottom: 15px;">
+                <button class="menu-btn" onclick="showSharedDanmakuScreen();" style="background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
                     作った弾幕一覧
                 </button>
-                <button class="menu-btn" onclick="openConfigScreen();" style="background: linear-gradient(135deg, #554400 0%, #221100 100%); border-color: #ffcc00; text-shadow: 0 0 8px rgba(255, 200, 0, 0.6); font-weight: bold; width: 280px; height: 60px; font-size: 20px;">
+                <button class="menu-btn" onclick="showBossListScreen();" style="background: linear-gradient(135deg, #660022 0%, #2a0011 100%); border-color: #ff3366; text-shadow: 0 0 8px rgba(255, 51, 102, 0.7); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
+                    ボスに挑戦！
+                </button>
+                <button class="menu-btn" onclick="openConfigScreen();" style="background: linear-gradient(135deg, #554400 0%, #221100 100%); border-color: #ffcc00; text-shadow: 0 0 8px rgba(255, 200, 0, 0.6); font-weight: bold; width: 280px; height: 52px; font-size: 18px;">
                     ゲーム設定 (Config)
                 </button>
             </div>
@@ -68,6 +71,7 @@
                 <!-- 自作カード編集ワークスペース -->
                 <div id="card-maker-editor-view" class="hidden" style="width: 100%; display: flex; flex-direction: column; flex-grow: 1; min-height: 0;">
                     <datalist id="var-suggestions">
+                        <option value="hp">ボスHP (hp)</option>
                         <option value="speed">弾速 (speed)</option>
                         <option value="angle">角度 (angle)</option>
                         <option value="spriteAngle">画像の回転角度 (spriteAngle)</option>
@@ -180,6 +184,10 @@
                         <div style="flex: 2; min-width: 200px; display: flex; flex-direction: column; gap: 4px;">
                             <label style="font-size: 11px; color: #aaa;">説明文 (Description)</label>
                             <input type="text" id="custom-card-desc" class="metadata-input" placeholder="カードの効果やフレーバーテキスト" oninput="saveCustomCardDraft(false, false, true)">
+                        </div>
+                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: #ff88aa;">ボスHP</label>
+                            <input type="number" id="custom-card-hp" class="metadata-input" min="0" max="99999" step="100" value="0" placeholder="0=耐久" oninput="saveCustomCardDraft(false, false, true)">
                         </div>
                         <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
                             <label style="font-size: 11px; color: #aaa;">制限時間(s)</label>
@@ -506,6 +514,14 @@ while (true) {
                 <button class="menu-btn" onclick="showScreen('screen-menu')" style="margin-top: 5px; background: #222; width: 220px; font-size: 14px; flex-shrink: 0;">タイトル画面に戻る</button>
             </div>
 
+            <!-- 7.5 ボス一覧（ボスに挑戦！）画面 -->
+            <div id="screen-boss-list" class="selection-group hidden" style="width: 100%; height: calc(100% - 40px); display: flex; flex-direction: column; align-items: center; gap: 8px; box-sizing: border-box; justify-content: space-between; padding: 5px 0;">
+                <h3 style="margin: 0; color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.8);">ボスに挑戦！</h3>
+                <div id="boss-list-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; padding: 5px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,51,102,0.3); box-sizing: border-box;">
+                </div>
+                <button class="menu-btn" onclick="showScreen('screen-menu')" style="margin-top: 5px; background: #222; width: 220px; font-size: 14px; flex-shrink: 0;">タイトル画面に戻る</button>
+            </div>
+
             <!-- 8. ゲーム設定 (Config) 画面 -->
             <div id="screen-config" class="selection-group hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                 <h3 style="margin-bottom: 5px; color: #ffcc00; text-shadow: 0 0 10px rgba(255, 200, 0, 0.8);">ゲーム設定</h3>
@@ -516,6 +532,15 @@ while (true) {
                     <select id="setting-hitbox-color" style="background: #151525; color: #00ffcc; border: 1px solid #005544; border-radius: 4px; padding: 4px 8px; font-size: 12px; font-weight: bold; cursor: pointer;">
                         <option value="red">赤 (Red)</option>
                         <option value="blue">青 (Blue)</option>
+                    </select>
+                </div>
+
+                <!-- モバイルボム操作設定 -->
+                <div style="width: 100%; max-width: 320px; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; box-sizing: border-box; margin-bottom: 10px;">
+                    <span style="font-size: 13px; color: #e0e0e8;">モバイルボム操作</span>
+                    <select id="setting-mobile-bomb" style="background: #151525; color: #ff3366; border: 1px solid #661122; border-radius: 4px; padding: 4px 8px; font-size: 12px; font-weight: bold; cursor: pointer;">
+                        <option value="button" selected>右下ボタン (推奨)</option>
+                        <option value="double_tap">ダブルタップ</option>
                     </select>
                 </div>
                 
@@ -549,17 +574,54 @@ while (true) {
                 </div>
             </div>
         </div>
+
+        <!-- 画面外モバイルボムボタン (ゲームコンテナ右下にフロート) -->
+        <button id="mobile-bomb-button" class="mobile-bomb-btn hidden">
+            <span>BOMB</span>
+        </button>
+
+        <!-- ポーズメニュー オーバーレイ -->
+        <div id="pause-modal" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;">
+            <div style="width: 280px; background: #131326; border: 1.5px solid #ff3366; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 51, 102, 0.45); padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; box-sizing: border-box;">
+                <h2 style="margin: 0 0 6px 0; color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.8); font-size: 22px; letter-spacing: 2px; font-family: 'Noto Serif JP', serif;">PAUSE</h2>
+                
+                <button id="pause-btn-resume" class="menu-btn" onclick="resumeGameFromPause()" style="width: 100%; height: 38px; font-size: 14px; margin: 0; background: linear-gradient(135deg, #005544 0%, #002211 100%); border-color: #00ffcc; font-weight: bold; color: #fff;">
+                    再開 (Resume)
+                </button>
+                
+                <button id="pause-btn-retry" class="menu-btn" onclick="showPauseConfirm('retry')" style="width: 100%; height: 38px; font-size: 14px; margin: 0; background: linear-gradient(135deg, #553300 0%, #221100 100%); border-color: #ffaa00; font-weight: bold; color: #fff;">
+                    リトライ (Retry)
+                </button>
+                
+                <button id="pause-btn-quit" class="menu-btn" onclick="showPauseConfirm('quit')" style="width: 100%; height: 38px; font-size: 14px; margin: 0; background: linear-gradient(135deg, #550018 0%, #220008 100%); border-color: #ff3366; font-weight: bold; color: #fff;">
+                    ホームに戻る (Quit)
+                </button>
+            </div>
+        </div>
+
+        <!-- ポーズ確認モーダル -->
+        <div id="pause-confirm-modal" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000;">
+            <div style="width: 270px; background: #16162c; border: 1.5px solid #ffcc00; border-radius: 12px; box-shadow: 0 0 25px rgba(255, 200, 0, 0.4); padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; box-sizing: border-box;">
+                <h3 id="pause-confirm-title" style="margin: 0; color: #ffcc00; font-size: 16px;">確認</h3>
+                <p id="pause-confirm-message" style="margin: 0; color: #eee; font-size: 13px; line-height: 1.5;">本当にリトライしますか？</p>
+                <div style="display: flex; gap: 12px; width: 100%; justify-content: center; margin-top: 4px;">
+                    <button id="pause-confirm-yes" class="menu-btn" style="flex: 1; height: 34px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #661122 0%, #330011 100%); border-color: #ff4466; font-weight: bold; color: #fff;">はい</button>
+                    <button id="pause-confirm-no" class="menu-btn" onclick="closePauseConfirm()" style="flex: 1; height: 34px; font-size: 13px; margin: 0; background: #222; border-color: #666; font-weight: bold; color: #ccc;">いいえ</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
 
 
-    <!-- Modular Game Scripts -->
+    <!-- Modular Game Scripts (Pure Pre-compiled AOT Execution) -->
     <script src="js/sound.js?v=1.3.9"></script>
     <script>
         document.write('<script src="js/compiledanmaku.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bossdanmakucompiledata.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/compiler.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/danmaku.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bossdata.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
     </script>
     <script src="js/data.js?v=1.3.9"></script>
     <script src="js/emitter.js?v=1.3.9"></script>

@@ -1513,6 +1513,14 @@ function applyAbilityEffect(cardId, owner) {
             if (dt > 0.1) dt = 0.1;
             window.currentDt = dt;
 
+            // ポーズ中はシミュレーション更新を停止し描画状態を維持
+            if (window.isGamePaused) {
+                timeAccumulator = 0;
+                draw();
+                startGameLoop();
+                return;
+            }
+
             // FPS計測
             fpsFrameCount++;
             fpsAccumTime += dt;
@@ -1614,11 +1622,7 @@ function applyAbilityEffect(cardId, owner) {
             // 毎フレーム入力を更新（ゲームパッド ＆ キーコンフィグ）
             updateInputState();
 
-            // スマホ用：遅延・速度制限なしで完全同期
-            if (gameState === 'BATTLE' && mobileTargetX !== null && mobileTargetY !== null) {
-                player.x = mobileTargetX;
-                player.y = mobileTargetY;
-            }
+
 
             if (gameState === 'BATTLE') {
                 // オンライン対戦時、相手からキャスト情報（カード決定）が届いたらアクションフェーズを開始
@@ -1657,9 +1661,14 @@ function applyAbilityEffect(cardId, owner) {
                 }
 
                 // 霊撃の発動処理 (回避側で戦闘フェーズ中のみ)
-                if (battlePhase === 'ACTION' && turnOwner === 'CPU') {
+                if (battlePhase === 'ACTION' && (turnOwner === 'CPU' || isCustomCardTesting)) {
                     let bombTriggered = (inputState.bomb && !prevBombInput) || mobileBombTriggered;
-                    if (isCustomCardTesting) bombTriggered = false;
+                    if (isCustomCardTesting) {
+                        if (bombTriggered) {
+                            triggerCustomCardBomb();
+                        }
+                        bombTriggered = false;
+                    }
                     mobileBombTriggered = false; // 消費
                     if (bombTriggered && player.bombs >= 1 && !player.isInvincible) {
                         let consumed = true;
@@ -1851,28 +1860,39 @@ function applyAbilityEffect(cardId, owner) {
                     }
                 }
 
-                // 自機・敵機の移動処理（統合入力マネージャ inputState を参照 - 斜め移動の正規化処理を追加）
-                let dx = 0;
-                let dy = 0;
-                if (inputState.up) dy -= 1;
-                if (inputState.down) dy += 1;
-                if (inputState.left) dx -= 1;
-                if (inputState.right) dx += 1;
+                if (player.respawnDelay && player.respawnDelay > 0) {
+                    player.respawnDelay -= dt;
+                    player.x = PLAY_WIDTH / 2;
+                    player.y = player.respawnStartY || (canvas.height + 40);
+                } else if (player.respawnTimer && player.respawnTimer > 0) {
+                    player.respawnTimer -= dt;
+                    let p = 1 - Math.max(0, player.respawnTimer) / 0.6;
+                    let ease = Math.sin(p * Math.PI / 2);
+                    player.y = player.respawnStartY + (player.respawnTargetY - player.respawnStartY) * ease;
+                    player.x = PLAY_WIDTH / 2;
+                } else {
+                    // 自機・敵機の移動処理（統合入力マネージャ inputState を参照 - 斜め移動の正規化処理を追加）
+                    let dx = 0;
+                    let dy = 0;
+                    if (inputState.up) dy -= 1;
+                    if (inputState.down) dy += 1;
+                    if (inputState.left) dx -= 1;
+                    if (inputState.right) dx += 1;
 
-                if (dx !== 0 && dy !== 0) {
-                    dx *= 0.70710678;
-                    dy *= 0.70710678;
+                    if (dx !== 0 && dy !== 0) {
+                        dx *= 0.70710678;
+                        dy *= 0.70710678;
+                    }
+
+                    const currentSpeed = (inputState.slow || mobileSlowActive) ? player.slowSpeed : player.speed;
+                    player.x += dx * currentSpeed * dt;
+                    player.y += dy * currentSpeed * dt;
+
+                    player.x = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, player.x));
+                    player.y = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, player.y));
                 }
-
-                const currentSpeed = (inputState.slow || mobileSlowActive) ? player.slowSpeed : player.speed;
-                player.x += dx * currentSpeed * dt;
-                player.y += dy * currentSpeed * dt;
-
-                player.x = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, player.x));
-                player.y = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, player.y));
                 if (isCustomActionLocked('PLAYER')) {
                     applyCustomOwnerPositionLock('PLAYER', dt);
-                    dx = 0;
                 }
 
                 // --- CPUの自律移動（CPU戦は廃止されたためAIによる計算・移動処理を全削除） ---
@@ -1882,7 +1902,6 @@ function applyAbilityEffect(cardId, owner) {
                 cpu.targetX = cpu.x;
                 cpu.targetY = cpu.y;
                 cpu.prevX = cpu.x;
-                
 
                 enforceCustomActionLock(dt);
 
@@ -1892,8 +1911,41 @@ function applyAbilityEffect(cardId, owner) {
                     window.currentCardSecond = (window.currentCardSecond || 0) + dt;
                     window.currentCardFrame = (window.currentCardFrame || 0) + 1;
 
-                    // 制限時間内のみ弾を生成する
-                    if (actionTimer > 0) {
+                    // スペル宣言アニメーションのタイマー更新（ボス戦専用）
+                    if (window.isBossMode && typeof window.spellDeclarationTimer === 'number' && window.spellDeclarationTimer > 0) {
+                        window.spellDeclarationTimer -= dt;
+                    }
+
+                    // スペルボーナス計算（ボス戦専用）
+                    if (window.isBossMode && isCustomCardTesting && !customCardTestEmitterDone) {
+                        if (!window.spellBonusFailed) {
+                            let duration = (activeCards && activeCards[0] && activeCards[0].duration) ? activeCards[0].duration : 30;
+                            let timeRatio = Math.max(0, actionTimer / duration);
+                            let maxB = window.spellMaxBonus || 10000000;
+                            window.spellCurrentBonus = Math.floor(maxB * (0.3 + 0.7 * timeRatio));
+                        } else {
+                            window.spellCurrentBonus = 0;
+                        }
+                    }
+
+                    // 残り10秒以下のカウントダウンSE (ボス戦専用: 1秒減るごとに se_timeout.wav)
+                    if (window.isBossMode && isCustomCardTesting && !customCardTestEmitterDone) {
+                        let t = Math.max(0, actionTimer);
+                        if (t <= 10.0 && t > 0) {
+                            let sec = Math.ceil(t);
+                            if (sec <= 10 && sec >= 1 && sec !== window.lastTimeoutSecond) {
+                                window.lastTimeoutSecond = sec;
+                                if (window.playSound) {
+                                    window.playSound('se_timeout');
+                                }
+                            }
+                        }
+                    }
+
+                    // 制限時間内かつスペル遷移中でない場合のみ弾・エミッターを生成する
+                    let isSpellActive = (actionTimer > 0) && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!window.isBossMode || cpu.hp > 0);
+
+                    if (isSpellActive) {
                         let attacker = turnOwner === 'PLAYER' ? player : cpu;
                         let target = turnOwner === 'PLAYER' ? cpu : player;
 
@@ -1941,28 +1993,18 @@ function applyAbilityEffect(cardId, owner) {
                             });
                         }
 
-                        // 常時発射：通常ショット（同時攻撃）
+                        // 常時発射：通常ショット（同時攻撃、死亡・被弾待機中は発射不可、ボム無敵中は発射可能）
                         normalShotTimer += dt;
-                        if (normalShotTimer >= 0.2) {
+                        let shotInterval = (window.isBossMode) ? 0.07 : 0.14; // ボス戦は連射速度2倍
+                        if (normalShotTimer >= shotInterval) {
                             normalShotTimer = 0;
-                            // スペル発動中（ターンオーナー）は通常攻撃を撃たない（防御側のみ反撃）
-                            if (turnOwner !== 'PLAYER' && !isCustomCardTesting) {
-                                let bCount = player.bombs;
-                                if (bCount <= 1) {
-                                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                } else if (bCount === 2) {
-                                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 40, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                } else if (bCount === 3) {
-                                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x - 16, y: player.y - 10, vx: -30, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x + 16, y: player.y - 10, vx: 30, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                } else if (bCount >= 4) {
-                                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x - 12, y: player.y - 12, vx: -40, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x + 12, y: player.y - 12, vx: 40, vy: -650, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x - 24, y: player.y - 8, vx: -90, vy: -630, radius: 3.5, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x + 24, y: player.y - 8, vx: 90, vy: -630, radius: 3.5, team: 'PLAYER', isNormal: true });
+                            let canPlayerShoot = (!customCardDeathEffect && !window.customCardClearEffect && (!player.respawnDelay || player.respawnDelay <= 0) && player.hp > 0);
+                            if (canPlayerShoot) {
+                                // スペル発動中（ターンオーナー）は通常攻撃を撃たない（防御側のみ反撃）
+                                if ((turnOwner !== 'PLAYER' && !isCustomCardTesting) || (isCustomCardTesting && window.isBossMode)) {
+                                    let pShotSpeed = (window.isBossMode) ? -2200 : -1100; // ボス戦は弾速2倍
+                                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: pShotSpeed, radius: 4, team: 'PLAYER', isNormal: true });
+                                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: pShotSpeed, radius: 4, team: 'PLAYER', isNormal: true });
                                 }
                             }
                             if (turnOwner !== 'CPU') {
@@ -1985,6 +2027,10 @@ function applyAbilityEffect(cardId, owner) {
                                 }
                             }
                         }
+                    } else if (window.spellTransitionTimer > 0) {
+                        // 撃破・時間切れ後の遷移待機中は敵弾・魔法陣を完全にクリア
+                        bullets = bullets.filter(b => b.team === 'PLAYER');
+                        magicCircles.length = 0;
                     }
 
                     // 制限時間が切れ、かつ画面上の弾がすべて消えたら精算フェーズへ（自作カードテストプレイ中は除く）
@@ -2496,7 +2542,7 @@ function applyAbilityEffect(cardId, owner) {
                             distSq = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
                         }
                         if (distSq < (_cHitR + bHitR) ** 2) {
-                            let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 1 : 40); // 通常弾は一発1ダメージ固定
+                            let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 5 : 40); // 通常弾は一発5ダメージ
                             if (!b.isNormal && _acLen2) {
                                 dmg = Math.floor(dmg / 2);
                             }
@@ -2512,6 +2558,71 @@ function applyAbilityEffect(cardId, owner) {
                             if (_cp17)                  dmg = Math.floor(dmg * 0.80); // 金剛結界 (-20%)
 
                             cpu.pendingDamage += dmg;
+                            if (isCustomCardTesting && window.isBossMode) {
+                                // 打ち込み点（自機ショット1発命中ごとに+100点）
+                                window.totalScore = (window.totalScore || 0) + 100;
+
+                                cpu.hp = Math.max(0, cpu.hp - dmg);
+                                cpu.pendingDamage = 0;
+
+                                // 敵被弾SE再生: 通常hit時は damage00、残りHPが10%以下のときは damage01
+                                if (window.playSound && cpu.hp > 0) {
+                                    let now = performance.now();
+                                    if (!cpu.lastDamageSETime || now - cpu.lastDamageSETime >= 35) {
+                                        cpu.lastDamageSETime = now;
+                                        let hpRatio = cpu.maxHp > 0 ? (cpu.hp / cpu.maxHp) : 1.0;
+                                        if (hpRatio <= 0.10) {
+                                            window.playSound('se_damage01');
+                                        } else {
+                                            window.playSound('se_damage00');
+                                        }
+                                    }
+                                }
+
+                                if (cpu.hp <= 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
+                                    // 画面全体の弾消し
+                                    bullets.length = 0;
+                                    magicCircles.length = 0;
+
+                                    // 敵撃破音 SE (se_tan00.wav)
+                                    if (window.playSound) {
+                                        window.playSound('se_tan00');
+                                    }
+
+                                    // ノーミスノーボム撃破判定（通常弾幕以外のみスペルカードボーナス判定）
+                                    let currentCardObj = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
+                                    let isNonSpell = !currentCardObj || !currentCardObj.name || !currentCardObj.name.trim();
+                                    
+                                    if (isNonSpell) {
+                                        // 通常弾幕はボーナスなし＆待機なしで即座に次のスペカへ！
+                                        window.spellClearResult = null;
+                                        window.spellTransitionTimer = 0;
+                                        if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                                            if (typeof playBossBattle === 'function') {
+                                                playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
+                                            }
+                                        } else {
+                                            triggerCustomCardClear();
+                                        }
+                                        return;
+                                    } else {
+                                        // スペルカードフェーズは1.5秒間のボーナス演出待機
+                                        window.spellTransitionTimer = 1.5;
+                                        let isGet = !window.spellBonusFailed && (window.spellMissCount || 0) === 0 && (window.spellBombCount || 0) === 0;
+                                        if (isGet) {
+                                            if (window.playSound) {
+                                                window.playSound('se_cardget');
+                                            }
+                                            let awardedBonus = window.spellCurrentBonus || 0;
+                                            window.spellClearResult = { type: 'GET', bonus: awardedBonus, timer: 1.5 };
+                                            window.totalScore = (window.totalScore || 0) + awardedBonus;
+                                        } else {
+                                            window.spellBonusFailed = true;
+                                            window.spellClearResult = { type: 'FAILED', timer: 1.5 };
+                                        }
+                                    }
+                                }
+                            }
                             if (!cpu.recentHits) cpu.recentHits = [];
                             cpu.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             cpu.hitLastTurn = true; // 被弾履歴
@@ -2590,21 +2701,42 @@ function applyAbilityEffect(cardId, owner) {
                     if (window.miniExplosionEffect.length === 0) window.miniExplosionEffect = null;
                 }
 
-                // 衝撃波（波紋）の更新と当たり判定による弾消去
+                // 衝撃波（波紋）の更新と当たり判定による弾消去（回転処理付き）
                 if (window.miniExplosionShockwave) {
-                    window.miniExplosionShockwave.r += window.miniExplosionShockwave.speed * dt;
-                    window.miniExplosionShockwave.life -= dt;
+                    let sw = window.miniExplosionShockwave;
+                    sw.r += sw.speed * dt;
+                    sw.life -= dt;
+                    sw.angle = (sw.angle || 0) + 3.5 * dt; // 毎秒回転
                     
                     bullets = bullets.filter(b => {
                         const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
                         if (isLaserOrBeam || b.destroyResist) return true;
-                        let dist = Math.sqrt((b.x - window.miniExplosionShockwave.x) ** 2 + (b.y - window.miniExplosionShockwave.y) ** 2);
-                        return dist > window.miniExplosionShockwave.r;
+                        if (b.team === 'PLAYER') return true; // 自機の弾はボム衝撃波で消さない
+                        let dist = Math.sqrt((b.x - sw.x) ** 2 + (b.y - sw.y) ** 2);
+                        return dist > sw.r;
                     });
                     
-                    if (window.miniExplosionShockwave.life <= 0) {
+                    if (sw.life <= 0) {
                         window.miniExplosionShockwave = null;
                     }
+                }
+
+                // スペル撃破・時間切れ後の1.5秒待機インターバル進行
+                if (window.spellTransitionTimer && window.spellTransitionTimer > 0) {
+                    window.spellTransitionTimer -= dt;
+                    if (window.spellTransitionTimer <= 0) {
+                        window.spellTransitionTimer = 0;
+                        window.spellClearResult = null;
+                        if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                            if (typeof playBossBattle === 'function') {
+                                playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
+                            }
+                        } else {
+                            triggerCustomCardClear();
+                        }
+                        return;
+                    }
+                    return; // 1.5秒の間は被弾・射撃・タイマー減少等を停止
                 }
 
                 // クリアエフェクト進行中はタイマーを減らして待つ
@@ -2652,50 +2784,102 @@ function applyAbilityEffect(cardId, owner) {
                     if (typeof window.playerMissCount !== 'number') {
                         window.playerMissCount = 0;
                     }
+                    if (window.isBossMode) {
+                        window.spellMissCount = (window.spellMissCount || 0) + 1;
+                        window.spellBonusFailed = true;
+                        window.spellCurrentBonus = 0;
+                    }
                     
                     let maxMisses = (typeof window.playerMaxMisses === 'number') ? window.playerMaxMisses : 2;
                     if (window.playerMissCount < maxMisses) {
                         window.playerMissCount++;
-                        player.pendingDamage = 0;
-                        window.playerInvincibleTimer = 1.5; // 無敵時間1.5秒
                         
-                        // 小さな爆発エフェクトの生成
-                        let particles = [];
-                        for (let i = 0; i < 30; i++) {
-                            let angle = Math.random() * Math.PI * 2;
-                            let speed = 50 + Math.random() * 180;
-                            particles.push({
-                                x: player.x, y: player.y,
-                                vx: Math.cos(angle) * speed,
-                                vy: Math.sin(angle) * speed,
-                                life: 0.3 + Math.random() * 0.3,
-                                maxLife: 0.3 + Math.random() * 0.3,
-                                alpha: 1,
-                                r: 2 + Math.random() * 4,
-                                color: '#00ffff' // シアン色の火花
+                        if (window.isBossMode) {
+                            player.pendingDamage = 0;
+                            window.playerInvincibleTimer = 4.0; // ボス戦は無敵時間4秒
+                            if (window.playSound) {
+                                window.playSound('se_pldead00');
+                            }
+                            player.bombs = 2; // 被弾時に残ボム破棄＆新たに2個付与
+                            bullets.length = 0;
+                            magicCircles.length = 0;
+                            
+                            // 0.5秒間はその場に演出を出し、その後下からにょきっと復活
+                            let hitX = player.x;
+                            let hitY = player.y;
+                            player.respawnDelay = 0.5;
+                            player.respawnTimer = 0.6;
+                            player.respawnStartY = canvas.height + 40;
+                            player.respawnTargetY = canvas.height * 0.8;
+                            player.x = PLAY_WIDTH / 2;
+                            player.y = player.respawnStartY;
+                            player.targetX = player.x;
+                            player.targetY = player.respawnTargetY;
+                            
+                            // 大きめの火花エフェクト
+                            let particles = [];
+                            for (let i = 0; i < 50; i++) {
+                                let angle = Math.random() * Math.PI * 2;
+                                let speed = 80 + Math.random() * 280;
+                                particles.push({
+                                    x: hitX,
+                                    y: hitY,
+                                    vx: Math.cos(angle) * speed,
+                                    vy: Math.sin(angle) * speed,
+                                    life: 0.5 + Math.random() * 0.4,
+                                    maxLife: 0.5 + Math.random() * 0.4,
+                                    alpha: 1,
+                                    r: 6 + Math.random() * 8,
+                                    color: Math.random() < 0.5 ? '#ff3344' : '#ffcc00'
+                                });
+                            }
+                            window.miniExplosionEffect = particles;
+                            window.miniExplosionShockwave = null;
+                        } else {
+                            // 既存のスペルテストプレイの元の被弾耐え処理（SEなし）
+                            player.pendingDamage = 0;
+                            window.playerInvincibleTimer = 1.5;
+                            let particles = [];
+                            for (let i = 0; i < 30; i++) {
+                                let angle = Math.random() * Math.PI * 2;
+                                let speed = 50 + Math.random() * 180;
+                                particles.push({
+                                    x: player.x, y: player.y,
+                                    vx: Math.cos(angle) * speed,
+                                    vy: Math.sin(angle) * speed,
+                                    life: 0.3 + Math.random() * 0.3,
+                                    maxLife: 0.3 + Math.random() * 0.3,
+                                    alpha: 1,
+                                    r: 2 + Math.random() * 4,
+                                    color: '#00ffff'
+                                });
+                            }
+                            window.miniExplosionEffect = particles;
+                            window.miniExplosionShockwave = {
+                                x: player.x,
+                                y: player.y,
+                                r: 10,
+                                maxR: 200,
+                                speed: 380,
+                                life: 0.5
+                            };
+                            bullets = bullets.filter(b => {
+                                const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
+                                if (isLaserOrBeam || b.destroyResist) return true;
+                                let dist = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
+                                return dist > 200;
                             });
                         }
-                        window.miniExplosionEffect = particles;
-                        
-                        // 衝撃波（波紋）の生成 (半径 200px まで広がる)
-                        window.miniExplosionShockwave = {
-                            x: player.x,
-                            y: player.y,
-                            r: 10,
-                            maxR: 200,
-                            speed: 380, // 約0.5秒で最大
-                            life: 0.5
-                        };
-                        
-                        // 周囲の弾を即座に消去（レーザーは除く）
-                        bullets = bullets.filter(b => {
-                            const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
-                            if (isLaserOrBeam || b.destroyResist) return true;
-                            let dist = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
-                            return dist > 200;
-                        });
                     } else {
-                        // 3回目で死亡エフェクト開始（3秒）
+                        // 死亡エフェクト開始（3秒） - ゲームオーバー時は画面全体の弾を消さない
+                        if (window.isBossMode) {
+                            if (window.playSound) {
+                                window.playSound('se_pldead00');
+                            }
+                            if (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id && typeof updateBossHighScore === 'function') {
+                                updateBossHighScore(currentBoss.id, window.totalScore || 0);
+                            }
+                        }
                         let particles = [];
                         for (let i = 0; i < 60; i++) {
                             let angle = Math.random() * Math.PI * 2;
@@ -2714,28 +2898,49 @@ function applyAbilityEffect(cardId, owner) {
                         customCardDeathEffect = { timer: 3.0, particles };
                     }
                 }
-                // actionTimer が切れたら即座に全弾を消去してクリアエフェクトを開始
+                // actionTimer が切れた時の処理
                 if (actionTimer <= 0 && !customCardDeathEffect && !window.customCardClearEffect) {
-                    bullets.length = 0; // 弾を全消去
-                    let particles = [];
-                    for (let i = 0; i < 80; i++) {
-                        let angle = Math.random() * Math.PI * 2;
-                        let speed = 100 + Math.random() * 250;
-                        particles.push({
-                            x: PLAY_WIDTH / 2 + (Math.random() - 0.5) * 100, // 画面中央付近
-                            y: canvas.height / 2 + (Math.random() - 0.5) * 100,
-                            vx: Math.cos(angle) * speed,
-                            vy: Math.sin(angle) * speed - 50,
-                            gravity: -50 + Math.random() * 100, // フワフワ落ちる
-                            life: 1.0 + Math.random() * 1.5,
-                            maxLife: 1.0 + Math.random() * 1.5,
-                            alpha: 1,
-                            r: 4 + Math.random() * 5,
-                            hue: Math.random() * 360 // 虹色
-                        });
+                    if (window.isBossMode) {
+                        let currentCardObj = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
+                        let isNonSpell = !currentCardObj || !currentCardObj.name || !currentCardObj.name.trim();
+
+                        if (isNonSpell) {
+                            // 通常弾幕の時間切れ: 弾消し＆即座に次のスペカへ！
+                            bullets.length = 0;
+                            magicCircles.length = 0;
+                            if (window.playSound) window.playSound('se_tan00');
+                            if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                                if (typeof playBossBattle === 'function') {
+                                    playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
+                                }
+                            } else {
+                                triggerCustomCardClear();
+                            }
+                            return;
+                        } else {
+                            // スペルカードの時間切れ: 1.5秒待機、se_fault、Failed表示
+                            if (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) {
+                                bullets.length = 0; // 全弾消去
+                                magicCircles.length = 0;
+
+                                window.spellBonusFailed = true;
+                                window.spellCurrentBonus = 0;
+                                window.spellTransitionTimer = 1.5;
+                                window.spellClearResult = { type: 'FAILED', timer: 1.5 };
+
+                                // 敵弾消去音 (se_tan00.wav) & 時間切れ音 (se_fault.wav)
+                                if (window.playSound) {
+                                    window.playSound('se_tan00');
+                                    window.playSound('se_fault');
+                                }
+                            }
+                        }
+                    } else {
+                        // 既存のスペルテストプレイ: 時間切れ時は即座に全弾消去してクリアへ移行
+                        bullets.length = 0;
+                        magicCircles.length = 0;
+                        triggerCustomCardClear();
                     }
-                    window.customCardClearEffect = { elapsed: 0, tapCount: 0, particles };
-                    customCardTestEmitterDone = true;
                 }
             }
         }
@@ -3673,7 +3878,9 @@ function applyAbilityEffect(cardId, owner) {
             const drawW = 48, drawH = 48;
  
             let showPlayer = true;
-            if (isCustomCardTesting && typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) {
+            if (player.respawnDelay && player.respawnDelay > 0) {
+                showPlayer = false;
+            } else if (isCustomCardTesting && typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) {
                 showPlayer = (Math.floor(performance.now() / 80) % 2 === 0);
             }
  
@@ -3761,7 +3968,7 @@ function applyAbilityEffect(cardId, owner) {
 
             // オプション（陰陽玉）の描画
             let bCount = player.bombs;
-            if (bCount >= 2) {
+            if (bCount >= 2 && showPlayer) {
                 player.optionAngle = (player.optionAngle || 0) + 0.05;
                 let optionCount = bCount - 1;
                 if (bCount >= 4) optionCount = 4;
@@ -3835,19 +4042,63 @@ function applyAbilityEffect(cardId, owner) {
                 });
             }
 
-            // 耐えた時の衝撃波（波紋）の描画
+            // 衝撃波（波紋）の描画
             if (isCustomCardTesting && window.miniExplosionShockwave) {
                 ctx.save();
                 let sw = window.miniExplosionShockwave;
-                let alpha = Math.max(0, sw.life / 0.5);
-                ctx.globalAlpha = alpha;
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#00ffff';
-                ctx.beginPath();
-                ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
-                ctx.stroke();
+                if (window.isBossMode) {
+                    // ボス戦（ボム波紋）: 回転する多重魔法波紋
+                    let maxL = sw.maxLife || 1.0;
+                    let alpha = Math.max(0, sw.life / maxL);
+                    ctx.globalAlpha = alpha;
+                    
+                    ctx.translate(sw.x, sw.y);
+                    ctx.rotate(sw.angle || 0);
+
+                    // 外側メインリング
+                    ctx.strokeStyle = '#00ffff';
+                    ctx.lineWidth = 3.5;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#00e5ff';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, sw.r, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // 内側の逆回転破線リング
+                    ctx.save();
+                    ctx.rotate(-(sw.angle || 0) * 1.8);
+                    ctx.setLineDash([14, 10]);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, sw.r * 0.75, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // 8方向の回転放射光芒線
+                    ctx.strokeStyle = 'rgba(0, 255, 200, 0.7)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let k = 0; k < 8; k++) {
+                        let a = (Math.PI * 2 / 8) * k;
+                        let cosA = Math.cos(a);
+                        let sinA = Math.sin(a);
+                        ctx.moveTo(cosA * sw.r * 0.4, sinA * sw.r * 0.4);
+                        ctx.lineTo(cosA * sw.r * 0.95, sinA * sw.r * 0.95);
+                    }
+                    ctx.stroke();
+                } else {
+                    // 通常スペルテスト（被弾時波紋）: 過去のシンプルな白・シアン円波紋
+                    let alpha = Math.max(0, sw.life / 0.5);
+                    ctx.globalAlpha = alpha;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#00ffff';
+                    ctx.beginPath();
+                    ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
                 ctx.restore();
             }
 
@@ -3858,7 +4109,7 @@ function applyAbilityEffect(cardId, owner) {
             else { cImg = youmuImg_idle; }
 
             const cpuAnimIndex = Math.floor(performance.now() / 150) % 4;
-            const cpuDrawW = 48, cpuDrawH = 48;
+            const cpuDrawW = 72, cpuDrawH = 72; // 見た目サイズ 3/4 (72x72)
 
             ctx.save();
             ctx.translate(cpu.x, cpu.y);
@@ -3869,20 +4120,14 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.drawImage(cImg, srcX, 0, spriteW, spriteH, -cpuDrawW / 2, -cpuDrawH / 2, cpuDrawW, cpuDrawH);
             } else {
                 ctx.fillStyle = '#ff5555';
-                ctx.fillRect(-12, -16, 24, 32);
+                ctx.fillRect(-18, -24, 36, 48);
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 12px sans-serif';
+                ctx.font = 'bold 14px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText("敵機", 0, 0);
             }
             ctx.restore();
-
-            ctx.beginPath(); ctx.arc(cpu.x, cpu.y, cpu.hitboxRadius + 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = cpu.isSlow ? '#ff00ff' : '#aa44ff'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
-
-            ctx.beginPath(); ctx.arc(cpu.x, cpu.y, cpu.grazeRadius, 0, Math.PI * 2);
-            ctx.strokeStyle = cpu.isSlow ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 1; ctx.stroke();
 
             // 霊撃カットイン
             if (reigekiCutinTimer > 0) {
@@ -3974,144 +4219,417 @@ function applyAbilityEffect(cardId, owner) {
 
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
-            // ── スペルカード名を左上に表示 ──────────────────────────────
-            if (gameState === 'BATTLE' && activeCards && activeCards[0]) {
+            // ── HUD描画 ──────────────────────────────
+            if (isCustomCardTesting && !customCardTestEmitterDone && activeCards && activeCards[0]) {
                 ctx.save();
-                
                 let card = activeCards[0];
-                let selectVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : null;
-                let rawDiff = (card && card.difficulty) ? card.difficulty : (window.cpuDifficulty || window.currentDifficulty || selectVal || (typeof cpuDifficulty !== 'undefined' ? cpuDifficulty : 'NORMAL'));
-
-                let cardDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(rawDiff) : String(rawDiff || 'NORMAL').toUpperCase();
-                let diffChar = cardDiff.charAt(0).toUpperCase();
-                
-                // グラデーションの定義
-                let badgeGrad = ctx.createLinearGradient(10, 10, 34, 34);
-                if (cardDiff === 'EASY') {
-                    badgeGrad.addColorStop(0, '#00b09b');
-                    badgeGrad.addColorStop(1, '#96c93d');
-                } else if (cardDiff === 'HARD') {
-                    badgeGrad.addColorStop(0, '#ff416c');
-                    badgeGrad.addColorStop(1, '#ff4b2b');
-                } else if (cardDiff === 'LUNATIC') {
-                    badgeGrad.addColorStop(0, '#f80759');
-                    badgeGrad.addColorStop(1, '#bc4e9c');
-                } else {
-                    badgeGrad.addColorStop(0, '#00c6ff');
-                    badgeGrad.addColorStop(1, '#0072ff');
-                }
-                
-                // 角丸四角形描画用の簡易ヘルパー
-                const drawRoundRect = (x, y, w, h, r) => {
-                    if (ctx.roundRect) {
-                        ctx.beginPath();
-                        ctx.roundRect(x, y, w, h, r);
-                        ctx.fill();
-                    } else {
-                        ctx.fillRect(x, y, w, h);
-                    }
-                };
-                
-                // 1. 難易度マークの正方形を描画
-                // シャドウ
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                drawRoundRect(11, 11, 24, 24, 4);
-                // 本体
-                ctx.fillStyle = badgeGrad;
-                drawRoundRect(10, 10, 24, 24, 4);
-                
-                // 難易度文字
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.font = "900 18px 'Arial Black', 'Impact', sans-serif";
-                
-                // 黒の輪郭線シャドウ
-                ctx.fillStyle = '#000000';
-                ctx.fillText(diffChar, 21, 22.5);
-                ctx.fillText(diffChar, 23, 22.5);
-                ctx.fillText(diffChar, 22, 21.5);
-                ctx.fillText(diffChar, 22, 23.5);
-                
-                // 文字本体（白）
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(diffChar, 22, 22.5); // 中央寄せ
-                
-                // 2. スペルカード名を描画
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                ctx.font = "italic bold 16px 'Noto Serif JP', sans-serif";
-                
-                // カード名シャドウ
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillText(card.name, 46, 24);
-                
-                // カード名本体（金〜白のグラデーション）
-                let grad = ctx.createLinearGradient(44, 14, 44, 30);
-                grad.addColorStop(0, '#ffffff');
-                grad.addColorStop(1, '#ffe066');
-                ctx.fillStyle = grad;
-                ctx.fillText(card.name, 44, 22);
-                
-                ctx.restore();
-            }
-
-            // ── 残り時間を右上に表示 ──────────────────────────────
-            if (isCustomCardTesting && !customCardTestEmitterDone) {
                 let t = Math.max(0, actionTimer);
-                ctx.save();
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'top';
-                // 残り5秒以下で赤く点滅
-                if (t <= 5) {
-                    let blink = 0.6 + 0.4 * Math.sin(performance.now() / 120);
-                    ctx.globalAlpha = blink;
-                    ctx.fillStyle = '#ff4444';
-                } else {
-                    ctx.fillStyle = '#ffffff';
-                }
-                // 背景パネル
-                ctx.fillStyle = t <= 5 ? 'rgba(180,0,0,0.45)' : 'rgba(0,0,0,0.45)';
-                ctx.fillRect(PLAY_WIDTH - 90, 6, 84, 36);
-                // 文字
-                ctx.globalAlpha = t <= 5 ? (0.6 + 0.4 * Math.sin(performance.now() / 120)) : 1.0;
-                ctx.fillStyle = t <= 5 ? '#ff6666' : '#ffffff';
-                ctx.font = 'bold 26px monospace';
-                ctx.fillText(t.toFixed(1) + 's', PLAY_WIDTH - 10, 10);
-                ctx.globalAlpha = 1.0;
-                ctx.restore();
-            }
 
-            // ── ライフ（被弾耐性）を右上に表示 ──────────────────────────────
-            if (isCustomCardTesting && !customCardTestEmitterDone) {
-                let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
-                let maxMisses = typeof window.playerMaxMisses === 'number' ? window.playerMaxMisses : 2;
-                let lives = Math.max(0, maxMisses - missCount);
-                
-                ctx.save();
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'top';
-                
-                // 文字の準備
-                let starText = '';
-                if (maxMisses === Infinity) {
-                    starText = 'Miss: ' + missCount;
+                if (window.isBossMode) {
+                    // ── 東方星蓮船スタイル ボス戦 HUD ──────────────────────────────
+                    let isWarning = t <= 10;
+                    let spellName = (card.name && card.name.trim()) ? card.name.trim() : '';
+                    let isNonSpell = !spellName;
+
+                    // 1. 最上部 HPバー (左端から右上タイマー手前まで、区切り線なし)
+                    let hpBarX = 12;
+                    let hpBarY = 8;
+                    let hpBarW = PLAY_WIDTH - 130;
+                    let hpBarH = 5;
+                    let hpRatio = cpu.maxHp > 0 ? Math.max(0, Math.min(1, cpu.hp / cpu.maxHp)) : 1.0;
+
+                    // HPバー背景枠
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                    ctx.fillRect(hpBarX - 1, hpBarY - 1, hpBarW + 2, hpBarH + 2);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(hpBarX - 1, hpBarY - 1, hpBarW + 2, hpBarH + 2);
+
+                    // HPバー中身（通常弾幕時は白色、スペルカード時は赤・橙・黄）
+                    let hpGrad = ctx.createLinearGradient(hpBarX, 0, hpBarX + hpBarW, 0);
+                    if (isNonSpell) {
+                        hpGrad.addColorStop(0, '#ffffff');
+                        hpGrad.addColorStop(0.5, '#e8e8e8');
+                        hpGrad.addColorStop(1, '#c0c0c0');
+                    } else {
+                        if (hpRatio > 0.5) {
+                            hpGrad.addColorStop(0, '#ff9900');
+                            hpGrad.addColorStop(1, '#ff3344');
+                        } else if (hpRatio > 0.2) {
+                            hpGrad.addColorStop(0, '#ffcc00');
+                            hpGrad.addColorStop(1, '#ff6600');
+                        } else {
+                            hpGrad.addColorStop(0, '#ff3366');
+                            hpGrad.addColorStop(1, '#ff0033');
+                        }
+                    }
+                    ctx.fillStyle = hpGrad;
+                    ctx.fillRect(hpBarX, hpBarY, hpBarW * hpRatio, hpBarH);
+
+                    // 2. 右上 残り時間 (東方風: 整数部大・小数部小のスタイリッシュな斜体デジタル)
+                    let totalFormatted = t.toFixed(2);
+                    let parts = totalFormatted.split('.');
+                    let intPart = parts[0];
+                    let decPart = '.' + parts[1];
+
+                    let rightEdge = PLAY_WIDTH - 12;
+                    let baseY = 27; // ベースライン位置
+
+                    let intFont = "italic bold 28px 'Trebuchet MS', 'Arial', 'Segoe UI', sans-serif";
+                    let decFont = "italic bold 18px 'Trebuchet MS', 'Arial', 'Segoe UI', sans-serif";
+
+                    // 小数部の幅計測
+                    ctx.font = decFont;
+                    let decW = ctx.measureText(decPart).width;
+                    let decX = rightEdge - decW;
+                    let intX = decX - 1;
+
+                    let textColor = isWarning ? '#ff4444' : '#ffffff';
+                    let timerAlpha = isWarning ? (0.7 + 0.3 * Math.sin(performance.now() / 150)) : 1.0;
+
+                    // 影の描画
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                    ctx.textBaseline = 'alphabetic';
+                    
+                    ctx.font = intFont;
+                    ctx.textAlign = 'right';
+                    ctx.fillText(intPart, intX + 1.5, baseY + 1.5);
+
+                    ctx.font = decFont;
+                    ctx.textAlign = 'left';
+                    ctx.fillText(decPart, decX + 1.5, baseY + 1.5);
+
+                    // 文字本体の描画
+                    ctx.save();
+                    ctx.globalAlpha = timerAlpha;
+                    ctx.fillStyle = textColor;
+
+                    ctx.font = intFont;
+                    ctx.textAlign = 'right';
+                    ctx.fillText(intPart, intX, baseY);
+
+                    ctx.font = decFont;
+                    ctx.textAlign = 'left';
+                    ctx.fillText(decPart, decX, baseY);
+                    ctx.restore();
+
+                    // 3. 左上 ボス名 (大きめフォント) & 残りスペカ数
+                    let bossName = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.name) ? currentBoss.name : '敵機';
+                    if (bossName) {
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'top';
+                        ctx.font = "bold 18px 'Noto Serif JP', sans-serif";
+                        
+                        // 影
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+                        ctx.fillText(bossName, 13, 17);
+
+                        // 本体
+                        ctx.fillStyle = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.color) ? currentBoss.color : '#88ffaa';
+                        ctx.fillText(bossName, 12, 16);
+
+                        // ボス残機星マーク (★★★★)
+                        let totalSpells = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.spells) ? currentBoss.spells.length : 1;
+                        let currentSpellIdx = (typeof currentBossSpellIndex === 'number') ? currentBossSpellIndex : 0;
+                        let remainingSpells = Math.max(0, totalSpells - currentSpellIdx);
+                        
+                        let starStr = '';
+                        for (let si = 0; si < remainingSpells; si++) starStr += '★';
+                        ctx.font = "bold 13px sans-serif";
+                        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                        ctx.fillText(starStr, 13, 38);
+                        ctx.fillStyle = '#88ffaa';
+                        ctx.fillText(starStr, 12, 37);
+                    }
+
+                    // 4. 右上 スペル名 ＆ 発動時アニメーション（通常弾幕時はスキップ）
+                    let bannerEndX = PLAY_WIDTH - 10;
+                    let bannerEndY = 34; // 右上・時間の下
+                    let bannerStartY = canvas.height * 0.76; // 右下 (発動時)
+                    let bannerH = 34;
+
+                    let curBannerY = bannerEndY;
+                    let isDeclaring = typeof window.spellDeclarationTimer === 'number' && window.spellDeclarationTimer > 0;
+                    
+                    if (isDeclaring && spellName) {
+                        let elapsed = 2.8 - window.spellDeclarationTimer;
+                        if (elapsed <= 2.0) {
+                            // 最初の2秒間は画面右下に留まる
+                            curBannerY = bannerStartY;
+                        } else {
+                            // 2秒後から0.8秒かけて加減速（Ease-In-Out）で上へスライド
+                            let slideProgress = Math.min(1.0, (elapsed - 2.0) / 0.8);
+                            let ease = slideProgress < 0.5 
+                                ? 2 * slideProgress * slideProgress 
+                                : 1 - Math.pow(-2 * slideProgress + 2, 2) / 2;
+                            curBannerY = bannerStartY + (bannerEndY - bannerStartY) * ease;
+                        }
+                    }
+
+                    if (spellName) {
+                        ctx.font = "italic bold 24px 'Noto Serif JP', serif";
+                        let textMetrics = ctx.measureText(spellName);
+                        let bannerW = Math.max(260, textMetrics.width + 48);
+
+                        // 背景帯 (深紅グラデーション帯)
+                        let ribbonGrad = ctx.createLinearGradient(bannerEndX - bannerW, 0, bannerEndX, 0);
+                        ribbonGrad.addColorStop(0, 'rgba(120, 0, 30, 0.0)');
+                        ribbonGrad.addColorStop(0.25, 'rgba(120, 0, 30, 0.75)');
+                        ribbonGrad.addColorStop(1.0, 'rgba(60, 0, 15, 0.9)');
+
+                        ctx.fillStyle = ribbonGrad;
+                        ctx.fillRect(bannerEndX - bannerW, curBannerY, bannerW, bannerH);
+
+                        // 下部の赤い光るライン
+                        let lineGrad = ctx.createLinearGradient(bannerEndX - bannerW, 0, bannerEndX, 0);
+                        lineGrad.addColorStop(0, 'rgba(255, 50, 80, 0)');
+                        lineGrad.addColorStop(0.3, 'rgba(255, 80, 120, 0.9)');
+                        lineGrad.addColorStop(1.0, 'rgba(255, 200, 220, 1.0)');
+                        ctx.fillStyle = lineGrad;
+                        ctx.fillRect(bannerEndX - bannerW, curBannerY + bannerH - 2, bannerW, 2);
+
+                        // スペル名テキスト
+                        ctx.textAlign = 'right';
+                        ctx.textBaseline = 'middle';
+                        
+                        // 黒シャドウ
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                        ctx.fillText(spellName, bannerEndX - 13.5, curBannerY + bannerH / 2 + 1.5);
+
+                        // 金・白グラデーション文字
+                        let textGrad = ctx.createLinearGradient(0, curBannerY, 0, curBannerY + bannerH);
+                        textGrad.addColorStop(0, '#ffffff');
+                        textGrad.addColorStop(1, '#ffdd88');
+                        ctx.fillStyle = textGrad;
+                        ctx.fillText(spellName, bannerEndX - 15, curBannerY + bannerH / 2);
+
+                        // 5. ボーナス情報表示（スペル名直下）
+                        let bonusY = curBannerY + bannerH + 11;
+                        ctx.textAlign = 'right';
+                        ctx.textBaseline = 'middle';
+                        if (!window.spellBonusFailed) {
+                            ctx.font = "italic bold 12px 'Trebuchet MS', 'Arial', sans-serif";
+                            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                            ctx.fillText('Bonus  ' + (window.spellCurrentBonus || 0).toLocaleString(), bannerEndX - 13.5, bonusY + 1);
+                            ctx.fillStyle = '#ffdd88';
+                            ctx.fillText('Bonus  ' + (window.spellCurrentBonus || 0).toLocaleString(), bannerEndX - 15, bonusY);
+                        } else {
+                            ctx.font = "italic bold 12px sans-serif";
+                            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                            ctx.fillText('Spell Bonus Failed', bannerEndX - 13.5, bonusY + 1);
+                            ctx.fillStyle = '#ff6677';
+                            ctx.fillText('Spell Bonus Failed', bannerEndX - 15, bonusY);
+                        }
+                    }
+
+                    // 6. プレイヤー情報（スコア、残機、ボム）
+                    let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
+                    let maxMisses = typeof window.playerMaxMisses === 'number' ? window.playerMaxMisses : 2;
+                    let lives = Math.max(0, maxMisses - missCount);
+                    
+                    let starText = 'Player: ';
+                    if (maxMisses === Infinity) {
+                        starText += '∞';
+                    } else {
+                        for (let li = 0; li < lives; li++) starText += '★';
+                    }
+
+                    let bombText = 'Bomb: ';
+                    for (let bi = 0; bi < player.bombs; bi++) bombText += '★';
+
+                    let scoreText = 'Score:  ' + (window.totalScore || 0).toLocaleString();
+
+                    let playerInfoW = 165;
+                    let playerInfoX = PLAY_WIDTH - playerInfoW - 10;
+                    let playerInfoY = spellName ? (bannerEndY + bannerH + 24) : 48;
+                    let playerInfoH = 50;
+
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+                    ctx.fillRect(playerInfoX, playerInfoY, playerInfoW, playerInfoH);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(playerInfoX, playerInfoY, playerInfoW, playerInfoH);
+
+                    ctx.font = "bold 13px monospace";
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+
+                    // 1行目: 現在スコア
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(scoreText, playerInfoX + 10, playerInfoY + 10);
+
+                    // 2行目: 残機
+                    ctx.fillStyle = lives === 0 ? '#ff6666' : '#ff99bb';
+                    ctx.fillText(starText, playerInfoX + 10, playerInfoY + 25);
+
+                    // 3行目: ボム
+                    ctx.fillStyle = player.bombs > 0 ? '#33ffaa' : '#888888';
+                    ctx.fillText(bombText, playerInfoX + 10, playerInfoY + 39);
+
+                    // 7. スペル取得・失敗演出（中央上部表示）
+                    if (window.spellClearResult) {
+                        ctx.save();
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        let resY = canvas.height * 0.35;
+
+                        if (window.spellClearResult.type === 'GET') {
+                            ctx.font = "italic bold 32px 'Noto Serif JP', serif";
+                            ctx.shadowBlur = 18;
+                            ctx.shadowColor = '#ffcc00';
+                            ctx.fillStyle = 'rgba(0,0,0,0.9)';
+                            ctx.fillText('Spell Card Bonus!', PLAY_WIDTH / 2 + 2, resY + 2);
+                            
+                            let goldGrad = ctx.createLinearGradient(0, resY - 16, 0, resY + 16);
+                            goldGrad.addColorStop(0, '#ffffff');
+                            goldGrad.addColorStop(0.5, '#ffee88');
+                            goldGrad.addColorStop(1, '#ffbb22');
+                            ctx.fillStyle = goldGrad;
+                            ctx.fillText('Spell Card Bonus!', PLAY_WIDTH / 2, resY);
+
+                            ctx.font = "bold 26px 'Trebuchet MS', 'Arial', monospace";
+                            ctx.shadowBlur = 15;
+                            ctx.shadowColor = '#00ffff';
+                            let bonusStr = '+' + (window.spellClearResult.bonus || 0).toLocaleString();
+                            ctx.fillStyle = 'rgba(0,0,0,0.9)';
+                            ctx.fillText(bonusStr, PLAY_WIDTH / 2 + 2, resY + 40);
+                            ctx.fillStyle = '#66ffff';
+                            ctx.fillText(bonusStr, PLAY_WIDTH / 2, resY + 38);
+                        } else {
+                            ctx.font = "italic bold 28px 'Noto Serif JP', serif";
+                            ctx.shadowBlur = 15;
+                            ctx.shadowColor = '#880000';
+                            ctx.fillStyle = 'rgba(0,0,0,0.9)';
+                            ctx.fillText('Spell Bonus Failed', PLAY_WIDTH / 2 + 2, resY + 2);
+                            ctx.fillStyle = '#ff5566';
+                            ctx.fillText('Spell Bonus Failed', PLAY_WIDTH / 2, resY);
+                        }
+                        ctx.restore();
+                    }
                 } else {
-                    for (let li = 0; li < lives; li++) starText += '★';
-                    if (starText === '') starText = '無残機';
+                    // ── 既存の「スペルに挑戦！」オリジナル HUD ──────────────────────────────
+                    // 1. 左上 スペルカード名 ＆ 難易度バッジ
+                    ctx.save();
+                    let selectVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : null;
+                    let rawDiff = (card && card.difficulty) ? card.difficulty : (window.cpuDifficulty || window.currentDifficulty || selectVal || (typeof cpuDifficulty !== 'undefined' ? cpuDifficulty : 'NORMAL'));
+
+                    let cardDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(rawDiff) : String(rawDiff || 'NORMAL').toUpperCase();
+                    let diffChar = cardDiff.charAt(0).toUpperCase();
+                    
+                    // グラデーションの定義
+                    let badgeGrad = ctx.createLinearGradient(10, 10, 34, 34);
+                    if (cardDiff === 'EASY') {
+                        badgeGrad.addColorStop(0, '#00b09b');
+                        badgeGrad.addColorStop(1, '#96c93d');
+                    } else if (cardDiff === 'HARD') {
+                        badgeGrad.addColorStop(0, '#ff416c');
+                        badgeGrad.addColorStop(1, '#ff4b2b');
+                    } else if (cardDiff === 'LUNATIC') {
+                        badgeGrad.addColorStop(0, '#f80759');
+                        badgeGrad.addColorStop(1, '#bc4e9c');
+                    } else {
+                        badgeGrad.addColorStop(0, '#00c6ff');
+                        badgeGrad.addColorStop(1, '#0072ff');
+                    }
+                    
+                    // 角丸四角形描画用の簡易ヘルパー
+                    const drawRoundRect = (x, y, w, h, r) => {
+                        if (ctx.roundRect) {
+                            ctx.beginPath();
+                            ctx.roundRect(x, y, w, h, r);
+                            ctx.fill();
+                        } else {
+                            ctx.fillRect(x, y, w, h);
+                        }
+                    };
+                    
+                    // 難易度マークの正方形を描画
+                    // シャドウ
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    drawRoundRect(11, 11, 24, 24, 4);
+                    // 本体
+                    ctx.fillStyle = badgeGrad;
+                    drawRoundRect(10, 10, 24, 24, 4);
+                    
+                    // 難易度文字 (E, N, H, L)
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = "900 18px 'Arial Black', 'Impact', sans-serif";
+                    
+                    // 黒の輪郭線シャドウ
+                    ctx.fillStyle = '#000000';
+                    ctx.fillText(diffChar, 21, 22.5);
+                    ctx.fillText(diffChar, 23, 22.5);
+                    ctx.fillText(diffChar, 22, 21.5);
+                    ctx.fillText(diffChar, 22, 23.5);
+                    
+                    // 文字本体（白）
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(diffChar, 22, 22.5); // 中央寄せ
+                    
+                    // 2. スペルカード名を描画
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = "italic bold 16px 'Noto Serif JP', sans-serif";
+                    
+                    // カード名シャドウ
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.fillText(card.name, 46, 24);
+                    
+                    // カード名本体（金〜白のグラデーション）
+                    let grad = ctx.createLinearGradient(44, 14, 44, 30);
+                    grad.addColorStop(0, '#ffffff');
+                    grad.addColorStop(1, '#ffe066');
+                    ctx.fillStyle = grad;
+                    ctx.fillText(card.name, 44, 22);
+                    
+                    ctx.restore();
+
+                    // 2. 右上 残り時間
+                    ctx.save();
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'top';
+                    let isWarning = t <= 5;
+                    if (isWarning) {
+                        let blink = 0.6 + 0.4 * Math.sin(performance.now() / 120);
+                        ctx.globalAlpha = blink;
+                        ctx.fillStyle = '#ff4444';
+                    } else {
+                        ctx.fillStyle = '#ffffff';
+                    }
+                    ctx.fillStyle = isWarning ? 'rgba(180,0,0,0.45)' : 'rgba(0,0,0,0.45)';
+                    ctx.fillRect(PLAY_WIDTH - 90, 6, 84, 36);
+                    ctx.globalAlpha = isWarning ? (0.6 + 0.4 * Math.sin(performance.now() / 120)) : 1.0;
+                    ctx.fillStyle = isWarning ? '#ff6666' : '#ffffff';
+                    ctx.font = 'bold 26px monospace';
+                    ctx.fillText(t.toFixed(1) + 's', PLAY_WIDTH - 10, 10);
+                    ctx.restore();
+
+                    // 3. 右上 ライフ（被弾耐性）
+                    let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
+                    let maxMisses = typeof window.playerMaxMisses === 'number' ? window.playerMaxMisses : 2;
+                    let lives = Math.max(0, maxMisses - missCount);
+                    
+                    ctx.save();
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'top';
+                    let starText = '';
+                    if (maxMisses === Infinity) {
+                        starText = 'Miss: ' + missCount;
+                    } else {
+                        for (let li = 0; li < lives; li++) starText += '★';
+                        if (starText === '') starText = '無残機';
+                    }
+                    ctx.font = 'bold 14px sans-serif';
+                    let textWidth = ctx.measureText(starText).width;
+                    let panelWidth = Math.max(84, textWidth + 16);
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+                    ctx.fillRect(PLAY_WIDTH - panelWidth - 6, 46, panelWidth, 24);
+                    ctx.fillStyle = lives === 0 ? '#ff6666' : '#ff99bb';
+                    ctx.fillText(starText, PLAY_WIDTH - 14, 50);
+                    ctx.restore();
                 }
-                
-                ctx.font = 'bold 14px sans-serif';
-                let textWidth = ctx.measureText(starText).width;
-                let panelWidth = Math.max(84, textWidth + 16);
-                
-                // 背景パネル
-                ctx.fillStyle = 'rgba(0,0,0,0.45)';
-                ctx.fillRect(PLAY_WIDTH - panelWidth - 8, 48, panelWidth, 24);
-                
-                // 文字
-                ctx.fillStyle = lives === 0 ? '#ff4444' : '#ff99bb';
-                ctx.fillText(starText, PLAY_WIDTH - 16, 53);
-                
+
                 ctx.restore();
             }
 
@@ -4376,19 +4894,188 @@ function applyAbilityEffect(cardId, owner) {
 
 
         // ==========================================
+        // ボスモード・カスタムカード クリア＆ボム実行ヘルパー
+        // ==========================================
+        function triggerCustomCardClear() {
+            if (customCardDeathEffect || window.customCardClearEffect) return;
+            bullets.length = 0; // 弾を全消去
+            let particles = [];
+            for (let i = 0; i < 80; i++) {
+                let angle = Math.random() * Math.PI * 2;
+                let speed = 100 + Math.random() * 250;
+                particles.push({
+                    x: PLAY_WIDTH / 2 + (Math.random() - 0.5) * 100,
+                    y: canvas.height / 2 + (Math.random() - 0.5) * 100,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 50,
+                    gravity: -50 + Math.random() * 100,
+                    life: 1.0 + Math.random() * 1.5,
+                    maxLife: 1.0 + Math.random() * 1.5,
+                    alpha: 1,
+                    r: 4 + Math.random() * 5,
+                    hue: Math.random() * 360
+                });
+            }
+            window.customCardClearEffect = { elapsed: 0, tapCount: 0, particles };
+            customCardTestEmitterDone = true;
+
+            if (window.isBossMode && typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id && typeof updateBossHighScore === 'function') {
+                updateBossHighScore(currentBoss.id, window.totalScore || 0);
+            }
+        }
+        window.triggerCustomCardClear = triggerCustomCardClear;
+
+        function triggerCustomCardBomb() {
+            if (!isGameRunning || !isCustomCardTesting) return;
+            if (player.bombs <= 0) return;
+            if (customCardDeathEffect || window.customCardClearEffect) return;
+
+            window.spellBombCount = (window.spellBombCount || 0) + 1;
+            window.spellBonusFailed = true;
+            window.spellCurrentBonus = 0;
+            player.bombs--;
+            // 無敵時間半分: 0.75秒（ボム無敵時間中もショット発射可能）
+            window.playerInvincibleTimer = 0.75;
+            window.miniExplosionEffect = null; // 赤い火花演出なし
+
+            // 回転する長持続（1.0秒）の衝撃波（波紋）の生成 (半径 480px = 通常の2倍以上)
+            window.miniExplosionShockwave = {
+                x: player.x,
+                y: player.y,
+                r: 15,
+                maxR: 480, // 広範囲の弾消し
+                speed: 480, // 1秒で最大480px
+                life: 1.0,
+                maxLife: 1.0,
+                angle: 0
+            };
+
+            // 範囲内の敵弾を即座に消去（自機の弾は消さない）
+            bullets = bullets.filter(b => {
+                const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
+                if (isLaserOrBeam || b.destroyResist) return true;
+                if (b.team === 'PLAYER') return true;
+                let dist = Math.sqrt((b.x - player.x) ** 2 + (b.y - player.y) ** 2);
+                return dist > 480;
+            });
+
+            if (window.soundManager && typeof window.soundManager.playSE === 'function') {
+                window.soundManager.playSE('bomb');
+            }
+        }
+        window.triggerCustomCardBomb = triggerCustomCardBomb;
+
+        // ==========================================
+        // ポーズシステム (Pause Menu & Confirm)
+        // ==========================================
+        window.isGamePaused = false;
+
+        function openPauseMenu() {
+            if (!isGameRunning) return;
+            window.isGamePaused = true;
+            const modal = document.getElementById('pause-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+            closePauseConfirm();
+        }
+        window.openPauseMenu = openPauseMenu;
+
+        function resumeGameFromPause() {
+            window.isGamePaused = false;
+            const modal = document.getElementById('pause-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+            closePauseConfirm();
+        }
+        window.resumeGameFromPause = resumeGameFromPause;
+
+        function togglePauseMenu() {
+            if (window.isGamePaused) {
+                resumeGameFromPause();
+            } else {
+                openPauseMenu();
+            }
+        }
+        window.togglePauseMenu = togglePauseMenu;
+
+        function showPauseConfirm(actionType) {
+            const confirmModal = document.getElementById('pause-confirm-modal');
+            const msgEl = document.getElementById('pause-confirm-message');
+            const yesBtn = document.getElementById('pause-confirm-yes');
+            if (!confirmModal || !msgEl || !yesBtn) return;
+
+            if (actionType === 'retry') {
+                msgEl.textContent = '本当にリトライしますか？';
+                yesBtn.onclick = () => {
+                    closePauseConfirm();
+                    resumeGameFromPause();
+                    if (typeof window.retryCurrentCard === 'function') {
+                        window.retryCurrentCard();
+                    }
+                };
+            } else if (actionType === 'quit') {
+                msgEl.textContent = '本当にホームへ戻りますか？';
+                yesBtn.onclick = () => {
+                    closePauseConfirm();
+                    resumeGameFromPause();
+                    if (typeof endCustomCardTest === 'function') {
+                        endCustomCardTest(false);
+                    }
+                };
+            }
+            confirmModal.classList.remove('hidden');
+        }
+        window.showPauseConfirm = showPauseConfirm;
+
+        function closePauseConfirm() {
+            const confirmModal = document.getElementById('pause-confirm-modal');
+            if (confirmModal) {
+                confirmModal.classList.add('hidden');
+            }
+        }
+        window.closePauseConfirm = closePauseConfirm;
+
+        // ==========================================
         // リトライ機能
         // ==========================================
         window.retryCurrentCard = function() {
-            if (!isGameRunning || !isCustomCardTesting || typeof activeCards === 'undefined' || activeCards.length === 0) return;
+            resumeGameFromPause();
+            
+            if (window.isBossMode && typeof playBossBattle === 'function') {
+                if (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id && typeof updateBossHighScore === 'function') {
+                    updateBossHighScore(currentBoss.id, window.totalScore || 0);
+                }
+                // ボス戦のリトライは常に第1フェーズ（最初）から確実に再開！
+                let targetBoss = (typeof currentBossIndex === 'number' && currentBossIndex >= 0) ? currentBossIndex : (typeof currentBoss !== 'undefined' ? currentBoss : 0);
+                playBossBattle(targetBoss, 0, false);
+                return;
+            }
+            
+            if (!isGameRunning && !isCustomCardTesting) return;
+            if (typeof activeCards === 'undefined' || activeCards.length === 0) return;
             let tempCustomCard = activeCards[0];
             
             // reset state
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
-            window.playerMissCount = 0;
+            window.playerMissCount = 0; // 残機・ミス数を確実にリセット
             window.playerInvincibleTimer = 0;
             window.miniExplosionEffect = null;
             window.miniExplosionShockwave = null;
+            player.respawnDelay = 0;
+            player.respawnTimer = 0;
+
+            window.spellMissCount = 0;
+            window.spellBombCount = 0;
+            window.spellBonusFailed = false;
+            window.spellClearResult = null;
+            window.spellTransitionTimer = 0;
+            window.lastTimeoutSecond = 11;
+            window.spellDeclarationTimer = 2.8;
+            if (window.isBossMode && window.playSound) window.playSound('se_cat00');
+
             customCardTestEmitterDone = false;
             customCardDeathEffect = null;
             window.customCardClearEffect = null;
@@ -4397,6 +5084,9 @@ function applyAbilityEffect(cardId, owner) {
             player.x = PLAY_WIDTH / 2;
             player.y = canvas.height * 0.8;
             player.hp = player.maxHp;
+            if (window.isBossMode) {
+                player.bombs = 2;
+            }
             
             cpu.hp = cpu.maxHp;
             cpu.pendingDamage = 0;
@@ -4426,6 +5116,22 @@ function applyAbilityEffect(cardId, owner) {
                 document.body.classList.add('mobile-mode');
             }
 
+            // モバイルボムボタンのイベント設定
+            const mobileBombBtn = document.getElementById('mobile-bomb-button');
+            if (mobileBombBtn) {
+                const onBombClick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (window.isBossMode) {
+                        triggerCustomCardBomb();
+                    } else {
+                        mobileBombTriggered = true;
+                    }
+                };
+                mobileBombBtn.addEventListener('touchstart', onBombClick, { passive: false });
+                mobileBombBtn.addEventListener('click', onBombClick);
+            }
+
             // 【超重要】手札モーダル内でのタッチ操作が背後の自機移動ドラッグに吸い取られないようにイベント伝播を完全遮断！
             const phaseMsg = document.getElementById('phaseMessage');
             if (phaseMsg) {
@@ -4438,10 +5144,9 @@ function applyAbilityEffect(cardId, owner) {
                 phaseMsg.addEventListener('touchend', stopTouchPropagation, { passive: true });
             }
 
-            let leftTopTapCount = 0;
-            let leftTopTapTimer = null;
-            let rightTopTapCount = 0;
-            let rightTopTapTimer = null;
+            let lastTopTapTime = 0;
+            let lastTopTapZone = null;
+            let lastBombTapTime = 0;
 
             const handleQuickTaps = (clientX, clientY) => {
                 if (!isGameRunning || gameState !== 'BATTLE') return false;
@@ -4450,27 +5155,44 @@ function applyAbilityEffect(cardId, owner) {
                 const x = clientX - rect.left;
                 const y = clientY - rect.top;
                 
+                // 左上 or 右上のダブルタップ判定
                 if (y < 120) {
-                    if (x < 120) { // 左上 (リトライ)
-                        leftTopTapCount++;
-                        clearTimeout(leftTopTapTimer);
-                        if (leftTopTapCount >= 3) {
-                            leftTopTapCount = 0;
-                            if (window.retryCurrentCard) window.retryCurrentCard();
+                    let zone = null;
+                    if (x < 120) {
+                        zone = 'left';
+                    } else if (x > rect.width - 120) {
+                        zone = 'right';
+                    }
+
+                    if (zone) {
+                        let now = performance.now();
+                        if (lastTopTapZone === zone && (now - lastTopTapTime < 400)) {
+                            // ダブルタップ成功！ポーズを開く
+                            lastTopTapTime = 0;
+                            lastTopTapZone = null;
+                            if (typeof openPauseMenu === 'function') {
+                                openPauseMenu();
+                            }
                             return true;
+                        } else {
+                            // 1回目のタップを記憶
+                            lastTopTapTime = now;
+                            lastTopTapZone = zone;
                         }
-                        leftTopTapTimer = setTimeout(() => leftTopTapCount = 0, 400);
-                    } else if (x > rect.width - 120) { // 右上 (ホームへ戻る)
-                        rightTopTapCount++;
-                        clearTimeout(rightTopTapTimer);
-                        if (rightTopTapCount >= 3) {
-                            rightTopTapCount = 0;
-                            if (typeof endCustomCardTest === 'function') endCustomCardTest(false);
-                            return true;
-                        }
-                        rightTopTapTimer = setTimeout(() => rightTopTapCount = 0, 400);
                     }
                 }
+
+                // モバイルダブルタップボム
+                if (window.mobileBombSetting === 'double_tap' && (isCustomCardTesting || window.isBossMode)) {
+                    let now = performance.now();
+                    if (now - lastBombTapTime < 320) {
+                        triggerCustomCardBomb();
+                        lastBombTapTime = 0;
+                        return true;
+                    }
+                    lastBombTapTime = now;
+                }
+
                 return false;
             };
 
@@ -4482,8 +5204,6 @@ function applyAbilityEffect(cardId, owner) {
 
                 touchStartX = clientX;
                 touchStartY = clientY;
-                mobileTargetX = player.x;
-                mobileTargetY = player.y;
                 isDragging = true;
             };
 
@@ -4491,36 +5211,29 @@ function applyAbilityEffect(cardId, owner) {
                 if (!isGameRunning || gameState !== 'BATTLE' || !isDragging) return;
                 if (battlePhase === 'PLANNING') return;
 
-                // 前フレームからのタッチ位置の移動差分（delta）を計算
-                const deltaX = clientX - touchStartX;
-                const deltaY = clientY - touchStartY;
+                // 指をスライド移動した場合はタップ判定をリセット（誤判定防止）
+                lastTopTapTime = 0;
+                lastTopTapZone = null;
+
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = rect.width > 0 ? (PLAY_WIDTH / rect.width) : 1;
+                const scaleY = rect.height > 0 ? (canvas.height / rect.height) : 1;
+
+                // 前フレームからのタッチ位置の移動差分（delta）を即座に自機座標へ直接加算
+                const deltaX = (clientX - touchStartX) * scaleX;
+                const deltaY = (clientY - touchStartY) * scaleY;
 
                 // 次フレームのためにタッチ位置を更新
                 touchStartX = clientX;
                 touchStartY = clientY;
 
-                const scaleX = PLAY_WIDTH / canvas.clientWidth;
-                const scaleY = canvas.height / canvas.clientHeight;
-
-                // 操作感度の係数（等倍に変更）
-                const sensitivity = 1.0;
-
-                // 現在の移動ターゲットに対して差分を加算
-                const baseTargetX = (mobileTargetX !== null) ? mobileTargetX : player.x;
-                const baseTargetY = (mobileTargetY !== null) ? mobileTargetY : player.y;
-
-                const newX = baseTargetX + deltaX * scaleX * sensitivity;
-                const newY = baseTargetY + deltaY * scaleY * sensitivity;
-
                 // 移動範囲制限（画面外に出ないようにクリップ）
-                mobileTargetX = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, newX));
-                mobileTargetY = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, newY));
+                player.x = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, player.x + deltaX));
+                player.y = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, player.y + deltaY));
             };
 
             const onDragEnd = () => {
                 isDragging = false;
-                mobileTargetX = null;
-                mobileTargetY = null;
             };
 
             // 1. 自機のドラッグ（スライド）移動操作 (container全体で検知して前面UIとの干渉を完全に防ぐ)
@@ -4530,13 +5243,17 @@ function applyAbilityEffect(cardId, owner) {
                     window.customCardClearEffect.tapCount = (window.customCardClearEffect.tapCount || 0) + 1;
                     return;
                 }
+                // バトル中は即座にスクロール検出の不感帯（ブラウザによる15pxの遅延・ワープ原因）を遮断
+                if (isGameRunning && gameState === 'BATTLE' && battlePhase !== 'PLANNING') {
+                    e.preventDefault();
+                }
                 // 開発者ツールなどのエミュレータ対策としてタッチ開始時にも強制付与
                 document.body.classList.add('mobile-mode');
 
                 if (e.touches.length > 0) {
                     const clientX = e.touches[0].clientX;
                     const clientY = e.touches[0].clientY;
-                    if (handleQuickTaps(clientX, clientY)) return; // 3回タップ発動時はドラッグ処理を行わない
+                    if (handleQuickTaps(clientX, clientY)) return;
                     onDragStart(clientX, clientY);
                 }
             }, { passive: false });
@@ -4561,7 +5278,7 @@ function applyAbilityEffect(cardId, owner) {
                     window.customCardClearEffect.tapCount = (window.customCardClearEffect.tapCount || 0) + 1;
                     return;
                 }
-                if (handleQuickTaps(e.clientX, e.clientY)) return; // 3回タップ発動時はドラッグ処理を行わない
+                if (handleQuickTaps(e.clientX, e.clientY)) return;
                 onDragStart(e.clientX, e.clientY);
             });
 
@@ -4576,8 +5293,6 @@ function applyAbilityEffect(cardId, owner) {
                     onDragEnd();
                 }
             });
-
-
         }
 
         // ==========================================
@@ -5376,8 +6091,12 @@ function applyAbilityEffect(cardId, owner) {
             let compiledBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(script || [])));
 
             let compiledFn = null;
-            if (patternId && window.compiledDanmaku && window.compiledDanmaku[patternId]) {
-                compiledFn = window.compiledDanmaku[patternId];
+            if (patternId) {
+                if (window.compiledBossDanmaku && window.compiledBossDanmaku[patternId]) {
+                    compiledFn = window.compiledBossDanmaku[patternId];
+                } else if (window.compiledDanmaku && window.compiledDanmaku[patternId]) {
+                    compiledFn = window.compiledDanmaku[patternId];
+                }
             }
 
             let state = {

@@ -4171,6 +4171,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 testPassed: customCardMaker.testPassed,
                 x_offset: document.getElementById('custom-card-x-offset') ? document.getElementById('custom-card-x-offset').value : "0",
                 y_offset: document.getElementById('custom-card-y-offset') ? document.getElementById('custom-card-y-offset').value : "0",
+                hp: document.getElementById('custom-card-hp') ? document.getElementById('custom-card-hp').value : "0",
                 despawnTime: document.getElementById('custom-card-despawn-time') ? document.getElementById('custom-card-despawn-time').value : "1.5",
                 maxMisses: document.getElementById('custom-card-max-misses') ? document.getElementById('custom-card-max-misses').value : "2",
                 codeText: document.getElementById('workspace-code-textarea').value
@@ -4217,6 +4218,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.despawnTime = Number(draftData.despawnTime) || 1.5;
                 if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset;
                 if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset;
+                if (document.getElementById('custom-card-hp')) document.getElementById('custom-card-hp').value = draftData.hp || "0";
                 if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime;
                 if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses;
                 if (document.getElementById('custom-card-difficulty')) document.getElementById('custom-card-difficulty').value = customCardMaker.difficulty;

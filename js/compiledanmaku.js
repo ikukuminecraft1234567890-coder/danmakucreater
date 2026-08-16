@@ -5,6 +5,1010 @@
 
 window.compiledDanmaku = window.compiledDanmaku || {};
 window.DanmakuCompilerRuntime = window.DanmakuCompilerRuntime || {};
+window.compiledDanmakuList = [
+  {
+    "difficulty": "NORMAL",
+    "name": "【サンプル】スパイラルレイン",
+    "desc": "全方位に螺旋を描く弾を発射します（サンプル）",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    spawnRing(\"normal\", \"#33ffff\", 180, angle, 8, 0, 0, 6, \"none\", \"relative\")\n    angle += 5\n    wait(0.1)\n}\n        ",
+    "bulletScript": "\nspeed = 180\nbounce()\nif (isBounced) {\n    aimAtTarget()\n    color = \"#ff33ff\"\n}\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "difficulty": "EASY",
+    "name": "華符「大輪舞転」",
+    "desc": "とにかく綺麗に作った。",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 2,
+    "emitterScript": "\nangle2 = 0\nxspa2 = x\nyspa2 = y\nwhile (true) {\n    spawnWay(\"normal\", \"#ff3333\", 1000, angle + 180, 5, 72, 0, 0, 16, \"ohuda\", \"relative\", \"2\")\n    spawnWay(\"normal\", \"#ff3333\", 1000, angle, 5, 72, 0, 0, 16, \"ohuda\", \"relative\", \"2\")\n    if (second >= 10) {\n        angle2 -= 43.5\n    }\n    angle += 0.2\n    wait(0.008)\n}\nwhile (true) {\n    tween(\"xspa\", x, 384, \"step\", 1)\n    tween(\"yspa\", y, 448, \"step\", 1)\n    xspa = 384\n    yspa = 448\n    wait(3)\n    while (true) {\n        tween(\"xspa\", xspa, 384, \"step\", 0.1)\n        tween(\"yspa\", yspa, 448, \"step\", 0.1)\n        wait(3)\n    }\n}\nwhile (true) {\n    spawnRing(\"normal\", \"#ffffff\", 200, 0, 18, 0, 0, 9, \"poihuru\", \"relative\", \"7\")\n    wait(0.6)\n}\n        ",
+    "bulletScript": "\nif (color != #ffffff) {\n    if (frame == 1) {\n        if (color == \"#ff3333\") {\n            x = e_xspa\n            y = e_yspa\n            prev_x = e_xspa\n            prev_y = e_yspa\n        }\n        if (color == \"#3366ff\") {\n            x = e_xspa2\n            y = e_yspa2\n            prev_x = e_xspa2\n            prev_y = e_yspa2\n        }\n    }\n    if (color == \"#ff3333\") {\n        dx = e_xspa - prev_x\n        dy = e_yspa - prev_y\n        prev_x = e_xspa\n        prev_y = e_yspa\n    }\n    if (color == \"#3366ff\") {\n        dx = e_xspa2 - prev_x\n        dy = e_yspa2 - prev_y\n        prev_x = e_xspa2\n        prev_y = e_yspa2\n    }\n    x += dx\n    y += dy\n    if (frame == 5..150) {\n        angle += 2\n    }\n    if (frame == 170..250) {\n        angle += 0\n    }\n    if (frame == 110..2510) {\n        y += 800000\n        angle -= 0\n    }\n}\nif (color == #ffffff) {\n    once {\n        x = 384\n        y = 448\n    }\n}\n        ",
+    "magicCircleScript": ""
+  },
+  {
+    "difficulty": "HARD",
+    "name": "サンライトインパクト~Normal~",
+    "desc": "ルナティックインパクトのパク...オマージュ。",
+    "duration": 50,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n    while (true) {\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(6)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n}\n    ",
+    "bulletScript": "\n    once {\n    m = 1\n}\nif (isTouchEdge) {\n    aimAtTarget()\n    spriteAngle = angle\n    speed = 0\n    m = 0\n}\nif (m===0) {\n    for (let i = 0; i < 2; i++) {\n        rang = random(0,360)\n        spawnRing(\"normal\", \"#ff3333\", 300, rang, 36, 0, 0, 9, \"star\", \"relative\", \"3\")\n        wait(0.2)\n    }\n    m = 1\n}\nif (m === 1) {\n    speed += 2.5\n}\n    ",
+    "magicCircleScript": "\n    spriteAngle += 3\n    "
+  },
+  {
+    "difficulty": "LUNATIC",
+    "name": "サンライトインパクト",
+    "desc": "ルナティックインパクトのパク...オマージュ。",
+    "duration": 50,
+    "maxMisses": 3,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n    while (true) {\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(6)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n    m = 0\n    aimAtTarget()\n    spawnBulletResist(\"normal\", \"#ffdd33\", 0, angle, 0, 0, 70, \"ootama\", \"relative\", \"70\")\n    wait(10)\n}\n    ",
+    "bulletScript": "\n    once {\n    m = 1\n}\nif (isTouchEdge) {\n    aimAtTarget()\n    spriteAngle = angle\n    speed = 0\n    m = 0\n}\nif (m===0) {\n    for (let i = 0; i < 5; i++) {\n        rang = random(0,360)\n        spawnRing(\"normal\", \"#ff3333\", 300, rang, 36, 0, 0, 9, \"star\", \"relative\", \"6\")\n        wait(0.05)\n    }\n    m = 1\n}\nif (m === 1) {\n    speed += 2.5\n}\n    ",
+    "magicCircleScript": "\n    spriteAngle += 3\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "弾幕の檻",
+    "desc": "自機狙いと自機外しの弾が発射され、壁に当たるとレーザーを放つ。もちろん殺意の百合のオマージュ",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n    while (true) {\n    aimAtTarget()\n    spawnWay(\"normal\", \"#ff3333\", 500, angle, 5, 20, 0, 0, 30, \"ootama\", \"relative\", \"15\")\n    wait(0.1)\n    aimAtTarget()\n    spawnWay(\"normal\", \"#ff3333\", 500, angle + 50, 5, 20, 0, 0, 30, \"ootama\", \"relative\", \"15\")\n    wait(0.1)\n    aimAtTarget()\n    spawnWay(\"normal\", \"#ff3333\", 500, angle - 50, 5, 20, 0, 0, 30, \"ootama\", \"relative\", \"15\")\n    wait(2)\n    aimAtTarget()\n    for (let i = 0; i < 36; i++) {\n        spawnWay(\"normal\", \"#3333ff\", 500, angle, 1, 10, 0, 0, 20, \"ohuda\", \"relative\", \"6\")\n        angle += 25\n        wait(0.01)\n    }\n    wait(3)\n}\n    ",
+    "bulletScript": "\n    if (color != #ffffff) {\n    if (x > 758) {\n        angle = 180\n        warningTime = 1\n        activeTime = 1.5\n        laserWidth = 20\n    }\n    if (y < 10) {\n        angle = 90\n        warningTime = 1\n        activeTime = 1.5\n        laserWidth = 20\n    }\n    if (x < 10) {\n        angle = 0\n        warningTime = 1\n        activeTime = 1.5\n        laserWidth = 20\n    }\n    if (y > 886) {\n        angle = 270\n        warningTime = 1\n        activeTime = 1.5\n        laserWidth = 20\n    }\n}\n    ",
+    "magicCircleScript": "\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "超絶気合符「インフィニットスパイラル」",
+    "desc": "楽しい！好き！",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n    for (let i = 0; i < 1200000000; i++) {\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 36 + way, 0, 0, 20, \"ohuda\", \"relative\", \"6\")\n    way += 2\n    angle += 16\n    wait(0.26)\n}\nwhile (true) {\n    moveTo(\"center\")\n}\n    ",
+    "bulletScript": "\n    if (isBounced) {\n    y = -80000\n}\nif (y > 886) {\n    y = -80000\n}\n    ",
+    "magicCircleScript": "\n    "
+  },
+  {
+    "difficulty": "HARD",
+    "name": "技符「陰陽掃除機」",
+    "desc": "完全パターンスペル。そこそこ作るのに苦労しました",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n    while (true) {\n    spawnBulletResist(\"normal\", \"#ff3333\", 150, 45, 0, 0, 100, \"b_knife\", \"relative\", \"40\")\n    spawnBulletResist(\"normal\", \"#ff3333\", 150, 45 + 90 + 90, 0, 0, 100, \"b_knife\", \"relative\", \"40\")\n    wait(200)\n}\n    ",
+    "bulletScript": "\n    once {\n    shotTimer = 0\n}\nspeed += 2\nspriteAngle = angle\nif (y > 886) {\n    angle = -angle\n    speed = 150\n    y = 886\n}\nif (y < 10) {\n    angle = -angle\n    speed = 150\n    y = 10\n}\nif (x < 10) {\n    angle = 180 - angle\n    speed = 150\n    x = 10\n}\nif (x > 758) {\n    angle = 180 - angle\n    speed = 150\n    x = 758\n}\nshotTimer = shotTimer + 1\nif (shotTimer >= 12) {\n    spawnWay(\"normal\", \"#3388ff\", 200, angle + 180, 5, 72, 0, 0, 6, \"onmyoutama\", \"relative\", \"6\")\n    shotTimer = 0\n}\n    ",
+    "magicCircleScript": "\n    spriteAngle += 5\n    "
+  },
+  {
+    "difficulty": "HARD",
+    "name": "上は洪水下は大火事",
+    "desc": "普通にお気に入りのスペル！楽しい！",
+    "duration": 32,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n    while (true) {\n    angle = -90 + random(-20,20)\n    if (cardSecond == 15..30) {\n        angle += random(-30,30)\n    }\n    if (cardSecond == 30..35) {\n        angle += random(-50,50)\n    }\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle, 0, 886, 20, \"poihuru\", \"relative\", \"10\")\n    if (cardSecond == 0..15) {\n        wait(0.05)\n    }\n    if (cardSecond == 15..30) {\n        wait(0.02)\n    }\n    if (cardSecond == 30..35) {\n        wait(0.0002)\n    }\n}\n    ",
+    "bulletScript": "\n    if (color == #ff3333) {\n    if (y < 0) {\n        angle = 90 + random(-5,5)\n        speed = 5\n        color = #33ffff\n        y = 5\n    }\n    speed += 0.4\n}\nif (color == #33ffff) {\n    speed += 2\n}\nspriteAngle = angle\n    ",
+    "magicCircleScript": "\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "フラッシュレートレイン",
+    "desc": "雨と巨大レーザー！",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nfor (let i = 0; i < 1200000; i++) {\n    spawn = random(0,768)\n    for (let i = 0; i < 3; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 300, 90, 0, -200, 7, \"uroko\", \"relative\", \"4\")\n        wait(0.03)\n    }\n}\nfor (let i = 0; i < 1200000; i++) {\n    spawn2 = random(0,768)\n    for (let i = 0; i < 5; i++) {\n        spawnBullet(\"normal\", \"#ff3323\", 300, 90, 0, -200, 7, \"uroko\", \"relative\", \"4\")\n        wait(0.03)\n    }\n}\nfor (let i = 0; i < 1200000; i++) {\n    spawn3 = random(0,768)\n    for (let i = 0; i < 7; i++) {\n        spawnBullet(\"normal\", \"#ff3332\", 300, 90, 0, -200, 7, \"uroko\", \"relative\", \"4\")\n        wait(0.03)\n    }\n}\nwhile (true) {\n    wait(4)\n    spawnBullet(\"normal\", \"#33ffff\", 200, 90, 0, -150)\n}\n    ",
+    "bulletScript": "\nonce {\n    if (color == #ff3333) {\n        x = spawn\n    }\n    if (color == #ff3332) {\n        x = spawn2\n    }\n    if (color == #ff3323) {\n        x = spawn3\n    }\n    if (color == #33ffff) {\n        x = tx\n        warningTime = 3\n        activeTime = 1.5\n        laserWidth = 900\n    }\n    wait(0.1)\n}\nif (y > 896) {\n    y = -580000\n}\n    ",
+    "magicCircleScript": "\n    "
+  },
+  {
+    "difficulty": "Lunatic",
+    "name": "札と刃の境界",
+    "desc": "うおっ、となるスペルです。",
+    "duration": 65,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 10,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 20; i++) {\n        ys = 0\n        for (let i = 0; i < 10; i++) {\n            spawnBullet(\"normal\", \"#33ffff\", 120, 0, -100, ys + 15, 23, \"ohuda\", \"absolute\", \"12\")\n            spawnBullet(\"normal\", \"#33ffff\", 120, 0, -100, ys - 15, 23, \"ohuda\", \"absolute\", \"12\")\n            ys += 100\n        }\n        ys = 0\n        for (let i = 0; i < 10; i++) {\n            spawnBullet(\"normal\", \"#33ff88\", 120, 180, 868, ys + 65, 23, \"ohuda\", \"absolute\", \"12\")\n            spawnBullet(\"normal\", \"#33ff88\", 120, 180, 868, ys + 35, 23, \"ohuda\", \"absolute\", \"12\")\n            ys += 100\n        }\n        wait(0.7)\n    }\n    wait(1)\n    for (let i = 0; i < 20; i++) {\n        xs = 0\n        for (let i = 0; i < 10; i++) {\n            spawnBullet(\"normal\", \"#33ffff\", 120, 90, xs + 15, 0, 23, \"ohuda\", \"absolute\", \"12\")\n            spawnBullet(\"normal\", \"#33ffff\", 120, 90, xs - 15, 0, 23, \"ohuda\", \"absolute\", \"12\")\n            xs += 100\n        }\n        xs = 0\n        for (let i = 0; i < 10; i++) {\n            spawnBullet(\"normal\", \"#33ff88\", 120, -90, xs + 15 + 50, 996, 23, \"ohuda\", \"absolute\", \"12\")\n            spawnBullet(\"normal\", \"#33ff88\", 120, -90, xs - 15 + 50, 996, 23, \"ohuda\", \"absolute\", \"12\")\n            xs += 100\n        }\n        wait(0.7)\n    }\n    wait(1)\n    for (let i = 0; i < 20; i++) {\n        xs = -650\n        ys = 550\n        for (let i = 0; i < 25; i++) {\n            xs -= 11\n            ys += 11\n            spawnBullet(\"normal\", \"#33ffff\", 120, 45, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs += 22\n            ys -= 22\n            spawnBullet(\"normal\", \"#33ffff\", 120, 45, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs -= 11\n            ys += 11\n            xs += 71\n            ys -= 71\n        }\n        xs = 1500\n        ys = 357\n        for (let i = 0; i < 25; i++) {\n            xs += 11\n            ys -= 11\n            spawnBullet(\"normal\", \"#33ff88\", 120, 225, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs -= 22\n            ys += 22\n            spawnBullet(\"normal\", \"#33ff88\", 120, 225, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs += 11\n            ys -= 11\n            xs -= 71\n            ys += 71\n        }\n        wait(0.7)\n    }\n    wait(2)\n    for (let i = 0; i < 20; i++) {\n        xs = 1418\n        ys = 550\n        for (let i = 0; i < 25; i++) {\n            xs -= 11\n            ys -= 11\n            spawnBullet(\"normal\", \"#33ffff\", 120, 135, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs += 22\n            ys += 22\n            spawnBullet(\"normal\", \"#33ffff\", 120, 135, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs -= 11\n            ys -= 11\n            xs -= 71\n            ys -= 71\n        }\n        xs = -732\n        ys = 357\n        for (let i = 0; i < 25; i++) {\n            xs -= 11\n            ys -= 11\n            spawnBullet(\"normal\", \"#33ff88\", 120, 315, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs += 22\n            ys += 22\n            spawnBullet(\"normal\", \"#33ff88\", 120, 315, xs, ys, 23, \"ohuda\", \"absolute\", \"12\")\n            xs -= 11\n            ys -= 11\n            xs += 71\n            ys += 71\n        }\n        wait(0.7)\n    }\n    wait(2)\n}\nwhile (true) {\n    xdao = tx\n    spawnWay(\"normal\", \"#ff3333\", 1, angle, 1, 20, xdao, 0, 30, \"knife\", \"absolute\", \"6\")\n    wait(1)\n}\n    ",
+    "bulletScript": "\nif (color==#ff3333) {\n    once {\n        x = tx\n        angle = 90\n    }\n    speed += 1\n}\nif (speed == 50..10000) {\n    speed = speed / 1.0005\n}\nif (speed == 200..202) {\n    angle += random(0,0)\n}\nonce {\n    speed += 40\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Hard",
+    "name": "双毒「絡みつく赤大蛇」",
+    "desc": "クリアチェックはしました。",
+    "duration": 60,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    if (cardSecond == 0..15) {\n        xs = random(-600,600)\n        spawnBullet(\"normal\", \"#33ffff\", 200, 90, 0, -200, 10, \"onmyoutama\", \"relative\", \"10\")\n        wait(0.1)\n    }\n}\nwhile (true) {\n    if (cardSecond == 15..30) {\n        xs = random(-600,600)\n        spawnBullet(\"normal\", \"#33ffff\", 200, 90, 0, -200, 10, \"onmyoutama\", \"relative\", \"10\")\n        wait(0.06)\n    }\n}\nwhile (true) {\n    if (cardSecond == 30..60) {\n        xs = random(-600,600)\n        spawnBullet(\"normal\", \"#33ffff\", 200, 90, 0, -200, 10, \"onmyoutama\", \"relative\", \"10\")\n        wait(0.04)\n    }\n}\nwhile (true) {\n    if (cardSecond == 15..60) {\n        xs = random(-600,600)\n        spawnBullet(\"normal\", \"#ffaa33\", 200, 90, 0, -200, 30, \"onmyoutama\", \"relative\", \"35\")\n        wait(0.4)\n    }\n}\nwhile (true) {\n    if (cardSecond == 35..60) {\n        xs = random(-600,600)\n        spawnBullet(\"normal\", \"#ffaa33\", 200, 90, 0, -200, 30, \"onmyoutama\", \"relative\", \"35\")\n        wait(0.4)\n    }\n}\nwhile (true) {\n    if (cardSecond == 0..15) {\n        for (let i = 0; i < 8; i++) {\n            spawnBullet(\"normal\", \"#ff3333\", 300, angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            spawnBullet(\"normal\", \"#ff3333\", 300, -angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            angle += 10\n            wait(0.05)\n        }\n    }\n    if (cardSecond == 15..30) {\n        for (let i = 0; i < 16; i++) {\n            spawnBullet(\"normal\", \"#ff3333\", 300, angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            spawnBullet(\"normal\", \"#ff3333\", 300, -angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            angle += 10\n            wait(0.05)\n        }\n    }\n    if (cardSecond == 30..45) {\n        for (let i = 0; i < 24; i++) {\n            spawnBullet(\"normal\", \"#ff3333\", 300, angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            spawnBullet(\"normal\", \"#ff3333\", 300, -angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            angle += 10\n            wait(0.05)\n        }\n    }\n    if (cardSecond == 45..60) {\n        for (let i = 0; i < 32; i++) {\n            spawnBullet(\"normal\", \"#ff3333\", 300, angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            spawnBullet(\"normal\", \"#ff3333\", 300, -angle, 0, 0, 30, \"b_uroko\", \"relative\", \"20\")\n            angle += 10\n            wait(0.05)\n        }\n    }\n    wait(0.8)\n    angle += 20\n}\nwhile (true) {\n    if (cardSecond == 45..60) {\n        aimAtTarget()\n        spawnWay(\"normal\", \"#ffdd33\", 400, angle, 3, 30, 0, 0, 30, \"onmyoutama\", \"relative\", \"35\")\n        wait(1)\n    }\n}\n    ",
+    "bulletScript": "\nif (color == #ff3333) {\n    if (timer == 1..1.4) {\n        speed += -7\n    }\n    if (timer == 1.4..2) {\n        speed = 300\n        once {\n            aimAtTarget()\n            if (cardSecond == 30..60) {\n                angle += random(-3,3)\n            }\n        }\n    }\n}\nif (color == #33ffff) {\n    speed = 150\n    m += 5\n    once {\n        y = 0\n        xs = random(-600,600)\n        x += xs\n    }\n}\nif (color == #ffaa33) {\n    speed = 100\n    m += 5\n    once {\n        y = 0\n        xs = random(-600,600)\n        x += xs\n    }\n}\nif (color == #ffdd33) {\n    m += 5\n}\nif (cardSecond == 15) {\n    y = -8000\n}\nif (cardSecond == 30) {\n    y = -8000\n}\nif (cardSecond == 45) {\n    y = -8000\n}\nspriteAngle = angle + m\nif (dist < 50) {\n    y = y\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "LUNATIC",
+    "name": "旋風「ビッグトルネード」",
+    "desc": "圧倒的弾速、圧倒的気合避け",
+    "duration": 25,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    angle = 0\n    for (let i = 0; i < 3; i++) {\n        spawnWay(\"normal\", \"#ff3333\", 1000, angle + 45, 20, 18, 0, 0, 30, \"ootama\", \"relative\", \"15\")\n        wait(0.08)\n    }\n    angle = 9\n    for (let i = 0; i < 3; i++) {\n        spawnWay(\"normal\", \"#ff3333\", 1000, angle + 45, 20, 18, 0, 0, 30, \"ootama\", \"relative\", \"15\")\n        wait(0.08)\n    }\n}\n    ",
+    "bulletScript": "\nonce {\n    angle += random(-2,2)\n    speed += random(0,0)\n}\nif (speed == 400..100000) {\n    speed += -5\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "偽符「ダブルスパイル」",
+    "desc": "攻略法が分かると簡単なタイプ。",
+    "duration": 25,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 7,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 10; i++) {\n        spawnWay(\"normal\", \"#ff3333\", 35000, angle, 10, 36, 384, 448, 10, \"marutama\", \"absolute\", \"4\")\n        wait(0.05)\n        angle += 2\n    }\n    for (let i = 0; i < 10; i++) {\n        spawnWay(\"normal\", \"#ff3333\", 35000, angle, 10, 36, 384, 448, 10, \"marutama\", \"absolute\", \"4\")\n        wait(0.05)\n        angle -= 9\n    }\n}\n    ",
+    "bulletScript": "\nif (frame = 30..30000) {\n    if (x == 374..394) {\n        if (y == 438..458) {\n            color = #3333ff\n        }\n    }\n}\nif (frame = 2..3) {\n    angle += 180\n    speed = 200\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "秘儀「十三頭の龍」",
+    "desc": "結構いい感じに作れました。下からの反射を追加したことでそこそこの難易度になったかも...",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nfor (let i = 0; i < 1200; i++) {\n    aimAtTarget()\n    for (let i = 0; i < 12; i++) {\n        spawnp = spawnp + 1\n        for (let i = 0; i < 4; i++) {\n            spawnBullet(\"normal\", \"#ff3333\", 300 + spd, angle, 0, 0, 10, \"uroko\", \"relative\", \"5\")\n            spawnBullet(\"normal\", \"#ff3332\", 300 + spd, angle, 0, 0, 10, \"uroko\", \"relative\", \"5\")\n            spd += 20\n        }\n        spd = 0\n        wait(0.02)\n    }\n    for (let i = 0; i < 12; i++) {\n        spawnp = spawnp - 1\n        for (let i = 0; i < 4; i++) {\n            spawnBullet(\"normal\", \"#ff3333\", 300 + spd, angle, 0, 0, 10, \"uroko\", \"relative\", \"5\")\n            spawnBullet(\"normal\", \"#ff3332\", 300 + spd, angle, 0, 0, 10, \"uroko\", \"relative\", \"5\")\n            spd += 20\n        }\n        spd = 0\n        wait(0.02)\n    }\n    spawnp = -10\n    wait(0.15)\n}\n    ",
+    "bulletScript": "\nif (color == #ff3333) {\n    once {\n        x = 379 + spawnp * 60\n    }\n}\nif (color == #ff3332) {\n    once {\n        x = 379 - spawnp * 60\n    }\n}\nif (y > 890) {\n    angle = -90\n}\nif (y < 10) {\n    y = -50000\n}\nif (x > 758) {\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "波符「白銀のタイダルウェーブ」",
+    "desc": "気づいたら星蓮船四面ボスのアレみたいになってた。",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    tween(\"ex\", ex, tx, \"vecstep\", 0.1)\n    tween(\"ey\", ey, ty, \"vecstep\", 0.1)\n    wait(1 - t)\n    wait(1 - t)\n    wait(0.5)\n    spawnRing(\"normal\", \"#ffffff\", 200, 0, 72, 0, 0, 10, \"b_uroko\", \"relative\", \"5\")\n    wait(0.2)\n    spawnRing(\"normal\", \"#ffffff\", 200, 0, 72, 0, 0, 10, \"b_uroko\", \"relative\", \"5\")\n    wait(0.2)\n    spawnRing(\"normal\", \"#ffffff\", 200, 0, 72, 0, 0, 10, \"b_uroko\", \"relative\", \"5\")\n    wait(0.2)\n    t += 0.05\n    t2 += 0.0175\n}\n    ",
+    "bulletScript": "\n    speed += 1\n    ",
+    "magicCircleScript": "\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "白銀のタルタルソース",
+    "desc": "",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 5,
+    "emitterScript": "\nfor (let i = 0; i < 1200000000; i++) {\n    spawnBullet(\"normal\", \"#ffffff\", 200, -90 + angle, 0, 0, 30, \"b_marutama\", \"relative\", \"20\")\n    angle = random(-50,50)\n    wait(0.02)\n}\nwhile (true) {\n    r = random(-100,100)\n    r2 = random(-100,100)\n    tween(\"ex\", ex, 384 + r, \"seconds\", 0.4)\n    tween(\"ey\", ey, 370 + r2, \"seconds\", 0.4)\n    wait(5)\n}\n    ",
+    "bulletScript": "\nonce {\n    yp = -40\n}\ny += yp / 10\nyp += 0.4\nif (yp = -5..5) {\n    SpriteAngle = 90\n}\nwait(0.00001)\nif (yp = -5..5) {\n    SpriteAngle = 90\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Hard",
+    "name": "熱符「真紅たる太陽風」",
+    "desc": "交差する弾って...楽しいですよね。",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nfor (let i = 0; i < 1200; i++) {\n    spawnRingResist(\"normal\", \"#ff3333\", 300, angle, 36, 0, 0, 10, \"b_marutama\", \"relative\", \"6\")\n    spawnRingResist(\"normal\", \"#ff3332\", 300, angle, 36, 0, 0, 10, \"b_marutama\", \"relative\", \"6\")\n    angle += random(-5,5)\n    wait(0.3)\n}\n    ",
+    "bulletScript": "\nif (color == #ff3333) {\n    angle += 0.2 - m\n}\nif (color == #ff3332) {\n    angle -= 0.2 - m\n}\nm += 0.0003\nspriteAngle = angle\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "忌符「フライングスター」",
+    "desc": "全方位反射って難しいですよねぇ...",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\ncx = 384\ncy = 350\nR = 200\nbx = 0\nby = 0\nbx2 = 0\nby2 = 0\nangle = 0\nangle2 = 0\nwhile (true) {\n    // 1ループごとに、星全体の傾きをランダム（0〜360度）で決める\n    base_angle = random(0, 360)\n    // 決まった傾きを足して、星の頂点座標を毎回計算し直す\n    x0 = cx + R * cos(-90 + base_angle)\n    y0 = cy + R * sin(-90 + base_angle)\n    x1 = cx + R * cos(-18 + base_angle)\n    y1 = cy + R * sin(-18 + base_angle)\n    x2 = cx + R * cos(54 + base_angle)\n    y2 = cy + R * sin(54 + base_angle)\n    x3 = cx + R * cos(126 + base_angle)\n    y3 = cy + R * sin(126 + base_angle)\n    x4 = cx + R * cos(198 + base_angle)\n    y4 = cy + R * sin(198 + base_angle)\n    rx0 = cx + R * cos(90 + base_angle)\n    ry0 = cy + R * sin(90 + base_angle)\n    rx1 = cx + R * cos(162 + base_angle)\n    ry1 = cy + R * sin(162 + base_angle)\n    rx2 = cx + R * cos(234 + base_angle)\n    ry2 = cy + R * sin(234 + base_angle)\n    rx3 = cx + R * cos(306 + base_angle)\n    ry3 = cy + R * sin(306 + base_angle)\n    rx4 = cx + R * cos(18 + base_angle)\n    ry4 = cy + R * sin(18 + base_angle)\n    bx = x0\n    by = y0\n    bx2 = rx0\n    by2 = ry0\n    wait(0.3)\n    star = 1\n    t = 0\n    // ナイフの向き（進行方向）にも傾きを足して、綺麗に星の辺に沿わせる\n    angle = 72 + base_angle\n    angle2 = -108 + base_angle\n    tween(\"bx\", x0, x2, \"seconds\", 0.3)\n    tween(\"by\", y0, y2, \"seconds\", 0.3)\n    tween(\"bx2\", rx0, rx2, \"seconds\", 0.3)\n    tween(\"by2\", ry0, ry2, \"seconds\", 0.3)\n    wait(0.3)\n    angle = -144 + base_angle\n    angle2 = 36 + base_angle\n    tween(\"bx\", x2, x4, \"seconds\", 0.3)\n    tween(\"by\", y2, y4, \"seconds\", 0.3)\n    tween(\"bx2\", rx2, rx4, \"seconds\", 0.3)\n    tween(\"by2\", ry2, ry4, \"seconds\", 0.3)\n    wait(0.3)\n    angle = 0 + base_angle\n    angle2 = 180 + base_angle\n    tween(\"bx\", x4, x1, \"seconds\", 0.3)\n    tween(\"by\", y4, y1, \"seconds\", 0.3)\n    tween(\"bx2\", rx4, rx1, \"seconds\", 0.3)\n    tween(\"by2\", ry4, ry1, \"seconds\", 0.3)\n    wait(0.3)\n    angle = 144 + base_angle\n    angle2 = -36 + base_angle\n    tween(\"bx\", x1, x3, \"seconds\", 0.3)\n    tween(\"by\", y1, y3, \"seconds\", 0.3)\n    tween(\"bx2\", rx1, rx3, \"seconds\", 0.3)\n    tween(\"by2\", ry1, ry3, \"seconds\", 0.3)\n    wait(0.3)\n    angle = -72 + base_angle\n    angle2 = 108 + base_angle\n    tween(\"bx\", x3, x0, \"seconds\", 0.3)\n    tween(\"by\", y3, y0, \"seconds\", 0.3)\n    tween(\"bx2\", rx3, rx0, \"seconds\", 0.3)\n    tween(\"by2\", ry3, ry0, \"seconds\", 0.3)\n    wait(0.3)\n    star = 0\n    angle = 90 + base_angle\n    angle2 = -90 + base_angle\n    tween(\"bx\", x0, cx, \"seconds\", 0.3)\n    tween(\"by\", y0, cy, \"seconds\", 0.3)\n    tween(\"bx2\", rx0, cx, \"seconds\", 0.3)\n    tween(\"by2\", ry0, cy, \"seconds\", 0.3)\n    wait(0.3)\n    wait(0.1)\n    t = 1\n    wait(0.3)\n}\nwhile (true) {\n    if (star == 1) {\n        spawnBullet(\"normal\", \"#ff3366\", 0, angle, bx, by, 20, \"b_star\", \"absolute\", \"15\")\n        spawnBullet(\"normal\", \"#ff3366\", 0, angle2, bx2, by2, 20, \"b_star\", \"absolute\", \"15\")\n    }\n    wait(0.00005)\n}\n    ",
+    "bulletScript": "\nif (e_t==1) {\n    once {\n        flag = 1\n    }\n}\nif (flag=1) {\n    if (speed==0..400) {\n        speed += 2\n    }\n    if (x < 10) {\n        once {\n            speed = 0\n            angle = -angle\n            angle = angle - 180\n        }\n    }\n    if (x > 758) {\n        once {\n            speed = 0\n            angle = -angle\n            angle = angle - 180\n        }\n    }\n    if (y < 10) {\n        once {\n            speed = 0\n            angle = -angle\n        }\n    }\n    if (y > 886) {\n        once {\n            speed = 0\n            angle = -angle\n        }\n    }\n}\nspriteAngle = spriteAngle + 3\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "恕符「血濡れのアナザーディメンション」",
+    "desc": "どう見ても輝針城モチーフ。",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnRing(\"normal\", \"#ff3333\", 200, angleg, 8, 0, 0, 6, \"ootama\", \"relative\", \"6\")\n    angleg += 16\n    wait(0.6)\n}\nwhile (true) {\n    offset = 0\n    spawnBullet(\"normal\", \"#dddddd\", 200, angle, 300, 0, 30, \"b_knife\", \"relative\", \"6\")\n    spawnBullet(\"normal\", \"#ddddde\", 200, angle, -300, 0, 30, \"b_knife\", \"relative\", \"6\")\n    offset = 30\n    spawnBullet(\"normal\", \"#dddddd\", 200, angle, 300, 0, 30, \"b_knife\", \"relative\", \"6\")\n    spawnBullet(\"normal\", \"#ddddde\", 200, angle, -300, 0, 30, \"b_knife\", \"relative\", \"6\")\n    offset = -30\n    spawnBullet(\"normal\", \"#dddddd\", 200, angle, 300, 0, 30, \"b_knife\", \"relative\", \"6\")\n    spawnBullet(\"normal\", \"#ddddde\", 200, angle, -300, 0, 30, \"b_knife\", \"relative\", \"6\")\n    aimAtTarget()\n    wait(0.6)\n}\n    ",
+    "bulletScript": "\nwhile (true) {\n    if (color==#ff3333) {\n        radius += 0.8\n        hitRadius += 0.7\n        speed += 2\n    }\n    if (color==#dddddd) {\n        radius += 1\n        hitRadius += 0.2\n        speed += 2\n        once {\n            aimAtTarget()\n            angle += offset\n        }\n    }\n    if (color==#ddddde) {\n        radius += 1\n        hitRadius += 0.2\n        speed += 2\n        once {\n            aimAtTarget()\n            angle += offset\n        }\n    }\n    spriteAngle = angle\n    wait(0.01)\n    spriteAngle = angle\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "HARD",
+    "name": "真実「静焔のレプティリアン」",
+    "desc": "作ってる途中、赤色の幻想郷とレプティリアンインテリジェンスを行ったり来たりしてました。",
+    "duration": 35,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 5,
+    "emitterScript": "\nwhile (true) {\n    angle = random(0,360)\n    for (let i = 0; i < 9; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 300, angle, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n        angle += 40\n    }\n    wait(5)\n    angle = random(0,360)\n    for (let i = 0; i < 9; i++) {\n        spawnBullet(\"normal\", \"#3333ff\", 300, angle, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n        angle += 40\n    }\n    wait(5)\n    angle = random(0,360)\n    for (let i = 0; i < 9; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 300, angle, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n        angle += 40\n    }\n    wait(5)\n    angle = random(0,360)\n    for (let i = 0; i < 9; i++) {\n        spawnBullet(\"normal\", \"#3333ff\", 300, angle, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n        angle += 40\n    }\n    wait(5)\n    angle = random(0,360)\n    for (let i = 0; i < 9; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 300, angle, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n        angle += 40\n    }\n    wait(5)\n    angle = random(0,360)\n    for (let i = 0; i < 9; i++) {\n        spawnBullet(\"normal\", \"#3333ff\", 300, angle, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n        angle += 40\n    }\n    wait(50)\n}\n    ",
+    "bulletScript": "\nif (timer < 3) {\n    if (color==#ff3333) {\n        angle += 0.1\n    }\n    if (color==#3333ff) {\n        angle += -0.1\n    }\n}\ng += 1\nif (g == 40) {\n    g = 0\n}\nif (g == 10) {\n    if (color==#ff3333) {\n        spawnRing(\"normal\", \"#ff3333\", 250, 0, 5, 0, 0, 10, \"uroko\", \"relative\", \"4\")\n    }\n    if (color==#3333ff) {\n        spawnRing(\"normal\", \"#3333ff\", 250, 0, 5, 0, 0, 10, \"uroko\", \"relative\", \"4\")\n    }\n}\n    ",
+    "magicCircleScript": "\nif (timer == 3..4) {\n    homing(90)\n    angle += random(-1,1)\n}\nif (timer == 4) {\n    angle += random(-5,5)\n}\nif (timer == 3..5) {\n    speed += random(0.5,1.5)\n}\nif (timer == 0.1) {\n    speed = 1\n}\nspriteAngle = angle\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "「完全自動殺戮マシン」",
+    "desc": "弾から弾が出るスペルを作るのが楽しいんだよなあ！！",
+    "duration": 35,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnBulletResist(\"normal\", \"#ff3333\", 400, -15, 0, 0, 50, \"ootama\", \"relative\", \"40\")\n    spawnBulletResist(\"normal\", \"#ff3333\", 400, 195, 0, 0, 50, \"ootama\", \"relative\", \"40\")\n    wait(1)\n    spawnBulletResist(\"normal\", \"#ff3333\", 400, -15, 0, 0, 50, \"ootama\", \"relative\", \"40\")\n    spawnBulletResist(\"normal\", \"#ff3333\", 400, 195, 0, 0, 50, \"ootama\", \"relative\", \"40\")\n    wait(7)\n}\n    ",
+    "bulletScript": "\nwhile (true) {\n    bounce()\n    m += 1\n    if (m==12..20) {\n        spawnBullet(\"normal\", \"#ff3333\", spd, 90 + r, 0, 0, 30, \"b_knife\", \"relative\", \"5\")\n        spd = random(150,250)\n        r = rand(-5,5)\n        m = random(0,6)\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "鋒符「尾を噛む龍」",
+    "desc": "万物は流転する。自らの尾を喰らう龍のように、終わりなき円環を描く。",
+    "duration": 35,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnRingResist(\"normal\", \"#ffffff\", 500, spangle, 16, 0, 0, 0, \"ohuda\", \"relative\", \"0\")\n    wait(4 - w)\n    wait(2)\n    w += 0.6\n    w2 += 0.1\n    w3 += 10\n    spangle += random(0,360)\n}\n    ",
+    "bulletScript": "\nif (timer > 0.2) {\n    wait(0.04)\n    spawnRing(\"normal\", \"#ffffff\", 0, angle, 1, 0, 0, 20, \"kome\", \"relative\", \"6\")\n    angle += kaku\n    spriteAngle = angle\n}\nspeed = 200\nif (flag != 1) {\n    kaku += 2\n}\nif (kaku == 11..500) {\n    flag = 1\n}\nif (flag == 1) {\n    kaku -= 2\n}\nif (kaku == -500..-11) {\n    flag = 0\n}\n    ",
+    "magicCircleScript": "\nif (timer == 1) {\n    speed = 50 + random(-10,50) + w3\n    angle += random(-180,180)\n    color = #ff3333\n    hitRadius = 6\n}\nspriteAngle = angle\nif (timer == 3 - w2) {\n    y = -546546456\n}\n    "
+  },
+  {
+    "difficulty": "Lunatic",
+    "name": "蛇符「人間殺しの大白蛇」",
+    "desc": "最近こういうスペルしか作ってないｗ",
+    "duration": 35,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 15; i++) {\n        spawnBullet(\"normal\", \"#ffffff\", 400, 90, spx, 0, 20, \"b_uroko\", \"absolute\", \"12\")\n        spx += 60\n        wait(0.2)\n    }\n    for (let i = 0; i < 15; i++) {\n        spawnBullet(\"normal\", \"#ffffff\", 400, 90, spx, 0, 20, \"b_uroko\", \"absolute\", \"12\")\n        spx -= 60\n        wait(0.2)\n    }\n}\nwhile (true) {\n    for (let i = 0; i < 5; i++) {\n        aimAtTarget()\n        spawnWayResist(\"normal\", \"#ff3333\", 300, angle, 1 + wa, 5, 0, 0, 15, \"b_poihuru\", \"relative\", \"7\")\n        wait(0.3)\n    }\n    wait(2)\n    wa += 1\n}\n    ",
+    "bulletScript": "\nif (color == #ffffff) {\n    period = 60\n    amp = 30\n    baseAngle = 90\n    frame2 = 0\n    y = random(-200,0)\n    x += random(-30,30)\n    while (true) {\n        frame2 += 1\n        l += 1\n        angle = baseAngle - amp * sin(frame2 * 360 / period)\n        spriteAngle = angle\n        if (l == 3) {\n            spawnRing(\"normal\", \"#ffffff\", 0, angle + 180, 1, 0, 0, 12, \"b_marutama\", \"relative\", \"12\")\n            l = 0\n        }\n    }\n}\n    ",
+    "magicCircleScript": "\nif (timer > 1) {\n    y = -8000\n}\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "獄符「スターアンドプリズン」",
+    "desc": "上下で挟んでくるタイプの弾幕。ちなみにガチで苦手。",
+    "duration": 35,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    ey = 448\n    wait(0.5)\n    for (let i = 0; i < 1000000000000; i++) {\n        spawnRing(\"normal\", \"#ffff66\", 35000, angle, 6, 0, 0, 30, \"b_star\", \"relative\", \"20\")\n        spawnRing(\"normal\", \"#ffff66\", 35000, -angle, 6, 0, 0, 30, \"b_star\", \"relative\", \"20\")\n        angle += 6\n        wait(0.5)\n    }\n}\nif (x < 10) {\n}\n    ",
+    "bulletScript": "\nonce {\n    wait(0.02)\n    speed = 200\n    angle += 180\n}\nspriteAngle = angle + m\nm += 5\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "ドパ符「ドーパミンの極致」",
+    "desc": "ドーパドパドパドパｗｗｗｗｗドーパミンの放出は楽しいドパねぇｗｗｗｗｗｗｗｗ",
+    "duration": 10,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 100; i++) {\n        spawnRing(\"normal\", \"#ff3333\", 600, angle, 4, 0, 0, 15, \"b_uroko\", \"relative\", \"10\")\n        angle += random(0,360)\n        wait(0.01)\n    }\n    for (let i = 0; i < 50; i++) {\n        spawnRing(\"normal\", \"#ffaa33\", 700, angle, 2, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n        angle += 12.2\n        wait(0.02)\n    }\n    for (let i = 0; i < 50; i++) {\n        aimAtTarget()\n        angle += random(-7,7)\n        spawnWay(\"normal\", \"#ffdd33\", 700, angle, 5, 25, 0, 0, 20, \"b_ohuda\", \"relative\", \"10\")\n        wait(0.0167)\n    }\n    for (let i = 0; i < 50; i++) {\n        angle += 25\n        w = 0\n        sp = 0\n        for (let i = 0; i < 7; i++) {\n            spawnWay(\"normal\", \"#33ff88\", 300 + sp, angle, 1 + w, 2, 0, 0, 20, \"b_poihuru\", \"relative\", \"20\")\n            w += 1\n            sp += 30\n        }\n        wait(0.03)\n    }\n    for (let i = 0; i < 20; i++) {\n        angle = random(-80,80)\n        spawnWay(\"normal\", \"#3388ff\", 700, -90 + angle, 3, 10, 0, 0, 30, \"b_star\", \"relative\", \"20\")\n        wait(0.05)\n    }\n    for (let i = 0; i < 50; i++) {\n        xsp = random(0,768)\n        spawnWay(\"normal\", \"#9E76B4\", 700, 90, 1, 10, 0, 0, 10, \"poihuru\", \"relative\", \"6\")\n        wait(0.02)\n    }\n    for (let i = 0; i < 500000; i++) {\n        for (let i = 0; i < 10; i++) {\n            spawnRing(\"normal\", \"#ff3333\", 600, angle, 4, 0, 0, 15, \"b_uroko\", \"relative\", \"10\")\n            angle += random(0,360)\n            wait(0.01)\n        }\n        for (let i = 0; i < 10; i++) {\n            spawnRing(\"normal\", \"#ffaa33\", 700, angle, 2, 0, 0, 40, \"ootama\", \"relative\", \"30\")\n            angle += 12.2\n            wait(0.02)\n        }\n        for (let i = 0; i < 10; i++) {\n            aimAtTarget()\n            angle += random(-7,7)\n            spawnWay(\"normal\", \"#ffdd33\", 700, angle, 5, 25, 0, 0, 20, \"b_ohuda\", \"relative\", \"10\")\n            wait(0.02)\n        }\n        for (let i = 0; i < 10; i++) {\n            angle += 25\n            w = 0\n            sp = 0\n            for (let i = 0; i < 7; i++) {\n                spawnWay(\"normal\", \"#33ff88\", 300 + sp, angle, 1 + w, 2, 0, 0, 20, \"b_poihuru\", \"relative\", \"20\")\n                w += 1\n                sp += 30\n            }\n            wait(0.04)\n        }\n        for (let i = 0; i < 10; i++) {\n            angle = random(-80,80)\n            spawnWay(\"normal\", \"#3388ff\", 700, -90 + angle, 3, 10, 0, 0, 30, \"b_star\", \"relative\", \"20\")\n            wait(0.05)\n        }\n        for (let i = 0; i < 10; i++) {\n            xsp = random(0,768)\n            spawnWay(\"normal\", \"#9E76B4\", 700, 90, 1, 10, 0, 0, 10, \"poihuru\", \"relative\", \"6\")\n            wait(0.02)\n        }\n    }\n}\n    ",
+    "bulletScript": "\nif (color==#3388ff) {\n    if (y < 10) {\n        angle = 90\n    }\n    spriteAngle += 5\n}\nif (color==#9E76B4) {\n    once {\n        xsp = random(-200,968)\n        x = xsp\n        y = 0\n    }\n    homing(10)\n    spriteAngle = angle\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "LUNATIC",
+    "name": "奇跡「九字切り」",
+    "desc": "どうみても早苗のパクリです。本当にありがとうございました。",
+    "duration": 60,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 10,
+    "emitterScript": "\nwhile (true) {\n    xp = 0\n    for (let i = 0; i < 30; i++) {\n        xp += 60\n        spawnWayResist(\"normal\", \"#ff3333\", 100, -90, 1, 0, xp + ex - 700, ey, 10, \"none\", \"absolute\", \"10\")\n        spawnWayResist(\"normal\", \"#ff3333\", 100, 90, 1, 0, xp + ex - 700, ey, 10, \"none\", \"absolute\", \"10\")\n        wait(0.01)\n    }\n    wait(0.4)\n    yp = 0\n    for (let i = 0; i < 30; i++) {\n        yp += 60\n        spawnWayResist(\"normal\", \"#ff3333\", 100, 0, 1, 0, ex, ey + yp - 700, 10, \"none\", \"absolute\", \"10\")\n        spawnWayResist(\"normal\", \"#ff3333\", 100, 180, 1, 0, ex, ey + yp - 700, 10, \"none\", \"absolute\", \"10\")\n        wait(0.01)\n    }\n    wait(2)\n    mx = random(200,568)\n    tween(\"ex\", ex, mx, \"seconds\", 1)\n    my = random(100,443)\n    tween(\"ey\", ey, my, \"seconds\", 1)\n    wait(1.2)\n}\nonce {\n    w = 0.6\n}\nwhile (true) {\n    spawnRing(\"normal\", \"#ffffff\", 200, fff, 36, 0, 0, 10, \"b_uroko\", \"relative\", \"6\")\n    fff += 5\n    wait(0.4)\n    wait(w)\n    w -= 0.005\n}\n    ",
+    "bulletScript": "\nif (color == #ff3333) {\n    speed = 0\n    warningTime = 1\n    activeTime = 2\n    laserWidth = 12\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "LUNATIC",
+    "name": "威符「完全無欠の幾何学牢」",
+    "desc": "こいしのアレのパクリ",
+    "duration": 50,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnWay(\"normal\", \"#ff3333\", 100, 0 + m, 3, 60, 0, ty, 20, \"b_knife\", \"absolute\", \"4\")\n    spawnWay(\"normal\", \"#3388ff\", 100, 180 + m, 3, 60, 768, ty, 20, \"b_knife\", \"absolute\", \"4\")\n    spawnWay(\"normal\", \"#ffdd33\", 100, 90 + m, 3, 60, tx, 0, 20, \"b_knife\", \"absolute\", \"4\")\n    spawnWay(\"normal\", \"#33ff88\", 100, -90 + m, 3, 60, tx, 896, 20, \"b_knife\", \"absolute\", \"4\")\n    wait(0.07)\n}\n    ",
+    "bulletScript": "\n        // 弾挙動の独自コード\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "フラッシュアンドブラスト",
+    "desc": "マインブラストみたいなのが作ってみたくて...",
+    "duration": 44,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    ey = 448\n    aimAtTarget()\n    for (let i = 0; i < 25; i++) {\n        angle += random(-20,20)\n        spawnBulletResist(\"normal\", \"#ffdd33\", 200, angle, 0, 0, 30, \"light\", \"relative\", \"30\")\n        wait(0.04)\n    }\n    wait(6)\n}\nif (x < 10) {\n}\n    ",
+    "bulletScript": "\nif (color==#ffdd33) {\n    if (isTouchEdge) {\n        for (let i = 0; i < 2; i++) {\n            spd = random(100,400)\n            ang = random(0,360)\n            wa = random(3,16)\n            sz = random(5,20)\n            spawnRing(\"normal\", \"#ffaa33\", spd, ang, wa, 0, 0, sz, \"light\", \"relative\", sz)\n        }\n        speed = 0\n        auraIntensity = 2.5\n        for (let i = 0; i < 20; i++) {\n            auraRange += 1\n            auraIntensity -= 0.1\n            hitRadius += 12\n            wait(0.03)\n        }\n        for (let i = 0; i < 10; i++) {\n            auraRange += 1\n            auraIntensity -= 0.1\n            hitRadius -= 8\n            radius -= 2\n            wait(0.03)\n        }\n        y = -8000\n    }\n}\nif (color==#ff3333) {\n    angle += 5\n    spriteAngle = angle\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "輝く双炎の地",
+    "desc": "光弾を使ってみたかった。",
+    "duration": 35,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nfor (let i = 0; i < 12000; i++) {\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle2, 0, 0, 25, \"light\", \"relative\", \"25\")\n    angle2 += 6\n    wait(0.02 - t)\n    wait(0.01)\n    t += 0.00001\n}\nfor (let i = 0; i < 12000; i++) {\n    aimAtTarget()\n    spawnBullet(\"normal\", \"#33ffff\", 200, angle, 0, 0, 30, \"light\", \"relative\", \"30\")\n    wait(0.8)\n}\n    ",
+    "bulletScript": "\n        // 弾挙動の独自コード\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "雷符「ライトニングスパーク」",
+    "desc": "どうみてもマスパ",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    playSound(\"charge\")\n    aimAtTarget()\n    for (let i = 0; i < 150; i++) {\n        spd = random(8500,14000)\n        angle2 += random(0,360)\n        spawnBullet(\"normal\", \"#fffffe\", spd, angle2, 0, 0, 10, \"light\", \"relative\", \"10\")\n        wait(0.01)\n    }\n    wait(0.5)\n    playSound(\"maspa_long\")\n    sp = 1\n    for (let i = 0; i < 5000; i++) {\n        ang = angle\n        ag = angle\n        ang += random(-40,40)\n        spawnBulletResist(\"normal\", \"#ffff99\", 1500, ang, 0, 0, 30, \"light\", \"relative\", \"20\")\n        wait(0.000005)\n        angle += 0.001\n    }\n    sp = 0\n    wait(2)\n}\nwhile (true) {\n    if (cardSecond == 3..757575757) {\n        angle2 += random(0,360)\n        spawnRing(\"normal\", \"#ffdd33\", 300, angle2, 10, 0, 0, 15, \"b_star\", \"relative\", \"7\")\n        wait(0.2)\n    }\n}\n    ",
+    "bulletScript": "\nif (color==#fffffe) {\n    if (frame == 2..3) {\n        speed = 320\n        once {\n            angle += 180\n        }\n    }\n    if (frame == 20..3000) {\n        if (x == 374..394) {\n            y = -8000\n        }\n    }\n}\nif (color==#ffff99) {\n    once {\n        tween(\"angle\", angle, ag, \"seconds\", 0.6)\n        auraRange = 5.5\n        auraIntensity = 0.1\n    }\n}\nspriteAngle += 3\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "彩符「天使の光輪」",
+    "desc": "結構面白く作れたと思う。難易度はしらん。",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 7,
+    "emitterScript": "\nfor (let i = 0; i < 50000; i++) {\n    ey = 350\n    for (let i = 0; i < 72; i++) {\n        spawnBullet(\"normal\", \"#ff33aa\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n        spawnBullet(\"normal\", \"#33ff88\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n        henkat = random(1.5,2)\n        spawnBullet(\"normal\", \"#3388ff\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n        henkat = random(0.5,1)\n        spawnBullet(\"normal\", \"#ffdd33\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n        henkat = random(0.5,1)\n        spawnBullet(\"normal\", \"#ffaa33\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n        henkat = random(1.5,2)\n        spawnBullet(\"normal\", \"#ff3333\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n        angle += 5\n    }\n    wait(5)\n}\n    ",
+    "bulletScript": "\nif (timer == henkat) {\n    if (color == #ff3333) {\n        once {\n            aimAtTarget()\n        }\n    }\n}\nif (color==#ffdd33) {\n    if (timer == henkat..henkat+3) {\n        angle += 1\n    }\n}\nif (color==#ffaa33) {\n    if (timer == henkat..henkat+3) {\n        angle -= 1\n    }\n}\nif (color==#33ff88) {\n    if (isTouchEdge) {\n        once {\n            bounce()\n        }\n    }\n}\nif (color==#ff33aa) {\n    if (dist < 150) {\n        speed = 100\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「処刑人の剣」",
+    "desc": "気合避けスペルを作った。",
+    "duration": 40,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 8, 0, 0, 30, \"sword\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#ff3333\", 200, -angle, 8, 0, 0, 30, \"sword\", \"relative\", \"6\")\n    angle += 5.2\n    wait(0.05)\n}\nwhile (true) {\n    ex = tx\n}\n    ",
+    "bulletScript": "\nspeed += 1\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "橙藍",
+    "desc": "とても好み。",
+    "duration": 40,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nonce {\n    t = 1.5\n}\nfor (let i = 0; i < 1200; i++) {\n    spawnRingResist(\"normal\", \"#ff5100\", 200, angle, 36, 0, 0, 20, \"light\", \"relative\", \"15\")\n    angle = random(0,360)\n    wait(0.5)\n    wait(t)\n    t -= 0.05\n}\n    ",
+    "bulletScript": "\nwait(2)\nspawnRing(\"normal\", \"#6200ff\", 120, angle, 4, 0, 0, 6, \"light\", \"relative\", \"6\")\nwait(2)\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Easy",
+    "name": "流符「弾幕の川」",
+    "desc": "軌道意味不明！",
+    "duration": 25,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nfor (let i = 0; i < 12000; i++) {\n    spawnBullet(\"normal\", \"#ffffff\", 300, ang, 0, 0, 20, \"light\", \"relative\", \"15\")\n    spawnBullet(\"normal\", \"#ffffff\", 300, ang + 180, 0, 0, 20, \"light\", \"relative\", \"15\")\n    spawnBullet(\"normal\", \"#ffffff\", 300, ang + 90, 0, 0, 20, \"light\", \"relative\", \"15\")\n    spawnBullet(\"normal\", \"#ffffff\", 300, ang + 180 + 90, 0, 0, 20, \"light\", \"relative\", \"15\")\n    ang += 4 + random(1,6)\n    wait(0.06)\n}\n    ",
+    "bulletScript": "\nif (color == #ffffff) {\n    period = 120\n    amp = 60\n    baseAngle = angle\n    frame2 = 0\n    while (true) {\n        frame2 += 1\n        l += 1\n        angle = baseAngle - amp * sin(frame2 * 360 / period)\n        spriteAngle = angle\n        if (l == 3) {\n            l = 0\n        }\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Hard",
+    "name": "核熱「核分裂」",
+    "desc": "弾幕作りあるある。最初に作る弾幕を決めるんじゃなくて適当に作ってそれっぽい名前にする",
+    "duration": 33,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nfor (let i = 0; i < 6; i++) {\n    ey = 448\n    playSound(\"charge2\")\n    wait(1.15)\n    spawnRingResist(\"normal\", \"#ff3333\", 50, -90, 4 + w, 0, 0, 10, \"light\", \"relative\", \"10\")\n    playSound(\"don00\")\n    wait(3.5)\n    w += 1\n}\n    ",
+    "bulletScript": "\nif (timer == 0..0.9) {\n    radius += 1\n    hitRadius += 1\n    speed += 1\n    auraIntensity += 0.2\n}\nif (isTouchEdge) {\n    spawnRing(\"normal\", \"#ff8811\", 200, angle + 5, 36, 0, 0, 30, \"light\", \"relative\", \"25\")\n    y = -80000\n}\n    ",
+    "magicCircleScript": "\nif (timer == 0.2..1) {\n    radius -= 0.2\n    hitRadius -= 0.2\n}\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "四季符「完全な四種の季節」",
+    "desc": "6個も残機あるなら、55秒の超激ムズスペルでも許されますよね...?",
+    "duration": 55,
+    "maxMisses": 6,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnBullet(\"normal\", \"#3388ff\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n    spawnBullet(\"normal\", \"#ffdd33\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n    spawnBullet(\"normal\", \"#33ff88\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n    spawnBullet(\"normal\", \"#ff33aa\", 200, angle, 0, 0, 8, \"light\", \"relative\", \"6\")\n    angle = random(40,140)\n    wait(0.05)\n}\nwhile (true) {\n    wait(1)\n    r = random(-50,100)\n    tween(\"ex\", ex, 100 + r, \"seconds\", 0.5, \"easeOut\")\n    r = random(-50,100)\n    tween(\"ey\", ey, 100 + r, \"seconds\", 0.5, \"easeOut\")\n    playSound(\"shot\")\n    if (cardSecond == 20..60) {\n        spawnRing(\"normal\", \"#ffffff\", 200, 0, 36, 0, 0, 8, \"light\", \"relative\", \"6\")\n    }\n    wait(0.5)\n    r = random(-50,100)\n    tween(\"ex\", ex, 700 + r, \"seconds\", 0.5, \"easeOut\")\n    r = random(-50,100)\n    tween(\"ey\", ey, 100 + r, \"seconds\", 0.5, \"easeOut\")\n    playSound(\"shot\")\n    if (cardSecond == 20..60) {\n        spawnRing(\"normal\", \"#ffffff\", 200, 0, 36, 0, 0, 8, \"light\", \"relative\", \"6\")\n    }\n    wait(0.5)\n    r = random(-50,100)\n    tween(\"ex\", ex, 100 + r, \"seconds\", 0.5, \"easeOut\")\n    r = random(-50,100)\n    tween(\"ey\", ey, 400 + r, \"seconds\", 0.5, \"easeOut\")\n    playSound(\"shot\")\n    if (cardSecond == 20..60) {\n        spawnRing(\"normal\", \"#ffffff\", 200, 0, 36, 0, 0, 8, \"light\", \"relative\", \"6\")\n    }\n    wait(0.5)\n    r = random(-50,100)\n    tween(\"ex\", ex, 700 + r, \"seconds\", 0.5, \"easeOut\")\n    r = random(-50,100)\n    tween(\"ey\", ey, 400 + r, \"seconds\", 0.5, \"easeOut\")\n    playSound(\"shot\")\n    if (cardSecond == 20..60) {\n        spawnRing(\"normal\", \"#ffffff\", 200, 0, 36, 0, 0, 8, \"light\", \"relative\", \"6\")\n    }\n    wait(0.5)\n    tween(\"ex\", ex, 384, \"seconds\", 0.5, \"easeOut\")\n    tween(\"ey\", ey, 224, \"seconds\", 0.5, \"easeOut\")\n    playSound(\"shot\")\n    if (cardSecond == 20..60) {\n        spawnRing(\"normal\", \"#ffffff\", 200, 0, 36, 0, 0, 8, \"light\", \"relative\", \"6\")\n    }\n    wait(4)\n}\nwhile (true) {\n    spawnWayResist(\"normal\", \"#ff3333\", 1000, -90, 25, 7, 0, 0, 30, \"b_knife\", \"relative\", \"15\")\n    wait(0.05)\n}\nwhile (true) {\n    if (cardSecond == 40..60) {\n        aimAtTarget()\n        spawnWay(\"normal\", \"#ffffff\", 300, angle, 8, 12, 0, 0, 12, \"uroko\", \"relative\", \"6\")\n        wait(0.7)\n    }\n}\nwhile (true) {\n    if (cardSecond == 50..60) {\n        aimAtTarget()\n        spawnRing(\"normal\", \"#ffffff\", 300, 0, 36, 0, 0, 8, \"light\", \"relative\", \"6\")\n        wait(0.3)\n    }\n}\n    ",
+    "bulletScript": "\nif (timer == 0.8) {\n    if (color == #3388ff) {\n        angle += random(10,15)\n    }\n    if (color == #33ff88) {\n        angle -= random(10,15)\n    }\n    if (color == #ffdd33) {\n        angle += random(-15,15)\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Normal",
+    "name": "華符「白銀の結晶」",
+    "desc": "たまには展開される系の弾幕も作る。",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 8,
+    "emitterScript": "\nwhile (true) {\n    playSound(\"shot\")\n    ang = 10\n    for (let i = 0; i < 20; i++) {\n        spawnRing(\"normal\", \"#ffffff\", 100 + spdd, 95, 35, 0, 0, 15, \"b_uroko\", \"relative\", \"1\")\n        spdd += 10\n        ang -= 1\n    }\n    spdd = 0\n    ang = 0\n    wait(1.5)\n    playSound(\"boon01\")\n    wait(1.5)\n    playSound(\"shot\")\n    ang = -10\n    for (let i = 0; i < 20; i++) {\n        spawnRing(\"normal\", \"#ffffff\", 100 + spdd, 95, 35, 0, 0, 15, \"uroko\", \"relative\", \"1\")\n        spdd += 10\n        ang += 1\n    }\n    spdd = 0\n    wait(1.5)\n    playSound(\"boon01\")\n    wait(1.5)\n}\n    ",
+    "bulletScript": "\nif (timer ==1.5..1.65) {\n    angle += ang\n}\nif (timer ==0.3) {\n    tween(\"hitRadius\", 1, 8, \"seconds\", 6)\n}\nspriteAngle = angle\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "EASY",
+    "name": "純符「純粋な光の粒子」",
+    "desc": "説明文や作成者名など",
+    "duration": 20,
+    "maxMisses": 0,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnRingResist(\"normal\", \"#ffdd33\", 200, angle, 36, 0, 0, 20, \"light\", \"relative\", \"20\")\n    spawnRingResist(\"normal\", \"#ffdd33\", 200, angle + 5, 18, 0, 0, 20, \"light\", \"relative\", \"20\")\n    spawnRingResist(\"normal\", \"#ffdd33\", 200, angle + 2.5, 18, 0, 0, 20, \"light\", \"relative\", \"20\")\n    spawnRingResist(\"normal\", \"#ffdd33\", 200, angle + 7.5, 18, 0, 0, 20, \"light\", \"relative\", \"20\")\n    playSound(\"shot\")\n    wait(0.5)\n    spawnRingResist(\"normal\", \"#ac008f\", 200, angle, 36, 0, 0, 20, \"light\", \"relative\", \"20\")\n    spawnRingResist(\"normal\", \"#ac008f\", 200, angle - 5, 18, 0, 0, 20, \"light\", \"relative\", \"20\")\n    spawnRingResist(\"normal\", \"#ac008f\", 200, angle - 2.5, 18, 0, 0, 20, \"light\", \"relative\", \"20\")\n    spawnRingResist(\"normal\", \"#ac008f\", 200, angle - 7.5, 18, 0, 0, 20, \"light\", \"relative\", \"20\")\n    playSound(\"shot\")\n    wait(0.5)\n}\n    ",
+    "bulletScript": "\n        // 弾挙動の独自コード\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Hard",
+    "name": "枝符「囚人の牢獄」",
+    "desc": "回転＆列抜け",
+    "duration": 40,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    playSound(\"shot\")\n    playSound(\"laser\")\n    spawnRing(\"normal\", \"#ffaa33\", 200, 0, 6, 384, 448, 6, \"none\", \"absolute\", \"#ff3333\")\n    wait(2)\n    while (true) {\n        for (let i = 0; i < 38; i++) {\n            spawnBulletResist(\"normal\", \"#ff3333\", 300, 90, xp, 0, 20, \"b_knife\", \"absolute\", \"4\")\n            xp += 20\n            wait(0.16)\n            playSound(\"shot\")\n        }\n        for (let i = 0; i < 38; i++) {\n            spawnBulletResist(\"normal\", \"#ff3333\", 300, 90, xp, 0, 20, \"b_knife\", \"absolute\", \"4\")\n            xp -= 20\n            wait(0.16)\n            playSound(\"shot\")\n        }\n        while (true) {\n            for (let i = 0; i < 38; i++) {\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, 90, xp, 0, 20, \"b_knife\", \"absolute\", \"4\")\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, -90, 768 - xp, 896, 20, \"b_knife\", \"absolute\", \"4\")\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, 0, 0, yp, 20, \"b_knife\", \"absolute\", \"4\")\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, 180, 768, 896 - yp, 20, \"b_knife\", \"absolute\", \"4\")\n                xp += 20\n                yp += 23.5789473684\n                wait(0.16)\n                playSound(\"shot\")\n            }\n            for (let i = 0; i < 38; i++) {\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, 90, xp, 0, 20, \"b_knife\", \"absolute\", \"4\")\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, -90, 768 - xp, 896, 20, \"b_knife\", \"absolute\", \"4\")\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, 0, 0, yp, 20, \"b_knife\", \"absolute\", \"4\")\n                spawnBulletResist(\"normal\", \"#ff3333\", 300, 180, 768, 896 - yp, 20, \"b_knife\", \"absolute\", \"4\")\n                xp -= 20\n                yp -= 23.5789473684\n                wait(0.16)\n                playSound(\"shot\")\n            }\n        }\n    }\n}\nif (y > 886) {\n}\nwhile (true) {\n    if (cardSecond == 15) {\n        playSound(\"boon01\")\n    }\n}\n    ",
+    "bulletScript": "\nif (color == #ffaa33) {\n    warningTime = 0\n    activeTime = 150\n    laserWidth = 20\n    if (cardSecond == 15..40) {\n        angle += 0.2\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "上は洪水、下は大火事(リメイク)",
+    "desc": "光弾が実装されたのでリメイク。",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    xsp = random(0,768)\n    spawnBulletResist(\"normal\", \"#ff661f\", 200, angle, xsp, 896, 10, \"light\", \"absolute\", \"10\")\n    wait(0.02)\n}\n    ",
+    "bulletScript": "\nif (isTouchEdge) {\n    a = random(-20,20)\n    spawnWay(\"normal\", \"#ff3333\", 200, -90 + a, 1, 30, 0, 0, 6, \"light\", \"relative\", \"6\")\n    speed = 0\n    auraIntensity = 2.5\n    for (let i = 0; i < 20; i++) {\n        auraRange += 2.5\n        auraIntensity -= 0.1\n        hitRadius += 12\n        wait(0.03)\n    }\n    for (let i = 0; i < 20; i++) {\n        auraRange += 1.5\n        auraIntensity -= 0.01\n        hitRadius -= 4\n        radius -= 1\n        wait(0.03)\n    }\n    y = -8000\n}\n    ",
+    "magicCircleScript": "\nif (color == #ff3333) {\n    if (y < 0) {\n        angle = 90 + random(-5,5)\n        speed = 5\n        color = #33ffff\n        y = 5\n    }\n}\nif (color == #33ffff) {\n    speed += 1.5\n}\nspriteAngle = angle\n    "
+  },
+  {
+    "difficulty": "Easy",
+    "name": "封符「停滞するレッドマジック」",
+    "desc": "直近でやった作品の弾幕っぽく作っちゃう病",
+    "duration": 40,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 8,
+    "emitterScript": "\nwhile (true) {\n    playSound(\"boon01\")\n    tween(\"ey\", 180, 448, \"seconds\", 3, \"easeOut\")\n    wait(3)\n    playSound(\"charge2\")\n    wait(1.5)\n    while (true) {\n        playSound(\"shot\")\n        for (let i = 0; i < 4; i++) {\n            for (let i = 0; i < 2; i++) {\n                spawnBulletResist(\"normal\", \"#ff3333\", 34000, angle, 0, 0, 8, \"b_marutama\", \"relative\", \"5\")\n            }\n            angle += 6\n            wait(0.025)\n        }\n    }\n}\n    ",
+    "bulletScript": "\nif (frame == 2..4) {\n    once {\n        speed = 80\n        angle += 180\n        angle += random(-10,10)\n        speed += random(-5,5)\n    }\n}\nif (timer == 7.5) {\n    once {\n        speed = 30\n        color = #dddddd\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Hard",
+    "name": "奥義「弾幕結界・陽」",
+    "desc": "白くなった奴には当たり判定ありません",
+    "duration": 78,
+    "maxMisses": 3,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 20,
+    "emitterScript": "\nwhile (true) {\n    if (cardSecond == 0.1 + 10 * n) {\n        offset = 0\n        spawnBullet(\"normal\", \"#ffaa33\", 200, agg, 0, 0, 6, \"none\", \"relative\", \"3\")\n        offset = 72 * 1\n        spawnBullet(\"normal\", \"#ffaa33\", 200, agg, 0, 0, 6, \"none\", \"relative\", \"3\")\n        offset = 72 * 2\n        spawnBullet(\"normal\", \"#ffaa33\", 200, agg, 0, 0, 6, \"none\", \"relative\", \"3\")\n        offset = 72 * 3\n        spawnBullet(\"normal\", \"#ffaa33\", 200, agg, 0, 0, 6, \"none\", \"relative\", \"3\")\n        offset = 72 * 4\n        spawnBullet(\"normal\", \"#ffaa33\", 200, agg, 0, 0, 6, \"none\", \"relative\", \"3\")\n    }\n}\nwhile (true) {\n    ey = 448\n    if (cardSecond == 1..50000) {\n        if (cardSecond == 0..15) {\n            spawnRingResist(\"normal\", \"#ff3333\", 260, -agg, 5, 0, 0, 20, \"b_ohuda\", \"relative\", \"6\")\n            playSound(\"shot\")\n            wait(0.15)\n        }\n        if (cardSecond == 5) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 10) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 15) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 20) {\n            playSound(\"boon01\")\n        }\n        if (cardSecond == 25..40) {\n            spawnRingResist(\"normal\", \"#ff3333\", 200, agg, 5, 0, 0, 20, \"b_ohuda\", \"relative\", \"6\")\n            playSound(\"shot\")\n            wait(0.15)\n        }\n        if (cardSecond == 30) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 35) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 40) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 45) {\n            playSound(\"boon01\")\n        }\n        if (cardSecond == 50..65) {\n            spawnRingResist(\"normal\", \"#ff3332\", 160, agg * -10, 5, 0, 0, 20, \"b_ohuda\", \"relative\", \"6\")\n            playSound(\"shot\")\n            wait(0.08)\n        }\n        if (cardSecond == 55) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 60) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 65) {\n            playSound(\"change\")\n        }\n        if (cardSecond == 70) {\n            playSound(\"boon01\")\n        }\n    }\n}\nwhile (true) {\n    tween(\"agg\", 0, 360, \"seconds\", 15)\n    wait(15)\n}\n    ",
+    "bulletScript": "\nif (color==#ffaa33) {\n    warningTime = 1\n    activeTime = 4\n    laserWidth = 60\n    angle = e_agg + offset\n}\nif (color !=#ffaa33) {\n    if (cardSecond == 5) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 10) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 15) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 20) {\n        aimAt(ex, ey)\n        color = #ff3333\n        hitRadius = 6\n    }\n    if (cardSecond == 20..25) {\n        speed += 1.5\n    }\n    if (cardSecond == 30) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 35) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 40) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 45) {\n        aimAt(ex, ey)\n        color = #ff3333\n        hitRadius = 6\n    }\n    if (cardSecond == 45..50) {\n        speed += 1.5\n    }\n    if (cardSecond == 55) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 60) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 65) {\n        speed = 0\n        color = #ffffff\n        hitRadius = 0\n    }\n    if (cardSecond == 70) {\n        aimAt(ex, ey)\n        color = #ff3333\n        hitRadius = 6\n    }\n    if (cardSecond == 70..73) {\n        speed += 0.5\n    }\n}\nspriteAngle = angle\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「常闇幻朧月睨」",
+    "desc": "説明文や作成者名など",
+    "duration": 30,
+    "maxMisses": 1,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 0.1,
+    "emitterScript": "\nwhile (true) {\n    idousakix = random(-200,200)\n    idousakiy = random(-100,100)\n    tween(\"ex\", ex, 384 + idousakix, \"seconds\", 1)\n    tween(\"ey\", ey, 179 + idousakiy, \"seconds\", 1)\n    stop = 0\n    for (let i = 0; i < 40; i++) {\n        spawnRing(\"normal\", \"#ff3333\", 200, angle, 12, 0, 0, 6, \"kome\", \"relative\", \"6\")\n        angle += 4\n        wait(0.02)\n    }\n    wait(0.5)\n    stop = 1\n    kaisi = 0.1\n    kaisi2 = 2\n    for (let i = 0; i < 10; i++) {\n        kaisi += 0.01\n        kaisi2 += 0.1\n        spawnRingResist(\"normal\", \"#3333ff\", 800, angle, 24, 0, 0, 30, \"b_knife\", \"relative\", \"6\")\n        angle += 6.5\n        wait(0.02)\n    }\n    for (let i = 0; i < 10; i++) {\n        kaisi += 0.01\n        kaisi2 += 0.1\n        spawnRingResist(\"normal\", \"#3333ff\", 800, angle, 24, 0, 0, 30, \"b_knife\", \"relative\", \"6\")\n        angle -= -2\n        wait(0.02)\n    }\n    wait(1)\n    stop = 2\n    wait(0.5)\n    stop = 0\n    wait(1.5 - minus)\n    minus += 0.1\n}\n    ",
+    "bulletScript": "\nif (color==#ff3333) {\n    if (e_stop == 0) {\n        hitRadius = 12\n        radius = 20\n        speed = 500\n    }\n    if (e_stop == 1) {\n        hitRadius = 0\n        radius = 0\n        speed = 0\n    }\n    if (e_stop == 2) {\n        radius = 20\n        speed = 0\n    }\n}\nif (color==#3333ff) {\n    if (timer == kaisi) {\n        speed = 0\n    }\n    if (timer == kaisi2..9000) {\n        speed = 600\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "否符「生命搾取」",
+    "desc": "タッチだと簡単です。",
+    "duration": 32,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 0.1,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 2; i++) {\n        wait(1.5)\n        sp = 550\n        ll = 4\n        for (let i = 0; i < 120; i++) {\n            sp -= 5\n            angle += 6 + ll\n            spawnRingResist(\"normal\", \"#ff3333\", 0, angle, 12, 0, 0, 6, \"light\", \"relative\", \"3\")\n            //spawnRingResist(\"normal\", \"#ffffff\", 0, angle, 20, 0, 0, 4, \"none\", \"relative\", \"3\")\n            wait(0.03)\n            ll -= 0.02\n        }\n        wait(2)\n        wait(1.5)\n        sp = 550\n        ll = 4\n        for (let i = 0; i < 120; i++) {\n            sp -= 5\n            angle -= 6 + ll\n            spawnRingResist(\"normal\", \"#3333ff\", 0, angle, 12, 0, 0, 6, \"light\", \"relative\", \"3\")\n            //spawnRingResist(\"normal\", \"#ffffff\", 0, angle, 20, 0, 0, 4, \"none\", \"relative\", \"3\")\n            wait(0.03)\n            ll -= 0.02\n        }\n        wait(2)\n    }\n    wait(20)\n}\n    ",
+    "bulletScript": "\nonce {\n    hitRadius = 0\n    advance(sp / 4)\n    speed = 50\n    wait(0.5)\n    hitRadius = 3\n}\nif (timer == 3..6) {\n    speed += 1\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "神「暗殺神」",
+    "desc": "全方位反射+弾から出る+自機狙い←神すぎる",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 5,
+    "emitterScript": "\nwhile (true) {\n    ey = 448\n    wait(1)\n    spawnRingResist(\"normal\", \"#ff3333\", 200, 0, 6, 0, 0, 45, \"ootama\", \"relative\", \"20\")\n    wait(9)\n}\n    ",
+    "bulletScript": "\nif (cardFrame == 30 * n) {\n    l = angle\n    aimAtTarget()\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 3, 0, 0, 6, \"light\", \"relative\", \"3\")\n    angle = l\n}\nif (x < 10) {\n    once {\n        bounce()\n    }\n}\nif (x > 758) {\n    once {\n        bounce()\n    }\n}\nif (y < 10) {\n    once {\n        bounce()\n    }\n}\nif (y > 886) {\n    once {\n        angle = -angle\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "模倣「レッドマジック」",
+    "desc": "レミリアのそれより圧倒的に簡単。というか、ほぼ下位互換ｗ",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    wait(2)\n    angle = random(0,360)\n    spawnRingResist(\"normal\", \"#ff3333\", 300, 0, 7, 0, 0, 60, \"ootama\", \"relative\", \"40\")\n    playSound(\"shot_raw\")\n    wait(3)\n}\n    ",
+    "bulletScript": "\nbounce()\nif (cardFrame == 10 * n) {\n    spangle = random(0,360)\n    spawnBullet(\"normal\", \"#ff3333\", 0, spangle, 0, 0, 10, \"b_marutama\", \"relative\", \"4\")\n}\n    ",
+    "magicCircleScript": "\nif (timer == 1..4) {\n    speed += 0.4\n}\n    "
+  },
+  {
+    "difficulty": "h",
+    "name": "「唸る秘神の牙」",
+    "desc": "ついにへにょりレーザー登場",
+    "duration": 20,
+    "maxMisses": 0,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nfor (let i = 0; i < 12000; i++) {\n    spawnTrail(\"#00ffff\", 400, angle, 0, 0, 8, 0.2, 0.3, 0.2, \"false\", \"relative\", \"8\")\n    spawnTrail(\"#00ffff\", 400, angle + 90, 0, 0, 8, 0.2, 0.3, 0.2, \"false\", \"relative\", \"8\")\n    spawnTrail(\"#00ffff\", 400, angle + 180, 0, 0, 8, 0.2, 0.3, 0.2, \"false\", \"relative\", \"8\")\n    spawnTrail(\"#00ffff\", 400, angle + 270, 0, 0, 8, 0.2, 0.3, 0.2, \"false\", \"relative\", \"8\")\n    angle += random(0,40)\n    wait(0.2)\n    spawnLaserWay(\"#ff3333\", 6, 450, angle, 2, 45, 0, 0, \"relative\", \"3\")\n}\n    ",
+    "bulletScript": "\nperiod = 60 + random(-20,20)\namp = 30\nbaseAngle = angle\nframe2 = 0\nwhile (true) {\n    frame2 += 1\n    l += 1\n    angle = baseAngle - amp * sin(frame2 * 360 / period)\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Lunatic",
+    "name": "魔符「殺人の流星群」",
+    "desc": "シリンダーフォックスっぽいものを作ったけど多分本家よりムズいです。",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    angle = 6 + offset\n    spawnRingResist(\"normal\", \"#ff3333\", 0, angle, 18 + way, 0, 0, 12, \"star\", \"relative\", \"4\")\n    spawnLaserRingResist(\"#ff3333\", 6, 0, angle, 18 + way, 0, 0, \"relative\", \"4\")\n    wait(3)\n    offset += 3\n    way += 1\n}\n    ",
+    "bulletScript": "\nspriteAngle += 7\nif (x < 10) {\n    once {\n        angle = -angle\n        angle += 180\n        speed = 0\n    }\n}\nif (x > 758) {\n    once {\n        angle = -angle\n        angle += 180\n        speed = 0\n    }\n}\nif (y < 10) {\n    once {\n        angle = -angle\n        speed = 0\n    }\n}\nif (y > 886) {\n    once {\n        angle = -angle\n        speed = 0\n    }\n}\nif (speed == 0..400) {\n    speed += 3\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "h",
+    "name": "恋符「ミラクルスパーク」",
+    "desc": "っぱ、レーザーなんよ。",
+    "duration": 40,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 3; i++) {\n        aimAtTarget()\n        spawnLaserRingResist(\"#ffdd33\", 50, 15, angle, 12, 0, 0, \"relative\", \"10\")\n        playSound(\"laser_heavy\")\n        wait(2)\n        playSound(\"boon01\")\n        wait(3)\n    }\n    for (let i = 0; i < 3; i++) {\n        aimAtTarget()\n        spawnLaserRingResist(\"#ffdd33\", 50, 15, angle, 12, 0, 0, \"relative\", \"10\")\n        playSound(\"laser_heavy\")\n        wait(1)\n        aimAtTarget()\n        spawnLaserRingResist(\"#ffdd33\", 50, 15, angle, 12, 0, 0, \"relative\", \"10\")\n        playSound(\"laser_heavy\")\n        wait(1)\n        playSound(\"boon01\")\n        wait(1)\n        playSound(\"boon01\")\n        wait(2)\n    }\n    aimAtTarget()\n    spawnLaserRingResist(\"#ffdd33\", 50, 15, angle, 12, 0, 0, \"relative\", \"10\")\n    playSound(\"laser_heavy\")\n    wait(0.6666666667)\n    aimAtTarget()\n    spawnLaserRingResist(\"#ffdd33\", 50, 15, angle, 12, 0, 0, \"relative\", \"10\")\n    playSound(\"laser_heavy\")\n    wait(0.6666666667)\n    aimAtTarget()\n    spawnLaserRingResist(\"#ffdd33\", 50, 15, angle, 12, 0, 0, \"relative\", \"10\")\n    playSound(\"laser_heavy\")\n    wait(0.6666666667)\n    playSound(\"boon01\")\n    wait(0.6666666667)\n    playSound(\"boon01\")\n    wait(0.6666666667)\n    playSound(\"boon01\")\n    wait(20)\n}\n    ",
+    "bulletScript": "\nif (frame == 2) {\n    speed = 1500\n}\nif (frame == 3..870000) {\n    spangle = random(0,360)\n    spawnBullet(\"normal\", \"#ffdd33\", 1, spangle, 0, 0, 6, \"light\", \"relative\", \"6\")\n    wait(0.007)\n}\n    ",
+    "magicCircleScript": "\nif (timer == 2..3) {\n    speed += 2\n}\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「混沌なる狂気」",
+    "desc": "予告線ありver",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 8,
+    "emitterScript": "\nwhile (true) {\n    angle += random(0,360)\n    wait(3)\n    spawnLaserRingResist(\"#ff3333\", 1, 400, angle, 36, 0, 0, \"relative\", \"0\")\n    wait(0.5)\n    spawnLaserRingResist(\"#33ffff\", 1, 500, angle, 36, 0, 0, \"relative\", \"0\")\n    wait(0.5)\n    spawnLaserRingResist(\"#ff3333\", 6, 400, angle, 36, 0, 0, \"relative\", \"6\")\n    wait(0.5)\n    spawnLaserRingResist(\"#33ffff\", 6, 500, angle, 36, 0, 0, \"relative\", \"6\")\n    wait(0.5)\n    ex = 384 + random(-100,100)\n    ey = 400 + random(-100,100)\n}\n    ",
+    "bulletScript": "\nif (color==#ff3333) {\n    offset = 0.8\n}\nif (color==#33ffff) {\n    offset = -0.8\n}\nif (timer == 0..0.5) {\n    angle += 3 * offset\n}\nif (timer == 0.5..1.5) {\n    angle += -2 * offset\n}\nif (timer == 1.5..2.5) {\n    angle += 7 - plus * offset\n    plus += 0.2\n}\nif (timer == 3.5..4) {\n    angle += 4 * offset\n}\nif (timer == 4..4.5) {\n    angle -= 1 * offset\n}\nif (timer == 4.5..5) {\n    angle += 1 * offset\n}\nif (timer == 5..5.5) {\n    angle -= 1\n}\nif (timer == 5.5..6) {\n    angle += 1\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Lunatic",
+    "name": "「混沌なる狂気～Lunatic」",
+    "desc": "予告線なしver",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 8,
+    "emitterScript": "\nwhile (true) {\n    angle += random(0,360)\n    wait(4)\n    spawnLaserRingResist(\"#ff3333\", 6, 400, angle, 36, 0, 0, \"relative\", \"6\")\n    wait(0.5)\n    spawnLaserRingResist(\"#33ffff\", 6, 500, angle, 36, 0, 0, \"relative\", \"6\")\n    wait(0.5)\n    ex = 384 + random(-100,100)\n    ey = 400 + random(-100,100)\n}\n    ",
+    "bulletScript": "\nif (color==#ff3333) {\n    offset = 0.8\n}\nif (color==#33ffff) {\n    offset = -0.8\n}\nif (timer == 0..0.5) {\n    angle += 3 * offset\n}\nif (timer == 0.5..1.5) {\n    angle += -2 * offset\n}\nif (timer == 1.5..2.5) {\n    angle += 7 - plus * offset\n    plus += 0.2\n}\nif (timer == 3.5..4) {\n    angle += 4 * offset\n}\nif (timer == 4..4.5) {\n    angle -= 1 * offset\n}\nif (timer == 4.5..5) {\n    angle += 1 * offset\n}\nif (timer == 5..5.5) {\n    angle -= 1\n}\nif (timer == 5.5..6) {\n    angle += 1\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「宝永四年の赤蛇」",
+    "desc": "説明文や作成者名など",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 3,
+    "emitterScript": "\nwhile (true) {\n    spawnBulletResist(\"normal\", \"#ff3333\", 1, angle, 0, 0, 0, \"none\", \"relative\", \"0\")\n    wait(6)\n}\n    ",
+    "bulletScript": "\nif (cardFrame == 2 * n) {\n    spawnBullet(\"normal\", \"#ffffff\", 0, angle, rx, ry, 15, \"b_marutama\", \"relative\", \"0\")\n}\nif (cardFrame == 30 * n) {\n    speed = 1600\n    aimAtTarget()\n}\nspeed += -30\n    ",
+    "magicCircleScript": "\nif (timer > 0.5) {\n    hitRadius = 6\n    color = = #ff3333\n}\nif (timer > 6) {\n    y = -80000\n}\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「博麗霊夢のエア結界」",
+    "desc": "陰陽玉を陰陽弾無しで作ったｗ",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    ey = 348\n    wait(0.2)\n    heru = 600000\n    spawnBullet(\"normal\", \"#ff3332\", 120, angle, 0, 0, 30, \"light\", \"relative\", \"30\")\n    spawnBullet(\"normal\", \"#3332ff\", 120, angle + 180, 0, 0, 30, \"light\", \"relative\", \"30\")\n    for (let i = 0; i < 48; i++) {\n        for (let j = 0; j < 3; j++) {\n            spawnBullet(\"normal\", \"#ff3333\", 240, angle, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#3333ff\", 240, angle + 180, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n            angle += 1.25\n            ikouangle += 0.25\n        }\n        ikouangle += 3.5\n        wait(0.035)\n        playSound(\"shot\")\n    }\n    heru = 1.6\n    for (let i = 0; i < 52; i++) {\n            spawnBullet(\"normal\", \"#ff3333\", 240, angle - 6, 0, 0, 20, \"ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#ff3333\", 240, angle + 180 + 6, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#3333ff\", 240, angle + 6, 0, 0, 20, \"ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#3333ff\", 240, angle + 180 - 6, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n        for (let j = 0; j < 3; j++) {\n            angle += 0.7\n            ikouangle += 2\n            heru -= 0.01\n        }\n        wait(0.03)\n        playSound(\"shot\")\n    }\n    wait(2.2 - hakkyou)\n    wait(1 - hakkyou2)\n    hakkyou += 1\n    hakkyou += 0.5\n}\n    ",
+    "bulletScript": "\nif (frame == 60..180) {\n    speed -= 4\n}\nif (frame == 180..190) {\n    speed = 0\n}\nif (frame == 260..305) {\n    once {\n        angle -= 90\n        angle += ikouangle * 3\n        speed = 0\n        spriteAngle = angle\n    }\n    if (color == #ff3332) {\n        angle -= 2\n        spriteAngle = angle\n    }\n    if (color == #3332ff) {\n        angle -= 2\n        spriteAngle = angle\n    }\n    speed = 200\n}\nif (timer == heru) {\n    speed = 0\n}\n// ★ここが究極の軽量化ポイント！\n// 305フレームを超えたら、このスクリプトの計算を「99999秒待機（実質停止）」させる\nif (frame > 305) {\n    wait(99999)\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "lunatic",
+    "name": "超人「博麗霊夢」",
+    "desc": "「博麗霊夢のエア結界」の難易度上昇版",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    ey = 348\n    wait(0.2)\n    heru = 600000\n    spawnBullet(\"normal\", \"#ff3332\", 120, angle, 0, 0, 30, \"light\", \"relative\", \"30\")\n    spawnBullet(\"normal\", \"#3332ff\", 120, angle + 180, 0, 0, 30, \"light\", \"relative\", \"30\")\n    for (let i = 0; i < 48; i++) {\n        for (let j = 0; j < 6; j++) {\n            spawnBullet(\"normal\", \"#ff3333\", 240, angle, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#3333ff\", 240, angle + 180, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n            angle += 1.25 / 2\n            ikouangle += 0.25\n        }\n        ikouangle += 3.5\n        wait(0.035)\n        playSound(\"shot\")\n    }\n    heru = 1.6\n    for (let i = 0; i < 52; i++) {\n        for (let j = 0; j < 3; j++) {\n            spawnBullet(\"normal\", \"#ff3333\", 240, angle - 6, 0, 0, 20, \"ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#ff3333\", 240, angle + 180 + 6, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#3333ff\", 240, angle + 6, 0, 0, 20, \"ohuda\", \"relative\", \"4\")\n            spawnBullet(\"normal\", \"#3333ff\", 240, angle + 180 - 6, 0, 0, 20, \"b_ohuda\", \"relative\", \"4\")\n            angle += 0.7\n            ikouangle += 2\n            heru -= 0.01\n        }\n        wait(0.03)\n        playSound(\"shot\")\n    }\n    wait(2.2 - hakkyou)\n    wait(1 - hakkyou2)\n    hakkyou += 1\n    hakkyou += 0.5\n}\n    ",
+    "bulletScript": "\nif (frame == 60..180) {\n    speed -= 4\n}\nif (frame == 180..190) {\n    speed = 0\n}\nif (frame == 260..305) {\n    once {\n        angle -= 90\n        angle += ikouangle * 3\n        speed = 0\n        spriteAngle = angle\n    }\n    if (color == #ff3332) {\n        angle -= 2\n        spriteAngle = angle\n    }\n    if (color == #3332ff) {\n        angle -= 2\n        spriteAngle = angle\n    }\n    speed = 200\n}\nif (timer == heru) {\n    speed = 0\n}\n// ★ここが究極の軽量化ポイント！\n// 305フレームを超えたら、このスクリプトの計算を「99999秒待機（実質停止）」させる\nif (frame > 305) {\n    wait(99999)\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Hard",
+    "name": "「天守閣の侍」",
+    "desc": "青娥パクリ",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    ey = 448\n    kaisuu += 1\n    angle = seedrandom[1000 + kaisuu](-160,160)\n    angle2 = seedrandom[100 + kaisuu * 2](-160,160)\n    plusangle = seedrandom[200 + kaisuu](-2,2)\n    for (let i = 0; i < 60; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 400, -90 + angle, 0, 0, 19, \"kome\", \"relative\", \"6\")\n        spawnBullet(\"normal\", \"#ff3333\", 400, -90 + angle2, 0, 0, 19, \"kome\", \"relative\", \"6\")\n        wait(0.016)\n    }\n}\n    ",
+    "bulletScript": "\nif (timer == 0..1) {\n    angle += plusangle\n}\nif (timer == 1) {\n    angle = random(0,360)\n    speed = 300\n}\nspriteAngle = angle\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「イラプトオブリコイル」",
+    "desc": "結構頑張った",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 3; i++) {\n        spawnBeam(1.0, 0, 60, 90 + 60, 0, 0, \"relative\", \"#ff3333\")\n        spawnBeam(1.0, 0, 60, 90 - 60, 0, 0, \"relative\", \"#ff3333\")\n        wait(1)\n        spawnTrailResist(\"#00ffff\", 1000, 90 + 60, 0, 0, 20, 0.2, 2, 0.0001, \"true\", \"relative\", \"10\")\n        spawnTrailResist(\"#00ffff\", 1000, 90 - 60, 0, 0, 20, 0.2, 2, 0.0001, \"true\", \"relative\", \"10\")\n        playSound(\"laser_heavy\")\n        wait(4)\n    }\n    wait(400)\n}\n    ",
+    "bulletScript": "\nif (color == #00ffff) {\n    if (frame === 10 * n) {\n        second2 = 1\n        spangle = random(0,360)\n        spawnRing(\"normal\", \"#ff3333\", 0, spangle, 7, 0, 0, 6, \"b_marutama\", \"relative\", \"6\")\n        second2 = 2\n        spangle = random(0,360)\n        spawnRing(\"normal\", \"#ff3333\", 0, spangle, 7, 0, 0, 6, \"b_marutama\", \"relative\", \"6\")\n        second2 = 3\n        spangle = random(0,360)\n        spawnRing(\"normal\", \"#ff3333\", 0, spangle, 7, 0, 0, 6, \"b_marutama\", \"relative\", \"6\")\n    }\n}\nif (second == 15..30000) {\n    wait(99999999)\n}\nbounce()\n    ",
+    "magicCircleScript": "\nif (second == second2) {\n    speed = 200\n}\nif (second == 4..30000) {\n    wait(99999999)\n}\n    "
+  },
+  {
+    "difficulty": "HARD",
+    "name": "フィーリングウォール",
+    "desc": "おｗうｗ",
+    "duration": 22.5,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n  while (true) {\n        playSound(\"shot\")\n    wait(0.1)\n    playSound(\"charge2\")\n    wait(2)\n    while (true) {\n        spawnRing(\"normal\", \"#9457eb\", 700, angle, 7, 0, 0, 12, \"light\", \"relative\", \"10\")\n        angle += 45.2\n        playSound(\"shot\")\n        wait(0.016)\n    }\n}\nwhile (true) {\n    muki = 1\n    spawnBullet(\"normal\", \"#ff3333\", 200, 90, 0, 0, 6, \"none\", \"absolute\", \"6\")\n    muki = -1\n    spawnBullet(\"normal\", \"#ff3333\", 200, 90, 768, 0, 6, \"none\", \"absolute\", \"6\")\n    wait(2)\n}\nif (x < 10) {\n}\n    ",
+    "bulletScript": "\nif (color==#9457eb) {\n    once {\n        advance(10)\n        auraIntensity = 10\n        auraRange = 7\n        tween(\"auraRange\", auraRange, 2.75, \"seconds\", 0.5)\n    }\n    if (speed == 200..70000) {\n        speed += -2\n    }\n}\nif (color==#ff3333) {\n    once {\n        warningTime = 0.0\n        activeTime = 70\n        laserWidth = 30\n        tanaka = 0\n    }\n    if (muki==1) {\n        x += 0.1\n        x += 5 - tanaka\n        if (tanaka == 0..4.9) {\n            tanaka += 0.1\n        }\n    }\n    if (muki==-1) {\n        x -= 0.1\n        x -= 5 - tanaka\n        if (tanaka == 0..4.9) {\n            tanaka += 0.1\n        }\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Normal",
+    "name": "「夢想結界」",
+    "desc": "失敗作供養",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 2,
+    "emitterScript": "\nrot = 0\nwhile (true) {\n    baseRot = rot\n    rot += 11\n    \n    spawnAngle1 = baseRot\n    spawnAngle2 = -baseRot\n    \n    for (let i = 0; i < 10; i++) {\n        spawnRing(\"normal\", \"#cc33ff\", 160, spawnAngle1, 24, -114, 54, 10, \"ohuda\", \"relative\", \"4\")\n        spawnRing(\"normal\", \"#cc33ff\", 160, spawnAngle1, 24, 64, -80, 10, \"ohuda\", \"relative\", \"4\")\n        spawnRing(\"normal\", \"#3333ff\", 160, spawnAngle2, 24, 114, 54, 10, \"ohuda\", \"relative\", \"5\")\n        spawnRing(\"normal\", \"#3333ff\", 160, spawnAngle2, 24, -64, -80, 10, \"ohuda\", \"relative\", \"5\")\n        \n        spawnAngle1 += 36\n        spawnAngle2 -= 36\n        \n        wait(0.13)\n    }\n    \n    wait(1.2)\n}\n    ",
+    "bulletScript": "\nif (param == \"4\") {\n    angle -= 0.35\n}\nif (param == \"5\") {\n    angle += 0.35\n}\n    ",
+    "magicCircleScript": ""
+  },
+  {
+    "difficulty": "LUNATIC",
+    "name": "飛鉢「伝説の飛空円盤」",
+    "desc": "ほぼ完全再現。私の最高記録は10ミスです。",
+    "duration": 90,
+    "maxMisses": "inf",
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 200,
+    "emitterScript": "\n    while(true) {\n    for (let i = 0; i < 2; i++) {\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 18, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 18, 114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 18, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 18, 64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        wait(5)\n\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 18, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 18, 114 * 1.5,  54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 18, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 18, 64 * 1.5,  -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        wait(5)\n    }\n    for (let i = 0; i < 2; i++) {\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 140, baseAngle, 24, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 141, baseAngle, 24,  114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 141, baseAngle, 24, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 140, baseAngle, 24,  64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle += 36\n        wait(5)\n\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 141, baseAngle, 24, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 140, baseAngle, 24,  114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 140, baseAngle, 24, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#33e0ff\", 141, baseAngle, 24,  64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        \n        wait(5)\n    }\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 32, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 32, 114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 32, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 32, 64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        wait(5)\n\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 32, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 32, 114 * 1.5,  54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 32, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 32, 64  * 1.5,  -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        wait(5)\n\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 32, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 32, 114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 141, baseAngle, 32, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#cc33ff\", 140, baseAngle, 32, 64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        wait(7)\n    for (let i = 0; i < 20; i++) {\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 140, baseAngle, 32, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 141, baseAngle, 32,  114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 141, baseAngle, 32, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 140, baseAngle, 32,  64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        \n        wait(3.5)\n\n        aimAtTarget()\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 141, baseAngle, 32, -114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 140, baseAngle, 32,  114 * 1.5, 54 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 140, baseAngle, 32, -64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        baseAngle = random(0,360)\n        spawnRingResist(\"normal\", \"#ff3333\", 141, baseAngle, 32,  64 * 1.5, -80 * 1.5, 20, \"ohuda\", \"relative\", \"10\")\n        \n        wait(3.5)\n    }\n}\n    ",
+    "bulletScript": "\n    spriteAngle = angle\nonce {\n    if (speed == 140) { curve = -1.6 }\n    if (speed == 141) { curve = 1.6 }\n    speed = 200\n}\nif (frame < 51) {\n    speed -= 0.7\n    angle += curve\n    y += 0.6\n}\nif (frame == 60..600000) {\n    angle += curve / 6\n    y += 1\n}\n    ",
+    "magicCircleScript": ""
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「天邪鬼の死」",
+    "desc": "回転避けはできません",
+    "duration": 25,
+    "maxMisses": "inf",
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spawnRingResist(\"normal\", \"#ff3333\", 200, angle, 150, 0, 0, 12, \"light\", \"relative\", \"10\")\n    angle += random(0,360)\n    wait(1)\n}\nwhile (true) {\n    playSound(\"shot\")\n    aimAtTarget()\n    spawnWay(\"normal\", \"#33ffff\", 1000, angle, 10, 6, 0, 0, 20, \"kome\", \"relative\", \"6\")\n    wait(0.016)\n}\n    ",
+    "bulletScript": "\nonce {\n    if (color != #33ffff) {\n        advance(20)\n        auraRange = 6\n        auraIntensity = 3\n        tween(\"auraRange\", auraRange, 2.75, \"seconds\", 1)\n        tween(\"auraIntensity\", auraIntensity, 1, \"seconds\", 1)\n    }\n    if (color == #33ffff) {\n        advance(10)\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "h",
+    "name": "快符「朝の光の中で」",
+    "desc": "Ah～朝の光の中で Ah Ah Ah～ 光 Ah～",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 100; i++) {\n        angle += 31\n        spawnWay(\"normal\", \"#ff3333\", 500, angle, 6, 1, 0, 0, 6, \"light\", \"relative\", \"6\")\n        wait(0.01)\n    }\n    for (let i = 0; i < 100; i++) {\n        angle += 30.3\n        spawnWay(\"normal\", \"#ff3333\", 700, angle, 6, 2, 0, 0, 6, \"light\", \"relative\", \"6\")\n        wait(0.01)\n    }\n    for (let i = 0; i < 10; i++) {\n        aimAtTarget()\n        spawnRing(\"normal\", \"#ffaa33\", 900, angle, 21, 0, 0, 40, \"ootama\", \"relative\", \"20\")\n        wait(0.1)\n    }\n    angle = 0\n    for (let i = 0; i < 18; i++) {\n        spawnBullet(\"normal\", \"#ffdd33\", 700, angle, 0, 0, 6, \"light\", \"relative\", \"6\")\n        spawnBullet(\"normal\", \"#ffdd33\", 700, -angle, 0, 0, 6, \"light\", \"relative\", \"6\")\n        angle += 20\n        wait(0.01)\n    }\n    for (let i = 0; i < 5; i++) {\n        aimAtTarget()\n        spd = 0\n        wa = 15\n        for (let i = 0; i < 15; i++) {\n            spawnWay(\"normal\", \"#33ff88\", 500 + spd, angle, wa, 1, 0, 0, 6, \"light\", \"relative\", \"6\")\n            spd += 50\n            wa -= 1\n            wait(0.02)\n        }\n        wait(0.05)\n    }\n    for (let i = 0; i < 30; i++) {\n        muki = 1\n        spawnRing(\"normal\", \"#3388ff\", 800, 0, 18, 0, 0, 20, \"light\", \"relative\", \"15\")\n        muki = -1\n        spawnRing(\"normal\", \"#3388ff\", 800, 0, 18, 0, 0, 20, \"light\", \"relative\", \"15\")\n        wait(0.05)\n    }\n    for (let i = 0; i < 50; i++) {\n        spawnRing(\"normal\", \"#884898\", 800, frame * 3, 18, 0, 0, 20, \"light\", \"relative\", \"15\")\n        wait(0.05)\n    }\n    while (true) {\n        for (let i = 0; i < 2; i++) {\n            for (let i = 0; i < 5; i++) {\n                wait(0.06)\n                rspx = seedrandom[6 + seedcount](0,768)\n                seedcount += 1\n                rsped = 0\n                for (let i = 0; i < 3; i++) {\n                    spawnBullet(\"normal\", \"#ff3333\", 400 + rsped, 90, rspx, 0, 6, \"light\", \"absolute\", \"5\")\n                    rsped += 16\n                }\n                orspx = seedrandom[600 + seedcount](0,768)\n                spawnBullet(\"normal\", \"#ffaa32\", 800, 90, orspx, 0, 9, \"light\", \"absolute\", \"6\")\n                spawnBullet(\"normal\", \"#3387ff\", 800, 90, 758, 0, 10, \"light\", \"absolute\", \"7\")\n                spawnBullet(\"normal\", \"#3387ff\", 800, 90, 10, 0, 10, \"light\", \"absolute\", \"7\")\n            }\n            spawnRing(\"normal\", \"#884898\", 800, frame * 3, 18, 0, 0, 20, \"light\", \"relative\", \"15\")\n        }\n        yelangle += 10\n        spawnLaserRing(\"#ffdd32\", 6, 900, yelangle, 8, 0, 0, 0.2, 0.3, 0.2, \"true\", \"relative\", \"6\")\n        wa = 5\n        spd = 0\n        for (let i = 0; i < 5; i++) {\n            spawnWay(\"normal\", \"#33ff87\", 800 + spd, 90, wa, 1, tx, 0, 6, \"light\", \"absolute\", \"6\")\n            spd += 80\n            wa -= 1\n        }\n    }\n}\n    ",
+    "bulletScript": "\nif (color == #ffdd33) {\n    if (isBounced) {\n        bounce()\n        warningTime = 1.0\n        activeTime = 0.7\n        laserWidth = 12\n    }\n}\nif (color == #3388ff) {\n    if (timer == 0..0.7) {\n        angle += 2 * muki\n    }\n}\nif (color == #ffaa32) {\n    once {\n        aimAtTarget()\n    }\n}\nif (color == #3387ff) {\n    once {\n        aimAtTarget()\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "h",
+    "name": "快符「朝の光の中で」",
+    "desc": "軽量版です",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 100; i++) {\n        angle += 31\n        spawnWay(\"normal\", \"#ff3333\", 500, angle, 6, 1, 0, 0, 6, \"None\", \"relative\", \"6\")\n        wait(0.01)\n    }\n    for (let i = 0; i < 100; i++) {\n        angle += 30.3\n        spawnWay(\"normal\", \"#ff3333\", 700, angle, 6, 2, 0, 0, 6, \"None\", \"relative\", \"6\")\n        wait(0.01)\n    }\n    for (let i = 0; i < 10; i++) {\n        aimAtTarget()\n        spawnRing(\"normal\", \"#ffaa33\", 900, angle, 21, 0, 0, 40, \"ootama\", \"relative\", \"20\")\n        wait(0.1)\n    }\n    angle = 0\n    for (let i = 0; i < 18; i++) {\n        spawnBullet(\"normal\", \"#ffdd33\", 700, angle, 0, 0, 6, \"None\", \"relative\", \"6\")\n        spawnBullet(\"normal\", \"#ffdd33\", 700, -angle, 0, 0, 6, \"None\", \"relative\", \"6\")\n        angle += 20\n        wait(0.01)\n    }\n    for (let i = 0; i < 5; i++) {\n        aimAtTarget()\n        spd = 0\n        wa = 15\n        for (let i = 0; i < 15; i++) {\n            spawnWay(\"normal\", \"#33ff88\", 500 + spd, angle, wa, 1, 0, 0, 6, \"None\", \"relative\", \"6\")\n            spd += 50\n            wa -= 1\n            wait(0.02)\n        }\n        wait(0.05)\n    }\n    for (let i = 0; i < 30; i++) {\n        muki = 1\n        spawnRing(\"normal\", \"#3388ff\", 800, 0, 18, 0, 0, 20, \"None\", \"relative\", \"15\")\n        muki = -1\n        spawnRing(\"normal\", \"#3388ff\", 800, 0, 18, 0, 0, 20, \"None\", \"relative\", \"15\")\n        wait(0.05)\n    }\n    for (let i = 0; i < 50; i++) {\n        spawnRing(\"normal\", \"#884898\", 800, frame * 3, 18, 0, 0, 20, \"None\", \"relative\", \"15\")\n        wait(0.05)\n    }\n    while (true) {\n        for (let i = 0; i < 2; i++) {\n            for (let i = 0; i < 5; i++) {\n                wait(0.06)\n                rspx = seedrandom[6 + seedcount](0,768)\n                seedcount += 1\n                rsped = 0\n                for (let i = 0; i < 3; i++) {\n                    spawnBullet(\"normal\", \"#ff3333\", 400 + rsped, 90, rspx, 0, 6, \"None\", \"absolute\", \"5\")\n                    rsped += 16\n                }\n                orspx = seedrandom[600 + seedcount](0,768)\n                spawnBullet(\"normal\", \"#ffaa32\", 800, 90, orspx, 0, 9, \"None\", \"absolute\", \"6\")\n                spawnBullet(\"normal\", \"#3387ff\", 800, 90, 758, 0, 10,  \"None\", \"absolute\", \"7\")\n                spawnBullet(\"normal\", \"#3387ff\", 800, 90, 10, 0, 10,   \"None\", \"absolute\", \"7\")\n            }\n            spawnRing(\"normal\", \"#884898\", 800, frame * 3, 18, 0, 0, 20, \"None\", \"relative\", \"15\")\n        }\n        yelangle += 10\n        spawnLaserRing(\"#ffdd32\", 6, 900, yelangle, 8, 0, 0, 0.2, 0.3, 0.2, \"true\", \"relative\", \"6\")\n        wa = 5\n        spd = 0\n        for (let i = 0; i < 5; i++) {\n            spawnWay(\"normal\", \"#33ff87\", 800 + spd, 90, wa, 1, tx, 0, 6, \"None\", \"absolute\", \"6\")\n            spd += 80\n            wa -= 1\n        }\n    }\n}\n    ",
+    "bulletScript": "\nif (color == #ffdd33) {\n    if (isBounced) {\n        bounce()\n        warningTime = 1.0\n        activeTime = 0.7\n        laserWidth = 12\n    }\n}\nif (color == #3388ff) {\n    if (timer == 0..0.7) {\n        angle += 2 * muki\n    }\n}\nif (color == #ffaa32) {\n    once {\n        aimAtTarget()\n    }\n}\nif (color == #3387ff) {\n    once {\n        aimAtTarget()\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "hard",
+    "name": "星の通常",
+    "desc": "よりもムズい。",
+    "duration": 20,
+    "maxMisses": 1,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    type = 1\n    angle += random(-70,70)\n    bairitu = 1\n    spawnLaserRingResist(\"#ff3333\", 7, 800, angle, 24, 0, 0, 0.2, 0.3, 0.5, \"true\", \"relative\", \"5\")\n    wait(0.5)\n    angle += random(-70,70)\n    bairitu = -1\n    spawnLaserRingResist(\"#ff3333\", 7, 800, angle, 24, 0, 0, 0.2, 0.3, 0.5, \"true\", \"relative\", \"5\")\n    wait(0.5)\n    aimAtTarget()\n    bairitu = 0.085\n    type = 2\n    spawnLaserRingResist(\"#ff3333\", 7, 60, angle + 5, 36, 0, 0, 0.2, 0.3, 0.5, \"true\", \"relative\", \"5\")\n    bairitu = -0.085\n    spawnLaserRingResist(\"#ff3333\", 7, 60, angle + 5, 36, 0, 0, 0.2, 0.3, 0.5, \"true\", \"relative\", \"5\")\n    wait(0.5)\n    bairitu = 0\n    type = 3\n    spawnRing(\"normal\", \"#ffffff\", 400, angle, 37, 0, 0, 18, \"b_marutama\", \"relative\", \"15\")\n    spawnRing(\"normal\", \"#ffffff\", 600, angle, 37, 0, 0, 18, \"b_marutama\", \"relative\", \"15\")\n    spawnRing(\"normal\", \"#ffffff\", 800, angle, 37, 0, 0, 18, \"b_marutama\", \"relative\", \"15\")\n    wait(1)\n    angle += random(-70,70)\n}\n    ",
+    "bulletScript": "\nif (timer == 0..1) {\n    angle += 3 * bairitu - minus * bairitu\n    minus += 0.02\n}\nangle += 0.6 * bairitu\nif (type == 2) {\n    speed += 4\n    angle += 1.5 * bairitu\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "hard",
+    "name": "バレットドミニオンの消失",
+    "desc": "説明文や作成者名など",
+    "duration": 25,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\n// 楕円のサイズ設定\ney = 248\na = 150\nb = 50\n// ボスからのズレ具合（偏り）\nshiftX = 75\n// 角度の初期化\ntheta = 0\nwhile (true) {\n    // 1. 基本の楕円のX, Y座標を計算し、shiftXぶんズラす\n    cx = a * cos(theta)\n    cy = b * sin(theta)\n    rx = cx + shiftX\n    ry = cy\n    // 2. 0 から 7 まで 8回 繰り返す\n    for (let i = 0; i < 8; i++) {\n        // 角度の計算\n        dir = i * 45\n        // ★ i の数字（方向）に合わせて色を変数 c に入れる\n        c = \"#ffffff\" // 初期値\n        if (i == 0) {\n            c = \"#ff3333\"\n        }\n        // 1方向目：赤\n        if (i == 1) {\n            c = \"#ff9933\"\n        }\n        // 2方向目：橙\n        if (i == 2) {\n            c = \"#ffff33\"\n        }\n        // 3方向目：黄\n        if (i == 3) {\n            c = \"#33ff33\"\n        }\n        // 4方向目：緑\n        if (i == 4) {\n            c = \"#33ffff\"\n        }\n        // 5方向目：シアン\n        if (i == 5) {\n            c = \"#3333ff\"\n        }\n        // 6方向目：青\n        if (i == 6) {\n            c = \"#9933ff\"\n        }\n        // 7方向目：紫\n        if (i == 7) {\n            c = \"#ff33cc\"\n        }\n        // 8方向目：ピンク\n        // 数学の「回転行列」で、rxとryを dir 度ぶん回転させる\n        rotX = rx * cos(dir) - ry * sin(dir)\n        rotY = rx * sin(dir) + ry * cos(dir)\n        // 3. ボスの現在位置(ex, ey)を足して、実際の出現座標を決定\n        ox = ex + rotX\n        oy = ey + rotY\n        // 4. 計算した座標に配置（ここで変数 c を使う）\n        ofangle -= 2\n        spawnBullet(\"normal\", c, 0, theta + dir, ox, oy, 20, \"kome\", \"absolute\", \"5\")\n    }\n    // 5. 角度の更新\n    theta += 12\n    wait(0.02)\n}\n    ",
+    "bulletScript": "\nspeed += 1 + kasoku\nkasoku += 0.02\nonce {\n    angle += 45 + ofangle\n}\nspriteAngle = angle\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "lunatic",
+    "name": "「業火優勢」",
+    "desc": "通常版",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    ey = 448\n    wait(0.1)\n    while (true) {\n        angle += seedrandom[50 + kaisu](0,500)\n        kaisu += 1\n        angle += 9 * kakudo\n        kakudo = 1.2\n        spawnWay(\"normal\", \"#ff3333\", 300, angle, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        spawnWay(\"normal\", \"#ff3333\", 300, angle + 90, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        spawnWay(\"normal\", \"#ff3333\", 300, angle + 180, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        spawnWay(\"normal\", \"#ff3333\", 300, angle + 270, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        for (let i = 0; i < 9; i++) {\n            spawnWay(\"normal\", \"#ff3332\", 300, angle + 45, 4, 90, 0, 0, 6, \"light\", \"relative\", \"6\")\n            angle += 3\n            wait(0.1)\n        }\n        angle += seedrandom[50 + kaisu](0,500)\n        kaisu += 1\n        angle += 9 * kakudo\n        kakudo = -1.2\n        spawnWay(\"normal\", \"#ff3333\", 300, angle, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        spawnWay(\"normal\", \"#ff3333\", 300, angle + 90, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        spawnWay(\"normal\", \"#ff3333\", 300, angle + 180, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        spawnWay(\"normal\", \"#ff3333\", 300, angle + 270, 25, 3, 0, 0, 6, \"light\", \"relative\", \"6\")\n        for (let i = 0; i < 9; i++) {\n            spawnWay(\"normal\", \"#ff3332\", 300, angle + 45, 4, 90, 0, 0, 6, \"light\", \"relative\", \"6\")\n            angle -= 3\n            wait(0.1)\n        }\n    }\n}\nwhile (true) {\n    wait(0.5)\n    spawnLaserWay(\"#33ffff\", 6, 800, -90 + 50, 7, 10, 0, 0, 0.1, 0.01, 0.1, \"true\", \"relative\", \"6\")\n    spawnLaserWay(\"#33ffff\", 6, 800, -90 - 50, 7, 10, 0, 0, 0.1, 0.01, 0.1, \"true\", \"relative\", \"6\")\n    wait(0.4)\n}\n    ",
+    "bulletScript": "\nif (color!=#33ffff) {\n    angle += 0.4 * kakudo - l * kakudo\n    l += 0.000\n    once {\n        speed = 100\n    }\n    speed += 0.5\n}\nif (color==#33ffff) {\n    if (frame == 20..50) {\n        speed -= 15\n        homing(360)\n    }\n    if (frame == 50..51) {\n        aimAtTarget()\n    }\n    if (frame == 50..120) {\n        speed += 10\n    }\n}\nradius = 10\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「回天之勢」",
+    "desc": "ドパガキ向け！",
+    "duration": 15,
+    "maxMisses": 1,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 10; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 200, angle, 0, 0, 30, \"b_knife\", \"relative\", \"6\")\n        angle += angled\n        wait(0.016 / 8)\n    }\n    angled = seedrandom[second](-5000,10)\n}\n    ",
+    "bulletScript": "\nspeed += 2\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "Lunatic",
+    "name": "「嵐光明媚」",
+    "desc": "説明文や作成者名など",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    kakudo = 1\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle, 0, 0, 13, \"b_uroko\", \"relative\", \"6\")\n    kakudo = -1\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle, 0, 0, 13, \"b_uroko\", \"relative\", \"6\")\n    wait(0.02)\n}\n    ",
+    "bulletScript": "\nonce {\n    x = random(-300,1000)\n    y = 0\n    angle = 90 + 10 * kakudo\n    spriteAngle = angle\n}\nspeed += 5\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "hard",
+    "name": "魔砲「大葬滅光線」",
+    "desc": "先に作るものを決めてから作り始めた極めて珍しい例の弾幕。",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spd = 0\n    for (let i = 0; i < 10; i++) {\n        spawnRingResist(\"normal\", \"#ff3333\", 50 + spd, angle, 1, 200, 0, 6, \"light\", \"relative\", \"0\")\n        spawnRingResist(\"normal\", \"#ff3333\", 50 + spd, angle, 1, -200, 0, 6, \"light\", \"relative\", \"0\")\n        angle += 10\n        spd += 2.5\n    }\n    spawnTrailResist(\"#ffffff\", 1, angle, 200, 0, 2, 0.001, 2, 0.001, \"true\", \"relative\", \"0\")\n    spawnTrailResist(\"#ffffff\", 1, angle, -200, 0, 2, 0.001, 2, 0.001, \"true\", \"relative\", \"0\")\n    spawnTrailResist(\"#33ffff\", 0, angle, 200, 0, 30, 0.3, 0.6, 1, \"true\", \"relative\", \"0\")\n    spawnTrailResist(\"#33ffff\", 0, angle, -200, 0, 30, 0.3, 0.6, 1, \"true\", \"relative\", \"0\")\n    for (let i = 0; i < 50; i++) {\n        spawnRingResist(\"normal\", \"#ff3333\", 50 + spd, angle, 1, 200, 0, 6, \"light\", \"relative\", \"0\")\n        spawnRingResist(\"normal\", \"#ff3333\", 50 + spd, angle, 1, -200, 0, 6, \"light\", \"relative\", \"0\")\n        angle += 10\n        spd += 2.5\n    }\n    wait(2)\n}\n    ",
+    "bulletScript": "\nif (color == #ff3333) {\n    once {\n        advance(120 + seedrandom[5](-0,50))\n        angle += 180\n    }\n    if (frame == 70) {\n        hitRadius = 5\n        idoukakudo = random(-0.3,0.3)\n        speed += random(0,200)\n    }\n    if (frame == 80..) {\n        angle += idoukakudo\n    }\n}\nif (color==#ffffff) {\n    once {\n        aimAtTarget()\n        x += offsetx\n        y += offsety\n    }\n    if (frame == 2) {\n        speed = 8000\n    }\n}\nif (color==#33ffff) {\n    once {\n        aimAtTarget()\n        x += offsetx\n        y += offsety\n    }\n    if (frame == 70) {\n        speed = 80000\n        hitRadius = 20\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "hard",
+    "name": "「ミニ弾幕結界]",
+    "desc": "だいーぶ前に作ったやつ",
+    "duration": 30,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    ey = 448\n    wait(0.03)\n    ey = 448\n    if (cardSecond == 0..10) {\n        spawnWay(\"normal\", \"#ff3333\", 200, angle, 1, 120, 0, 0, 12, \"b_uroko\", \"relative\", \"6\")\n        angle += 4\n    }\n    if (cardSecond == 10..20) {\n        spawnWay(\"normal\", \"#ff3333\", 200, angle, 2, 180, 0, 0, 12, \"b_uroko\", \"relative\", \"6\")\n        angle += 2\n    }\n    if (cardSecond == 20..30) {\n        spawnWay(\"normal\", \"#ff3333\", 200, angle, 3, 120, 0, 0, 12, \"b_uroko\", \"relative\", \"6\")\n        angle += 1.5\n    }\n    if (cardFrame == 5 * n) {\n        playSound(\"shot\")\n    }\n}\n    ",
+    "bulletScript": "\nonce {\n    count = 0\n    angle += random(-10,10)\n}\nif (color == #ffffff) {\n    y = -80000\n}\nif (y < 0) {\n    if (count == 1) {\n        color = #ffffff\n        y = -8000\n    }\n    count = 1\n    y = 886\n}\nif (color == #ffffff) {\n    y = -80000\n}\nif (y > 896) {\n    if (count == 1) {\n        color = #ffffff\n        y = -8000\n    }\n    count = 1\n    y = 10\n}\nif (color == #ffffff) {\n    y = -80000\n}\nif (x < 0) {\n    if (count == 1) {\n        color = #ffffff\n        y = -8000\n    }\n    count = 1\n    x = 758\n}\nif (color == #ffffff) {\n    y = -80000\n}\nif (x > 768) {\n    if (count == 1) {\n        color = #ffffff\n        y = -8000\n    }\n    count = 1\n    x = 10\n}\nif (color == #ffffff) {\n    y = -80000\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「やんごとある威光」",
+    "desc": "過去に作ったやつ",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    if (cardSecond == 0..5) {\n        offset = 1\n        spawnRing(\"normal\", \"#ff3333\", 50, angle, 26, 0, 0, 6, \"virus\", \"relative\", \"6\")\n        angle = random(0,20)\n        wait(0.05)\n    }\n    if (cardSecond == 4..10) {\n        offset = -1\n        spawnRing(\"normal\", \"#ff3333\", 50, angle, 26, 0, 0, 6, \"virus\", \"relative\", \"6\")\n        angle = random(0,20)\n        wait(0.05)\n    }\n    if (cardSecond == 10..18) {\n        offset = 1\n        spawnRing(\"normal\", \"#ff3333\", 50, angle, 26, 0, 0, 6, \"virus\", \"relative\", \"6\")\n        angle = random(0,20)\n        wait(0.1)\n        offset = -1\n        spawnRing(\"normal\", \"#ff3333\", 50, angle, 26, 0, 0, 6, \"virus\", \"relative\", \"6\")\n        angle = random(0,20)\n        wait(0.1)\n    }\n}\n    ",
+    "bulletScript": "\nif (timer == 0..5) {\n    angle += 0.2 * offset\n}\nspeed = 300\nspriteAngle += 7\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "「サイド暗器」",
+    "desc": "過去作ったやつ",
+    "duration": 18,
+    "maxMisses": 0,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spx = 300\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle, spx, -160, 15, \"light\", \"relative\", \"6\")\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle + 180, -spx, 850, 15, \"light\", \"relative\", \"6\")\n    wait(0.03)\n    wait(0.1-hindo)\n    hindo += 0.001\n}\n    ",
+    "bulletScript": "\nonce {\n    y -= 100\n    speed = 400\n    x += random(-200,200)\n    y += random(-70,70)\n    speed += random(-70,70)\n    angle += random(-3,3)\n}\nspeed += 1\naif[20](y == ty) {\n    once {\n        speed = 0\n        angle = 90\n        if (x < tx) {\n            angle = 0\n        }\n        if (x > tx) {\n            angle = 180\n        }\n        spawnBullet(\"normal\", \"#ff3333\", 100, angle, 0, 0, 30, \"knife\", \"relative\", \"6\")\n        y = -80000\n    }\n}\n    ",
+    "magicCircleScript": "\nspeed += 1\nonce {\n    angle += random(-6,6)\n}\n    "
+  },
+  {
+    "difficulty": "Hard",
+    "name": "「弾幕の乱」",
+    "desc": "ラグテスト用の弾幕を改造してできた。",
+    "duration": 25,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 0.1,
+    "emitterScript": "\nwhile (true) {\n    offset += 0\n    for (let i = 0; i < 8; i++) {\n        offset += 40\n        offset = random(0,360)\n        spawnBulletResist(\"normal\", \"#ff3333\", 80, angle, 384, 600, 15, \"kome\", \"absolute\", \"3\")\n    }\n    offset = 90\n    spawnBulletResist(\"normal\", \"#ff3333\", 320, angle, 384, 600, 30, \"knife\", \"absolute\", \"12\")\n    angle += 0.8\n    wait(0.016)\n}\n    ",
+    "bulletScript": "\nonce {\n    advance(200)\n    angle += offset\n    spriteAngle = angle\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "hard",
+    "name": "「アリュージョンクロック」",
+    "desc": "なんと、1000発程度が飛び交う。物量弾幕",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 0.1,
+    "emitterScript": "\nwhile (true) {\n    wait(0.1)\n    for (let i = 0; i < 36; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 500, -angle, 0, 0, 8, \"dangan\", \"relative\", \"6\")\n        spawnBullet(\"normal\", \"#ffdd33\", 400, angle, 0, 0, 8, \"dangan\", \"relative\", \"6\")\n        spawnBullet(\"normal\", \"#33ff88\", 300, -angle, 0, 0, 8, \"dangan\", \"relative\", \"6\")\n        angle += 5\n    }\n    angle += 160.5\n}\n    ",
+    "bulletScript": "\n        // 弾挙動の独自コード\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "normal",
+    "name": "「幻視狂言(ファントムディセプション)」",
+    "desc": "説明文や作成者名など",
+    "duration": 20,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 0.1,
+    "emitterScript": "\nwhile (true) {\n    kaisuu = 0\n    for (let i = 0; i < 700; i++) {\n        spawnBullet(\"normal\", \"#ff3333\", 300 + spd, angle, 0, 0, 10, \"kunai2\", \"relative\", \"3\")\n        angle += seedrandom[kaisuu](0,360)\n        spd = seedrandom[kaisuu](-250,150)\n        kaisuu += 1\n    }\n    wait(2)\n    kaisuu = 0\n    for (let i = 0; i < 700; i++) {\n        spawnBullet(\"normal\", \"#3388ff\", 300 + spd, angle, 0, 0, 10, \"kunai2\", \"relative\", \"3\")\n        angle += seedrandom[kaisuu](0,360)\n        spd = seedrandom[kaisuu](-250,150)\n        kaisuu += 1\n    }\n    wait(2)\n}\n    ",
+    "bulletScript": "\nonce {\n    motospd = speed\n    motocolor = color\n}\nif (frame == 120..121) {\n    speed = 0\n    radius = 0\n    hitRadius = 0\n    color = #aaaaaa\n}\nif (frame == 200..241) {\n    radius = 10\n}\nif (frame == 240..241) {\n    speed = 300\n    color = motocolor\n    hitRadius = 3\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "normal",
+    "name": "「ワカサギペンデュラム」",
+    "desc": "ナズーリンペンデュラム、好きです。",
+    "duration": 28,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 0.1,
+    "emitterScript": "\nwhile (true) {\n    ey = 300\n    spawnRing(\"normal\", \"#ff3333\", 200, angle, 6, 0, 0, 10, \"dangan\", \"relative\", \"6\")\n    spawnRing(\"normal\", \"#3388ff\", 200, kasu, 36, 0, 0, 10, \"dangan\", \"relative\", \"7\")\n    kasu += 2\n    wait(0.0334)\n}\nwhile (true) {\n    tween(\"syutugen\", syutugen, 500, \"seconds\", 2, \"easeInOut\")\n    wait(2)\n    tween(\"syutugen\", syutugen, -100, \"seconds\", 2, \"easeInOut\")\n    wait(2)\n}\nwhile (true) {\n    tween(\"angle\", angle, 360, \"seconds\", 4, \"easeInOut\")\n    wait(4)\n    tween(\"angle\", angle, -360, \"seconds\", 4, \"easeInOut\")\n    wait(4)\n    tween(\"angle\", angle, 0, \"seconds\", 4, \"easeInOut\")\n    wait(4)\n    tween(\"angle\", angle, -360, \"seconds\", 4, \"easeInOut\")\n    wait(4)\n    tween(\"angle\", angle, 360, \"seconds\", 4, \"easeInOut\")\n    wait(4)\n    tween(\"angle\", angle, 720, \"seconds\", 4, \"easeInOut\")\n    wait(4)\n    tween(\"angle\", angle, 0, \"seconds\", 4, \"easeInOut\")\n    wait(4)\n}\n    ",
+    "bulletScript": "\nonce {\n    if (color==#ff3333) {\n        advance(syutugen)\n    }\n    if (color==#3388ff) {\n        advance(600)\n        spriteAngle = angle\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "easy",
+    "name": "「ソーメンオブナガシ」",
+    "desc": "あまりにも神弾幕すぎる...",
+    "duration": 25,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 3; i++) {\n        spawnRing(\"normal\", \"#dddddd\", 200, angle, 36, 0, 0, 10, \"kunai2\", \"relative\", \"6\")\n        angle += 0.6\n        wait(0.0835)\n    }\n    for (let i = 0; i < 3; i++) {\n        spawnRing(\"normal\", \"#dddddd\", 200, angle, 36, 0, 0, 10, \"kunai2\", \"relative\", \"6\")\n        angle -= 0.6\n        wait(0.0835)\n    }\n    angle += 5.5555555555\n}\n    ",
+    "bulletScript": "\nif (frame == 30 * n) {\n    angle += 60\n    spriteAngle = angle\n    wait(0.5)\n    angle -= 60\n    spriteAngle = angle\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "夢符「封印結界」",
+    "desc": "固定弾",
+    "duration": 15,
+    "maxMisses": 2,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    spx = 0\n    for (let i = 0; i < 38; i++) {\n        kaisuu += 1\n        spawnBullet(\"normal\", \"#ff3333\", 200, 90, spx, 0, 20, \"ohuda\", \"absolute\", \"10\")\n        spx += 20\n    }\n    wait(0.5)\n}\n    ",
+    "bulletScript": "\nonce {\n    ransuu = seedrandom[5 + kaisuu](0,1)\n    if (ransuu == 0.5..1) {\n        speed = 150\n    }\n}\n    ",
+    "magicCircleScript": "\n        // 子弾挙動の独自コード（任意）\n    "
+  }
+];
+window.sharedDanmakuList = window.compiledDanmakuList;
 
 // Helpers
 window.DanmakuCompilerRuntime.resolveColorParam = function(val, vars) {
@@ -2323,8 +3327,8 @@ window.compiledDanmaku['danmaku_1_bullet'] = function*(state, b, attacker, targe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['m9a89sypa']) {
-        state.onceMap['m9a89sypa'] = true;
+      if (!state.onceMap['176tc4f3k']) {
+        state.onceMap['176tc4f3k'] = true;
         vars['x'] = 384;
         vars['y'] = 448;
       }
@@ -2409,8 +3413,8 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['e3732o01n']) {
-      state.onceMap['e3732o01n'] = true;
+    if (!state.onceMap['hbe1h2dd2']) {
+      state.onceMap['hbe1h2dd2'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -2523,8 +3527,8 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['k6gr6pujt']) {
-      state.onceMap['k6gr6pujt'] = true;
+    if (!state.onceMap['syr0ytcyw']) {
+      state.onceMap['syr0ytcyw'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -2738,8 +3742,8 @@ window.compiledDanmaku['danmaku_6_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['m0tjdqv67']) {
-      state.onceMap['m0tjdqv67'] = true;
+    if (!state.onceMap['nccirwozd']) {
+      state.onceMap['nccirwozd'] = true;
       vars['shotTimer'] = 0;
     }
     vars['speed'] = (vars['speed'] || 0) + (2);
@@ -2935,8 +3939,8 @@ window.compiledDanmaku['danmaku_8_bullet'] = function*(state, b, attacker, targe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['lwddhp323']) {
-      state.onceMap['lwddhp323'] = true;
+    if (!state.onceMap['jt29he145']) {
+      state.onceMap['jt29he145'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         vars['x'] = (vars.spawn !== undefined ? vars.spawn : 0);
       }
@@ -3173,8 +4177,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['fkfagyqc3']) {
-        state.onceMap['fkfagyqc3'] = true;
+      if (!state.onceMap['aiarg4sy2']) {
+        state.onceMap['aiarg4sy2'] = true;
         vars['x'] = (vars.tx !== undefined ? vars.tx : 0);
         vars['angle'] = 90;
       }
@@ -3187,8 +4191,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
       vars['angle'] = (vars['angle'] || 0) + (random(0,0));
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['wgml14jrw']) {
-      state.onceMap['wgml14jrw'] = true;
+    if (!state.onceMap['g60e2zf8p']) {
+      state.onceMap['g60e2zf8p'] = true;
       vars['speed'] = (vars['speed'] || 0) + (40);
     }
     state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
@@ -3390,8 +4394,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (1.4) && ((vars.timer !== undefined ? vars.timer : 0)) <= (2)))) {
         vars['speed'] = 300;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['f8kffnpez']) {
-          state.onceMap['f8kffnpez'] = true;
+        if (!state.onceMap['76j7wy3tt']) {
+          state.onceMap['76j7wy3tt'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -3405,8 +4409,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 150;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ukngx3zie']) {
-        state.onceMap['ukngx3zie'] = true;
+      if (!state.onceMap['mueeawuj5']) {
+        state.onceMap['mueeawuj5'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -3416,8 +4420,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 100;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['bm51sdvxg']) {
-        state.onceMap['bm51sdvxg'] = true;
+      if (!state.onceMap['9wv8etdvx']) {
+        state.onceMap['9wv8etdvx'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -3489,8 +4493,8 @@ window.compiledDanmaku['danmaku_11_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['rvz1lhwus']) {
-      state.onceMap['rvz1lhwus'] = true;
+    if (!state.onceMap['yv0gi4abz']) {
+      state.onceMap['yv0gi4abz'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-2,2));
       vars['speed'] = (vars['speed'] || 0) + (random(0,0));
     }
@@ -3635,15 +4639,15 @@ window.compiledDanmaku['danmaku_13_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['f5cuyoyon']) {
-        state.onceMap['f5cuyoyon'] = true;
+      if (!state.onceMap['ia5takklx']) {
+        state.onceMap['ia5takklx'] = true;
         vars['x'] = 379 + (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3332").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hwgje0dmf']) {
-        state.onceMap['hwgje0dmf'] = true;
+      if (!state.onceMap['hs3hgfx1n']) {
+        state.onceMap['hs3hgfx1n'] = true;
         vars['x'] = 379 - (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
@@ -3765,8 +4769,8 @@ window.compiledDanmaku['danmaku_15_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['vlc39m29m']) {
-      state.onceMap['vlc39m29m'] = true;
+    if (!state.onceMap['bwoqr87q6']) {
+      state.onceMap['bwoqr87q6'] = true;
       vars['yp'] = -40;
     }
     vars['y'] = (vars['y'] || 0) + ((vars.yp !== undefined ? vars.yp : 0) / 10);
@@ -4020,8 +5024,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if (!!(_util.fuzzyEqual((vars.e_t !== undefined ? vars.e_t : 0),1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['n6ymqeypz']) {
-        state.onceMap['n6ymqeypz'] = true;
+      if (!state.onceMap['azoyob1d8']) {
+        state.onceMap['azoyob1d8'] = true;
         vars['flag'] = 1;
       }
     }
@@ -4031,8 +5035,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['e5ltbxadi']) {
-          state.onceMap['e5ltbxadi'] = true;
+        if (!state.onceMap['luofm193e']) {
+          state.onceMap['luofm193e'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -4040,8 +5044,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['7jf8c790u']) {
-          state.onceMap['7jf8c790u'] = true;
+        if (!state.onceMap['q88ii60fc']) {
+          state.onceMap['q88ii60fc'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -4049,16 +5053,16 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['rkojqx6x8']) {
-          state.onceMap['rkojqx6x8'] = true;
+        if (!state.onceMap['7ljsh2g7y']) {
+          state.onceMap['7ljsh2g7y'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
       }
       if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['xzgdcwtlu']) {
-          state.onceMap['xzgdcwtlu'] = true;
+        if (!state.onceMap['m851797fn']) {
+          state.onceMap['m851797fn'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
@@ -4143,8 +5147,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['ab9rsn3iv']) {
-          state.onceMap['ab9rsn3iv'] = true;
+        if (!state.onceMap['t9cae51fh']) {
+          state.onceMap['t9cae51fh'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -4156,8 +5160,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['hhtte38t3']) {
-          state.onceMap['hhtte38t3'] = true;
+        if (!state.onceMap['bs621iivn']) {
+          state.onceMap['bs621iivn'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -4596,8 +5600,8 @@ window.compiledDanmaku['danmaku_23_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['nvi9w0l4g']) {
-      state.onceMap['nvi9w0l4g'] = true;
+    if (!state.onceMap['7o68tyn8o']) {
+      state.onceMap['7o68tyn8o'] = true;
       state.waitTimer = Math.max(0.0167, 0.02);
       yield;
       vars['speed'] = 200;
@@ -4801,8 +5805,8 @@ window.compiledDanmaku['danmaku_24_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9E76B4").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ddhwbr26d']) {
-        state.onceMap['ddhwbr26d'] = true;
+      if (!state.onceMap['oziz8b2w9']) {
+        state.onceMap['oziz8b2w9'] = true;
         vars['xsp'] = random(-200,968);
         vars['x'] = (vars.xsp !== undefined ? vars.xsp : 0);
         vars['y'] = 0;
@@ -4882,8 +5886,8 @@ window.compiledDanmaku['danmaku_25'] = [
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['lqu6zd3rm']) {
-    state.onceMap['lqu6zd3rm'] = true;
+  if (!state.onceMap['s5pg84zk0']) {
+    state.onceMap['s5pg84zk0'] = true;
     vars['w'] = 0.6;
   }
 },
@@ -5190,8 +6194,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (3)))) {
         vars['speed'] = 320;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['kuo1qivb6']) {
-          state.onceMap['kuo1qivb6'] = true;
+        if (!state.onceMap['bf5htpipw']) {
+          state.onceMap['bf5htpipw'] = true;
           vars['angle'] = (vars['angle'] || 0) + (180);
         }
       }
@@ -5203,8 +6207,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffff99").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['b5ep01d1f']) {
-        state.onceMap['b5ep01d1f'] = true;
+      if (!state.onceMap['as7z1hhtr']) {
+        state.onceMap['as7z1hhtr'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "angle", from: "angle", to: "ag", mode: "seconds", duration: "0.6", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -5275,8 +6279,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,(vars.henkat !== undefined ? vars.henkat : 0)))) {
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['9cf59x8kp']) {
-          state.onceMap['9cf59x8kp'] = true;
+        if (!state.onceMap['olus7wqw4']) {
+          state.onceMap['olus7wqw4'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -5296,8 +6300,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ff88").trim().toLowerCase())) {
       if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['pu4c4ngto']) {
-          state.onceMap['pu4c4ngto'] = true;
+        if (!state.onceMap['1xxhltkty']) {
+          state.onceMap['1xxhltkty'] = true;
           if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -5375,8 +6379,8 @@ window.compiledDanmaku['danmaku_32'] = [
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['na10tz4bu']) {
-    state.onceMap['na10tz4bu'] = true;
+  if (!state.onceMap['ff6p3bwbc']) {
+    state.onceMap['ff6p3bwbc'] = true;
     vars['t'] = 1.5;
   }
 },
@@ -6164,8 +7168,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (4)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['kqozyr837']) {
-        state.onceMap['kqozyr837'] = true;
+      if (!state.onceMap['zuezynhee']) {
+        state.onceMap['zuezynhee'] = true;
         vars['speed'] = 80;
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
@@ -6174,8 +7178,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
     }
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,7.5))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['d1cly1j21']) {
-        state.onceMap['d1cly1j21'] = true;
+      if (!state.onceMap['flc349ogj']) {
+        state.onceMap['flc349ogj'] = true;
         vars['speed'] = 30;
         vars['color'] = "#dddddd";
       }
@@ -6609,8 +7613,8 @@ window.compiledDanmaku['danmaku_43_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['hcsl0q8mc']) {
-      state.onceMap['hcsl0q8mc'] = true;
+    if (!state.onceMap['teaw79jd6']) {
+      state.onceMap['teaw79jd6'] = true;
       vars['hitRadius'] = 0;
       if (_util.executeBlock({ type: 'advance', distance: "sp / 4", }, state, b, attacker, target, _util)) {
         yield;
@@ -6668,8 +7672,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['b47v3bxr6']) {
-        state.onceMap['b47v3bxr6'] = true;
+      if (!state.onceMap['lo8vxshh2']) {
+        state.onceMap['lo8vxshh2'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6677,8 +7681,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['g7k9nze4j']) {
-        state.onceMap['g7k9nze4j'] = true;
+      if (!state.onceMap['bpgovu5tu']) {
+        state.onceMap['bpgovu5tu'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6686,8 +7690,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ztgdduyax']) {
-        state.onceMap['ztgdduyax'] = true;
+      if (!state.onceMap['y5x7uy1kn']) {
+        state.onceMap['y5x7uy1kn'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -6695,8 +7699,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['rzvub88dk']) {
-        state.onceMap['rzvub88dk'] = true;
+      if (!state.onceMap['jkdon8tak']) {
+        state.onceMap['jkdon8tak'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
       }
     }
@@ -6848,8 +7852,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (7);
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['7694wl4q3']) {
-        state.onceMap['7694wl4q3'] = true;
+      if (!state.onceMap['9p5d7iqcu']) {
+        state.onceMap['9p5d7iqcu'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -6857,8 +7861,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lq4wr9dbx']) {
-        state.onceMap['lq4wr9dbx'] = true;
+      if (!state.onceMap['camsj18e4']) {
+        state.onceMap['camsj18e4'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -6866,16 +7870,16 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['jxp2i7los']) {
-        state.onceMap['jxp2i7los'] = true;
+      if (!state.onceMap['9qlhy1mmv']) {
+        state.onceMap['9qlhy1mmv'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ktwdnh449']) {
-        state.onceMap['ktwdnh449'] = true;
+      if (!state.onceMap['310v63piu']) {
+        state.onceMap['310v63piu'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
@@ -7341,8 +8345,8 @@ window.compiledDanmaku['danmaku_52_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['qlhbwmt99']) {
-        state.onceMap['qlhbwmt99'] = true;
+      if (!state.onceMap['x437ggeim']) {
+        state.onceMap['x437ggeim'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -7469,8 +8473,8 @@ window.compiledDanmaku['danmaku_53_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['42lxjmbwb']) {
-        state.onceMap['42lxjmbwb'] = true;
+      if (!state.onceMap['8buonnrv8']) {
+        state.onceMap['8buonnrv8'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -7710,8 +8714,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9457eb").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['0sr3r9mgk']) {
-        state.onceMap['0sr3r9mgk'] = true;
+      if (!state.onceMap['qawmlqdl8']) {
+        state.onceMap['qawmlqdl8'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -7727,8 +8731,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['iwyki4za8']) {
-        state.onceMap['iwyki4za8'] = true;
+      if (!state.onceMap['i715a2h68']) {
+        state.onceMap['i715a2h68'] = true;
         vars['warningTime'] = 0.0;
         vars['activeTime'] = 70;
         vars['laserWidth'] = 30;
@@ -8045,8 +9049,8 @@ window.compiledDanmaku['danmaku_58_bullet'] = function*(state, b, attacker, targ
   while (true) {
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['wkstlegh3']) {
-      state.onceMap['wkstlegh3'] = true;
+    if (!state.onceMap['15l7txx10']) {
+      state.onceMap['15l7txx10'] = true;
       if (!!(_util.fuzzyEqual((vars.speed !== undefined ? vars.speed : 0) ,140))) {
         vars['curve'] = -1.6;
       }
@@ -8117,8 +9121,8 @@ window.compiledDanmaku['danmaku_59_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['hzojrbs2b']) {
-      state.onceMap['hzojrbs2b'] = true;
+    if (!state.onceMap['4itixixcx']) {
+      state.onceMap['4itixixcx'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() !== String("#33ffff").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
           yield;
@@ -8338,8 +9342,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['d1f4x365r']) {
-        state.onceMap['d1f4x365r'] = true;
+      if (!state.onceMap['3da3q96sl']) {
+        state.onceMap['3da3q96sl'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8347,8 +9351,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['i7o2xqhvq']) {
-        state.onceMap['i7o2xqhvq'] = true;
+      if (!state.onceMap['h0k3gef2f']) {
+        state.onceMap['h0k3gef2f'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8554,8 +9558,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['2myike2tl']) {
-        state.onceMap['2myike2tl'] = true;
+      if (!state.onceMap['kuedvk4kr']) {
+        state.onceMap['kuedvk4kr'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8563,8 +9567,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['d23lbj85n']) {
-        state.onceMap['d23lbj85n'] = true;
+      if (!state.onceMap['y4dcrnwx3']) {
+        state.onceMap['y4dcrnwx3'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8726,8 +9730,8 @@ window.compiledDanmaku['danmaku_63_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1 + (vars.kasoku !== undefined ? vars.kasoku : 0));
     vars['kasoku'] = (vars['kasoku'] || 0) + (0.02);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['9gc7oz7as']) {
-      state.onceMap['9gc7oz7as'] = true;
+    if (!state.onceMap['ktbpwecp2']) {
+      state.onceMap['ktbpwecp2'] = true;
       vars['angle'] = (vars['angle'] || 0) + (45 + (vars.ofangle !== undefined ? vars.ofangle : 0));
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -8841,8 +9845,8 @@ window.compiledDanmaku['danmaku_64_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + (0.4 * (vars.kakudo !== undefined ? vars.kakudo : 0) - (vars.l !== undefined ? vars.l : 0) * (vars.kakudo !== undefined ? vars.kakudo : 0));
       vars['l'] = (vars['l'] || 0) + (0.000);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['l9kpdba7i']) {
-        state.onceMap['l9kpdba7i'] = true;
+      if (!state.onceMap['x4s719wih']) {
+        state.onceMap['x4s719wih'] = true;
         vars['speed'] = 100;
       }
       vars['speed'] = (vars['speed'] || 0) + (0.5);
@@ -8940,8 +9944,8 @@ window.compiledDanmaku['danmaku_66_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['y2bgrvous']) {
-      state.onceMap['y2bgrvous'] = true;
+    if (!state.onceMap['hig95g2bo']) {
+      state.onceMap['hig95g2bo'] = true;
       vars['x'] = random(-300,1000);
       vars['y'] = 0;
       vars['angle'] = 90 + 10 * (vars.kakudo !== undefined ? vars.kakudo : 0);
@@ -9016,8 +10020,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['avhagwayh']) {
-        state.onceMap['avhagwayh'] = true;
+      if (!state.onceMap['ebfeekzo8']) {
+        state.onceMap['ebfeekzo8'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "120 + seedrandom[5](-0,50)", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -9034,8 +10038,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['3xm1bruq3']) {
-        state.onceMap['3xm1bruq3'] = true;
+      if (!state.onceMap['t2r4u66g5']) {
+        state.onceMap['t2r4u66g5'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -9048,8 +10052,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['m974hnytv']) {
-        state.onceMap['m974hnytv'] = true;
+      if (!state.onceMap['rkvxtgilh']) {
+        state.onceMap['rkvxtgilh'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -9114,8 +10118,8 @@ window.compiledDanmaku['danmaku_68_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['249ull4py']) {
-      state.onceMap['249ull4py'] = true;
+    if (!state.onceMap['8sntbb0wz']) {
+      state.onceMap['8sntbb0wz'] = true;
       vars['count'] = 0;
       vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
     }
@@ -9268,8 +10272,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['sqjzb78hr']) {
-      state.onceMap['sqjzb78hr'] = true;
+    if (!state.onceMap['uniiv6k33']) {
+      state.onceMap['uniiv6k33'] = true;
       vars['y'] = (vars['y'] || 0) - (100);
       vars['speed'] = 400;
       vars['x'] = (vars['x'] || 0) + (random(-200,200));
@@ -9280,8 +10284,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!!(abs((vars.y !== undefined ? vars.y : 0)  - (vars.ty !== undefined ? vars.ty : 0)) <= 20)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['bk2ti9a0z']) {
-        state.onceMap['bk2ti9a0z'] = true;
+      if (!state.onceMap['0lz1hvjbh']) {
+        state.onceMap['0lz1hvjbh'] = true;
         vars['speed'] = 0;
         vars['angle'] = 90;
         if (!!((vars.x !== undefined ? vars.x : 0) < (vars.tx !== undefined ? vars.tx : 0))) {
@@ -9308,8 +10312,8 @@ window.compiledDanmaku['danmaku_70_magic'] = function*(state, b, attacker, targe
   while (true) {
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['evrhc0zcj']) {
-      state.onceMap['evrhc0zcj'] = true;
+    if (!state.onceMap['4pfv9v1hj']) {
+      state.onceMap['4pfv9v1hj'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-6,6));
     }
     state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
@@ -9350,8 +10354,8 @@ window.compiledDanmaku['danmaku_71_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['x0h4zqfx6']) {
-      state.onceMap['x0h4zqfx6'] = true;
+    if (!state.onceMap['6lipsr89t']) {
+      state.onceMap['6lipsr89t'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "200", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -9451,8 +10455,8 @@ window.compiledDanmaku['danmaku_73_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['u72bgjxs5']) {
-      state.onceMap['u72bgjxs5'] = true;
+    if (!state.onceMap['ocjlsp8gs']) {
+      state.onceMap['ocjlsp8gs'] = true;
       vars['motospd'] = (vars.speed !== undefined ? vars.speed : 0);
       vars['motocolor'] = (vars.color !== undefined ? vars.color : 0);
     }
@@ -9569,8 +10573,8 @@ window.compiledDanmaku['danmaku_74_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['aijj0onee']) {
-      state.onceMap['aijj0onee'] = true;
+    if (!state.onceMap['pxx36kuc8']) {
+      state.onceMap['pxx36kuc8'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "syutugen", }, state, b, attacker, target, _util)) {
           yield;
@@ -9680,8 +10684,8 @@ window.compiledDanmaku['danmaku_76_bullet'] = function*(state, b, attacker, targ
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['5338661xs']) {
-      state.onceMap['5338661xs'] = true;
+    if (!state.onceMap['8miyc4bw3']) {
+      state.onceMap['8miyc4bw3'] = true;
       vars['ransuu'] = _util.seedrandom(5 + (vars.kaisuu !== undefined ? vars.kaisuu : 0), 0, 1, vars);
       if (!!((((vars.ransuu !== undefined ? vars.ransuu : 0)) >= (0.5) && ((vars.ransuu !== undefined ? vars.ransuu : 0)) <= (1)))) {
         vars['speed'] = 150;

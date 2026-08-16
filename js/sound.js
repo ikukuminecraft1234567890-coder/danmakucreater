@@ -9,16 +9,55 @@ class SoundManager {
             'change': 'se/change.wav',
             'boon00': 'se/se_boon00.wav',
             'boon01': 'se/se_boon01.wav',
+            'cardget': 'se/se_cardget.wav',
+            'cat00': 'se/se_cat00.wav',
             'ch00': 'se/se_ch00.wav',
             'ch02': 'se/se_ch02.wav',
             'don00': 'se/se_don00.wav',
+            'fault': 'se/se_fault.wav',
             'gun00': 'se/se_gun00.wav',
             'lazer00': 'se/se_lazer00.wav',
+            'pldead00': 'se/se_pldead00.wav',
             'tan00': 'se/se_tan00.wav',
-            'tan00_raw': 'se/se_tan00.wav'
+            'tan00_raw': 'se/se_tan00.wav',
+            'timeout': 'se/se_timeout.wav',
+            'damage00': 'se/se_damage00.wav',
+            'damage01': 'se/se_damage01.wav'
         };
         // 既存コードやブロックコマンド用のエイリアスマッピング
         this.aliases = {
+            'cardget': 'cardget',
+            'se_cardget': 'cardget',
+            'cat00': 'cat00',
+            'se_cat00': 'cat00',
+            'spell': 'cat00',
+            'spell_card': 'cat00',
+            'fault': 'fault',
+            'se_fault': 'fault',
+            'pldead00': 'pldead00',
+            'se_pldead00': 'pldead00',
+            'timeout': 'timeout',
+            'se_timeout': 'timeout',
+            'don00': 'don00',
+            'se_don00': 'don00',
+            'tan00': 'tan00',
+            'se_tan00': 'tan00',
+            'damage00': 'damage00',
+            'se_damage00': 'damage00',
+            'damage01': 'damage01',
+            'se_damage01': 'damage01',
+            'boon00': 'boon00',
+            'se_boon00': 'boon00',
+            'boon01': 'boon01',
+            'se_boon01': 'boon01',
+            'gun00': 'gun00',
+            'se_gun00': 'gun00',
+            'lazer00': 'lazer00',
+            'se_lazer00': 'lazer00',
+            'ch00': 'ch00',
+            'se_ch00': 'ch00',
+            'ch02': 'ch02',
+            'se_ch02': 'ch02',
             'shot': 'tan00',            // 通常ショット音
             'shot_raw': 'tan00_raw',     // 等倍ショット音
             'laser_heavy': 'gun00',      // 太レーザー音
@@ -27,9 +66,6 @@ class SoundManager {
             'charge2': 'ch02',           // チャージ音2
             'maspa_short': 'bomb',       // マスパ短
             'maspa_long': 'bomb2',       // マスパ長
-            'boon00': 'boon00',          // アビリティ音
-            'boon01': 'boon01',          // 被弾/回復音？
-            'don00': 'don00',            // ドン音
             'change': 'change',          // 切り替え音
             
             // 互換性のための古いエイリアス
@@ -37,13 +73,15 @@ class SoundManager {
             'kawaru': 'change',
             'cast': 'ch02',
             'player_shot': 'gun00',
-            'hit': 'bomb'
+            'hit': 'pldead00'
         };
         this.volume = 0.3; // デフォルト30%
         this.initialized = false;
         this.compressor = null;
         this.balances = {
-            'tan00': 0.35 // ショット音のみを個別に小さく調整
+            'tan00': 0.35, // ショット音のみを個別に小さく調整
+            'damage00': 0.7,
+            'damage01': 0.7
         };
         this.useHtml5Audio = (window.location.protocol === 'file:');
     }
