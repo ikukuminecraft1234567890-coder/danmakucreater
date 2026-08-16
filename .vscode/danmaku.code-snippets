@@ -188,91 +188,107 @@
         "description": "最小値〜最大値のランダムな数値を返します。"
     },
 
-    "img: kome (米弾)": {
+    "kome (米弾)": {
         "prefix": ["kome", "grain"],
-        "body": ["\"kome\""],
-        "description": "米弾画像アセットキー"
+        "body": ["kome"],
+        "description": "米弾 (画像アセット)"
     },
-    "img: ohuda (お札)": {
+    "ohuda (お札)": {
         "prefix": ["ohuda", "huda"],
-        "body": ["\"ohuda\""],
-        "description": "お札弾画像アセットキー"
+        "body": ["ohuda"],
+        "description": "お札 (画像アセット)"
     },
-    "img: star (星弾)": {
+    "star (星弾)": {
         "prefix": ["star"],
-        "body": ["\"star\""],
-        "description": "星弾画像アセットキー"
+        "body": ["star"],
+        "description": "星弾 (画像アセット)"
     },
-    "img: b_star (大星弾)": {
+    "b_star (大星弾)": {
         "prefix": ["b_star", "bigstar"],
-        "body": ["\"b_star\""],
-        "description": "大星弾画像アセットキー"
+        "body": ["b_star"],
+        "description": "大星弾 (画像アセット)"
     },
-    "img: onmyoutama (陰陽玉)": {
+    "onmyoutama (陰陽玉)": {
         "prefix": ["onmyoutama", "onmyo"],
-        "body": ["\"onmyoutama\""],
-        "description": "陰陽玉画像アセットキー"
+        "body": ["onmyoutama"],
+        "description": "陰陽玉 (画像アセット)"
     },
-    "img: marutama (丸弾)": {
+    "marutama (丸弾)": {
         "prefix": ["marutama", "circle"],
-        "body": ["\"marutama\""],
-        "description": "丸弾画像アセットキー"
+        "body": ["marutama"],
+        "description": "丸弾 (画像アセット)"
     },
-    "img: ootama (大玉)": {
+    "ootama (大玉)": {
         "prefix": ["ootama", "bigball"],
-        "body": ["\"ootama\""],
-        "description": "大玉画像アセットキー"
+        "body": ["ootama"],
+        "description": "大玉 (画像アセット)"
     },
-    "img: poihuru (ポイフル弾)": {
+    "poihuru (ポイフル弾)": {
         "prefix": ["poihuru"],
-        "body": ["\"poihuru\""],
-        "description": "ポイフル弾画像アセットキー"
+        "body": ["poihuru"],
+        "description": "ポイフル (画像アセット)"
     },
-    "img: uroko (鱗弾)": {
+    "uroko (鱗弾)": {
         "prefix": ["uroko", "scale"],
-        "body": ["\"uroko\""],
-        "description": "鱗弾画像アセットキー"
+        "body": ["uroko"],
+        "description": "鱗弾 (画像アセット)"
     },
-    "img: sword (剣弾)": {
+    "sword (剣弾)": {
         "prefix": ["sword"],
-        "body": ["\"sword\""],
-        "description": "剣弾画像アセットキー"
+        "body": ["sword"],
+        "description": "剣弾 (画像アセット)"
     },
-    "img: knife (ナイフ弾)": {
+    "knife (ナイフ弾)": {
         "prefix": ["knife"],
-        "body": ["\"knife\""],
-        "description": "ナイフ弾画像アセットキー"
+        "body": ["knife"],
+        "description": "ナイフ弾 (画像アセット)"
     },
-    "img: kunai1 (クナイ弾1)": {
+    "kunai1 (クナイ弾1)": {
         "prefix": ["kunai1"],
-        "body": ["\"kunai1\""],
-        "description": "クナイ弾1画像アセットキー"
+        "body": ["kunai1"],
+        "description": "クナイ弾1 (画像アセット)"
     },
-    "img: kunai2 (クナイ弾2)": {
+    "kunai2 (クナイ弾2)": {
         "prefix": ["kunai2"],
-        "body": ["\"kunai2\""],
-        "description": "クナイ弾2画像アセットキー"
+        "body": ["kunai2"],
+        "description": "クナイ弾2 (画像アセット)"
     },
-    "img: virus (ウイルス弾)": {
+    "virus (ウイルス弾)": {
         "prefix": ["virus"],
-        "body": ["\"virus\""],
-        "description": "ウイルス弾画像アセットキー"
+        "body": ["virus"],
+        "description": "ウイルス弾 (画像アセット)"
     },
-    "img: dangan (弾丸)": {
+    "dangan (弾丸)": {
         "prefix": ["dangan", "bullet"],
-        "body": ["\"dangan\""],
-        "description": "弾丸画像アセットキー"
+        "body": ["dangan"],
+        "description": "弾丸 (画像アセット)"
+    },
+    "none (通常丸弾)": {
+        "prefix": ["none"],
+        "body": ["none"],
+        "description": "通常丸弾"
     },
 
-    "coord: relative (相対座標)": {
+    "relative (相対座標)": {
         "prefix": ["relative"],
-        "body": ["\"relative\""],
-        "description": "ボス・発射元基準の相対座標"
+        "body": ["relative"],
+        "description": "相対座標モード"
     },
-    "coord: absolute (絶対座標)": {
+    "absolute (絶対座標)": {
         "prefix": ["absolute"],
-        "body": ["\"absolute\""],
-        "description": "画面左上基準の絶対座標"
+        "body": ["absolute"],
+        "description": "絶対座標モード"
+    },
+
+    "normal (通常弾種)": {
+        "prefix": ["normal"],
+        "body": ["normal"],
+        "description": "通常弾"
+    },
+    "laser (レーザー弾種)": {
+        "prefix": ["laser"],
+        "body": ["laser"],
+        "description": "レーザー弾"
     },
 
     "Boss Spell Template (ボススペルカード定義の雛形)": {
