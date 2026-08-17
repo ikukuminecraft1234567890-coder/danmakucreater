@@ -1898,8 +1898,9 @@ function applyAbilityEffect(cardId, owner) {
                     player.x += dx * currentSpeed * dt;
                     player.y += dy * currentSpeed * dt;
 
+                    const playBottom = canvas.height - 24;
                     player.x = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, player.x));
-                    player.y = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, player.y));
+                    player.y = Math.max(player.grazeRadius, Math.min(playBottom - player.grazeRadius, player.y));
                 }
                 if (isCustomActionLocked('PLAYER')) {
                     applyCustomOwnerPositionLock('PLAYER', dt);
@@ -4417,110 +4418,82 @@ function applyAbilityEffect(cardId, owner) {
 
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
-            // ── 東方星蓮船スタイル エネミーマーカー (Enemy Marker: ゲーム画面下の外枠に配置) ──────────────────────────────
-            if (typeof cpu !== 'undefined' && cpu && (window.isBossMode || isCustomCardTesting || (typeof gameState !== 'undefined' && gameState === 'BATTLE'))) {
-                let isCpuAlive = cpu.hp > 0 && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!customCardDeathEffect && !window.customCardClearEffect);
-                if (isCpuAlive) {
-                    ctx.save();
-                    let markerX = Math.max(24, Math.min(PLAY_WIDTH - 24, cpu.x));
-                    let playBottom = canvas.height - 24; // ゲーム画面の下枠線
-                    let bottomY = canvas.height;
-                    let now = performance.now();
-                    let pulse = 0.85 + 0.15 * Math.sin(now / 150);
+            // ── 東方星蓮船スタイル エネミーマーカー (Enemy Marker: ゲーム画面下の外枠内だけに配置) ──────────────────────────────
+            {
+                const playBottom = canvas.height - 24;
+                ctx.save();
+                // 弾やエフェクトが下枠にはみ出さないように下枠フレームを最前面で塗りつぶし
+                ctx.fillStyle = '#06060c';
+                ctx.fillRect(0, playBottom, PLAY_WIDTH, 24);
 
-                    // 1. ゲーム画面下枠線から上へ伸びる赤い光柱（星蓮船特有の縦グラデーション発光）
-                    let pillarH = 38;
-                    let pillarW = 44 * (0.95 + 0.05 * Math.sin(now / 200));
+                // 下枠境界線（ボーダー）
+                const glow = 0.55 + 0.2 * Math.sin(performance.now() / 800);
+                ctx.strokeStyle = `rgba(120, 200, 255, ${glow})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, playBottom);
+                ctx.lineTo(PLAY_WIDTH, playBottom);
+                ctx.stroke();
 
-                    ctx.save();
-                    ctx.globalCompositeOperation = 'lighter'; // 加算合成で鮮やかに発光
+                if (typeof cpu !== 'undefined' && cpu && (window.isBossMode || isCustomCardTesting || (typeof gameState !== 'undefined' && gameState === 'BATTLE'))) {
+                    let isCpuAlive = cpu.hp > 0 && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!customCardDeathEffect && !window.customCardClearEffect);
+                    if (isCpuAlive) {
+                        let markerX = Math.max(28, Math.min(PLAY_WIDTH - 28, cpu.x));
+                        let textCenterY = playBottom + 12; // 外枠の中央
+                        let now = performance.now();
+                        let pulse = 0.85 + 0.15 * Math.sin(now / 150);
 
-                    // メイン光柱（ゲーム画面内に上向きに伸びる赤グラデーション）
-                    let pillarGrad = ctx.createLinearGradient(0, playBottom, 0, playBottom - pillarH);
-                    pillarGrad.addColorStop(0, `rgba(255, 10, 50, ${0.75 * pulse})`);
-                    pillarGrad.addColorStop(0.35, `rgba(255, 0, 30, ${0.4 * pulse})`);
-                    pillarGrad.addColorStop(0.75, `rgba(200, 0, 20, ${0.12 * pulse})`);
-                    pillarGrad.addColorStop(1, 'rgba(150, 0, 0, 0)');
+                        // 1. 下枠フレーム内だけの赤いグロー（ゲーム画面内にはみ出さないようにクリップ）
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(0, playBottom, PLAY_WIDTH, 24);
+                        ctx.clip(); // 下枠内だけにクリッピング
 
-                    // 水平方向にもフェードさせる
-                    let hGrad = ctx.createRadialGradient(markerX, playBottom, 2, markerX, playBottom, pillarW);
-                    hGrad.addColorStop(0, `rgba(255, 50, 80, ${0.85 * pulse})`);
-                    hGrad.addColorStop(0.4, `rgba(255, 10, 40, ${0.5 * pulse})`);
-                    hGrad.addColorStop(0.8, `rgba(200, 0, 20, ${0.12 * pulse})`);
-                    hGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                        let badgeGrad = ctx.createRadialGradient(markerX, textCenterY, 2, markerX, textCenterY, 36);
+                        badgeGrad.addColorStop(0, `rgba(255, 20, 60, ${0.6 * pulse})`);
+                        badgeGrad.addColorStop(0.6, `rgba(200, 0, 30, ${0.25 * pulse})`);
+                        badgeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                        ctx.fillStyle = badgeGrad;
+                        ctx.fillRect(markerX - 40, playBottom, 80, 24);
 
-                    ctx.fillStyle = pillarGrad;
-                    ctx.fillRect(markerX - pillarW / 2, playBottom - pillarH, pillarW, pillarH);
+                        // 2. 赤いひし形ミニマーカー（下枠内）
+                        ctx.fillStyle = '#ff2244';
+                        ctx.shadowColor = '#ff0033';
+                        ctx.shadowBlur = 6 * pulse;
+                        ctx.beginPath();
+                        ctx.moveTo(markerX - 24, textCenterY);
+                        ctx.lineTo(markerX - 20, textCenterY - 4.5);
+                        ctx.lineTo(markerX - 16, textCenterY);
+                        ctx.lineTo(markerX - 20, textCenterY + 4.5);
+                        ctx.closePath();
+                        ctx.fill();
 
-                    ctx.fillStyle = hGrad;
-                    ctx.beginPath();
-                    ctx.arc(markerX, playBottom, pillarW, Math.PI, 0);
-                    ctx.fill();
+                        // ひし形中央の白色ハイライト
+                        ctx.fillStyle = '#ffffff';
+                        ctx.beginPath();
+                        ctx.arc(markerX - 20, textCenterY, 1.2, 0, Math.PI * 2);
+                        ctx.fill();
 
-                    // 中心コアの明るい輝き
-                    let coreGrad = ctx.createLinearGradient(0, playBottom, 0, playBottom - 20);
-                    coreGrad.addColorStop(0, `rgba(255, 200, 220, ${0.8 * pulse})`);
-                    coreGrad.addColorStop(0.5, `rgba(255, 60, 100, ${0.4 * pulse})`);
-                    coreGrad.addColorStop(1, 'rgba(255, 0, 50, 0)');
-                    ctx.fillStyle = coreGrad;
-                    ctx.fillRect(markerX - 5, playBottom - 20, 10, 20);
-                    ctx.restore();
+                        // 3. "Enemy" テキスト描画 (外枠内にスタイリッシュな赤い斜体)
+                        ctx.font = "italic 900 11px 'Trebuchet MS', 'Arial Black', sans-serif";
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
 
-                    // 2. ゲーム画面下枠線の赤いアクセント光
-                    ctx.save();
-                    ctx.strokeStyle = `rgba(255, 50, 80, ${0.95 * pulse})`;
-                    ctx.lineWidth = 2.5;
-                    ctx.shadowColor = '#ff0033';
-                    ctx.shadowBlur = 8;
-                    ctx.beginPath();
-                    ctx.moveTo(markerX - pillarW / 2, playBottom - 1);
-                    ctx.lineTo(markerX + pillarW / 2, playBottom - 1);
-                    ctx.stroke();
-                    ctx.restore();
+                        // 黒の縁取り
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
+                        ctx.lineWidth = 2.5;
+                        ctx.strokeText("Enemy", markerX + 4, textCenterY);
 
-                    // 3. ゲーム画面「下」の外枠部分に配置される赤い "Enemy" テキスト ＆ マーカーバッジ
-                    ctx.save();
-                    let textCenterY = playBottom + 12; // 外枠の中央
+                        // 文字本体
+                        ctx.fillStyle = `rgb(255, ${Math.floor(60 + 50 * pulse)}, ${Math.floor(80 + 50 * pulse)})`;
+                        ctx.shadowColor = '#ff2244';
+                        ctx.shadowBlur = 6 * pulse;
+                        ctx.fillText("Enemy", markerX + 4, textCenterY);
 
-                    // 外枠の赤いグロー
-                    let badgeGrad = ctx.createRadialGradient(markerX, textCenterY, 2, markerX, textCenterY, 32);
-                    badgeGrad.addColorStop(0, `rgba(255, 20, 60, ${0.5 * pulse})`);
-                    badgeGrad.addColorStop(0.6, `rgba(200, 0, 30, ${0.2 * pulse})`);
-                    badgeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                    ctx.fillStyle = badgeGrad;
-                    ctx.fillRect(markerX - 32, playBottom, 64, 24);
-
-                    // 赤いひし形ミニマーカー（下枠内）
-                    ctx.fillStyle = '#ff2244';
-                    ctx.shadowColor = '#ff0033';
-                    ctx.shadowBlur = 6 * pulse;
-                    ctx.beginPath();
-                    ctx.moveTo(markerX - 22, textCenterY);
-                    ctx.lineTo(markerX - 18, textCenterY - 4);
-                    ctx.lineTo(markerX - 14, textCenterY);
-                    ctx.lineTo(markerX - 18, textCenterY + 4);
-                    ctx.closePath();
-                    ctx.fill();
-
-                    // "Enemy" テキスト描画 (外枠内にスタイリッシュな赤い斜体)
-                    ctx.font = "italic 900 11px 'Trebuchet MS', 'Arial Black', sans-serif";
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-
-                    // 黒の縁取り
-                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
-                    ctx.lineWidth = 2.5;
-                    ctx.strokeText("Enemy", markerX + 4, textCenterY);
-
-                    // 文字本体
-                    ctx.fillStyle = `rgb(255, ${Math.floor(60 + 50 * pulse)}, ${Math.floor(80 + 50 * pulse)})`;
-                    ctx.shadowColor = '#ff2244';
-                    ctx.shadowBlur = 6 * pulse;
-                    ctx.fillText("Enemy", markerX + 4, textCenterY);
-                    ctx.restore();
-
-                    ctx.restore();
+                        ctx.restore();
+                    }
                 }
+                ctx.restore();
             }
 
             // ── HUD描画 ──────────────────────────────
@@ -5608,9 +5581,9 @@ function applyAbilityEffect(cardId, owner) {
                 touchStartX = clientX;
                 touchStartY = clientY;
 
-                // 移動範囲制限（画面外に出ないようにクリップ）
+                const playBottom = canvas.height - 24;
                 player.x = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, player.x + deltaX));
-                player.y = Math.max(player.grazeRadius, Math.min(canvas.height - player.grazeRadius, player.y + deltaY));
+                player.y = Math.max(player.grazeRadius, Math.min(playBottom - player.grazeRadius, player.y + deltaY));
             };
 
             const onDragEnd = () => {
