@@ -1933,7 +1933,7 @@ function applyAbilityEffect(cardId, owner) {
                             let duration = (activeCards && activeCards[0] && activeCards[0].duration) ? activeCards[0].duration : 30;
                             let timeRatio = Math.max(0, actionTimer / duration);
                             let maxB = window.spellMaxBonus || 10000000;
-                            window.spellCurrentBonus = Math.floor(maxB * (0.3 + 0.7 * timeRatio));
+                            window.spellCurrentBonus = window.isEnduranceSpell ? maxB : Math.floor(maxB * (0.3 + 0.7 * timeRatio));
                         } else {
                             window.spellCurrentBonus = 0;
                         }
@@ -2105,6 +2105,7 @@ function applyAbilityEffect(cardId, owner) {
                 const _isCustomTest = isCustomCardTesting;
                 const _pInv         = player.isInvincible || (typeof window.playerInvincibleTimer === 'number' && window.playerInvincibleTimer > 0) || window.devInvincibleMode === true;
                 const _cInv         = cpu.isInvincible;
+                const _cEndure      = window.isEnduranceSpell;
                 const _pHitR        = player.hitboxRadius;
                 const _pGrazeR      = player.grazeRadius;
                 const _cHitR        = cpu.hitboxRadius;
@@ -2450,7 +2451,7 @@ function applyAbilityEffect(cardId, owner) {
                             }
                         }
                     } else if (b.team === 'PLAYER') {
-                        if (_cInv || b.isWarningLaser) {
+                        if (_cInv || _cEndure || b.isWarningLaser) {
                             continue;
                         }
                         let distSq;
@@ -2762,7 +2763,7 @@ function applyAbilityEffect(cardId, owner) {
                     });
 
                     // ボムの範囲内の敵（ボス・CPU）に毎秒100ダメージ
-                    if (isCustomCardTesting && window.isBossMode && typeof cpu !== 'undefined' && cpu.hp > 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
+                    if (isCustomCardTesting && window.isBossMode && !window.isEnduranceSpell && typeof cpu !== 'undefined' && cpu.hp > 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
                         let cpuHitR = (typeof cpu.hitboxRadius === 'number') ? cpu.hitboxRadius : 20;
                         let distCpu = Math.sqrt((cpu.x - sw.x) ** 2 + (cpu.y - sw.y) ** 2);
                         if (distCpu <= sw.r + cpuHitR) {
@@ -3020,21 +3021,32 @@ function applyAbilityEffect(cardId, owner) {
                             }
                             return;
                         } else {
-                            // スペルカードの時間切れ: 1.5秒待機、se_fault、Failed表示
+                            // スペルカードの時間切れ
                             if (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) {
-                                bullets.length = 0; // 全弾消去
+                                bullets.length = 0;
                                 magicCircles.length = 0;
-
-                                window.spellBonusFailed = true;
-                                window.spellCurrentBonus = 0;
                                 window.spellTransitionTimer = 1.5;
                                 let cardDur = (activeCards && activeCards[0] && activeCards[0].duration !== undefined) ? (Number(activeCards[0].duration) || 30) : 30;
-                                window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: cardDur, duration: cardDur, isTimeout: true };
 
-                                // 敵弾消去音 (se_tan00.wav) & 時間切れ音 (se_fault.wav)
-                                if (window.playSound) {
-                                    window.playSound('se_tan00');
-                                    window.playSound('se_fault');
+                                if (window.isEnduranceSpell) {
+                                    // 耐久スペル: 時間切れ＝撃破扱い、最大ボーナス
+                                    let maxB = window.spellMaxBonus || 10000000;
+                                    window.spellBonusFailed = false;
+                                    window.spellCurrentBonus = maxB;
+                                    window.spellClearResult = { type: 'GET', bonus: maxB, timer: 1.5, clearTime: cardDur, duration: cardDur, isTimeout: true };
+                                    window.totalScore = (window.totalScore || 0) + maxB;
+                                    if (window.playSound) {
+                                        window.playSound('se_tan00');
+                                        window.playSound('se_cardget');
+                                    }
+                                } else {
+                                    window.spellBonusFailed = true;
+                                    window.spellCurrentBonus = 0;
+                                    window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: cardDur, duration: cardDur, isTimeout: true };
+                                    if (window.playSound) {
+                                        window.playSound('se_tan00');
+                                        window.playSound('se_fault');
+                                    }
                                 }
                             }
                         }
@@ -4319,6 +4331,7 @@ function applyAbilityEffect(cardId, owner) {
 
             ctx.save();
             ctx.translate(cpu.x, cpu.y);
+            if (window.isEnduranceSpell) ctx.globalAlpha = 0.45;
             if (cImg && cImg.complete && cImg.naturalWidth > 0 && cImg.src.indexOf("dummy") === -1) {
                 let spriteW = cImg.naturalWidth >= 192 ? 48 : cImg.naturalWidth;
                 let spriteH = cImg.naturalHeight >= 48 ? 48 : cImg.naturalHeight;

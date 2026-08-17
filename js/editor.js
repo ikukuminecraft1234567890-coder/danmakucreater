@@ -1507,6 +1507,7 @@ function customCardMakerSwitchTab(tab) {
             if (typeof resumeGameFromPause === 'function') resumeGameFromPause();
             isCustomCardTesting = false;
             window.isBossMode = false;
+            window.isEnduranceSpell = false;
             isGameRunning = false;
             gameState = 'TITLE';
             customCardDeathEffect = null;
@@ -4144,6 +4145,7 @@ function customCardMakerSwitchMode(mode) {
 
             let rawSpellName = (spell.name !== undefined && spell.name !== null) ? String(spell.name).replace(/^【A】/, '').trim() : '';
             let hasSpellName = rawSpellName.length > 0;
+            window.isEnduranceSpell = hasSpellName && bossHp >= 100000;
 
             // 残機数（現在の機体を除く残機ストック数＝ミス可能回数。残機0なら1度死んだら即ゲームオーバー、残機2なら2回ミス可能）
             let bLives = (boss && (boss.playerLives !== undefined ? boss.playerLives : (boss.lives !== undefined ? boss.lives : (boss.life !== undefined ? boss.life : 2))));
