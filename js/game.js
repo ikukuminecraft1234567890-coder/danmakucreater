@@ -6194,7 +6194,7 @@ function applyAbilityEffect(cardId, owner) {
                         '  const n = __v.n;' +
                         '  return (' + s + ');' +
                         '} else {' +
-                        '  for (let n = 1; n <= 1000; n++) {' +
+                        '  for (let n = 1; n <= 100000; n++) {' +
                         '    if (' + s + ') return true;' +
                         '  }' +
                         '  return false;' +
@@ -6207,7 +6207,7 @@ function applyAbilityEffect(cardId, owner) {
                 const fn = new Function('__v', '__random', functionBody);
                 numericExprCache.set(expr, fn);
                 if (hasN && !optimized) {
-                    fn.__sourceCode = `((function(){ if (__v.n !== undefined) { const n = __v.n; return (${s}); } else { for (let n = 1; n <= 1000; n++) { if (${s}) return true; } return false; } })())`;
+                    fn.__sourceCode = `((function(){ if (__v.n !== undefined) { const n = __v.n; return (${s}); } else { for (let n = 1; n <= 100000; n++) { if (${s}) return true; } return false; } })())`;
                 } else {
                     fn.__sourceCode = s;
                 }
