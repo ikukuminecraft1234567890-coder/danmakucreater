@@ -6154,7 +6154,7 @@ function applyAbilityEffect(cardId, owner) {
                         varName = optMatch[3];
                         coeff = parseFloat(optMatch[1]);
                     }
-                    s = `(__v.n !== undefined ? (__v.${varName} === ${coeff} * __v.n) : (Math.round(__v.${varName} / ${coeff}) >= 1 && Math.round(__v.${varName} / ${coeff}) <= 1000 && Math.abs(__v.${varName} - ${coeff} * Math.round(__v.${varName} / ${coeff})) < 0.017))`;
+                    s = `(__v.n !== undefined ? (__v.${varName} === ${coeff} * __v.n) : (Math.round(__v.${varName} / ${coeff}) >= 1 && Math.abs(__v.${varName} - ${coeff} * Math.round(__v.${varName} / ${coeff})) < 0.017))`;
                     optimized = true;
                 }
 
