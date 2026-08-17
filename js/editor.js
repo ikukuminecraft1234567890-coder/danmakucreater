@@ -4243,6 +4243,12 @@ function customCardMakerSwitchMode(mode) {
             prevBombInput = false;
             activeEffects.length = 0;
 
+            // 通常弾幕／スペルカードの切り替え時は、現在地から定位置へ自然に戻す。
+            // setCustomOwnerPosition は smoothstep で補間するため、急な位置リセットを防げる。
+            if (isNextSpell && typeof setCustomOwnerPosition === 'function') {
+                setCustomOwnerPosition('CPU', 'center', 0.5);
+            }
+
             if (!isNextSpell) {
                 player.x = PLAY_WIDTH / 2;
                 player.y = canvas.height * 0.8;
