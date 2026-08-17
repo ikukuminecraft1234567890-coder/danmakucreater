@@ -523,6 +523,20 @@ while (true) {
                 <button class="menu-btn" onclick="showScreen('screen-menu')" style="margin-top: 5px; background: #222; width: 220px; font-size: 14px; flex-shrink: 0;">タイトル画面に戻る</button>
             </div>
 
+            <!-- 7.6 開発者用ボス弾幕選択（スペルセレクト）画面 -->
+            <div id="screen-boss-spell-select" class="selection-group hidden" style="width: 100%; height: calc(100% - 40px); display: flex; flex-direction: column; align-items: center; gap: 8px; box-sizing: border-box; justify-content: space-between; padding: 5px 0;">
+                <div style="text-align: center; margin: 0;">
+                    <h3 id="boss-spell-select-title" style="margin: 0; color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.8);">弾幕選択 (開発者モード)</h3>
+                    <div style="font-size: 11px; color: #aaa; margin-top: 2px;">開始したいフェーズ（通常弾幕 / スペルカード）を選択してください</div>
+                </div>
+                <div id="boss-spell-list-container" style="display: flex; flex-direction: column; gap: 6px; width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; padding: 5px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,51,102,0.3); box-sizing: border-box;">
+                </div>
+                <div style="display: flex; gap: 10px; width: 100%; justify-content: center; flex-shrink: 0; margin-top: 5px;">
+                    <button id="boss-spell-play-all-btn" class="menu-btn" style="background: linear-gradient(135deg, #660022 0%, #2a0011 100%); border-color: #ff3366; width: 150px; font-size: 13px; font-weight: bold;">★ 最初から通し</button>
+                    <button class="menu-btn" onclick="showBossListScreen()" style="background: #222; width: 140px; font-size: 13px;">ボス一覧に戻る</button>
+                </div>
+            </div>
+
             <!-- 8. ゲーム設定 (Config) 画面 -->
             <div id="screen-config" class="selection-group hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                 <h3 style="margin-bottom: 5px; color: #ffcc00; text-shadow: 0 0 10px rgba(255, 200, 0, 0.8);">ゲーム設定</h3>

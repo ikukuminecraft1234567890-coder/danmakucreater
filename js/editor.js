@@ -3922,8 +3922,18 @@ function customCardMakerSwitchMode(mode) {
                 const playBtn = document.createElement('button');
                 playBtn.className = 'menu-btn';
                 playBtn.style.cssText = `width: 80px; height: 32px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #660022 0%, #2a0011 100%); border-color: #ff3366; text-shadow: 0 0 6px rgba(255,51,102,0.8); font-weight: bold; flex-shrink: 0;`;
-                playBtn.textContent = '挑む！';
-                playBtn.onclick = () => playBossBattle(originalIndex, 0, false);
+                playBtn.textContent = isDev ? '弾幕選択' : '挑む！';
+                
+                const onSelectBoss = () => {
+                    if (isDev) {
+                        showBossSpellSelectScreen(originalIndex);
+                    } else {
+                        playBossBattle(originalIndex, 0, false);
+                    }
+                };
+                playBtn.onclick = onSelectBoss;
+                cardDiv.onclick = onSelectBoss;
+                cardDiv.style.cursor = 'pointer';
 
                 cardDiv.appendChild(infoDiv);
                 cardDiv.appendChild(playBtn);
@@ -3931,6 +3941,109 @@ function customCardMakerSwitchMode(mode) {
             });
         }
         window.renderBossList = renderBossList;
+
+        function showBossSpellSelectScreen(bIdx) {
+            showScreen('screen-boss-spell-select');
+            renderBossSpellSelect(bIdx);
+        }
+        window.showBossSpellSelectScreen = showBossSpellSelectScreen;
+
+        function renderBossSpellSelect(bIdx) {
+            const container = document.getElementById('boss-spell-list-container');
+            const titleEl = document.getElementById('boss-spell-select-title');
+            const playAllBtn = document.getElementById('boss-spell-play-all-btn');
+            if (!container || typeof bossList === 'undefined' || !bossList[bIdx]) return;
+
+            const boss = bossList[bIdx];
+            if (titleEl) {
+                titleEl.textContent = `${boss.name} の弾幕選択`;
+                titleEl.style.color = boss.color || '#ff3366';
+            }
+
+            if (playAllBtn) {
+                playAllBtn.onclick = () => playBossBattle(bIdx, 0, false);
+            }
+
+            container.innerHTML = '';
+
+            if (!boss.spells || boss.spells.length === 0) {
+                container.innerHTML = '<div style="color:#888; font-size:12px; text-align:center; padding:30px 0;">このボスには弾幕が設定されていません。</div>';
+                return;
+            }
+
+            boss.spells.forEach((spellRef, spellIdx) => {
+                const spell = getBossSpell(spellRef);
+                const spellDiv = document.createElement('div');
+                spellDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,51,102,0.25); border-radius: 8px; margin-bottom: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: all 0.18s;`;
+                
+                spellDiv.onmouseover = () => { 
+                    spellDiv.style.borderColor = 'rgba(255,51,102,0.9)'; 
+                    spellDiv.style.background = 'rgba(255,51,102,0.12)';
+                };
+                spellDiv.onmouseout = () => { 
+                    spellDiv.style.borderColor = 'rgba(255,51,102,0.25)'; 
+                    spellDiv.style.background = 'rgba(255,255,255,0.05)';
+                };
+
+                const infoDiv = document.createElement('div');
+                infoDiv.style.flex = '1';
+                infoDiv.style.paddingRight = '10px';
+                infoDiv.style.display = 'flex';
+                infoDiv.style.flexDirection = 'column';
+                infoDiv.style.gap = '3px';
+
+                let rawSpellName = (spell && spell.name !== undefined && spell.name !== null) ? String(spell.name).replace(/^【A】/, '').trim() : '';
+                let isNamedSpell = rawSpellName.length > 0;
+                let phaseNum = spellIdx + 1;
+
+                // 1行目: フェーズ番号 & 弾幕名 / 通常弾幕
+                const topRow = document.createElement('div');
+                topRow.style.display = 'flex';
+                topRow.style.alignItems = 'center';
+                topRow.style.gap = '8px';
+
+                const phaseBadge = document.createElement('span');
+                phaseBadge.style.cssText = `font-size: 11px; font-weight: bold; font-family: monospace; padding: 1px 6px; border-radius: 4px; ${isNamedSpell ? 'color: #ff99bb; background: rgba(255,51,102,0.2); border: 1px solid rgba(255,51,102,0.4);' : 'color: #88ccff; background: rgba(0,150,255,0.15); border: 1px solid rgba(0,150,255,0.3);'}`;
+                phaseBadge.textContent = `Phase ${phaseNum}`;
+                topRow.appendChild(phaseBadge);
+
+                const nameSpan = document.createElement('span');
+                nameSpan.style.cssText = `font-weight: bold; font-size: 14px; color: ${isNamedSpell ? '#ffffff' : '#cccccc'}; text-shadow: 0 0 6px ${isNamedSpell ? 'rgba(255,100,150,0.6)' : 'rgba(0,0,0,0.5)'};`;
+                nameSpan.textContent = isNamedSpell ? rawSpellName : '通常弾幕 (Non-Spell)';
+                topRow.appendChild(nameSpan);
+
+                infoDiv.appendChild(topRow);
+
+                // 2行目: ステータス詳細 (HP, 制限時間, 難易度)
+                if (spell) {
+                    const subRow = document.createElement('div');
+                    subRow.style.cssText = 'font-size: 11px; color: #8888aa; display: flex; gap: 10px; font-family: monospace;';
+                    let hpText = `HP: ${(spell.hp || 1500).toLocaleString()}`;
+                    let timeText = `Time: ${spell.duration || 30}s`;
+                    let diffText = `Diff: ${spell.difficulty || 'NORMAL'}`;
+                    subRow.innerHTML = `<span style="color:#ffbb66;">${hpText}</span> <span>${timeText}</span> <span>${diffText}</span>`;
+                    infoDiv.appendChild(subRow);
+                }
+
+                // 開始ボタン
+                const startBtn = document.createElement('button');
+                startBtn.className = 'menu-btn';
+                startBtn.style.cssText = `width: 90px; height: 30px; font-size: 12px; margin: 0; background: linear-gradient(135deg, #004455 0%, #001a22 100%); border-color: #00ddff; text-shadow: 0 0 6px rgba(0,221,255,0.8); font-weight: bold; flex-shrink: 0;`;
+                startBtn.textContent = 'ここから開始';
+                
+                const onStart = (e) => {
+                    if (e) e.stopPropagation();
+                    playBossBattle(bIdx, spellIdx, false);
+                };
+                startBtn.onclick = onStart;
+                spellDiv.onclick = onStart;
+
+                spellDiv.appendChild(infoDiv);
+                spellDiv.appendChild(startBtn);
+                container.appendChild(spellDiv);
+            });
+        }
+        window.renderBossSpellSelect = renderBossSpellSelect;
 
         function getBossHighScore(bossId) {
             if (!bossId) return 0;

@@ -145,7 +145,7 @@ window.compiledBossDanmakuList = [
     "duration": 50,
     "x_offset": 0,
     "y_offset": 0,
-    "despawnTime": 1.5,
+    "despawnTime": 0.1,
     "emitterScript": "\nwhile (true) {\n    once {\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 100, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 300, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 500, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 700, 10, \"knife\", \"absolute\", \"10\")\n        wait(10)\n    }\n    wait(0.1)\n}\nwhile (true) {\n    wait(3)\n    idousakix = 384 + random(-100,100)\n    idousakiy = 200 + random(-100,100)\n    tween(\"ex\", ex, idousakix, \"seconds\", 0.6, \"easeOut\")\n    tween(\"ey\", ey, idousakiy, \"seconds\", 0.6, \"easeOut\")\n}\n        ",
     "bulletScript": "\nif (frame == 1 * n) {\n    spawnBullet(\"normal\", \"#ff3333\", 0, span, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    span += 10\n}\nbounce()\n        ",
     "magicCircleScript": "\n        if (frame == 70..700) {\n    speed += 1\n}"
@@ -578,8 +578,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['ieaz2b3rj']) {
-          state.onceMap['ieaz2b3rj'] = true;
+        if (!state.onceMap['70pifjijb']) {
+          state.onceMap['70pifjijb'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -675,8 +675,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['140m0sdi3']) {
-        state.onceMap['140m0sdi3'] = true;
+      if (!state.onceMap['6vejcfgwu']) {
+        state.onceMap['6vejcfgwu'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -868,8 +868,8 @@ window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['whydmshqu']) {
-      state.onceMap['whydmshqu'] = true;
+    if (!state.onceMap['ysb04fpwn']) {
+      state.onceMap['ysb04fpwn'] = true;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "100", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
