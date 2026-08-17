@@ -4411,6 +4411,70 @@ function applyAbilityEffect(cardId, owner) {
 
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
+            // ── 東方風 エネミーマーカー (Enemy Marker) ──────────────────────────────
+            if (typeof cpu !== 'undefined' && cpu && (window.isBossMode || isCustomCardTesting || (typeof gameState !== 'undefined' && gameState === 'BATTLE'))) {
+                let isCpuAlive = cpu.hp > 0 && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!customCardDeathEffect && !window.customCardClearEffect);
+                if (isCpuAlive) {
+                    ctx.save();
+                    let markerX = Math.max(24, Math.min(PLAY_WIDTH - 24, cpu.x));
+                    let markerY = canvas.height - 10; // 画面最下部
+                    let now = performance.now();
+                    let pulse = 0.8 + 0.2 * Math.sin(now / 180);
+
+                    // 1. 赤い発光バックグロー
+                    let glowGrad = ctx.createRadialGradient(markerX, markerY - 4, 1, markerX, markerY - 4, 26);
+                    glowGrad.addColorStop(0, `rgba(255, 30, 70, ${0.45 * pulse})`);
+                    glowGrad.addColorStop(0.5, `rgba(255, 10, 40, ${0.18 * pulse})`);
+                    glowGrad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                    ctx.fillStyle = glowGrad;
+                    ctx.beginPath();
+                    ctx.arc(markerX, markerY - 4, 26, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // 2. 東方風 赤いひし形インジケーター
+                    ctx.shadowColor = '#ff1133';
+                    ctx.shadowBlur = 8 * pulse;
+
+                    // ひし形外枠
+                    ctx.fillStyle = '#ff2244';
+                    ctx.beginPath();
+                    ctx.moveTo(markerX, markerY - 17);
+                    ctx.lineTo(markerX + 6, markerY - 11);
+                    ctx.lineTo(markerX, markerY - 5);
+                    ctx.lineTo(markerX - 6, markerY - 11);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // ひし形中央の白色・明色ハイライト
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(markerX, markerY - 14);
+                    ctx.lineTo(markerX + 2.5, markerY - 11);
+                    ctx.lineTo(markerX, markerY - 8);
+                    ctx.lineTo(markerX - 2.5, markerY - 11);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 3. "Enemy" テキスト描画 (原作風の赤い太字斜体)
+                    ctx.font = "italic 900 10.5px 'Trebuchet MS', 'Arial Black', sans-serif";
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'alphabetic';
+
+                    // 黒の縁取り・影
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)';
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeText("Enemy", markerX, markerY + 4.5);
+
+                    // 文字本体 (鮮やかな赤・パルス)
+                    ctx.fillStyle = `rgb(255, ${Math.floor(40 + 50 * pulse)}, ${Math.floor(60 + 50 * pulse)})`;
+                    ctx.shadowColor = '#ff2244';
+                    ctx.shadowBlur = 6 * pulse;
+                    ctx.fillText("Enemy", markerX, markerY + 4.5);
+
+                    ctx.restore();
+                }
+            }
+
             // ── HUD描画 ──────────────────────────────
             if (isCustomCardTesting && !customCardTestEmitterDone && activeCards && activeCards[0]) {
                 ctx.save();
