@@ -935,14 +935,45 @@ if (cardSecond == 20 * n) {
 
         },{
         id: "spell_rush1_10",
-        name: "「10」",
-        hp: 1000,
-        duration: 25,
+        name: "多銃奏「散弾カデンツァ」",
+        hp: 8000,
+        duration: 999.99,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    if (enemyHp == 2000..8000) {
+        spawnRing("normal", "#ff3333", 200, angle1, 6, 0, 0, 9, "dangan", "relative", "6")
+    }
+    if (enemyHp == 2000..7000) {
+        spawnRing("normal", "#ff3333", 300, angle1, 6, 0, 0, 9, "dangan", "relative", "6")
+    }
+    if (enemyHp == 0..6000) {
+        spawnRingResist("normal", "#ff3333", 100, angle1, 6, 0, 0, 9, "dangan", "relative", "6")
+    }
+    if (enemyHp == 2000..5000) {
+        spawnRing("normal", "#ff3333", 200, angle1 * 2, 8, 0, 0, 9, "dangan", "relative", "6")
+    }
+    if (enemyHp == 2000..4000) {
+        spawnRingResist("normal", "#3388ff", 500, -angle1 * 2, 8, 0, 0, 25, "tyoudan", "relative", "15")
+    }
+    if (enemyHp == 0..3000) {
+        spawnRingResist("normal", "#ff3333", 60, angle1, 12, 0, 0, 9, "dangan", "relative", "6")
+    }
+    if (enemyHp == 0..2000) {
+        angle2 = random(0,360)
+        spawnRingResist("normal", "#ff3333", 90, angle2, 9, 0, 0, 9, "dangan", "relative", "5")
+        angle2 = random(0,360)
+        spawnRingResist("normal", "#ff3333", 90, angle2, 9, 0, 0, 9, "dangan", "relative", "5")
+    }
+    if (enemyHp == 0..2000) {
+        angle2 = random(0,360)
+        spawnRingResist("normal", "#3388ff", 110, angle2, 15, 0, 0, 30, "tyoudan", "relative", "9")
+    }
+    angle1 += 7.125434578
+    wait(0.167)
+}
         `,
         bulletScript: `
 
