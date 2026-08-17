@@ -254,7 +254,7 @@ window.compiledBossDanmakuList = [
     "x_offset": 0,
     "y_offset": 0,
     "despawnTime": 1.5,
-    "emitterScript": "\nwhile (true) {\n    idousakiy = 448\n    tween(\"ey\", ey, idousakiy, \"seconds\", 0.6, \"easeOut\")\n    wait(1.3)\n    ey = 448\n    while (true) {\n        wait(0.0167 * 10)\n        if (cardSecond == 0..40) {\n            if (cardSecond == 0..20) {\n                angle = -90 + seedrandom[5 + frame](-70,70)\n            }\n            if (cardSecond == 20..40) {\n                angle = 90 + seedrandom[5 + frame](-70,70)\n            }\n            spawnWay(\"normal\", \"#ff3333\", 150, angle, 3, 30, 0, 0, 12, \"dangan\", \"relative\", \"6\")\n        }\n        if (cardSecond == 40..80) {\n            if (cardSecond == 40..60) {\n                angle = 180 + seedrandom[5 + frame](-70,70)\n            }\n            if (cardSecond == 60..80) {\n                angle = 0 + seedrandom[5 + frame](-70,70)\n            }\n            spawnWay(\"normal\", \"#ffaa33\", 150, angle, 3, 30, 0, 0, 12, \"dangan\", \"relative\", \"6\")\n        }\n    }\n}\nwhile (true) {\n    wait(1.3)\n    spd = 0\n    for (let i = 0; i < 10; i++) {\n        if (cardSecond == 0..40) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 180, 768, ty, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        if (cardSecond == 40..80) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 90, tx, 0, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        spd += 50\n    }\n    wait(1.3)\n    spd = 0\n    for (let i = 0; i < 10; i++) {\n        if (cardSecond == 0..40) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 0, 0, ty, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        if (cardSecond == 40..80) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 270, tx, 896, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        spd += 50\n    }\n}\nif (x < 10) {\n}\n        ",
+    "emitterScript": "\nwhile (true) {\n    idousakiy = 448\n    tween(\"ey\", ey, idousakiy, \"seconds\", 1.2, \"easeOut\")\n    wait(1.3)\n    ey = 448\n    while (true) {\n        wait(0.0167 * 10)\n        if (cardSecond == 0..40) {\n            if (cardSecond == 0..20) {\n                angle = -90 + seedrandom[5 + frame](-70,70)\n            }\n            if (cardSecond == 20..40) {\n                angle = 90 + seedrandom[5 + frame](-70,70)\n            }\n            spawnWay(\"normal\", \"#ff3333\", 150, angle, 3, 30, 0, 0, 12, \"dangan\", \"relative\", \"6\")\n        }\n        if (cardSecond == 40..80) {\n            if (cardSecond == 40..60) {\n                angle = 180 + seedrandom[5 + frame](-70,70)\n            }\n            if (cardSecond == 60..80) {\n                angle = 0 + seedrandom[5 + frame](-70,70)\n            }\n            spawnWay(\"normal\", \"#ffaa33\", 150, angle, 3, 30, 0, 0, 12, \"dangan\", \"relative\", \"6\")\n        }\n    }\n}\nwhile (true) {\n    wait(1.3)\n    spd = 0\n    for (let i = 0; i < 10; i++) {\n        if (cardSecond == 0..40) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 180, 768, ty, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        if (cardSecond == 40..80) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 90, tx, 0, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        spd += 50\n    }\n    wait(1.3)\n    spd = 0\n    for (let i = 0; i < 10; i++) {\n        if (cardSecond == 0..40) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 0, 0, ty, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        if (cardSecond == 40..80) {\n            spawnBullet(\"normal\", \"#00ffff\", 50 + spd, 270, tx, 896, 20, \"tyoudan\", \"absolute\", \"6\")\n        }\n        spd += 50\n    }\n}\nif (x < 10) {\n}\n        ",
     "bulletScript": "\nif (color==#ff3333) {\n    if (y < 0) {\n        y = 886\n    }\n    if (y > 896) {\n        y = 10\n    }\n}\nif (color==#ffaa33) {\n    if (x < 0) {\n        x = 758\n    }\n    if (x > 768) {\n        x = 10\n    }\n}\nif (cardSecond == 20 * n) {\n    for (let i = 0; i < 120; i++) {\n        y = -8900\n        wait(0.0167)\n    }\n}\n        ",
     "magicCircleScript": ""
   },
@@ -578,8 +578,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['gdxt45dsp']) {
-          state.onceMap['gdxt45dsp'] = true;
+        if (!state.onceMap['fyy0a4pio']) {
+          state.onceMap['fyy0a4pio'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -675,8 +675,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['op0nxpe64']) {
-        state.onceMap['op0nxpe64'] = true;
+      if (!state.onceMap['3mm15zuor']) {
+        state.onceMap['3mm15zuor'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -823,8 +823,8 @@ window.compiledBossDanmaku['spell_rush1_3_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (5)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['s1zccadz4']) {
-        state.onceMap['s1zccadz4'] = true;
+      if (!state.onceMap['pxgk0zoda']) {
+        state.onceMap['pxgk0zoda'] = true;
         vars['speed'] = 30000;
       }
     }
@@ -898,8 +898,8 @@ window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['y5tne0c0z']) {
-      state.onceMap['y5tne0c0z'] = true;
+    if (!state.onceMap['esi84whzy']) {
+      state.onceMap['esi84whzy'] = true;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "100", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -1337,8 +1337,8 @@ window.compiledBossDanmaku['spell_rush1_6_bullet'] = window.compiledDanmaku['spe
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (180) && ((vars.frame !== undefined ? vars.frame : 0)) <= (99999)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['0006ndexc']) {
-        state.onceMap['0006ndexc'] = true;
+      if (!state.onceMap['boojf9omr']) {
+        state.onceMap['boojf9omr'] = true;
         vars['imanokakudo'] = (vars.angle !== undefined ? vars.angle : 0);
       }
       vars['angle'] = (vars.imanokakudo !== undefined ? vars.imanokakudo : 0);
@@ -1636,7 +1636,7 @@ window.compiledBossDanmaku['spell_rush1_9'] = window.compiledDanmaku['spell_rush
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['idousakiy'] = 448;
-    if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "ey", to: "idousakiy", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "ey", to: "idousakiy", mode: "seconds", duration: "1.2", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
       yield;
     }
     state.waitTimer = Math.max(0.0167, 1.3);

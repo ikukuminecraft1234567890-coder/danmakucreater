@@ -855,7 +855,7 @@ spriteAngle = angle
         emitterScript: `
 while (true) {
     idousakiy = 448
-    tween("ey", ey, idousakiy, "seconds", 0.6, "easeOut")
+    tween("ey", ey, idousakiy, "seconds", 1.2, "easeOut")
     wait(1.3)
     ey = 448
     while (true) {
