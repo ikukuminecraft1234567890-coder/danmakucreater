@@ -6506,7 +6506,9 @@ function applyAbilityEffect(cardId, owner) {
                 second: 0,
                 frame: 0,
                 cardSecond: 0,
-                cardFrame: 0
+                cardFrame: 0,
+                enemyHp: (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0,
+                enemyMaxHp: (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0
             };
             let isPlayerSide = (attacker === player);
             let dx = target.x - attacker.x;

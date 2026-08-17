@@ -212,6 +212,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             // プレイヤーの絶対座標（常にプレイヤー側、Y軸は画面下が0の論理座標）
             state.variables.player_x = player.x;
             state.variables.player_y = canvas.height - player.y;
+            state.variables.enemyHp = (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0;
+            state.variables.enemyMaxHp = (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0;
             if (!state.isParallelThread) {
                 state.variables.second = (Number(state.variables.second) || 0) + dt;
                 state.variables.frame = (Number(state.variables.frame) || 0) + 1;

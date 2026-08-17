@@ -84,6 +84,8 @@
                         <option value="ty">ターゲットのY座標 (ty)</option>
                         <option value="player_x">プレイヤーのX座標 (player_x)</option>
                         <option value="player_y">プレイヤーのY座標 (player_y)</option>
+                        <option value="enemyHp">敵の現在HP (enemyHp)</option>
+                        <option value="enemyMaxHp">敵の最大HP (enemyMaxHp)</option>
                         <option value="timer">弾のタイマー (timer)</option>
                         <option value="second">秒数 (second)</option>
                         <option value="frame">フレーム数 (frame)</option>
@@ -414,6 +416,7 @@ x, y           // 現在のX, Y座標
 xy             // 現在のX, Y座標ペア (例: xy = "100,200" で一括同期)
 tx, ty         // ターゲット(相手)のX, Y座標
 player_x, player_y // プレイヤーの座標(絶対座標)
+enemyHp, enemyMaxHp // 敵ボスの現在HP、最大HP
 dist           // 相手との直線距離
 second, timer  // 経過秒数 (弾は発射から、コアはカード開始から)
 frame          // 経過フレーム数
