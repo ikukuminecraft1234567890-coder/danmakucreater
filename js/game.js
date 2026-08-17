@@ -4411,65 +4411,75 @@ function applyAbilityEffect(cardId, owner) {
 
             ctx.restore(); // 画面揺れ用のカメラ状態復元（右側UI描画の前に揺れを停止）
 
-            // ── 東方風 エネミーマーカー (Enemy Marker) ──────────────────────────────
+            // ── 東方星蓮船スタイル エネミーマーカー (Enemy Marker) ──────────────────────────────
             if (typeof cpu !== 'undefined' && cpu && (window.isBossMode || isCustomCardTesting || (typeof gameState !== 'undefined' && gameState === 'BATTLE'))) {
                 let isCpuAlive = cpu.hp > 0 && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!customCardDeathEffect && !window.customCardClearEffect);
                 if (isCpuAlive) {
                     ctx.save();
-                    let markerX = Math.max(24, Math.min(PLAY_WIDTH - 24, cpu.x));
-                    let markerY = canvas.height - 10; // 画面最下部
+                    let markerX = Math.max(20, Math.min(PLAY_WIDTH - 20, cpu.x));
+                    let bottomY = canvas.height;
                     let now = performance.now();
-                    let pulse = 0.8 + 0.2 * Math.sin(now / 180);
+                    let pulse = 0.85 + 0.15 * Math.sin(now / 150);
 
-                    // 1. 赤い発光バックグロー
-                    let glowGrad = ctx.createRadialGradient(markerX, markerY - 4, 1, markerX, markerY - 4, 26);
-                    glowGrad.addColorStop(0, `rgba(255, 30, 70, ${0.45 * pulse})`);
-                    glowGrad.addColorStop(0.5, `rgba(255, 10, 40, ${0.18 * pulse})`);
-                    glowGrad.addColorStop(1, 'rgba(255, 0, 0, 0)');
-                    ctx.fillStyle = glowGrad;
+                    // 1. 画面下端から上へ伸びる赤い光柱（星蓮船特有の縦グラデーション発光）
+                    let pillarH = 46;
+                    let pillarW = 44 * (0.95 + 0.05 * Math.sin(now / 200));
+
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'lighter'; // 加算合成で鮮やかに発光
+
+                    // メイン光柱（赤グラデーション）
+                    let pillarGrad = ctx.createLinearGradient(0, bottomY, 0, bottomY - pillarH);
+                    pillarGrad.addColorStop(0, `rgba(255, 10, 50, ${0.75 * pulse})`);
+                    pillarGrad.addColorStop(0.3, `rgba(255, 0, 30, ${0.45 * pulse})`);
+                    pillarGrad.addColorStop(0.7, `rgba(200, 0, 20, ${0.15 * pulse})`);
+                    pillarGrad.addColorStop(1, 'rgba(150, 0, 0, 0)');
+
+                    // 水平方向にもフェードさせる（楕円または左右グラデ）
+                    let hGrad = ctx.createRadialGradient(markerX, bottomY, 2, markerX, bottomY, pillarW);
+                    hGrad.addColorStop(0, `rgba(255, 50, 80, ${0.85 * pulse})`);
+                    hGrad.addColorStop(0.4, `rgba(255, 10, 40, ${0.5 * pulse})`);
+                    hGrad.addColorStop(0.8, `rgba(200, 0, 20, ${0.15 * pulse})`);
+                    hGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                    ctx.fillStyle = pillarGrad;
+                    ctx.fillRect(markerX - pillarW / 2, bottomY - pillarH, pillarW, pillarH);
+
+                    ctx.fillStyle = hGrad;
                     ctx.beginPath();
-                    ctx.arc(markerX, markerY - 4, 26, 0, Math.PI * 2);
+                    ctx.arc(markerX, bottomY, pillarW, Math.PI, 0);
                     ctx.fill();
 
-                    // 2. 東方風 赤いひし形インジケーター
-                    ctx.shadowColor = '#ff1133';
-                    ctx.shadowBlur = 8 * pulse;
+                    // 中心コアの明るい輝き（白〜赤のハイライト芯）
+                    let coreGrad = ctx.createLinearGradient(0, bottomY, 0, bottomY - 24);
+                    coreGrad.addColorStop(0, `rgba(255, 200, 220, ${0.8 * pulse})`);
+                    coreGrad.addColorStop(0.5, `rgba(255, 60, 100, ${0.4 * pulse})`);
+                    coreGrad.addColorStop(1, 'rgba(255, 0, 50, 0)');
+                    ctx.fillStyle = coreGrad;
+                    ctx.fillRect(markerX - 6, bottomY - 24, 12, 24);
+                    ctx.restore();
 
-                    // ひし形外枠
+                    // 2. 画面最下部の赤い境界線アクセント
+                    ctx.save();
+                    ctx.strokeStyle = `rgba(255, 50, 80, ${0.9 * pulse})`;
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = '#ff0033';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.moveTo(markerX - pillarW / 2, bottomY - 1);
+                    ctx.lineTo(markerX + pillarW / 2, bottomY - 1);
+                    ctx.stroke();
+
+                    // 3. 画面下端の赤いマーカーチップ（小さな台形インジケーター）
                     ctx.fillStyle = '#ff2244';
                     ctx.beginPath();
-                    ctx.moveTo(markerX, markerY - 17);
-                    ctx.lineTo(markerX + 6, markerY - 11);
-                    ctx.lineTo(markerX, markerY - 5);
-                    ctx.lineTo(markerX - 6, markerY - 11);
+                    ctx.moveTo(markerX - 10, bottomY);
+                    ctx.lineTo(markerX + 10, bottomY);
+                    ctx.lineTo(markerX + 6, bottomY - 6);
+                    ctx.lineTo(markerX - 6, bottomY - 6);
                     ctx.closePath();
                     ctx.fill();
-
-                    // ひし形中央の白色・明色ハイライト
-                    ctx.fillStyle = '#ffffff';
-                    ctx.beginPath();
-                    ctx.moveTo(markerX, markerY - 14);
-                    ctx.lineTo(markerX + 2.5, markerY - 11);
-                    ctx.lineTo(markerX, markerY - 8);
-                    ctx.lineTo(markerX - 2.5, markerY - 11);
-                    ctx.closePath();
-                    ctx.fill();
-
-                    // 3. "Enemy" テキスト描画 (原作風の赤い太字斜体)
-                    ctx.font = "italic 900 10.5px 'Trebuchet MS', 'Arial Black', sans-serif";
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'alphabetic';
-
-                    // 黒の縁取り・影
-                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)';
-                    ctx.lineWidth = 2.5;
-                    ctx.strokeText("Enemy", markerX, markerY + 4.5);
-
-                    // 文字本体 (鮮やかな赤・パルス)
-                    ctx.fillStyle = `rgb(255, ${Math.floor(40 + 50 * pulse)}, ${Math.floor(60 + 50 * pulse)})`;
-                    ctx.shadowColor = '#ff2244';
-                    ctx.shadowBlur = 6 * pulse;
-                    ctx.fillText("Enemy", markerX, markerY + 4.5);
+                    ctx.restore();
 
                     ctx.restore();
                 }
