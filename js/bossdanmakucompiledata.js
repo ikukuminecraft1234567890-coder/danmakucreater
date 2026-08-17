@@ -57,7 +57,7 @@ window.compiledBossDanmakuList = [
   {
     "id": "spell_rush1_non_1",
     "name": "",
-    "hp": 1000,
+    "hp": 600,
     "duration": 40,
     "x_offset": 0,
     "y_offset": 0,
@@ -141,48 +141,48 @@ window.compiledBossDanmakuList = [
   {
     "id": "spell_rush1_4",
     "name": "熾烈「弾幕戦争」",
-    "hp": 2500,
+    "hp": 2000,
     "duration": 50,
     "x_offset": 0,
     "y_offset": 0,
     "despawnTime": 0.1,
-    "emitterScript": "\nwhile (true) {\n    once {\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 100, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 300, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 500, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 700, 10, \"knife\", \"absolute\", \"10\")\n        wait(10)\n    }\n    wait(0.1)\n}\nwhile (true) {\n    wait(3)\n    idousakix = 384 + random(-100,100)\n    idousakiy = 200 + random(-100,100)\n    tween(\"ex\", ex, idousakix, \"seconds\", 0.6, \"easeOut\")\n    tween(\"ey\", ey, idousakiy, \"seconds\", 0.6, \"easeOut\")\n}\n        ",
+    "emitterScript": "\nwhile (true) {\n    once {\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 100, 10, \"knife\", \"absolute\", \"10\")\n        wait(10)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 300, 10, \"knife\", \"absolute\", \"10\")\n        wait(10)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 500, 10, \"knife\", \"absolute\", \"10\")\n        wait(10)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 700, 10, \"knife\", \"absolute\", \"10\")\n        wait(10)\n    }\n    wait(0.1)\n}\nwhile (true) {\n    wait(3)\n    idousakix = 384 + random(-100,100)\n    idousakiy = 200 + random(-100,100)\n    tween(\"ex\", ex, idousakix, \"seconds\", 0.6, \"easeOut\")\n    tween(\"ey\", ey, idousakiy, \"seconds\", 0.6, \"easeOut\")\n}\n        ",
     "bulletScript": "\nif (frame == 1 * n) {\n    spawnBullet(\"normal\", \"#ff3333\", 0, span, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    span += 10\n}\nbounce()\n        ",
-    "magicCircleScript": "\n        if (frame == 70..700) {\n    speed += 1\n}"
+    "magicCircleScript": "\n        if (frame == 50..60) {\n    speed += 15\n}"
   },
   {
     "id": "spell_rush1_non_5",
     "name": "",
-    "hp": 1000,
-    "duration": 25,
+    "hp": 800,
+    "duration": 20,
     "x_offset": 0,
     "y_offset": 0,
     "despawnTime": 1.5,
-    "emitterScript": "\n\n        ",
+    "emitterScript": "\nwhile (true) {\ney = 348\nspd = 0\n    for (let i = 0; i < 9; i++) {\n        spawnRing(\"normal\", \"#ff3333\", 300 + spd, angle, 12, 0, 0, 9, \"kunai1\", \"relative\", \"6\")\nangle += 1\nspd += 1\nwait(0.0167)\n    }\n    angle += -20 + 1.5\n    wait(0.0167)\n}\n        ",
     "bulletScript": "\n\n        ",
     "magicCircleScript": ""
   },
   {
     "id": "spell_rush1_5",
-    "name": "「5」",
-    "hp": 1000,
-    "duration": 25,
+    "name": "秘鳳「光王弾撃」",
+    "hp": 2000,
+    "duration": 60,
     "x_offset": 0,
     "y_offset": 0,
-    "despawnTime": 1.5,
-    "emitterScript": "\n\n        ",
-    "bulletScript": "\n\n        ",
+    "despawnTime": 800,
+    "emitterScript": "\nwhile (true) {\n    spawnRingResist(\"normal\", \"#ff3333\", 200, 6, 36, 0, 0, 6, \"light\", \"relative\", \"6\")\n    angle += 30\n    wait(500000)\n}\n        ",
+    "bulletScript": "\nif (radius == 6) {\n    if (isTouchEdge) {\n        radius = 12\n        if (x < 10) {\n            angle = -angle\n            angle += 180\n        }\n        if (x > 758) {\n            angle = -angle\n            angle += 180\n        }\n        if (y < 10) {\n            angle = -angle\n        }\n        if (y > 886) {\n            angle = -angle\n        }\n        wait(0.1)\n    }\n}\nif (radius == 12) {\n    if (isTouchEdge) {\n        radius = 24\n        if (x < 10) {\n            angle = -angle\n            angle += 180\n        }\n        if (x > 758) {\n            angle = -angle\n            angle += 180\n        }\n        if (y < 10) {\n            angle = -angle\n        }\n        if (y > 886) {\n            angle = -angle\n        }\n        wait(0.1)\n    }\n}\nif (radius == 24) {\n    if (isTouchEdge) {\n        radius = 32\n        if (x < 10) {\n            angle = -angle\n            angle += 180\n        }\n        if (x > 758) {\n            angle = -angle\n            angle += 180\n        }\n        if (y < 10) {\n            angle = -angle\n        }\n        if (y > 886) {\n            angle = -angle\n        }\n        wait(0.1)\n    }\n}\nif (radius == 32) {\n    if (isTouchEdge) {\n        radius = 48\n        if (x < 10) {\n            angle = -angle\n            angle += 180\n        }\n        if (x > 758) {\n            angle = -angle\n            angle += 180\n        }\n        if (y < 10) {\n            angle = -angle\n        }\n        if (y > 886) {\n            angle = -angle\n        }\n        wait(0.1)\n    }\n}\nif (radius == 48) {\n    if (isTouchEdge) {\n        radius = 64\n        if (x < 10) {\n            angle = -angle\n            angle += 180\n        }\n        if (x > 758) {\n            angle = -angle\n            angle += 180\n        }\n        if (y < 10) {\n            angle = -angle\n        }\n        if (y > 886) {\n            angle = -angle\n        }\n        wait(0.1)\n    }\n}\nif (radius == 64) {\n    if (isTouchEdge) {\n        radius = 80\n        if (x < 10) {\n            angle = -angle\n            angle += 180\n        }\n        if (x > 758) {\n            angle = -angle\n            angle += 180\n        }\n        if (y < 10) {\n            angle = -angle\n        }\n        if (y > 886) {\n            angle = -angle\n        }\n        wait(0.1)\n    }\n}\nif (radius == 80) {\n    if (isTouchEdge) {\n        radius = 80\n        if (x < 10) {\n            angle = -angle\n            angle += 180\n        }\n        if (x > 758) {\n            angle = -angle\n            angle += 180\n        }\n        if (y < 10) {\n            angle = -angle\n        }\n        if (y > 886) {\n            angle = -angle\n        }\n        wait(0.1)\n    }\n}\nhitRadius = radius / 1.5\n        ",
     "magicCircleScript": ""
   },
   {
     "id": "spell_rush1_non_6",
     "name": "",
-    "hp": 1000,
+    "hp": 1200,
     "duration": 25,
     "x_offset": 0,
     "y_offset": 0,
-    "despawnTime": 1.5,
-    "emitterScript": "\n\n        ",
+    "despawnTime": 0.1,
+    "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle + angleoffset, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 300, angle + angleoffset, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 400, angle + angleoffset, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle + angleoffset + 180, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 300, angle + angleoffset + 180, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 400, angle + angleoffset + 180, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle + angleoffset + 90, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 300, angle + angleoffset + 90, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 400, angle + angleoffset + 90, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 200, angle + angleoffset + 270, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 300, angle + angleoffset + 270, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    spawnBullet(\"normal\", \"#ff3333\", 400, angle + angleoffset + 270, 0, 0, 20, \"tyoudan\", \"relative\", \"10\")\n    angleoffset += 9\n    wait(0.0167 * 4)\n}\n        ",
     "bulletScript": "\n\n        ",
     "magicCircleScript": ""
   },
@@ -578,8 +578,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['70pifjijb']) {
-          state.onceMap['70pifjijb'] = true;
+        if (!state.onceMap['tiwwmgnsz']) {
+          state.onceMap['tiwwmgnsz'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -675,8 +675,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['6vejcfgwu']) {
-        state.onceMap['6vejcfgwu'] = true;
+      if (!state.onceMap['r9jjv8dn9']) {
+        state.onceMap['r9jjv8dn9'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -868,22 +868,22 @@ window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['ysb04fpwn']) {
-      state.onceMap['ysb04fpwn'] = true;
+    if (!state.onceMap['dmnaoiq43']) {
+      state.onceMap['dmnaoiq43'] = true;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "100", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.0167, 5);
+      state.waitTimer = Math.max(0.0167, 10);
       yield;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "300", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.0167, 5);
+      state.waitTimer = Math.max(0.0167, 10);
       yield;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "500", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
-      state.waitTimer = Math.max(0.0167, 5);
+      state.waitTimer = Math.max(0.0167, 10);
       yield;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "700", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
@@ -939,8 +939,8 @@ window.compiledBossDanmaku['spell_rush1_4_magic'] = window.compiledDanmaku['spel
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (70) && ((vars.frame !== undefined ? vars.frame : 0)) <= (700)))) {
-      vars['speed'] = (vars['speed'] || 0) + (1);
+    if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (50) && ((vars.frame !== undefined ? vars.frame : 0)) <= (60)))) {
+      vars['speed'] = (vars['speed'] || 0) + (15);
     }
     state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
     yield;
@@ -952,6 +952,25 @@ window.compiledBossDanmaku['spell_rush1_non_5'] = window.compiledDanmaku['spell_
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  while (true) {
+    vars['ey'] = 348;
+    vars['spd'] = 0;
+    let _prev_i_156 = vars['i'];
+    for (let _loopIdx_156 = 0, _limit_156 = Math.round(9); _loopIdx_156 < _limit_156; _loopIdx_156++) {
+      vars['i'] = _loopIdx_156;
+      if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "300 + spd", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "kunai1", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      vars['angle'] = (vars['angle'] || 0) + (1);
+      vars['spd'] = (vars['spd'] || 0) + (1);
+      state.waitTimer = Math.max(0.0167, 0.0167);
+      yield;
+    }
+    vars['i'] = _prev_i_156;
+    vars['angle'] = (vars['angle'] || 0) + (-20 + 1.5);
+    state.waitTimer = Math.max(0.0167, 0.0167);
+    yield;
+  }
 };
 window.compiledBossDanmaku['spell_rush1_non_5_bullet'] = window.compiledDanmaku['spell_rush1_non_5_bullet'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
@@ -971,12 +990,172 @@ window.compiledBossDanmaku['spell_rush1_5'] = window.compiledDanmaku['spell_rush
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  while (true) {
+    if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#ff3333", speed: "200", angle: "6", count: "36", offsetX: "0", offsetY: "0", radius: "6", bulletImage: "light", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    vars['angle'] = (vars['angle'] || 0) + (30);
+    state.waitTimer = Math.max(0.0167, 500000);
+    yield;
+  }
 };
 window.compiledBossDanmaku['spell_rush1_5_bullet'] = window.compiledDanmaku['spell_rush1_5_bullet'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  while (true) {
+    if (!!(_util.fuzzyEqual((vars.radius !== undefined ? vars.radius : 0) ,6))) {
+      if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
+        vars['radius'] = 12;
+        if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        state.waitTimer = Math.max(0.0167, 0.1);
+        yield;
+      }
+    }
+    if (!!(_util.fuzzyEqual((vars.radius !== undefined ? vars.radius : 0) ,12))) {
+      if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
+        vars['radius'] = 24;
+        if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        state.waitTimer = Math.max(0.0167, 0.1);
+        yield;
+      }
+    }
+    if (!!(_util.fuzzyEqual((vars.radius !== undefined ? vars.radius : 0) ,24))) {
+      if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
+        vars['radius'] = 32;
+        if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        state.waitTimer = Math.max(0.0167, 0.1);
+        yield;
+      }
+    }
+    if (!!(_util.fuzzyEqual((vars.radius !== undefined ? vars.radius : 0) ,32))) {
+      if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
+        vars['radius'] = 48;
+        if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        state.waitTimer = Math.max(0.0167, 0.1);
+        yield;
+      }
+    }
+    if (!!(_util.fuzzyEqual((vars.radius !== undefined ? vars.radius : 0) ,48))) {
+      if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
+        vars['radius'] = 64;
+        if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        state.waitTimer = Math.max(0.0167, 0.1);
+        yield;
+      }
+    }
+    if (!!(_util.fuzzyEqual((vars.radius !== undefined ? vars.radius : 0) ,64))) {
+      if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
+        vars['radius'] = 80;
+        if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        state.waitTimer = Math.max(0.0167, 0.1);
+        yield;
+      }
+    }
+    if (!!(_util.fuzzyEqual((vars.radius !== undefined ? vars.radius : 0) ,80))) {
+      if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
+        vars['radius'] = 80;
+        if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+          vars['angle'] = (vars['angle'] || 0) + (180);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
+          vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
+        }
+        state.waitTimer = Math.max(0.0167, 0.1);
+        yield;
+      }
+    }
+    vars['hitRadius'] = (vars.radius !== undefined ? vars.radius : 0) / 1.5;
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    yield;
+  }
 };
 window.compiledBossDanmaku['spell_rush1_5_magic'] = window.compiledDanmaku['spell_rush1_5_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
@@ -990,6 +1169,50 @@ window.compiledBossDanmaku['spell_rush1_non_6'] = window.compiledDanmaku['spell_
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  while (true) {
+    if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle + angleoffset", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "300", angle: "angle + angleoffset", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "400", angle: "angle + angleoffset", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle + angleoffset + 180", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "300", angle: "angle + angleoffset + 180", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "400", angle: "angle + angleoffset + 180", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle + angleoffset + 90", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "300", angle: "angle + angleoffset + 90", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "400", angle: "angle + angleoffset + 90", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle + angleoffset + 270", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "300", angle: "angle + angleoffset + 270", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "400", angle: "angle + angleoffset + 270", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    vars['angleoffset'] = (vars['angleoffset'] || 0) + (9);
+    state.waitTimer = Math.max(0.0167, 0.0167 * 4);
+    yield;
+  }
 };
 window.compiledBossDanmaku['spell_rush1_non_6_bullet'] = window.compiledDanmaku['spell_rush1_non_6_bullet'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;

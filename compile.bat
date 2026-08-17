@@ -1,11 +1,9 @@
 @echo off
-chcp 65001 > nul
 node "%~dp0tools\compile.js"
 if errorlevel 1 (
-    echo.
-    echo [ERROR] コンパイル中にエラーが発生しました。
+    echo [ERROR] Compile failed.
     pause
     exit /b 1
 )
-echo [SUCCESS] コンパイルが正常に完了しました。
-pause
+echo [SUCCESS] Compile done. Closing in 3 seconds...
+timeout /t 3 /nobreak > nul

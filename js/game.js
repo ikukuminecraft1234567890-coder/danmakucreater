@@ -2630,17 +2630,20 @@ function applyAbilityEffect(cardId, owner) {
                                     } else {
                                         // スペルカードフェーズは1.5秒間のボーナス演出待機
                                         window.spellTransitionTimer = 1.5;
+                                        let cardDur = (currentCardObj && currentCardObj.duration !== undefined) ? (Number(currentCardObj.duration) || 30) : 30;
+                                        let curRemTime = Math.max(0, (typeof actionTimer === 'number') ? actionTimer : 0);
+                                        let clearElapsed = Math.max(0, cardDur - curRemTime);
                                         let isGet = !window.spellBonusFailed && (window.spellMissCount || 0) === 0 && (window.spellBombCount || 0) === 0;
                                         if (isGet) {
                                             if (window.playSound) {
                                                 window.playSound('se_cardget');
                                             }
                                             let awardedBonus = window.spellCurrentBonus || 0;
-                                            window.spellClearResult = { type: 'GET', bonus: awardedBonus, timer: 1.5 };
+                                            window.spellClearResult = { type: 'GET', bonus: awardedBonus, timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
                                             window.totalScore = (window.totalScore || 0) + awardedBonus;
                                         } else {
                                             window.spellBonusFailed = true;
-                                            window.spellClearResult = { type: 'FAILED', timer: 1.5 };
+                                            window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
                                         }
                                     }
                                 }
@@ -2805,7 +2808,10 @@ function applyAbilityEffect(cardId, owner) {
                                 } else {
                                     window.spellTransitionTimer = 1.5;
                                     window.spellBonusFailed = true; // ボム使用撃破のためボーナスは失敗
-                                    window.spellClearResult = { type: 'FAILED', timer: 1.5 };
+                                    let cardDur = (currentCardObj && currentCardObj.duration !== undefined) ? (Number(currentCardObj.duration) || 30) : 30;
+                                    let curRemTime = Math.max(0, (typeof actionTimer === 'number') ? actionTimer : 0);
+                                    let clearElapsed = Math.max(0, cardDur - curRemTime);
+                                    window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
                                 }
                             }
                         }
@@ -3022,7 +3028,8 @@ function applyAbilityEffect(cardId, owner) {
                                 window.spellBonusFailed = true;
                                 window.spellCurrentBonus = 0;
                                 window.spellTransitionTimer = 1.5;
-                                window.spellClearResult = { type: 'FAILED', timer: 1.5 };
+                                let cardDur = (activeCards && activeCards[0] && activeCards[0].duration !== undefined) ? (Number(activeCards[0].duration) || 30) : 30;
+                                window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: cardDur, duration: cardDur, isTimeout: true };
 
                                 // 敵弾消去音 (se_tan00.wav) & 時間切れ音 (se_fault.wav)
                                 if (window.playSound) {
@@ -4710,6 +4717,19 @@ function applyAbilityEffect(cardId, owner) {
                             ctx.fillStyle = '#ff6677';
                             ctx.fillText('Spell Bonus Failed', bannerEndX - 15, bonusY);
                         }
+
+                        // 撃破演出中は右上バナー下にも撃破時間を併記
+                        if (window.spellClearResult && window.spellClearResult.clearTime !== undefined) {
+                            let rTimeStr = window.spellClearResult.isTimeout 
+                                ? ('Time Out (' + (window.spellClearResult.duration || 30).toFixed(2) + 's)')
+                                : ('Time  ' + window.spellClearResult.clearTime.toFixed(2) + 's');
+                            let timeY = bonusY + 13;
+                            ctx.font = "italic bold 11px monospace";
+                            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                            ctx.fillText(rTimeStr, bannerEndX - 13.5, timeY + 1);
+                            ctx.fillStyle = '#e0e0ff';
+                            ctx.fillText(rTimeStr, bannerEndX - 15, timeY);
+                        }
                     }
 
                     // 6. プレイヤー情報（スコア、残機、ボム）
@@ -4731,7 +4751,7 @@ function applyAbilityEffect(cardId, owner) {
 
                     let playerInfoW = 165;
                     let playerInfoX = PLAY_WIDTH - playerInfoW - 10;
-                    let playerInfoY = spellName ? (bannerEndY + bannerH + 24) : 48;
+                    let playerInfoY = spellName ? (bannerEndY + bannerH + 28) : 48;
                     let playerInfoH = 50;
 
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
@@ -4763,7 +4783,17 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.textBaseline = 'middle';
                         let resY = canvas.height * 0.35;
 
+                        let timeStr = '';
+                        if (window.spellClearResult.clearTime !== undefined) {
+                            if (window.spellClearResult.isTimeout) {
+                                timeStr = 'Time Out (' + (window.spellClearResult.duration || 30).toFixed(2) + 's)';
+                            } else {
+                                timeStr = 'Clear Time: ' + window.spellClearResult.clearTime.toFixed(2) + 's';
+                            }
+                        }
+
                         if (window.spellClearResult.type === 'GET') {
+                            // 1行目: Spell Card Bonus!
                             ctx.font = "italic bold 32px 'Noto Serif JP', serif";
                             ctx.shadowBlur = 18;
                             ctx.shadowColor = '#ffcc00';
@@ -4777,6 +4807,7 @@ function applyAbilityEffect(cardId, owner) {
                             ctx.fillStyle = goldGrad;
                             ctx.fillText('Spell Card Bonus!', PLAY_WIDTH / 2, resY);
 
+                            // 2行目: +ボーナス得点
                             ctx.font = "bold 26px 'Trebuchet MS', 'Arial', monospace";
                             ctx.shadowBlur = 15;
                             ctx.shadowColor = '#00ffff';
@@ -4785,7 +4816,19 @@ function applyAbilityEffect(cardId, owner) {
                             ctx.fillText(bonusStr, PLAY_WIDTH / 2 + 2, resY + 40);
                             ctx.fillStyle = '#66ffff';
                             ctx.fillText(bonusStr, PLAY_WIDTH / 2, resY + 38);
+
+                            // 3行目: 撃破時間 (Clear Time: XX.XXs)
+                            if (timeStr) {
+                                ctx.font = "bold 20px 'Trebuchet MS', 'Arial', monospace";
+                                ctx.shadowBlur = 12;
+                                ctx.shadowColor = '#ffffff';
+                                ctx.fillStyle = 'rgba(0,0,0,0.9)';
+                                ctx.fillText(timeStr, PLAY_WIDTH / 2 + 2, resY + 74);
+                                ctx.fillStyle = '#fff0bb';
+                                ctx.fillText(timeStr, PLAY_WIDTH / 2, resY + 72);
+                            }
                         } else {
+                            // 1行目: Spell Bonus Failed
                             ctx.font = "italic bold 28px 'Noto Serif JP', serif";
                             ctx.shadowBlur = 15;
                             ctx.shadowColor = '#880000';
@@ -4793,6 +4836,17 @@ function applyAbilityEffect(cardId, owner) {
                             ctx.fillText('Spell Bonus Failed', PLAY_WIDTH / 2 + 2, resY + 2);
                             ctx.fillStyle = '#ff5566';
                             ctx.fillText('Spell Bonus Failed', PLAY_WIDTH / 2, resY);
+
+                            // 2行目: 撃破時間 (Clear Time: XX.XXs / Time Out)
+                            if (timeStr) {
+                                ctx.font = "bold 20px 'Trebuchet MS', 'Arial', monospace";
+                                ctx.shadowBlur = 12;
+                                ctx.shadowColor = '#ff6666';
+                                ctx.fillStyle = 'rgba(0,0,0,0.9)';
+                                ctx.fillText(timeStr, PLAY_WIDTH / 2 + 2, resY + 38);
+                                ctx.fillStyle = '#ffcccc';
+                                ctx.fillText(timeStr, PLAY_WIDTH / 2, resY + 36);
+                            }
                         }
                         ctx.restore();
                     }
