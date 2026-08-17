@@ -854,25 +854,30 @@ spriteAngle = angle
         despawnTime: 1.5,
         emitterScript: `
 while (true) {
+    idousakiy = 448
+    tween("ey", ey, idousakiy, "seconds", 0.6, "easeOut")
+    wait(1.3)
     ey = 448
-    wait(0.0167 * 10)
-    if (cardSecond == 0..40) {
-        if (cardSecond == 0..20) {
-            angle = -90 + seedrandom[5 + frame](-70,70)
+    while (true) {
+        wait(0.0167 * 10)
+        if (cardSecond == 0..40) {
+            if (cardSecond == 0..20) {
+                angle = -90 + seedrandom[5 + frame](-70,70)
+            }
+            if (cardSecond == 20..40) {
+                angle = 90 + seedrandom[5 + frame](-70,70)
+            }
+            spawnWay("normal", "#ff3333", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
         }
-        if (cardSecond == 20..40) {
-            angle = 90 + seedrandom[5 + frame](-70,70)
+        if (cardSecond == 40..80) {
+            if (cardSecond == 40..60) {
+                angle = 180 + seedrandom[5 + frame](-70,70)
+            }
+            if (cardSecond == 60..80) {
+                angle = 0 + seedrandom[5 + frame](-70,70)
+            }
+            spawnWay("normal", "#ffaa33", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
         }
-        spawnWay("normal", "#ff3333", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
-    }
-    if (cardSecond == 40..80) {
-        if (cardSecond == 40..60) {
-            angle = 180 + seedrandom[5 + frame](-70,70)
-        }
-        if (cardSecond == 60..80) {
-            angle = 0 + seedrandom[5 + frame](-70,70)
-        }
-        spawnWay("normal", "#ffaa33", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
     }
 }
 while (true) {
