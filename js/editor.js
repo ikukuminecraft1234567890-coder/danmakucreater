@@ -1414,6 +1414,7 @@ function customCardMakerSwitchTab(tab) {
             window.spellBonusFailed = false;
             window.spellClearResult = null;
             window.spellTransitionTimer = 0;
+            window.bossPhaseEntryMoveTimer = isNextSpell ? 0.5 : 0;
             window.lastTimeoutSecond = 11;
             window.spellDeclarationTimer = 2.8;
             if (window.isBossMode && window.playSound) window.playSound('se_cat00');

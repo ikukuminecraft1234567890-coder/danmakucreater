@@ -1918,9 +1918,16 @@ function applyAbilityEffect(cardId, owner) {
 
                 // アクションフェーズの弾幕展開
                 if (battlePhase === 'ACTION') {
-                    actionTimer -= dt;
-                    window.currentCardSecond = (window.currentCardSecond || 0) + dt;
-                    window.currentCardFrame = (window.currentCardFrame || 0) + 1;
+                    // ボスのフェーズ切り替え直後は、定位置への移動完了まで
+                    // 制限時間と弾幕スクリプトの開始を待機する。
+                    const isBossPhaseEntryMoving = window.isBossMode && (Number(window.bossPhaseEntryMoveTimer) || 0) > 0;
+                    if (isBossPhaseEntryMoving) {
+                        window.bossPhaseEntryMoveTimer = Math.max(0, window.bossPhaseEntryMoveTimer - dt);
+                    } else {
+                        actionTimer -= dt;
+                        window.currentCardSecond = (window.currentCardSecond || 0) + dt;
+                        window.currentCardFrame = (window.currentCardFrame || 0) + 1;
+                    }
 
                     // スペル宣言アニメーションのタイマー更新（ボス戦専用）
                     if (window.isBossMode && typeof window.spellDeclarationTimer === 'number' && window.spellDeclarationTimer > 0) {
@@ -1954,7 +1961,7 @@ function applyAbilityEffect(cardId, owner) {
                     }
 
                     // 制限時間内かつスペル遷移中でない場合のみ弾・エミッターを生成する
-                    let isSpellActive = (actionTimer > 0) && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!window.isBossMode || cpu.hp > 0);
+                    let isSpellActive = !isBossPhaseEntryMoving && (actionTimer > 0) && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!window.isBossMode || cpu.hp > 0);
 
                     if (isSpellActive) {
                         let attacker = turnOwner === 'PLAYER' ? player : cpu;
