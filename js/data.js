@@ -197,7 +197,7 @@
         function getCustomCardDuration(value) {
             let duration = Number(value);
             if (!Number.isFinite(duration) || duration <= 0) duration = 15;
-            return Math.max(1, Math.min(120, duration));
+            return Math.max(1, Math.min(999.99, duration));
         }
 
         function applyCustomCardCosts(cc, recalc = false) {
