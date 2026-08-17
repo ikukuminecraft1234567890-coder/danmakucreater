@@ -5053,15 +5053,17 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.globalAlpha = textAlpha;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
+                    const isBossClear = window.isBossMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss';
+                    const clearLabel = isBossClear ? 'BOSS' : 'SPELL CARD';
                     
                     // 背景の帯状の半透明パネル
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-                    ctx.fillRect(0, canvas.height / 2 - 85, PLAY_WIDTH, 200);
+                    ctx.fillRect(0, canvas.height / 2 - 85, PLAY_WIDTH, 230);
                     
                     // 影
                     ctx.fillStyle = 'rgba(0,0,0,0.85)';
                     ctx.font = "italic bold 34px sans-serif";
-                    ctx.fillText('SPELL CARD', PLAY_WIDTH / 2 + 2, canvas.height / 2 - 30 + 2);
+                    ctx.fillText(clearLabel, PLAY_WIDTH / 2 + 2, canvas.height / 2 - 30 + 2);
                     ctx.font = "italic bold 56px sans-serif";
                     ctx.fillText('CLEAR!', PLAY_WIDTH / 2 + 3, canvas.height / 2 + 25 + 3);
                     
@@ -5073,7 +5075,7 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.fillStyle = gradText;
                     
                     ctx.font = "italic bold 34px sans-serif";
-                    ctx.fillText('SPELL CARD', PLAY_WIDTH / 2, canvas.height / 2 - 30);
+                    ctx.fillText(clearLabel, PLAY_WIDTH / 2, canvas.height / 2 - 30);
                     ctx.font = "italic bold 56px sans-serif";
                     ctx.fillText('CLEAR!', PLAY_WIDTH / 2, canvas.height / 2 + 25);
 
@@ -5085,20 +5087,28 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 20px sans-serif';
                     ctx.fillText('Miss: ' + missCount, PLAY_WIDTH / 2, canvas.height / 2 + 70);
+
+                    if (isBossClear && missCount === 0) {
+                        ctx.font = "italic bold 24px 'Trebuchet MS', sans-serif";
+                        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                        ctx.fillText('NO MISS!', PLAY_WIDTH / 2 + 2, canvas.height / 2 + 96 + 2);
+                        ctx.fillStyle = '#66ffff';
+                        ctx.fillText('NO MISS!', PLAY_WIDTH / 2, canvas.height / 2 + 96);
+                    }
                     
                     // タップ数インジケーター（5回でエディタに戻る）
                     let tapCount = window.customCardClearEffect.tapCount || 0;
                     let remaining = 5 - tapCount;
                     ctx.fillStyle = '#aaffaa';
                     ctx.font = 'bold 16px sans-serif';
-                    ctx.fillText('タップして戻る (' + tapCount + '/5)', PLAY_WIDTH / 2, canvas.height / 2 + 105);
+                    ctx.fillText('タップして戻る (' + tapCount + '/5)', PLAY_WIDTH / 2, canvas.height / 2 + 130);
                     // ●の連打インジケーター
                     let dotSpacing = 22;
                     let dotStartX = PLAY_WIDTH / 2 - dotSpacing * 2;
                     for (let di = 0; di < 5; di++) {
                         ctx.globalAlpha = textAlpha;
                         ctx.beginPath();
-                        ctx.arc(dotStartX + di * dotSpacing, canvas.height / 2 + 130, 7, 0, Math.PI * 2);
+                        ctx.arc(dotStartX + di * dotSpacing, canvas.height / 2 + 155, 7, 0, Math.PI * 2);
                         ctx.fillStyle = di < tapCount ? '#ffe066' : 'rgba(255,255,255,0.25)';
                         ctx.fill();
                     }
