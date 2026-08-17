@@ -14,7 +14,7 @@ const bossList = [
         id: "boss_reimu",
         name: "博麗 霊夢",
         color: "#ff3366",
-        devOnly: false, // 公開ボス
+        devOnly: false,
         playerLives: 2,
         spells: [
             "spell_reimu_non_1",
@@ -27,8 +27,8 @@ const bossList = [
         id: "boss_rush1",
         name: "ラッシュ1",
         color: "#ff3366",
-        devOnly: true, // 開発中ボス（開発者以外非表示）
-        playerLives: 6,
+        devOnly: true,
+        playerLives: 5,
         spells: [
             "spell_rush1_non_1",
             "spell_rush1_1",

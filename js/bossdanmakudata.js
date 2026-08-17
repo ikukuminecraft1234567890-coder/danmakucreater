@@ -288,36 +288,36 @@ while (true) {
 while (true) {
     wait(1)
     while (true) {
-        spawnLaserRing("#ff3333", 6, 10, angle1, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "3")
-        spawnLaserRing("#ff3333", 6, 10, angle2, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRingResist("#ff3333", 6, 10, angle1, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRingResist("#ff3333", 6, 10, angle2, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "3")
         wait(1)
-        spawnLaserRing("#ff3333", 6, 10, angle3, 36, 250, 150, 0.1, 0.8, 0.1, "true", "relative", "3")
-        spawnLaserRing("#ff3333", 6, 10, angle4, 36, -250, 150, 0.1, 0.8, 0.1, "true", "relative", "3")
-        spawnLaserRing("#ff3333", 6, 10, angle5, 36, 100, -50, 0.1, 0.8, 0.1, "true", "relative", "3")
-        spawnLaserRing("#ff3333", 6, 10, angle6, 36, -100, -50, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRingResist("#ff3333", 6, 10, angle3, 36, 250, 150, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRingResist("#ff3333", 6, 10, angle4, 36, -250, 150, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRingResist("#ff3333", 6, 10, angle5, 36, 100, -50, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRingResist("#ff3333", 6, 10, angle6, 36, -100, -50, 0.1, 0.8, 0.1, "true", "relative", "3")
         wait(1)
     }
 }
 while (true) {
     aimAtTarget()
     angle1 = angle
-    spawnLaserRing("#dddddd", 2, 10, angle, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "0")
+    spawnLaserRingResist("#dddddd", 2, 10, angle, 36, 0, 0, 0.1, 0.9, 0.1, "true", "relative", "0")
     angle += 10
     angle2 = angle
-    spawnLaserRing("#dddddd", 2, 10, angle, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "0")
+    spawnLaserRingResist("#dddddd", 2, 10, angle, 36, 0, 0, 0.1, 0.9, 0.1, "true", "relative", "0")
     wait(1)
     angle = random(0,360)
     angle3 = angle
-    spawnLaserRing("#dddddd", 2, 10, angle, 36, 250, 150, 0.1, 0.8, 0.1, "true", "relative", "0")
+    spawnLaserRingResist("#dddddd", 2, 10, angle, 36, 250, 150, 0.1, 0.9, 0.1, "true", "relative", "0")
     angle = random(0,360)
     angle4 = angle
-    spawnLaserRing("#dddddd", 2, 10, angle, 36, -250, 150, 0.1, 0.8, 0.1, "true", "relative", "0")
+    spawnLaserRingResist("#dddddd", 2, 10, angle, 36, -250, 150, 0.1, 0.9, 0.1, "true", "relative", "0")
     angle = random(0,360)
     angle5 = angle
-    spawnLaserRing("#dddddd", 2, 10, angle, 36, 100, -50, 0.1, 0.8, 0.1, "true", "relative", "0")
+    spawnLaserRingResist("#dddddd", 2, 10, angle, 36, 100, -50, 0.1, 0.9, 0.1, "true", "relative", "0")
     angle = random(0,360)
     angle6 = angle
-    spawnLaserRing("#dddddd", 2, 10, angle, 36, -100, -50, 0.1, 0.8, 0.1, "true", "relative", "0")
+    spawnLaserRingResist("#dddddd", 2, 10, angle, 36, -100, -50, 0.1, 0.9, 0.1, "true", "relative", "0")
     wait(1)
 }
         `,
@@ -626,7 +626,7 @@ while (true) {
         },{
         id: "spell_rush1_6",
         name: "虚符「迷宮を真似るライフガンフォーム」",
-        hp: 1600,
+        hp: 1500,
         duration: 60,
         x_offset: 0,
         y_offset: 0,
@@ -682,7 +682,7 @@ if (frame == 180..99999) {
         },{
         id: "spell_rush1_non_7",
         name: "",
-        hp: 1000,
+        hp: 800,
         duration: 25,
         x_offset: 0,
         y_offset: 0,
@@ -722,7 +722,7 @@ while (true) {
         },{
         id: "spell_rush1_7",
         name: "射符「レミントンシュート」",
-        hp: 1200,
+        hp: 1000,
         duration: 60,
         x_offset: 0,
         y_offset: 0,

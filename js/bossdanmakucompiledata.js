@@ -122,7 +122,7 @@ window.compiledBossDanmakuList = [
     "x_offset": 0,
     "y_offset": 0,
     "despawnTime": 1.5,
-    "emitterScript": "\nwhile (true) {\n    wait(1)\n    while (true) {\n        spawnLaserRing(\"#ff3333\", 6, 10, angle1, 36, 0, 0, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRing(\"#ff3333\", 6, 10, angle2, 36, 0, 0, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        wait(1)\n        spawnLaserRing(\"#ff3333\", 6, 10, angle3, 36, 250, 150, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRing(\"#ff3333\", 6, 10, angle4, 36, -250, 150, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRing(\"#ff3333\", 6, 10, angle5, 36, 100, -50, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRing(\"#ff3333\", 6, 10, angle6, 36, -100, -50, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        wait(1)\n    }\n}\nwhile (true) {\n    aimAtTarget()\n    angle1 = angle\n    spawnLaserRing(\"#dddddd\", 2, 10, angle, 36, 0, 0, 0.1, 0.8, 0.1, \"true\", \"relative\", \"0\")\n    angle += 10\n    angle2 = angle\n    spawnLaserRing(\"#dddddd\", 2, 10, angle, 36, 0, 0, 0.1, 0.8, 0.1, \"true\", \"relative\", \"0\")\n    wait(1)\n    angle = random(0,360)\n    angle3 = angle\n    spawnLaserRing(\"#dddddd\", 2, 10, angle, 36, 250, 150, 0.1, 0.8, 0.1, \"true\", \"relative\", \"0\")\n    angle = random(0,360)\n    angle4 = angle\n    spawnLaserRing(\"#dddddd\", 2, 10, angle, 36, -250, 150, 0.1, 0.8, 0.1, \"true\", \"relative\", \"0\")\n    angle = random(0,360)\n    angle5 = angle\n    spawnLaserRing(\"#dddddd\", 2, 10, angle, 36, 100, -50, 0.1, 0.8, 0.1, \"true\", \"relative\", \"0\")\n    angle = random(0,360)\n    angle6 = angle\n    spawnLaserRing(\"#dddddd\", 2, 10, angle, 36, -100, -50, 0.1, 0.8, 0.1, \"true\", \"relative\", \"0\")\n    wait(1)\n}\n        ",
+    "emitterScript": "\nwhile (true) {\n    wait(1)\n    while (true) {\n        spawnLaserRingResist(\"#ff3333\", 6, 10, angle1, 36, 0, 0, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRingResist(\"#ff3333\", 6, 10, angle2, 36, 0, 0, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        wait(1)\n        spawnLaserRingResist(\"#ff3333\", 6, 10, angle3, 36, 250, 150, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRingResist(\"#ff3333\", 6, 10, angle4, 36, -250, 150, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRingResist(\"#ff3333\", 6, 10, angle5, 36, 100, -50, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        spawnLaserRingResist(\"#ff3333\", 6, 10, angle6, 36, -100, -50, 0.1, 0.8, 0.1, \"true\", \"relative\", \"3\")\n        wait(1)\n    }\n}\nwhile (true) {\n    aimAtTarget()\n    angle1 = angle\n    spawnLaserRingResist(\"#dddddd\", 2, 10, angle, 36, 0, 0, 0.1, 0.9, 0.1, \"true\", \"relative\", \"0\")\n    angle += 10\n    angle2 = angle\n    spawnLaserRingResist(\"#dddddd\", 2, 10, angle, 36, 0, 0, 0.1, 0.9, 0.1, \"true\", \"relative\", \"0\")\n    wait(1)\n    angle = random(0,360)\n    angle3 = angle\n    spawnLaserRingResist(\"#dddddd\", 2, 10, angle, 36, 250, 150, 0.1, 0.9, 0.1, \"true\", \"relative\", \"0\")\n    angle = random(0,360)\n    angle4 = angle\n    spawnLaserRingResist(\"#dddddd\", 2, 10, angle, 36, -250, 150, 0.1, 0.9, 0.1, \"true\", \"relative\", \"0\")\n    angle = random(0,360)\n    angle5 = angle\n    spawnLaserRingResist(\"#dddddd\", 2, 10, angle, 36, 100, -50, 0.1, 0.9, 0.1, \"true\", \"relative\", \"0\")\n    angle = random(0,360)\n    angle6 = angle\n    spawnLaserRingResist(\"#dddddd\", 2, 10, angle, 36, -100, -50, 0.1, 0.9, 0.1, \"true\", \"relative\", \"0\")\n    wait(1)\n}\n        ",
     "bulletScript": "\nif (frame==2..5) {\n    once {\n        speed = 30000\n    }\n}\n        ",
     "magicCircleScript": ""
   },
@@ -189,7 +189,7 @@ window.compiledBossDanmakuList = [
   {
     "id": "spell_rush1_6",
     "name": "虚符「迷宮を真似るライフガンフォーム」",
-    "hp": 1600,
+    "hp": 1500,
     "duration": 60,
     "x_offset": 0,
     "y_offset": 0,
@@ -201,7 +201,7 @@ window.compiledBossDanmakuList = [
   {
     "id": "spell_rush1_non_7",
     "name": "",
-    "hp": 1000,
+    "hp": 800,
     "duration": 25,
     "x_offset": 0,
     "y_offset": 0,
@@ -213,7 +213,7 @@ window.compiledBossDanmakuList = [
   {
     "id": "spell_rush1_7",
     "name": "射符「レミントンシュート」",
-    "hp": 1200,
+    "hp": 1000,
     "duration": 60,
     "x_offset": 0,
     "y_offset": 0,
@@ -578,8 +578,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['80nj532wp']) {
-          state.onceMap['80nj532wp'] = true;
+        if (!state.onceMap['idkkxz6zm']) {
+          state.onceMap['idkkxz6zm'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -675,8 +675,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['isiks8yiw']) {
-        state.onceMap['isiks8yiw'] = true;
+      if (!state.onceMap['qsoqa6eac']) {
+        state.onceMap['qsoqa6eac'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -745,24 +745,24 @@ window.compiledBossDanmaku['spell_rush1_3'] = window.compiledDanmaku['spell_rush
     state.waitTimer = Math.max(0.0167, 1);
     yield;
     while (true) {
-      if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle1", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
+      if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle1", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
         yield;
       }
-      if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle2", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
+      if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle2", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
         yield;
       }
       state.waitTimer = Math.max(0.0167, 1);
       yield;
-      if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle3", count: "36", offsetX: "250", offsetY: "150", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
+      if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle3", count: "36", offsetX: "250", offsetY: "150", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
         yield;
       }
-      if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle4", count: "36", offsetX: "-250", offsetY: "150", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
+      if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle4", count: "36", offsetX: "-250", offsetY: "150", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
         yield;
       }
-      if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle5", count: "36", offsetX: "100", offsetY: "-50", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
+      if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle5", count: "36", offsetX: "100", offsetY: "-50", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
         yield;
       }
-      if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle6", count: "36", offsetX: "-100", offsetY: "-50", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
+      if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#ff3333", radius: "6", speed: "10", angle: "angle6", count: "36", offsetX: "-100", offsetY: "-50", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
         yield;
       }
       state.waitTimer = Math.max(0.0167, 1);
@@ -780,34 +780,34 @@ window.compiledBossDanmaku['spell_rush1_3'] = window.compiledDanmaku['spell_rush
       yield;
     }
     vars['angle1'] = (vars.angle !== undefined ? vars.angle : 0);
-    if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.9", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
     vars['angle'] = (vars['angle'] || 0) + (10);
     vars['angle2'] = (vars.angle !== undefined ? vars.angle : 0);
-    if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "0", offsetY: "0", growTime: "0.1", keepTime: "0.9", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
     state.waitTimer = Math.max(0.0167, 1);
     yield;
     vars['angle'] = random(0,360);
     vars['angle3'] = (vars.angle !== undefined ? vars.angle : 0);
-    if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "250", offsetY: "150", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "250", offsetY: "150", growTime: "0.1", keepTime: "0.9", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
     vars['angle'] = random(0,360);
     vars['angle4'] = (vars.angle !== undefined ? vars.angle : 0);
-    if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "-250", offsetY: "150", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "-250", offsetY: "150", growTime: "0.1", keepTime: "0.9", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
     vars['angle'] = random(0,360);
     vars['angle5'] = (vars.angle !== undefined ? vars.angle : 0);
-    if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "100", offsetY: "-50", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "100", offsetY: "-50", growTime: "0.1", keepTime: "0.9", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
     vars['angle'] = random(0,360);
     vars['angle6'] = (vars.angle !== undefined ? vars.angle : 0);
-    if (_util.executeBlock({ type: 'spawn_laser_ring', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "-100", offsetY: "-50", growTime: "0.1", keepTime: "0.8", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
+    if (_util.executeBlock({ type: 'spawn_laser_ring_resist', bulletType: "laser", color: "#dddddd", radius: "2", speed: "10", angle: "angle", count: "36", offsetX: "-100", offsetY: "-50", growTime: "0.1", keepTime: "0.9", shrinkTime: "0.1", round: "true", coordMode: "relative", hitRadius: "0", }, state, b, attacker, target, _util)) {
       yield;
     }
     state.waitTimer = Math.max(0.0167, 1);
@@ -823,8 +823,8 @@ window.compiledBossDanmaku['spell_rush1_3_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (5)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['0nznesskt']) {
-        state.onceMap['0nznesskt'] = true;
+      if (!state.onceMap['zu3h4fhnj']) {
+        state.onceMap['zu3h4fhnj'] = true;
         vars['speed'] = 30000;
       }
     }
@@ -898,8 +898,8 @@ window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['pn87r2nk3']) {
-      state.onceMap['pn87r2nk3'] = true;
+    if (!state.onceMap['h7wzletrt']) {
+      state.onceMap['h7wzletrt'] = true;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "100", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -1337,8 +1337,8 @@ window.compiledBossDanmaku['spell_rush1_6_bullet'] = window.compiledDanmaku['spe
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (180) && ((vars.frame !== undefined ? vars.frame : 0)) <= (99999)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['vahk3qigm']) {
-        state.onceMap['vahk3qigm'] = true;
+      if (!state.onceMap['m1elk8ncx']) {
+        state.onceMap['m1elk8ncx'] = true;
         vars['imanokakudo'] = (vars.angle !== undefined ? vars.angle : 0);
       }
       vars['angle'] = (vars.imanokakudo !== undefined ? vars.imanokakudo : 0);
