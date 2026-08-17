@@ -351,19 +351,45 @@ while (true) {
 
         },{
         id: "spell_rush1_4",
-        name: "「」",
-        hp: 1000,
-        duration: 25,
+        name: "熾烈「弾幕戦争」",
+        hp: 2500,
+        duration: 50,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    once {
+        spawnBulletResist("normal", "#ff3333", 700, 0, 0, 100, 10, "knife", "absolute", "10")
+        wait(5)
+        spawnBulletResist("normal", "#ff3333", 700, 0, 0, 300, 10, "knife", "absolute", "10")
+        wait(5)
+        spawnBulletResist("normal", "#ff3333", 700, 0, 0, 500, 10, "knife", "absolute", "10")
+        wait(5)
+        spawnBulletResist("normal", "#ff3333", 700, 0, 0, 700, 10, "knife", "absolute", "10")
+        wait(10)
+    }
+    wait(0.1)
+}
+while (true) {
+    wait(3)
+    idousakix = 384 + random(-100,100)
+    idousakiy = 200 + random(-100,100)
+    tween("ex", ex, idousakix, "seconds", 0.6, "easeOut")
+    tween("ey", ey, idousakiy, "seconds", 0.6, "easeOut")
+}
         `,
         bulletScript: `
-
+if (frame == 1 * n) {
+    spawnBullet("normal", "#ff3333", 0, span, 0, 0, 9, "dangan", "relative", "6")
+    span += 10
+}
+bounce()
         `,
-        magicCircleScript: ``
+        magicCircleScript: `
+        if (frame == 70..700) {
+    speed += 1
+}`
 
         },{
         id: "spell_rush1_non_5",
@@ -383,7 +409,7 @@ while (true) {
 
         },{
         id: "spell_rush1_5",
-        name: "「」",
+        name: "「5」",
         hp: 1000,
         duration: 25,
         x_offset: 0,
@@ -415,7 +441,7 @@ while (true) {
 
         },{
         id: "spell_rush1_6",
-        name: "「」",
+        name: "「6」",
         hp: 1000,
         duration: 25,
         x_offset: 0,
@@ -447,7 +473,7 @@ while (true) {
 
         },{
         id: "spell_rush1_7",
-        name: "「」",
+        name: "「7」",
         hp: 1000,
         duration: 25,
         x_offset: 0,
@@ -480,7 +506,7 @@ while (true) {
         }
         ,{
         id: "spell_rush1_8",
-        name: "「」",
+        name: "「8」",
         hp: 1000,
         duration: 25,
         x_offset: 0,
@@ -496,7 +522,7 @@ while (true) {
 
         },{
         id: "spell_rush1_9",
-        name: "「」",
+        name: "「9」",
         hp: 1000,
         duration: 25,
         x_offset: 0,
@@ -512,7 +538,7 @@ while (true) {
 
         },{
         id: "spell_rush1_10",
-        name: "「」",
+        name: "「10」",
         hp: 1000,
         duration: 25,
         x_offset: 0,

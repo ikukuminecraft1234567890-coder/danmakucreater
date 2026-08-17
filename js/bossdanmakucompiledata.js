@@ -140,15 +140,15 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_4",
-    "name": "「」",
-    "hp": 1000,
-    "duration": 25,
+    "name": "熾烈「弾幕戦争」",
+    "hp": 2500,
+    "duration": 50,
     "x_offset": 0,
     "y_offset": 0,
     "despawnTime": 1.5,
-    "emitterScript": "\n\n        ",
-    "bulletScript": "\n\n        ",
-    "magicCircleScript": ""
+    "emitterScript": "\nwhile (true) {\n    once {\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 100, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 300, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 500, 10, \"knife\", \"absolute\", \"10\")\n        wait(5)\n        spawnBulletResist(\"normal\", \"#ff3333\", 700, 0, 0, 700, 10, \"knife\", \"absolute\", \"10\")\n        wait(10)\n    }\n    wait(0.1)\n}\nwhile (true) {\n    wait(3)\n    idousakix = 384 + random(-100,100)\n    idousakiy = 200 + random(-100,100)\n    tween(\"ex\", ex, idousakix, \"seconds\", 0.6, \"easeOut\")\n    tween(\"ey\", ey, idousakiy, \"seconds\", 0.6, \"easeOut\")\n}\n        ",
+    "bulletScript": "\nif (frame == 1 * n) {\n    spawnBullet(\"normal\", \"#ff3333\", 0, span, 0, 0, 9, \"dangan\", \"relative\", \"6\")\n    span += 10\n}\nbounce()\n        ",
+    "magicCircleScript": "\n        if (frame == 70..700) {\n    speed += 1\n}"
   },
   {
     "id": "spell_rush1_non_5",
@@ -164,7 +164,7 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_5",
-    "name": "「」",
+    "name": "「5」",
     "hp": 1000,
     "duration": 25,
     "x_offset": 0,
@@ -188,7 +188,7 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_6",
-    "name": "「」",
+    "name": "「6」",
     "hp": 1000,
     "duration": 25,
     "x_offset": 0,
@@ -212,7 +212,7 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_7",
-    "name": "「」",
+    "name": "「7」",
     "hp": 1000,
     "duration": 25,
     "x_offset": 0,
@@ -236,7 +236,7 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_8",
-    "name": "「」",
+    "name": "「8」",
     "hp": 1000,
     "duration": 25,
     "x_offset": 0,
@@ -248,7 +248,7 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_9",
-    "name": "「」",
+    "name": "「9」",
     "hp": 1000,
     "duration": 25,
     "x_offset": 0,
@@ -260,7 +260,7 @@ window.compiledBossDanmakuList = [
   },
   {
     "id": "spell_rush1_10",
-    "name": "「」",
+    "name": "「10」",
     "hp": 1000,
     "duration": 25,
     "x_offset": 0,
@@ -578,8 +578,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['yjmgiz8o7']) {
-          state.onceMap['yjmgiz8o7'] = true;
+        if (!state.onceMap['plv6onacv']) {
+          state.onceMap['plv6onacv'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -675,8 +675,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['sc3slkauk']) {
-        state.onceMap['sc3slkauk'] = true;
+      if (!state.onceMap['3hh4vcncl']) {
+        state.onceMap['3hh4vcncl'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -860,23 +860,91 @@ window.compiledBossDanmaku['spell_rush1_non_4_magic'] = window.compiledDanmaku['
   const seedrandom = _util.seedrandom;
 };
 
-window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush1_4'] = function*(state, b, attacker, target, _util) {
+window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush1_4'] = [
+  function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
-};
+  while (true) {
+    if (!state.onceMap) state.onceMap = {};
+    if (!state.onceMap['lg6qyy69m']) {
+      state.onceMap['lg6qyy69m'] = true;
+      if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "100", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      state.waitTimer = Math.max(0.0167, 5);
+      yield;
+      if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "300", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      state.waitTimer = Math.max(0.0167, 5);
+      yield;
+      if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "500", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      state.waitTimer = Math.max(0.0167, 5);
+      yield;
+      if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "700", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      state.waitTimer = Math.max(0.0167, 10);
+      yield;
+    }
+    state.waitTimer = Math.max(0.0167, 0.1);
+    yield;
+  }
+},
+  function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  while (true) {
+    state.waitTimer = Math.max(0.0167, 3);
+    yield;
+    vars['idousakix'] = 384 + random(-100,100);
+    vars['idousakiy'] = 200 + random(-100,100);
+    if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "idousakix", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'tween_var', name: "ey", from: "ey", to: "idousakiy", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
+      yield;
+    }
+  }
+}
+];
 window.compiledBossDanmaku['spell_rush1_4_bullet'] = window.compiledDanmaku['spell_rush1_4_bullet'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  while (true) {
+    if (!!((vars.n !== undefined ? (vars.frame === 1 * vars.n) : (Math.round(vars.frame / 1) >= 1 && Math.abs(vars.frame - 1 * Math.round(vars.frame / 1)) < 0.017)))) {
+      if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "0", angle: "span", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      vars['span'] = (vars['span'] || 0) + (10);
+    }
+    if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    yield;
+  }
 };
 window.compiledBossDanmaku['spell_rush1_4_magic'] = window.compiledDanmaku['spell_rush1_4_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  while (true) {
+    if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (70) && ((vars.frame !== undefined ? vars.frame : 0)) <= (700)))) {
+      vars['speed'] = (vars['speed'] || 0) + (1);
+    }
+    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);
+    yield;
+  }
 };
 
 window.compiledBossDanmaku['spell_rush1_non_5'] = window.compiledDanmaku['spell_rush1_non_5'] = function*(state, b, attacker, target, _util) {
