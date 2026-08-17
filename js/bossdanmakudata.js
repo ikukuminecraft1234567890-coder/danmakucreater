@@ -132,7 +132,7 @@ if (isBounced) {
     {
         id: "spell_rush1_non_1",
         name: "",
-        hp: 1000,
+        hp: 600,
         duration: 40,
         x_offset: 0,
         y_offset: 0,
@@ -221,7 +221,7 @@ wait(0.0167)
         },{
         id: "spell_rush1_2",
         name: "「バタフライガン」",
-        hp: 1200,
+        hp: 800,
         duration: 50,
         x_offset: 0,
         y_offset: 0,
@@ -244,7 +244,7 @@ while (true) {
 if (color==#ff3333) {
     once {
         aimAtTarget()
-        angle += random(-5,5)
+        angle += random(-3,3)
         spriteAngle = angle
     }
 }
@@ -262,11 +262,11 @@ if (color==#ff3333) {
         emitterScript: `
 while (true) {
     aimAtTarget()
-    spawnBullet("normal", "#ff3333", 200, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
-    spawnBullet("normal", "#ff3333", 400, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "6")
     angleoffset += 10
-    spawnBullet("normal", "#ff3333", 200, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
-    spawnBullet("normal", "#ff3333", 400, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "10")
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "6")
     angleoffset += 10
     wait(0.0167)
 }
@@ -286,34 +286,47 @@ while (true) {
         despawnTime: 1.5,
         emitterScript: `
 while (true) {
+    wait(1)
+    while (true) {
+        spawnLaserRing("#ff3333", 6, 10, angle1, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRing("#ff3333", 6, 10, angle2, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "3")
+        wait(1)
+        spawnLaserRing("#ff3333", 6, 10, angle3, 36, 250, 150, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRing("#ff3333", 6, 10, angle4, 36, -250, 150, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRing("#ff3333", 6, 10, angle5, 36, 100, -50, 0.1, 0.8, 0.1, "true", "relative", "3")
+        spawnLaserRing("#ff3333", 6, 10, angle6, 36, -100, -50, 0.1, 0.8, 0.1, "true", "relative", "3")
+        wait(1)
+    }
+}
+while (true) {
     aimAtTarget()
-    spawnRing("normal", "#ff3333", 200, angle, 18, 0, 0, 6, "none", "relative", "#ff3333")
+    angle1 = angle
+    spawnLaserRing("#dddddd", 2, 10, angle, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "0")
     angle += 10
-    spawnRing("normal", "#ff3333", 200, angle, 18, 0, 0, 6, "none", "relative", "#ff3333")
+    angle2 = angle
+    spawnLaserRing("#dddddd", 2, 10, angle, 36, 0, 0, 0.1, 0.8, 0.1, "true", "relative", "0")
     wait(1)
     angle = random(0,360)
-    spawnRing("normal", "#ff3333", 200, angle, 18, 250, 150, 6, "none", "relative", "#ff3333")
-    angle += 10
-    spawnRing("normal", "#ff3333", 200, angle, 18, 250, 150, 6, "none", "relative", "#ff3333")
+    angle3 = angle
+    spawnLaserRing("#dddddd", 2, 10, angle, 36, 250, 150, 0.1, 0.8, 0.1, "true", "relative", "0")
     angle = random(0,360)
-    spawnRing("normal", "#ff3333", 200, angle, 18, -250, 150, 6, "none", "relative", "#ff3333")
-    angle += 10
-    spawnRing("normal", "#ff3333", 200, angle, 18, -250, 150, 6, "none", "relative", "#ff3333")
+    angle4 = angle
+    spawnLaserRing("#dddddd", 2, 10, angle, 36, -250, 150, 0.1, 0.8, 0.1, "true", "relative", "0")
     angle = random(0,360)
-    spawnRing("normal", "#ff3333", 200, angle, 18, 100, -50, 6, "none", "relative", "#ff3333")
-    angle += 10
-    spawnRing("normal", "#ff3333", 200, angle, 18, 100, -50, 6, "none", "relative", "#ff3333")
+    angle5 = angle
+    spawnLaserRing("#dddddd", 2, 10, angle, 36, 100, -50, 0.1, 0.8, 0.1, "true", "relative", "0")
     angle = random(0,360)
-    spawnRing("normal", "#ff3333", 200, angle, 18, -100, -50, 6, "none", "relative", "#ff3333")
-    angle += 10
-    spawnRing("normal", "#ff3333", 200, angle, 18, -100, -50, 6, "none", "relative", "#ff3333")
+    angle6 = angle
+    spawnLaserRing("#dddddd", 2, 10, angle, 36, -100, -50, 0.1, 0.8, 0.1, "true", "relative", "0")
     wait(1)
 }
         `,
         bulletScript: `
-warningTime = 1
-activeTime = 1
-laserWidth = 12
+if (frame==2..5) {
+    once {
+        speed = 30000
+    }
+}
         `,
         magicCircleScript: ``
 
@@ -352,20 +365,20 @@ while (true) {
         },{
         id: "spell_rush1_4",
         name: "熾烈「弾幕戦争」",
-        hp: 2500,
+        hp: 2000,
         duration: 50,
         x_offset: 0,
         y_offset: 0,
-        despawnTime: 1.5,
+        despawnTime: 0.1,
         emitterScript: `
 while (true) {
     once {
         spawnBulletResist("normal", "#ff3333", 700, 0, 0, 100, 10, "knife", "absolute", "10")
-        wait(5)
+        wait(10)
         spawnBulletResist("normal", "#ff3333", 700, 0, 0, 300, 10, "knife", "absolute", "10")
-        wait(5)
+        wait(10)
         spawnBulletResist("normal", "#ff3333", 700, 0, 0, 500, 10, "knife", "absolute", "10")
-        wait(5)
+        wait(10)
         spawnBulletResist("normal", "#ff3333", 700, 0, 0, 700, 10, "knife", "absolute", "10")
         wait(10)
     }
@@ -387,20 +400,31 @@ if (frame == 1 * n) {
 bounce()
         `,
         magicCircleScript: `
-        if (frame == 70..700) {
-    speed += 1
+        if (frame == 50..60) {
+    speed += 15
 }`
 
         },{
         id: "spell_rush1_non_5",
         name: "",
         hp: 1000,
-        duration: 25,
+        duration: 20,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+ey = 348
+spd = 0
+    for (let i = 0; i < 9; i++) {
+        spawnRing("normal", "#ff3333", 300 + spd, angle, 12, 0, 0, 9, "kunai1", "relative", "6")
+angle += 0.8
+spd += 1
+wait(0.0167)
+    }
+    angle += -20 + 1.5
+    wait(0.0167)
+}
         `,
         bulletScript: `
 
@@ -409,30 +433,190 @@ bounce()
 
         },{
         id: "spell_rush1_5",
-        name: "「5」",
-        hp: 1000,
-        duration: 25,
+        name: "秘鳳「光王弾撃」",
+        hp: 2000,
+        duration: 60,
         x_offset: 0,
         y_offset: 0,
-        despawnTime: 1.5,
+        despawnTime: 800,
         emitterScript: `
-
+while (true) {
+    spawnRingResist("normal", "#ff3333", 200, 6, 24, 0, 0, 6, "light", "relative", "6")
+    angle += 30
+    wait(500000)
+}
         `,
         bulletScript: `
-
+if (radius == 6) {
+    if (isTouchEdge) {
+        radius = 12
+        if (x < 10) {
+            angle = -angle
+            angle += 180
+        }
+        if (x > 758) {
+            angle = -angle
+            angle += 180
+        }
+        if (y < 10) {
+            angle = -angle
+        }
+        if (y > 886) {
+            angle = -angle
+        }
+        wait(0.1)
+    }
+}
+if (radius == 12) {
+    if (isTouchEdge) {
+        radius = 24
+        if (x < 10) {
+            angle = -angle
+            angle += 180
+        }
+        if (x > 758) {
+            angle = -angle
+            angle += 180
+        }
+        if (y < 10) {
+            angle = -angle
+        }
+        if (y > 886) {
+            angle = -angle
+        }
+        wait(0.1)
+    }
+}
+if (radius == 24) {
+    if (isTouchEdge) {
+        radius = 32
+        if (x < 10) {
+            angle = -angle
+            angle += 180
+        }
+        if (x > 758) {
+            angle = -angle
+            angle += 180
+        }
+        if (y < 10) {
+            angle = -angle
+        }
+        if (y > 886) {
+            angle = -angle
+        }
+        wait(0.1)
+    }
+}
+if (radius == 32) {
+    if (isTouchEdge) {
+        radius = 48
+        if (x < 10) {
+            angle = -angle
+            angle += 180
+        }
+        if (x > 758) {
+            angle = -angle
+            angle += 180
+        }
+        if (y < 10) {
+            angle = -angle
+        }
+        if (y > 886) {
+            angle = -angle
+        }
+        wait(0.1)
+    }
+}
+if (radius == 48) {
+    if (isTouchEdge) {
+        radius = 64
+        if (x < 10) {
+            angle = -angle
+            angle += 180
+        }
+        if (x > 758) {
+            angle = -angle
+            angle += 180
+        }
+        if (y < 10) {
+            angle = -angle
+        }
+        if (y > 886) {
+            angle = -angle
+        }
+        wait(0.1)
+    }
+}
+if (radius == 64) {
+    if (isTouchEdge) {
+        radius = 80
+        if (x < 10) {
+            angle = -angle
+            angle += 180
+        }
+        if (x > 758) {
+            angle = -angle
+            angle += 180
+        }
+        if (y < 10) {
+            angle = -angle
+        }
+        if (y > 886) {
+            angle = -angle
+        }
+        wait(0.1)
+    }
+}
+if (radius == 80) {
+    if (isTouchEdge) {
+        radius = 80
+        if (x < 10) {
+            angle = -angle
+            angle += 180
+        }
+        if (x > 758) {
+            angle = -angle
+            angle += 180
+        }
+        if (y < 10) {
+            angle = -angle
+        }
+        if (y > 886) {
+            angle = -angle
+        }
+        wait(0.1)
+    }
+}
+hitRadius = radius / 1.5
         `,
         magicCircleScript: ``
 
         },{
         id: "spell_rush1_non_6",
         name: "",
-        hp: 1000,
+        hp: 1200,
         duration: 25,
         x_offset: 0,
         y_offset: 0,
-        despawnTime: 1.5,
+        despawnTime: 0.1,
         emitterScript: `
-
+while (true) {
+    aimAtTarget()
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 300, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset + 180, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 300, angle + angleoffset + 180, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset + 180, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset + 90, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 300, angle + angleoffset + 90, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset + 90, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 200, angle + angleoffset + 270, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 300, angle + angleoffset + 270, 0, 0, 20, "tyoudan", "relative", "6")
+    spawnBullet("normal", "#ff3333", 400, angle + angleoffset + 270, 0, 0, 20, "tyoudan", "relative", "6")
+    angleoffset += 9
+    wait(0.0167 * 4)
+}
         `,
         bulletScript: `
 
@@ -441,17 +625,57 @@ bounce()
 
         },{
         id: "spell_rush1_6",
-        name: "「6」",
-        hp: 1000,
-        duration: 25,
+        name: "虚符「迷宮を真似るライフガンフォーム」",
+        hp: 1600,
+        duration: 60,
         x_offset: 0,
         y_offset: 0,
-        despawnTime: 1.5,
+        despawnTime: 0.2,
         emitterScript: `
-
+while (true) {
+    spawnRing("normal", "#ff3333", 0, angle, 4, spx, spy, 9, "dangan", "relative", "3")
+    wait(0.0167 * 2)
+}
+while (true) {
+    tween("ex", ex, 768 - 100, "seconds", 3, "easeInOut")
+    tween("ey", ey, 100, "seconds", 3, "easeInOut")
+    wait(3)
+    tween("ex", ex, 768 - 100, "seconds", 3, "easeInOut")
+    tween("ey", ey, 896 - 100, "seconds", 3, "easeInOut")
+    wait(3)
+    tween("ex", ex, 100, "seconds", 3, "easeInOut")
+    tween("ey", ey, 896 - 100, "seconds", 3, "easeInOut")
+    wait(3)
+    tween("ex", ex, 100, "seconds", 3, "easeInOut")
+    tween("ey", ey, 100, "seconds", 3, "easeInOut")
+    wait(3)
+}
         `,
         bulletScript: `
-
+if (frame == 15 * n) {
+    kakudo = random(1,4)
+    if (kakudo == 0..1.9999) {
+        speed = 400
+        wait(0.175)
+        speed = 1
+    }
+    if (kakudo == 2..2.9999) {
+        angle += 90
+        spriteAngle = angle
+    }
+    if (kakudo == 3..4) {
+        angle -= 90
+        spriteAngle = angle
+    }
+}
+if (frame == 180..99999) {
+    once {
+        imanokakudo = angle
+    }
+    angle = imanokakudo
+    spriteAngle = angle
+    speed = 400
+}
         `,
         magicCircleScript: ``
 
@@ -464,7 +688,31 @@ bounce()
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    for (let i = 0; i < 3; i++) {
+        idousakix = 384 + random(-250,250)
+        idousakiy = 200 + random(-100,100)
+        tween("ex", ex, idousakix, "seconds", 0.1, "easeOut")
+        tween("ey", ey, idousakiy, "seconds", 0.1, "easeOut")
+        wait(0.1)
+        for (let i = 0; i < 20; i++) {
+            spd = 0
+            for (let i = 0; i < 3; i++) {
+                spawnRing("normal", "#ff3333", 200 + spd, angle, 4, 0, 0, 8, "dangan", "relative", "4")
+                spd += 50
+            }
+            angle += 9.346
+            wait(0.0167 * 2)
+        }
+        wait(0.1)
+    }
+    wait(0.2)
+    idousakix = 384
+    idousakiy = 200
+    tween("ex", ex, idousakix, "seconds", 0.6, "easeOut")
+    tween("ey", ey, idousakiy, "seconds", 0.6, "easeOut")
+    wait(1.5)
+}
         `,
         bulletScript: `
 
@@ -473,14 +721,51 @@ bounce()
 
         },{
         id: "spell_rush1_7",
-        name: "「7」",
-        hp: 1000,
-        duration: 25,
+        name: "射符「レミントンシュート」",
+        hp: 1200,
+        duration: 60,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    wait(1)
+        idousakix = 384 + random(-250,250)
+        idousakiy = 200 + random(-100,100)
+        tween("ex", ex, idousakix, "seconds", 0.6, "easeOut")
+        tween("ey", ey, idousakiy, "seconds", 0.6, "easeOut")
+    wait(1)
+    aimAtTarget()
+    for (let i = 0; i < 100; i++) {
+        bure = random(-100,300)
+        bure2 = random(-10,10)
+        bure2 += random(-10,10)
+        bure2 += random(-10,10)
+        spawnBullet("normal", "#ff3333", 200 + bure, angle + bure2, 0, 0, 6, "dangan", "relative", "4")
+    }
+    wait(0.8)
+    aimAtTarget()
+    for (let i = 0; i < 100; i++) {
+        bure = random(-100,300)
+        bure2 = random(-10,10)
+        bure2 += random(-10,10)
+        bure2 += random(-10,10)
+        spawnBullet("normal", "#ff3333", 200 + bure, angle + bure2, 0, 0, 6, "dangan", "relative", "4")
+    }
+    wait(1.5)
+    aimAtTarget()
+    for (let i = 0; i < 13; i++) {
+        for (let i = 0; i < 100; i++) {
+            bure = random(-100,300)
+            bure2 = random(-10,10)
+            bure2 += random(-10,10)
+            bure2 += random(-10,10)
+            spawnBullet("normal", "#ff3333", 200 + bure, angle + bure2, 0, 0, 6, "dangan", "relative", "4")
+        }
+        angle += 30
+        wait(0.1)
+    }
+}
         `,
         bulletScript: `
 
@@ -490,13 +775,29 @@ bounce()
         },{
         id: "spell_rush1_non_8",
         name: "",
-        hp: 1000,
+        hp: 1200,
         duration: 25,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    l = 0
+    for (let i = 0; i < 120; i++) {
+        for (let f = 0; f < 2; f++) {
+            for (let g = 0; g < 8; g++) {
+                spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 9, "dangan", "relative", "3")
+                angle += 45
+            }
+            angle += 1
+        }
+        angle -= 3
+        angle += 2 + l
+        l += 0.83 + random(0,1)
+        wait(0.0167)
+    }
+    wait(0.8)
+}
         `,
         bulletScript: `
 
@@ -506,33 +807,124 @@ bounce()
         }
         ,{
         id: "spell_rush1_8",
-        name: "「8」",
-        hp: 1000,
-        duration: 25,
+        name: "弾動「歩引連動の妙術」",
+        hp: 2000,
+        duration: 60,
         x_offset: 0,
         y_offset: 0,
-        despawnTime: 1.5,
+        despawnTime: 0.1,
         emitterScript: `
-
+while (true) {
+    for (let i = 0; i < 50; i++) {
+        aimAtTarget()
+        spawnWay("normal", "#ff3333", 200 + spd, angle, 4, 40, 0, 0, 9, "dangan", "relative", "5")
+        spawnWay("normal", "#ff3333", 200 + spd, angle, 5, 3, 0, 0, 9, "dangan", "relative", "5")
+        spawnWay("normal", "#ff3333", 200 + spd, angle + 180, 8, 20, 0, 0, 9, "dangan", "relative", "5")
+        spd += 14
+        wait(0.0167 * 2)
+    }
+    spd = 0
+    wait(1)
+}
         `,
         bulletScript: `
-
+if (color==#ff3333) {
+    if (isTouchEdge) {
+        bounce()
+        color = = #ff3332
+    }
+}
+if (color==#ff3332) {
+    if (isTouchEdge) {
+        bounce()
+        color = = #ff3322
+    }
+}
+spriteAngle = angle
         `,
         magicCircleScript: ``
 
         },{
         id: "spell_rush1_9",
-        name: "「9」",
-        hp: 1000,
-        duration: 25,
+        name: "「サイケデリックオービット」",
+        hp: 100000000000000000000,
+        duration: 80,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    ey = 448
+    wait(0.0167 * 10)
+    if (cardSecond == 0..40) {
+        if (cardSecond == 0..20) {
+            angle = -90 + seedrandom[5 + frame](-70,70)
+        }
+        if (cardSecond == 20..40) {
+            angle = 90 + seedrandom[5 + frame](-70,70)
+        }
+        spawnWay("normal", "#ff3333", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
+    }
+    if (cardSecond == 40..80) {
+        if (cardSecond == 40..60) {
+            angle = 180 + seedrandom[5 + frame](-70,70)
+        }
+        if (cardSecond == 60..80) {
+            angle = 0 + seedrandom[5 + frame](-70,70)
+        }
+        spawnWay("normal", "#ffaa33", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
+    }
+}
+while (true) {
+    wait(1.3)
+    spd = 0
+    for (let i = 0; i < 10; i++) {
+        if (cardSecond == 0..40) {
+            spawnBullet("normal", "#00ffff", 50 + spd, 180, 768, ty, 20, "tyoudan", "absolute", "6")
+        }
+        if (cardSecond == 40..80) {
+            spawnBullet("normal", "#00ffff", 50 + spd, 90, tx, 0, 20, "tyoudan", "absolute", "6")
+        }
+        spd += 50
+    }
+    wait(1.3)
+    spd = 0
+    for (let i = 0; i < 10; i++) {
+        if (cardSecond == 0..40) {
+            spawnBullet("normal", "#00ffff", 50 + spd, 0, 0, ty, 20, "tyoudan", "absolute", "6")
+        }
+        if (cardSecond == 40..80) {
+            spawnBullet("normal", "#00ffff", 50 + spd, 270, tx, 896, 20, "tyoudan", "absolute", "6")
+        }
+        spd += 50
+    }
+}
+if (x < 10) {
+}
         `,
         bulletScript: `
-
+if (color==#ff3333) {
+    if (y < 0) {
+        y = 886
+    }
+    if (y > 896) {
+        y = 10
+    }
+}
+if (color==#ffaa33) {
+    if (x < 0) {
+        x = 758
+    }
+    if (x > 768) {
+        x = 10
+    }
+}
+if (cardSecond == 20 * n) {
+    for (let i = 0; i < 120; i++) {
+        y = -8900
+        wait(0.0167)
+    }
+}
         `,
         magicCircleScript: ``
 
