@@ -943,31 +943,31 @@ if (cardSecond == 20 * n) {
         despawnTime: 1.5,
         emitterScript: `
 while (true) {
-    if (enemyHp == 2000..8000) {
+    if (enemyHp == 1000..8000) {
         spawnRing("normal", "#ff3333", 200, angle1, 6, 0, 0, 9, "dangan", "relative", "6")
     }
-    if (enemyHp == 2000..7000) {
+    if (enemyHp == 1000..7000) {
         spawnRing("normal", "#ff3333", 300, angle1, 6, 0, 0, 9, "dangan", "relative", "6")
     }
     if (enemyHp == 0..6000) {
         spawnRingResist("normal", "#ff3333", 100, angle1, 6, 0, 0, 9, "dangan", "relative", "6")
     }
-    if (enemyHp == 2000..5000) {
+    if (enemyHp == 1000..5000) {
         spawnRing("normal", "#ff3333", 200, angle1 * 2, 8, 0, 0, 9, "dangan", "relative", "6")
     }
-    if (enemyHp == 2000..4000) {
+    if (enemyHp == 1000..4000) {
         spawnRingResist("normal", "#3388ff", 500, -angle1 * 2, 8, 0, 0, 25, "tyoudan", "relative", "15")
     }
     if (enemyHp == 0..3000) {
         spawnRingResist("normal", "#ff3333", 60, angle1, 12, 0, 0, 9, "dangan", "relative", "6")
     }
-    if (enemyHp == 0..2000) {
+    if (enemyHp == 0..1000) {
         angle2 = random(0,360)
         spawnRingResist("normal", "#ff3333", 90, angle2, 9, 0, 0, 9, "dangan", "relative", "5")
         angle2 = random(0,360)
         spawnRingResist("normal", "#ff3333", 90, angle2, 9, 0, 0, 9, "dangan", "relative", "5")
     }
-    if (enemyHp == 0..2000) {
+    if (enemyHp == 0..1000) {
         angle2 = random(0,360)
         spawnRingResist("normal", "#3388ff", 110, angle2, 15, 0, 0, 30, "tyoudan", "relative", "9")
     }
