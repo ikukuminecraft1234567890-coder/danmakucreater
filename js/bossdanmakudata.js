@@ -897,7 +897,7 @@ while (true) {
             spawnBullet("normal", "#00ffff", 50 + spd, 0, 0, ty, 20, "tyoudan", "absolute", "6")
         }
         if (cardSecond == 40..80) {
-            spawnBullet("normal", "#00ffff", 50 + spd, 270, tx, 896, 20, "tyoudan", "absolute", "6")
+            spawnBullet("normal", "#00ffff", 50 + spd, 270, tx, 886, 20, "tyoudan", "absolute", "6")
         }
         spd += 50
     }
