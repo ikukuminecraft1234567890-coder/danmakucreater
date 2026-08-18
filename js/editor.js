@@ -1460,6 +1460,7 @@ function customCardMakerSwitchTab(tab) {
             player.maxHp = 1000;
             player.pendingDamage = 0;
             player.pendingHeal = 0;
+            player.deathbombWindowFrames = 20;
             player.grazeCount = 0;
             player.bombs = window.isBossMode ? 2 : 0;
             player.maxBombs = window.isBossMode ? 2 : 0;
@@ -3794,6 +3795,7 @@ function customCardMakerSwitchMode(mode) {
             player.pendingDamage = 0;
             player.pendingHeal = 0;
             player.deathbombTimer = 0;
+            player.deathbombWindowFrames = 20;
             player.bombLockTimer = 0;
             player.grazeCount = 0;
             player.bombs = window.isBossMode ? 2 : 0;
@@ -4276,6 +4278,7 @@ function customCardMakerSwitchMode(mode) {
             player.pendingDamage = 0;
             player.pendingHeal = 0;
             player.deathbombTimer = 0;
+            player.deathbombWindowFrames = 20;
             player.bombLockTimer = 0;
             player.grazeCount = 0;
             player.passives = [];

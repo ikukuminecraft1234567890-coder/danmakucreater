@@ -1339,6 +1339,7 @@
             bombPieces: 0,
             isInvincible: false,
             invincibleTimer: 0,
+            deathbombWindowFrames: 20,
             optionAngle: 0 // オプション回転用
         };
 

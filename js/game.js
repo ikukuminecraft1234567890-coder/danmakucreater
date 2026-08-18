@@ -2415,10 +2415,12 @@ function applyAbilityEffect(cardId, owner) {
                             if (!player.recentHits) player.recentHits = [];
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
-                            // 食らいボム猶予タイマー開始（まだ動いていなければ8フレーム）＆ピコ音再生
+                            // 食らいボム猶予タイマー開始（まだ動いていなければ6〜45フレーム）＆ピコ音再生
                             if (isCustomCardTesting && !(player.deathbombTimer > 0)) {
-                                player.deathbombTimer = 8 / 60; // 8f ≈ 0.1333秒
-                                player.deathbombMaxTimer = 8 / 60;
+                                const deathbombFrames = Math.max(6, Math.min(45, Number(player.deathbombWindowFrames) || 20));
+                                player.deathbombWindowFrames = deathbombFrames;
+                                player.deathbombTimer = deathbombFrames / 60;
+                                player.deathbombMaxTimer = deathbombFrames / 60;
                                 if (window.soundManager && typeof window.soundManager.playPiko === 'function') {
                                     window.soundManager.playPiko();
                                 } else if (window.playSound) {
@@ -2890,6 +2892,7 @@ function applyAbilityEffect(cardId, owner) {
                 }
 
                 if (player.pendingDamage > 0 && !(player.deathbombTimer > 0) && !window.devInvincibleMode) {
+                    player.deathbombWindowFrames = Math.min(45, Math.max(6, (Number(player.deathbombWindowFrames) || 20) + 3));
                     if (window.playSound) {
                         window.playSound('se_pldead00');
                     }
@@ -4203,10 +4206,10 @@ function applyAbilityEffect(cardId, owner) {
                 ctx.stroke();
             }
 
-            // 食らいボム猶予サークル（被弾瞬間に現れ、猶予8fで自機中心へと収縮する可視化円）
+            // 食らいボム猶予サークル（被弾瞬間に現れ、可変猶予で自機中心へと収縮する可視化円）
             if (isCustomCardTesting && player.deathbombTimer > 0) {
                 ctx.save();
-                let maxT = player.deathbombMaxTimer || (8 / 60);
+                let maxT = player.deathbombMaxTimer || ((Number(player.deathbombWindowFrames) || 20) / 60);
                 let progress = Math.max(0, Math.min(1, player.deathbombTimer / maxT)); // 1.0 -> 0.0
                 let radius = Math.max(1, 56 * progress); // 56px -> 0pxに収縮
 
@@ -5306,12 +5309,13 @@ function applyAbilityEffect(cardId, owner) {
             if (player.respawnDelay > 0 || player.respawnTimer > 0) return; // リスポーン中
             if (player.bombLockTimer > 0) return; // 復活後1秒間はボム使用不可
 
-            // 食らいボム判定（被弾後8f以内にボムを押した場合）
+            // 食らいボム判定（可変猶予時間内にボムを押した場合）
             let isDeathBomb = player.deathbombTimer > 0;
             if (isDeathBomb) {
                 // 被弾をキャンセル（生存）
                 player.pendingDamage = 0;
                 player.deathbombTimer = 0;
+                player.deathbombWindowFrames = Math.max(6, Math.min(45, (Number(player.deathbombWindowFrames) || 20) - 3));
             }
 
             window.spellBombCount = (window.spellBombCount || 0) + 1;
@@ -5470,6 +5474,7 @@ function applyAbilityEffect(cardId, owner) {
             player.pendingDamage = 0; // 被弾ダメージを完全リセット
             player.pendingHeal = 0;
             player.deathbombTimer = 0;
+            player.deathbombWindowFrames = 20;
             player.bombLockTimer = 0;
             player.recentHits = [];
             player.isInvincible = false;
