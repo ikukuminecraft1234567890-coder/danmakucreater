@@ -2418,7 +2418,7 @@ function applyAbilityEffect(cardId, owner) {
                             // 食らいボム猶予タイマー開始（まだ動いていなければ6〜45フレーム）＆ピコ音再生
                             if (isCustomCardTesting && !(player.deathbombTimer > 0)) {
                                 const deathbombFrames = Math.max(6, Math.min(45, Number(player.deathbombWindowFrames) || 20));
-                                player.deathbombWindowFrames = deathbombFrames;
+                                player.deathbombWindowFrames = Math.min(45, deathbombFrames + 5);
                                 player.deathbombTimer = deathbombFrames / 60;
                                 player.deathbombMaxTimer = deathbombFrames / 60;
                                 if (window.soundManager && typeof window.soundManager.playPiko === 'function') {
@@ -2892,7 +2892,6 @@ function applyAbilityEffect(cardId, owner) {
                 }
 
                 if (player.pendingDamage > 0 && !(player.deathbombTimer > 0) && !window.devInvincibleMode) {
-                    player.deathbombWindowFrames = Math.min(45, Math.max(6, (Number(player.deathbombWindowFrames) || 20) + 3));
                     if (window.playSound) {
                         window.playSound('se_pldead00');
                     }
@@ -5316,6 +5315,8 @@ function applyAbilityEffect(cardId, owner) {
                 player.pendingDamage = 0;
                 player.deathbombTimer = 0;
                 player.deathbombWindowFrames = Math.max(6, Math.min(45, (Number(player.deathbombWindowFrames) || 20) - 3));
+            } else {
+                player.deathbombWindowFrames = Math.min(45, Math.max(6, (Number(player.deathbombWindowFrames) || 20) + 2));
             }
 
             window.spellBombCount = (window.spellBombCount || 0) + 1;
