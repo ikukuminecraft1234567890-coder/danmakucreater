@@ -1270,13 +1270,13 @@ spriteAngle += kakudo
         despawnTime: 1.5,
         emitterScript: `
 while (true) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
         spawnBullet("normal", "#44ff44", 200, angle, 0, 0, 22, "b_star", "relative", "10")
         angle += random(0,360)
         spawnBullet("normal", "#ffdd33", 200, angle, 0, 0, 22, "b_star", "relative", "10")
         angle += random(0,360)
     }
-    wait(0.0167)
+    wait(0.0167 * 2)
 }
         `,
         bulletScript: `
