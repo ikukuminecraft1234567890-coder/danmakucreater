@@ -1168,16 +1168,50 @@ if (frame == 60) {
         },{
         id: "spell_rush2_non_3",
         name: "",
-        hp: 1000,
-        duration: 25,
+        hp: 500,
+        duration: 60,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    baseangle += 5
+    spd = random(-30,30)
+    spawnBullet("normal", "#33ffff", 300 + spd, baseangle + angle2, 0, 0, 20, "b_star", "relative", "10")
+    angle2 = random(-60,60)
+    wait(0.0167)
+}
+while (true) {
+    wait(0.167)
+    aimAtTarget()
+    setangle = -30
+    for (let i = 0; i < 5; i++) {
+        spawnWay("normal", "#ff3333", 400, angle, 1, 0, 200, 0, 35, "knife", "relative", "6")
+        spawnWay("normal", "#ff3333", 400, angle, 1, 0, -200, 0, 35, "knife", "relative", "6")
+        setangle += 15
+    }
+}
         `,
         bulletScript: `
-
+once {
+    muki = random(-1,1)
+    if (muki==-1..0) {
+        kakudo = -3
+    }
+    if (muki==0..1) {
+        kakudo = 3
+    }
+}
+if (color==#33ffff) {
+    spriteAngle += kakudo
+}
+if (color==#ff3333) {
+    once {
+        aimAtTarget()
+        angle += setangle
+        spriteAngle = angle
+    }
+}
         `,
         magicCircleScript: ``
 
