@@ -333,7 +333,7 @@ if (frame==2..5) {
         },{
         id: "spell_rush1_non_4",
         name: "",
-        hp: 2000,
+        hp: 1200,
         duration: 25,
         x_offset: 0,
         y_offset: 0,
