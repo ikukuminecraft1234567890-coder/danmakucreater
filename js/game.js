@@ -5540,7 +5540,9 @@ function applyAbilityEffect(cardId, owner) {
             // モバイルボムボタンのイベント設定
             const mobileBombBtn = document.getElementById('mobile-bomb-button');
             if (mobileBombBtn) {
-                const onBombClick = (e) => {
+                let isMobileBombTouchActive = false;
+                let lastMobileBombTouchEnd = -Infinity;
+                const triggerMobileBomb = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     if (window.isBossMode) {
@@ -5549,8 +5551,35 @@ function applyAbilityEffect(cardId, owner) {
                         mobileBombTriggered = true;
                     }
                 };
-                mobileBombBtn.addEventListener('touchstart', onBombClick, { passive: false });
-                mobileBombBtn.addEventListener('click', onBombClick);
+                mobileBombBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    isMobileBombTouchActive = true;
+                }, { passive: false });
+                mobileBombBtn.addEventListener('touchend', (e) => {
+                    if (!isMobileBombTouchActive) return;
+                    isMobileBombTouchActive = false;
+                    lastMobileBombTouchEnd = performance.now();
+                    const touch = e.changedTouches && e.changedTouches[0];
+                    const releasedElement = touch ? document.elementFromPoint(touch.clientX, touch.clientY) : null;
+                    if (releasedElement && mobileBombBtn.contains(releasedElement)) {
+                        triggerMobileBomb(e);
+                    } else {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }, { passive: false });
+                mobileBombBtn.addEventListener('touchcancel', () => {
+                    isMobileBombTouchActive = false;
+                }, { passive: false });
+                mobileBombBtn.addEventListener('click', (e) => {
+                    if (performance.now() - lastMobileBombTouchEnd < 800) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    triggerMobileBomb(e);
+                });
             }
 
             // 【超重要】手札モーダル内でのタッチ操作が背後の自機移動ドラッグに吸い取られないようにイベント伝播を完全遮断！
