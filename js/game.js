@@ -5324,8 +5324,8 @@ function applyAbilityEffect(cardId, owner) {
             window.spellCurrentBonus = 0;
             player.bombs--;
             player.bombLockTimer = 1.0; // ボム使用後1秒間はボム再使用不可
-            // ボム持続時間2倍に合わせて無敵時間も延長（通常1.5秒、食らいボム1.0秒）
-            window.playerInvincibleTimer = isDeathBomb ? 1.0 : 1.5;
+            // 通常ボム・食らいボムともに3秒間無敵
+            window.playerInvincibleTimer = 3.0;
             window.miniExplosionEffect = null; // 赤い火花演出なし
 
             // 回転する長持続（2.0秒 = 2倍）の衝撃波（波紋）の生成 (半径 600px)
