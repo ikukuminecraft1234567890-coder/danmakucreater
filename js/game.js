@@ -5342,7 +5342,6 @@ function applyAbilityEffect(cardId, owner) {
             if (player.respawnDelay > 0 || player.respawnTimer > 0) return; // リスポーン中
             if (player.bombLockTimer > 0) return; // 復活後1秒間はボム使用不可
             if (window.isBossPracticeMode) {
-                endBossPractice();
                 return;
             }
 
