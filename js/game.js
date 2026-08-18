@@ -2415,6 +2415,10 @@ function applyAbilityEffect(cardId, owner) {
                             if (!player.recentHits) player.recentHits = [];
                             player.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             player.hitLastTurn = true; // 被弾履歴
+                            if (window.isBossPracticeMode) {
+                                endBossPractice();
+                                return;
+                            }
                             // 食らいボム猶予タイマー開始（まだ動いていなければ6〜45フレーム）＆ピコ音再生
                             if (isCustomCardTesting && !(player.deathbombTimer > 0)) {
                                 const deathbombFrames = Math.max(6, Math.min(45, Number(player.deathbombWindowFrames) || 20));
@@ -2629,7 +2633,7 @@ function applyAbilityEffect(cardId, owner) {
                                         // 通常弾幕はボーナスなし＆待機なしで即座に次のスペカへ！
                                         window.spellClearResult = null;
                                         window.spellTransitionTimer = 0;
-                                        if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                                        if (!window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
                                             if (typeof playBossBattle === 'function') {
                                                 playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
                                             }
@@ -2808,7 +2812,7 @@ function applyAbilityEffect(cardId, owner) {
                                 if (isNonSpell) {
                                     window.spellClearResult = null;
                                     window.spellTransitionTimer = 0;
-                                    if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                                    if (!window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
                                         if (typeof playBossBattle === 'function') {
                                             playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
                                         }
@@ -2838,7 +2842,7 @@ function applyAbilityEffect(cardId, owner) {
                     if (window.spellTransitionTimer <= 0) {
                         window.spellTransitionTimer = 0;
                         window.spellClearResult = null;
-                        if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                        if (!window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
                             if (typeof playBossBattle === 'function') {
                                 playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
                             }
@@ -3021,7 +3025,7 @@ function applyAbilityEffect(cardId, owner) {
                             bullets.length = 0;
                             magicCircles.length = 0;
                             if (window.playSound) window.playSound('se_tan00');
-                            if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                            if (!window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
                                 if (typeof playBossBattle === 'function') {
                                     playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
                                 }
@@ -5055,7 +5059,7 @@ function applyAbilityEffect(cardId, owner) {
                     ctx.globalAlpha = textAlpha;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    const isBossClear = window.isBossMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss';
+                    const isBossClear = window.isBossMode && !window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss';
                     const clearLabel = isBossClear ? 'BOSS' : 'SPELL CARD';
                     
                     // 背景の帯状の半透明パネル
@@ -5272,6 +5276,36 @@ function applyAbilityEffect(cardId, owner) {
         // ==========================================
         // ボスモード・カスタムカード クリア＆ボム実行ヘルパー
         // ==========================================
+        function endBossPractice() {
+            if (window.bossPracticeResultOpen) return;
+            window.bossPracticeResultOpen = true;
+            window.isGamePaused = true;
+            bullets.length = 0;
+            magicCircles.length = 0;
+            const old = document.getElementById('boss-practice-result');
+            if (old) old.remove();
+            const panel = document.createElement('div');
+            panel.id = 'boss-practice-result';
+            panel.style.cssText = 'position:fixed; inset:0; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:rgba(0,0,0,0.72); color:#fff; font-family:sans-serif;';
+            panel.innerHTML = '<div style="font-size:30px;font-weight:bold;color:#66ddff;text-shadow:0 0 12px #00aaff;">SPELL PRACTICE</div><div style="font-size:15px;color:#d0d0e0;">リトライしますか？</div>';
+            const actions = document.createElement('div');
+            actions.style.cssText = 'display:flex; gap:12px;';
+            const retry = document.createElement('button');
+            retry.className = 'menu-btn'; retry.textContent = 'リトライ';
+            const menu = document.createElement('button');
+            menu.className = 'menu-btn'; menu.textContent = 'メニューに戻る';
+            retry.onclick = () => {
+                panel.remove(); window.bossPracticeResultOpen = false; resumeGameFromPause();
+                playBossBattle(currentBossIndex, currentBossSpellIndex, false, true);
+            };
+            menu.onclick = () => {
+                panel.remove(); window.bossPracticeResultOpen = false; window.isBossPracticeMode = false; resumeGameFromPause();
+                if (typeof endCustomCardTest === 'function') endCustomCardTest(false);
+            };
+            actions.append(retry, menu); panel.appendChild(actions);
+            (document.getElementById('gameContainer') || document.body).appendChild(panel);
+        }
+
         function triggerCustomCardClear() {
             if (customCardDeathEffect || window.customCardClearEffect) return;
             bullets.length = 0; // 弾を全消去
@@ -5307,6 +5341,10 @@ function applyAbilityEffect(cardId, owner) {
             if (customCardDeathEffect || window.customCardClearEffect) return;
             if (player.respawnDelay > 0 || player.respawnTimer > 0) return; // リスポーン中
             if (player.bombLockTimer > 0) return; // 復活後1秒間はボム使用不可
+            if (window.isBossPracticeMode) {
+                endBossPractice();
+                return;
+            }
 
             // 食らいボム判定（可変猶予時間内にボムを押した場合）
             let isDeathBomb = player.deathbombTimer > 0;
@@ -5445,6 +5483,11 @@ function applyAbilityEffect(cardId, owner) {
         // ==========================================
         window.retryCurrentCard = function() {
             resumeGameFromPause();
+
+            if (window.isBossPracticeMode && typeof playBossBattle === 'function') {
+                playBossBattle(currentBossIndex, currentBossSpellIndex, false, true);
+                return;
+            }
             
             if (window.isBossMode && typeof playBossBattle === 'function') {
                 if (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id && typeof updateBossHighScore === 'function') {

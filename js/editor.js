@@ -1508,6 +1508,7 @@ function customCardMakerSwitchTab(tab) {
             if (typeof resumeGameFromPause === 'function') resumeGameFromPause();
             isCustomCardTesting = false;
             window.isBossMode = false;
+            window.isBossPracticeMode = false;
             window.isEnduranceSpell = false;
             isGameRunning = false;
             gameState = 'TITLE';
@@ -3938,20 +3939,30 @@ function customCardMakerSwitchMode(mode) {
                 cardDiv.onclick = onSelectBoss;
                 cardDiv.style.cursor = 'pointer';
 
+                const practiceBtn = document.createElement('button');
+                practiceBtn.className = 'menu-btn';
+                practiceBtn.style.cssText = 'width: 80px; height: 32px; font-size: 12px; margin: 0 0 0 6px; background: linear-gradient(135deg, #003b55 0%, #001722 100%); border-color: #00ccff; font-weight: bold; flex-shrink: 0;';
+                practiceBtn.textContent = '練習';
+                practiceBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    showBossSpellSelectScreen(originalIndex, true);
+                };
+
                 cardDiv.appendChild(infoDiv);
                 cardDiv.appendChild(playBtn);
+                cardDiv.appendChild(practiceBtn);
                 container.appendChild(cardDiv);
             });
         }
         window.renderBossList = renderBossList;
 
-        function showBossSpellSelectScreen(bIdx) {
+        function showBossSpellSelectScreen(bIdx, isPractice = false) {
             showScreen('screen-boss-spell-select');
-            renderBossSpellSelect(bIdx);
+            renderBossSpellSelect(bIdx, isPractice);
         }
         window.showBossSpellSelectScreen = showBossSpellSelectScreen;
 
-        function renderBossSpellSelect(bIdx) {
+        function renderBossSpellSelect(bIdx, isPractice = false) {
             const container = document.getElementById('boss-spell-list-container');
             const titleEl = document.getElementById('boss-spell-select-title');
             const playAllBtn = document.getElementById('boss-spell-play-all-btn');
@@ -3959,11 +3970,12 @@ function customCardMakerSwitchMode(mode) {
 
             const boss = bossList[bIdx];
             if (titleEl) {
-                titleEl.textContent = `${boss.name} の弾幕選択`;
+                titleEl.textContent = isPractice ? `${boss.name} のスペルプラクティス` : `${boss.name} の弾幕選択`;
                 titleEl.style.color = boss.color || '#ff3366';
             }
 
             if (playAllBtn) {
+                playAllBtn.style.display = isPractice ? 'none' : '';
                 playAllBtn.onclick = () => playBossBattle(bIdx, 0, false);
             }
 
@@ -3976,8 +3988,11 @@ function customCardMakerSwitchMode(mode) {
 
             boss.spells.forEach((spellRef, spellIdx) => {
                 const spell = getBossSpell(spellRef);
+                const highestReached = getBossPracticeHighestReached(boss.id);
+                const isUnlocked = !isPractice || spellIdx <= highestReached;
                 const spellDiv = document.createElement('div');
                 spellDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,51,102,0.25); border-radius: 8px; margin-bottom: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: all 0.18s;`;
+                if (!isUnlocked) spellDiv.style.opacity = '0.42';
                 
                 spellDiv.onmouseover = () => { 
                     spellDiv.style.borderColor = 'rgba(255,51,102,0.9)'; 
@@ -4032,11 +4047,12 @@ function customCardMakerSwitchMode(mode) {
                 const startBtn = document.createElement('button');
                 startBtn.className = 'menu-btn';
                 startBtn.style.cssText = `width: 90px; height: 30px; font-size: 12px; margin: 0; background: linear-gradient(135deg, #004455 0%, #001a22 100%); border-color: #00ddff; text-shadow: 0 0 6px rgba(0,221,255,0.8); font-weight: bold; flex-shrink: 0;`;
-                startBtn.textContent = 'ここから開始';
+                startBtn.textContent = isUnlocked ? (isPractice ? '練習開始' : 'ここから開始') : '未到達';
+                startBtn.disabled = !isUnlocked;
                 
                 const onStart = (e) => {
                     if (e) e.stopPropagation();
-                    playBossBattle(bIdx, spellIdx, false);
+                    if (isUnlocked) playBossBattle(bIdx, spellIdx, false, isPractice);
                 };
                 startBtn.onclick = onStart;
                 spellDiv.onclick = onStart;
@@ -4047,6 +4063,20 @@ function customCardMakerSwitchMode(mode) {
             });
         }
         window.renderBossSpellSelect = renderBossSpellSelect;
+
+        function getBossPracticeHighestReached(bossId) {
+            try { return parseInt(localStorage.getItem('danmaku_boss_practice_reached_' + bossId) || '-1', 10); }
+            catch (e) { return -1; }
+        }
+
+        function markBossPracticeReached(bossId, spellIdx) {
+            if (!bossId) return;
+            try {
+                const key = 'danmaku_boss_practice_reached_' + bossId;
+                const previous = getBossPracticeHighestReached(bossId);
+                if (spellIdx > previous) localStorage.setItem(key, String(spellIdx));
+            } catch (e) {}
+        }
 
         function getBossHighScore(bossId) {
             if (!bossId) return 0;
@@ -4088,7 +4118,7 @@ function customCardMakerSwitchMode(mode) {
         }
         window.getBossSpell = getBossSpell;
 
-        function playBossBattle(bIdxOrBoss, spellIdx = 0, isNextSpell = false) {
+        function playBossBattle(bIdxOrBoss, spellIdx = 0, isNextSpell = false, isPractice = false) {
             let bIdx = typeof bIdxOrBoss === 'number' ? bIdxOrBoss : -1;
             if (bIdx === -1 && typeof bossList !== 'undefined') {
                 bIdx = bossList.findIndex(b => b === bIdxOrBoss || b.id === bIdxOrBoss || (bIdxOrBoss && b.id === bIdxOrBoss.id));
@@ -4108,6 +4138,8 @@ function customCardMakerSwitchMode(mode) {
             currentBossIndex = bIdx;
             currentBossSpellIndex = spellIdx;
             currentTestPlaySource = 'boss';
+            window.isBossPracticeMode = isPractice === true;
+            if (!window.isBossPracticeMode) markBossPracticeReached(boss.id, spellIdx);
 
             const spellRef = boss.spells[spellIdx];
             const spell = getBossSpell(spellRef);
