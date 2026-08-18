@@ -49,6 +49,24 @@ const bossList = [
             "spell_rush1_9",
             "spell_rush1_10",
         ]
+    },
+    {
+        id: "boss_rush2",
+        name: "ラッシュ2",
+        color: "#ff3366",
+        devOnly: true,
+        playerLives: 2,
+        spells: [
+            "spell_rush2_non_1",
+            "spell_rush2_1",
+            "spell_rush2_non_2",
+            "spell_rush2_2",
+            "spell_rush2_non_3",
+            "spell_rush2_3",
+            "spell_rush2_non_4",
+            "spell_rush2_4",
+            "spell_rush2_5"
+        ]
     }
 ];
 

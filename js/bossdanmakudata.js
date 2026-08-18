@@ -956,7 +956,7 @@ while (true) {
         spawnRing("normal", "#ff3333", 200, angle1 * 2, 8, 0, 0, 9, "dangan", "relative", "6")
     }
     if (enemyHp == 1000..4000) {
-        spawnRingResist("normal", "#3388ff", 500, -angle1 * 2, 8, 0, 0, 25, "tyoudan", "relative", "15")
+        spawnRingResist("normal", "#3388ff", 500, -angle1 * 3, 8, 0, 0, 25, "tyoudan", "relative", "6")
     }
     if (enemyHp == 0..3000) {
         spawnRingResist("normal", "#ff3333", 60, angle1, 12, 0, 0, 9, "dangan", "relative", "6")
@@ -974,6 +974,186 @@ while (true) {
     angle1 += 7.125434578
     wait(0.167)
 }
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_non_1",
+        name: "",
+        hp: 800,
+        duration: 20,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+    spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 20, "b_poihuru", "relative", "8")
+    angle += 30.3
+    wait(0.0167)
+}
+        `,
+        bulletScript: `
+if (frame == 60..61) {
+    once {
+        muki = random(-1,1)
+        spawnWay("normal", "#ff3333", 200, angle, 5, 30, 0, 0, 7, "star", "relative", "4")
+        y = 80000
+    }
+}
+        `,
+        magicCircleScript: `
+        if (muki==-1..0) {
+    spriteAngle += 8
+}
+if (muki==0..1) {
+    spriteAngle -= 8
+}`
+
+        },{
+        id: "spell_rush2_1",
+        name: "星符「星雨」",
+        hp: 1200,
+        duration: 30,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+while (true) {
+    for (let i = 0; i < 120; i++) {
+        spawnBullet("normal", "#ff3333", 200, angle, 0, 0, 25, "b_star", "relative", "15")
+        angle += 10
+    }
+    wait(2)
+}
+        `,
+        bulletScript: `
+once {
+    speed += random(-50,150)
+    angle += random(-5,5)
+    muki = random(-1,1)
+}
+if (muki=-1..0) {
+    spriteAngle += 3
+}
+if (muki=0..1) {
+    spriteAngle -= 3
+}
+if (y == -800..0){
+    angle = -angle
+    y = 10
+}
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_non_2",
+        name: "",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_2",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_non_3",
+        name: "",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_3",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_non_4",
+        name: "",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_4",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
+        `,
+        bulletScript: `
+
+        `,
+        magicCircleScript: ``
+
+        },{
+        id: "spell_rush2_5",
+        name: "「」",
+        hp: 1000,
+        duration: 25,
+        x_offset: 0,
+        y_offset: 0,
+        despawnTime: 1.5,
+        emitterScript: `
+
         `,
         bulletScript: `
 
