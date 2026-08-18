@@ -1516,6 +1516,7 @@ function applyAbilityEffect(cardId, owner) {
             // ポーズ中はシミュレーション更新を停止し描画状態を維持
             if (window.isGamePaused) {
                 timeAccumulator = 0;
+                updateInputState();
                 draw();
                 startGameLoop();
                 return;
@@ -5396,6 +5397,10 @@ function applyAbilityEffect(cardId, owner) {
                 modal.classList.remove('hidden');
             }
             closePauseConfirm();
+            setTimeout(() => {
+                const resumeBtn = document.getElementById('pause-btn-resume');
+                if (resumeBtn) resumeBtn.focus();
+            }, 10);
         }
         window.openPauseMenu = openPauseMenu;
 
@@ -5466,6 +5471,10 @@ function applyAbilityEffect(cardId, owner) {
                 };
             }
             confirmModal.classList.remove('hidden');
+            setTimeout(() => {
+                const noBtn = document.getElementById('pause-confirm-no');
+                if (noBtn) noBtn.focus();
+            }, 10);
         }
         window.showPauseConfirm = showPauseConfirm;
 
@@ -5473,6 +5482,10 @@ function applyAbilityEffect(cardId, owner) {
             const confirmModal = document.getElementById('pause-confirm-modal');
             if (confirmModal) {
                 confirmModal.classList.add('hidden');
+            }
+            const resumeBtn = document.getElementById('pause-btn-resume');
+            if (resumeBtn && window.isGamePaused) {
+                setTimeout(() => resumeBtn.focus(), 10);
             }
         }
         window.closePauseConfirm = closePauseConfirm;

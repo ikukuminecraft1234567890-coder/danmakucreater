@@ -1863,11 +1863,24 @@
                                 }
 
                                 const confirmBtnIdx = (typeof gamepadConfig !== 'undefined' && gamepadConfig.confirm !== undefined) ? gamepadConfig.confirm : 0;
-                                const btnConfirm = gp.buttons[confirmBtnIdx] && gp.buttons[confirmBtnIdx].pressed;
-                                const prevConfirm = prevGamepadButtons[confirmBtnIdx] || false;
+                                const btnConfirm = (gp.buttons[confirmBtnIdx] && gp.buttons[confirmBtnIdx].pressed) || (gp.buttons[0] && gp.buttons[0].pressed);
+                                const prevConfirm = (prevGamepadButtons[confirmBtnIdx] || prevGamepadButtons[0]) || false;
 
                                 if (btnConfirm && !prevConfirm) {
                                     buttons[focusedIdx].click();
+                                }
+
+                                // キャンセルボタン (Button 1: Bボタン / slowMove)
+                                const cancelBtnIdx = (typeof gamepadConfig !== 'undefined' && gamepadConfig.slowMove !== undefined && gamepadConfig.slowMove !== 0) ? gamepadConfig.slowMove : 1;
+                                const btnCancel = (gp.buttons[1] && gp.buttons[1].pressed) || (gp.buttons[cancelBtnIdx] && gp.buttons[cancelBtnIdx].pressed);
+                                const prevCancel = (prevGamepadButtons[1] || prevGamepadButtons[cancelBtnIdx]) || false;
+
+                                if (btnCancel && !prevCancel) {
+                                    if (activeModal === confirmModal) {
+                                        if (typeof closePauseConfirm === 'function') closePauseConfirm();
+                                    } else {
+                                        if (typeof resumeGameFromPause === 'function') resumeGameFromPause();
+                                    }
                                 }
                             }
                         }

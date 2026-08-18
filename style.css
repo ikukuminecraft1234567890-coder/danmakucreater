@@ -363,6 +363,15 @@ html,
             transform: translateY(1px);
         }
 
+        .menu-btn:focus:not(:disabled) {
+            outline: none;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.85), inset 0 0 10px rgba(255, 255, 255, 0.35) !important;
+            transform: scale(1.04) !important;
+            text-shadow: 0 0 8px #ffffff !important;
+            z-index: 1;
+        }
+
         .menu-btn:disabled {
             background: #08080f;
             color: #444455;
