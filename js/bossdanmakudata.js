@@ -860,22 +860,20 @@ while (true) {
     ey = 448
     while (true) {
         wait(0.0167 * 10)
-        if (cardSecond == 0..40) {
-            if (cardSecond == 0..20) {
-                angle = -90 + seedrandom[5 + frame](-70,70)
-            }
-            if (cardSecond == 20..40) {
-                angle = 90 + seedrandom[5 + frame](-70,70)
-            }
+        if (cardSecond == 1..20) {
+            angle = -90 + seedrandom[5 + frame](-70,70)
             spawnWay("normal", "#ff3333", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
         }
-        if (cardSecond == 40..80) {
-            if (cardSecond == 40..60) {
-                angle = 180 + seedrandom[5 + frame](-70,70)
-            }
-            if (cardSecond == 60..80) {
-                angle = 0 + seedrandom[5 + frame](-70,70)
-            }
+        if (cardSecond == 21..40) {
+            angle = 90 + seedrandom[5 + frame](-70,70)
+            spawnWay("normal", "#ff3333", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
+        }
+        if (cardSecond == 41..60) {
+            angle = 180 + seedrandom[5 + frame](-70,70)
+            spawnWay("normal", "#ffaa33", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
+        }
+        if (cardSecond == 61..80) {
+            angle = 0 + seedrandom[5 + frame](-70,70)
             spawnWay("normal", "#ffaa33", 150, angle, 3, 30, 0, 0, 12, "dangan", "relative", "6")
         }
     }
@@ -928,6 +926,14 @@ if (cardSecond == 20 * n) {
     for (let i = 0; i < 120; i++) {
         y = -8900
         wait(0.0167)
+    }
+}
+if (color == #00ffff){
+    once{
+        hozon = speed
+        speed = 0
+        wait(1)
+        speed = hozon
     }
 }
         `,
@@ -1052,12 +1058,27 @@ if (y == -800..0){
         id: "spell_rush2_non_2",
         name: "",
         hp: 1000,
-        duration: 25,
+        duration: 30,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    for (let i = 0; i < 10; i++) {
+        spawnRing("normal", "#ff3333", 200, angle, 12, 0, 0, 9, "kunai1", "relative", "6")
+        angle += 1
+        wait(0.0167)
+    }
+    angle += 10
+    wait(0.2)
+    for (let i = 0; i < 10; i++) {
+        spawnRing("normal", "#3388ff", 200, angle, 12, 0, 0, 9, "kunai1", "relative", "6")
+        angle -= 1
+        wait(0.0167)
+    }
+    wait(0.2)
+    angle += 10
+}
         `,
         bulletScript: `
 
@@ -1066,19 +1087,83 @@ if (y == -800..0){
 
         },{
         id: "spell_rush2_2",
-        name: "「」",
-        hp: 1000,
-        duration: 25,
+        name: "流星「ミーティア」",
+        hp: 3000,
+        duration: 40,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    angle = seedrandom[kaisuu + 1000](0,360)
+    spawnBulletResist("normal", "#ff3333", 300, angle, 0, 0, 50, "b_star", "relative", "20")
+    kaisuu += 1
+    wait(6)
+}
         `,
         bulletScript: `
-
+spriteAngle += 3
+if (x < 0) {
+    angle = -angle
+    angle += 180
+    angle += seedrandom[frame](-10,10)
+    speed += 300
+    x = 10
+}
+if (x > 768) {
+    angle = -angle
+    angle += 180
+    angle += seedrandom[frame](-10,10)
+    speed += 300
+    x = 758
+}
+if (y < 0) {
+    angle = -angle
+    angle += seedrandom[frame](-10,10)
+    speed += 300
+    y = 10
+}
+if (y > 896) {
+    angle = -angle
+    angle += seedrandom[frame](-10,10)
+    speed += 300
+    y = 886
+}
+if (speed==300..9000) {
+    speed -= 10
+}
+if (frame == 1 * n) {
+    spangle = seedrandom[frame](0,360)
+    spx = seedrandom[frame](-10,10)
+    spy = seedrandom[frame](-10,10)
+    spawnBullet("normal", "#ffdd33", 0, spangle, spx, spy, 20, "kome", "relative", "3")
+}
         `,
-        magicCircleScript: ``
+        magicCircleScript: `
+        if (frame == 35..36) {
+    speed = 500 + random(-200,500)
+}
+if (frame == 36..54) {
+    if (speed == 0..6000) {
+        speed -= 5
+    }
+    if (speed == 0..6000) {
+        speed -= 5
+    }
+    if (speed == 0..6000) {
+        speed -= 5
+    }
+    if (speed == 0..6000) {
+        speed -= 5
+    }
+    if (speed == 0..6000) {
+        speed -= 5
+    }
+}
+if (frame == 60) {
+    y = -0800
+}
+    `
 
         },{
         id: "spell_rush2_non_3",
@@ -1098,17 +1183,46 @@ if (y == -800..0){
 
         },{
         id: "spell_rush2_3",
-        name: "「」",
-        hp: 1000,
-        duration: 25,
+        name: "本能「殺意の解放」",
+        hp: 4000,
+        duration: 50,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    for (let i = 0; i < 30; i++) {
+        aimAtTarget()
+        way += 1
+        bunsan = 240 / way
+        spawnWayResist("normal", "#ff3333", 120, angle, way, bunsan, 0, 0, 20, "b_star", "relative", "9")
+        spawnWay("normal", "#ff3333", 240, angle, way, bunsan, 0, 0, 20, "b_star", "relative", "9")
+        wait(0.167 * 3)
+    }
+    for (let i = 0; i < 6000000; i++) {
+        aimAtTarget()
+        angle += 4
+        spawnWayResist("normal", "#ff3333", 120, angle, way, bunsan, 0, 0, 20, "b_star", "relative", "9")
+        spawnWay("normal", "#ff3333", 240, angle, way, bunsan, 0, 0, 20, "b_star", "relative", "9")
+        wait(0.167 * 3)
+        aimAtTarget()
+        spawnWayResist("normal", "#ff3333", 120, angle, way, bunsan, 0, 0, 20, "b_star", "relative", "9")
+        spawnWay("normal", "#ff3333", 240, angle, way, bunsan, 0, 0, 20, "b_star", "relative", "9")
+        wait(0.167 * 3)
+    }
+}
         `,
         bulletScript: `
-
+once {
+    muki = random(-1,1)
+    if (muki==-1..0) {
+        kakudo = -3
+    }
+    if (muki==0..1) {
+        kakudo = 3
+    }
+}
+spriteAngle += kakudo
         `,
         magicCircleScript: ``
 
