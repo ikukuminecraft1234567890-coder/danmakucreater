@@ -1161,7 +1161,7 @@ if (frame == 36..54) {
     }
 }
 if (frame == 60) {
-    y = -0800
+    y = -800
 }
     `
 
@@ -1230,15 +1230,33 @@ spriteAngle += kakudo
         id: "spell_rush2_non_4",
         name: "",
         hp: 1000,
-        duration: 25,
+        duration: 30,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    for (let i = 0; i < 3; i++) {
+        spawnBullet("normal", "#44ff44", 200, angle, 0, 0, 22, "b_star", "relative", "10")
+        angle += random(0,360)
+        spawnBullet("normal", "#ffdd33", 200, angle, 0, 0, 22, "b_star", "relative", "10")
+        angle += random(0,360)
+    }
+    wait(0.0167)
+}
         `,
         bulletScript: `
-
+once {
+    speed += random(0,200)
+    muki = random(-1,1)
+    if (muki==-1..0) {
+        kakudo = -3
+    }
+    if (muki==0..1) {
+        kakudo = 3
+    }
+}
+spriteAngle += kakudo
         `,
         magicCircleScript: ``
 
