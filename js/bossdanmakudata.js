@@ -1296,17 +1296,39 @@ spriteAngle += kakudo
 
         },{
         id: "spell_rush2_4",
-        name: "「」",
-        hp: 1000,
-        duration: 25,
+        name: "「ステラレイヴ」",
+        hp: 2000,
+        duration: 50,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    aimAtTarget()
+    angle += random(-10,10)
+    spawnBullet("normal", "#ff3333", 150, angle, 200, -100, 10, "light", "relative", "6")
+    spawnBullet("normal", "#ff3333", 150, angle, -200, -100, 10, "light", "relative", "6")
+    angle += random(-40,40)
+    spawnBullet("normal", "#ff3333", 150, angle, 200, -100, 10, "light", "relative", "6")
+    spawnBullet("normal", "#ff3333", 150, angle, -200, -100, 10, "light", "relative", "6")
+    aimAtTarget()
+    angle += random(-6,6)
+    spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 8, "redstar", "relative", "6")
+    wait(0.0167 * 3)
+}
         `,
         bulletScript: `
-
+once {
+    speed += random(-100,20)
+    muki = random(-1,1)
+    if (muki==-1..0) {
+        kakudo = -3
+    }
+    if (muki==0..1) {
+        kakudo = 3
+    }
+}
+spriteAngle += kakudo
         `,
         magicCircleScript: ``
 
