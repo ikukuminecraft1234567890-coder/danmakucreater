@@ -1334,17 +1334,102 @@ spriteAngle += kakudo
 
         },{
         id: "spell_rush2_5",
-        name: "「」",
-        hp: 1000,
-        duration: 25,
+        name: "「エクリプス」",
+        hp: 5000,
+        duration: 120,
         x_offset: 0,
         y_offset: 0,
         despawnTime: 1.5,
         emitterScript: `
-
+while (true) {
+    aimAtTarget()
+    if (enemyHp == 0..1000) {
+        angle = random(0,360)
+    }
+    if (enemyHp == 3000..5000) {
+        spawnWayResist("normal", "#ffffff", 0, angle, 9, 15, 0, 0, 15, "normal", "relative", "0")
+        wait(0.8)
+        spawnWayResist("normal", "#ff3333", 0, angle, 9, 15, 0, 0, 15, "rednormal", "relative", "15")
+    }
+    if (enemyHp == 2000..3000) {
+        spawnWayResist("normal", "#ffffff", 0, angle, 9, 15, 0, 0, 15, "normal", "relative", "0")
+        wait(0.5)
+        spawnWayResist("normal", "#ff3333", 0, angle, 9, 15, 0, 0, 15, "rednormal", "relative", "15")
+    }
+    if (enemyHp == 1000..2000) {
+        spawnWayResist("normal", "#ffffff", 0, angle, 36, 10, 0, 0, 15, "normal", "relative", "0")
+        wait(0.5)
+        spawnWayResist("normal", "#ff3333", 0, angle, 36, 10, 0, 0, 15, "rednormal", "relative", "15")
+    }
+    for (let i = 0; i < 3; i++) {
+        wait(0.167 * 2)
+        spd = 0
+        for (let i = 0; i < 4; i++) {
+            if (enemyHp == 1000..5000) {
+                spawnRing("normal", "#ffaa33", 200 + spd, angle, 12, 0, 0, 25, "b_star", "relative", "20")
+            }
+            if (enemyHp == 0..1000) {
+                spawnRingResist("normal", "#ffaa33", 200 + spd, angle, 12, 0, 0, 25, "b_star", "relative", "16")
+            }
+            spd += 30
+            if (enemyHp == 0..3000) {
+                angle += 8
+            }
+        }
+        angle += 15 - 32
+        wait(0.167 * 2)
+        spd = 0
+        for (let i = 0; i < 4; i++) {
+            if (enemyHp == 1000..5000) {
+                spawnRing("normal", "#ffaa33", 200 + spd, angle, 12, 0, 0, 25, "b_star", "relative", "16")
+            }
+            if (enemyHp == 0..1000) {
+                spawnRingResist("normal", "#ffaa33", 200 + spd, angle, 12, 0, 0, 25, "b_star", "relative", "16")
+            }
+            spd += 30
+            if (enemyHp == 0..3000) {
+                angle -= 8
+            }
+        }
+        angle += 15 + 32
+    }
+}
         `,
         bulletScript: `
-
+if (color==#ffffff) {
+    once {
+        advance(30)
+        multf = 20
+        hitmultf = 45
+        multlr = 0.1
+        wait(1.2)
+        y = -8000
+    }
+}
+if (color==#ff3333) {
+    once {
+        advance(30)
+        multf = 30
+        hitmultf = 45
+        multlr = 0
+        tween("multlr", 0, 0.5, "seconds", 0.4)
+        wait(3)
+        tweenWait("multlr", 0.5, 0, "seconds", 0.4)
+        y = -8000
+    }
+}
+if (color==#ffaa33) {
+    once {
+        muki = random(-1,1)
+        if (muki==-1..0) {
+            kakudo = -3
+        }
+        if (muki==0..1) {
+            kakudo = 3
+        }
+    }
+    spriteAngle += kakudo
+}
         `,
         magicCircleScript: ``
 
