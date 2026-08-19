@@ -1413,10 +1413,10 @@ if (color==#ff3333) {
         multf = 30
         hitmultf = 45
         multlr = 0
-        tween("multlr", 0, 0.5, "seconds", 0.4)
-        wait(0.2)
+        tween("multlr", 0, 0.5, "seconds", 1)
+        wait(0.8)
         hitRadius = 15
-        wait(2.8)
+        wait(2.2)
         tweenWait("multlr", 0.5, 0, "seconds", 0.4)
         y = -8000
     }
