@@ -1296,7 +1296,7 @@ spriteAngle += kakudo
 
         },{
         id: "spell_rush2_4",
-        name: "「ステラレイヴ」",
+        name: "光芒「ステラレイヴ」",
         hp: 2000,
         duration: 50,
         x_offset: 0,
@@ -1314,7 +1314,7 @@ while (true) {
     aimAtTarget()
     angle += random(-6,6)
     spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 8, "redstar", "relative", "6")
-    wait(0.0167 * 3)
+    wait(0.0167 * 10)
 }
         `,
         bulletScript: `
