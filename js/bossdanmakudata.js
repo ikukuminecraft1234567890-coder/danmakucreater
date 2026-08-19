@@ -1314,7 +1314,7 @@ while (true) {
     aimAtTarget()
     angle += random(-6,6)
     spawnBullet("normal", "#ff3333", 300, angle, 0, 0, 8, "redstar", "relative", "6")
-    wait(0.0167 * 10)
+    wait(0.0167 * 5)
 }
         `,
         bulletScript: `
