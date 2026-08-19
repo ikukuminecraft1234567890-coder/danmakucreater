@@ -1218,7 +1218,7 @@ if (color==#ff3333) {
         },{
         id: "spell_rush2_3",
         name: "本能「殺意の解放」",
-        hp: 1200,
+        hp: 2400,
         duration: 50,
         x_offset: 0,
         y_offset: 0,
