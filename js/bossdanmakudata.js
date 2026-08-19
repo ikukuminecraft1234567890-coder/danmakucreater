@@ -1385,6 +1385,7 @@ while (true) {
             }
             if (enemyHp == 0..1000) {
                 spawnRingResist("normal", "#ffaa33", 200 + spd, angle, 12, 0, 0, 25, "b_star", "relative", "16")
+                spawnRingResist("normal", "#ffaa33", 400 + spd, angle, 12, 0, 0, 25, "b_star", "relative", "16")
             }
             spd += 30
             if (enemyHp == 0..3000) {
