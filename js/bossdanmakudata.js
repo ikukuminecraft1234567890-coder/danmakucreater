@@ -1349,17 +1349,17 @@ while (true) {
     if (enemyHp == 3000..5000) {
         spawnWayResist("normal", "#ffffff", 0, angle, 9, 15, 0, 0, 15, "normal", "relative", "0")
         wait(0.8)
-        spawnWayResist("normal", "#ff3333", 0, angle, 9, 15, 0, 0, 15, "rednormal", "relative", "15")
+        spawnWayResist("normal", "#ff3333", 0, angle, 9, 15, 0, 0, 15, "rednormal", "relative", "0")
     }
     if (enemyHp == 2000..3000) {
         spawnWayResist("normal", "#ffffff", 0, angle, 9, 15, 0, 0, 15, "normal", "relative", "0")
         wait(0.5)
-        spawnWayResist("normal", "#ff3333", 0, angle, 9, 15, 0, 0, 15, "rednormal", "relative", "15")
+        spawnWayResist("normal", "#ff3333", 0, angle, 9, 15, 0, 0, 15, "rednormal", "relative", "0")
     }
     if (enemyHp == 1000..2000) {
         spawnWayResist("normal", "#ffffff", 0, angle, 36, 10, 0, 0, 15, "normal", "relative", "0")
         wait(0.5)
-        spawnWayResist("normal", "#ff3333", 0, angle, 36, 10, 0, 0, 15, "rednormal", "relative", "15")
+        spawnWayResist("normal", "#ff3333", 0, angle, 36, 10, 0, 0, 15, "rednormal", "relative", "0")
     }
     for (let i = 0; i < 3; i++) {
         wait(0.167 * 2)
@@ -1413,7 +1413,9 @@ if (color==#ff3333) {
         hitmultf = 45
         multlr = 0
         tween("multlr", 0, 0.5, "seconds", 0.4)
-        wait(3)
+        wait(0.2)
+        hitRadius = 15
+        wait(2.8)
         tweenWait("multlr", 0.5, 0, "seconds", 0.4)
         y = -8000
     }
