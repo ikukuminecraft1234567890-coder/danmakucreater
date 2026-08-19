@@ -564,6 +564,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             bulletImage: bImg,
                             team: attacker.team,
                             color: bColor,
+                            bulletType: isTrail ? 'trail' : (block.params.bulletType || 'normal'),
                             customDmg: 20, // custom card damage balanced to 20
                             isCustom: true,
                             update: null
@@ -1467,7 +1468,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                 warningTime: 0,
                 activeTime: 0,
                 laserWidth: 12,
-                laserStartTime: null
+                laserStartTime: null,
+                multf: 1,
+                multlr: 1,
+                hitmultf: null,
+                hitmultlr: null,
+                asba: 1,
+                aslr: 1
             };
             let compiledBlocks = (!script || script.length === 0) ? [] : compileIndentedBlocks(JSON.parse(JSON.stringify(script)));
 
@@ -3270,6 +3277,21 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (vRound !== undefined) {
                 b.round = (vRound === 'true' || vRound === true);
             }
+            let vBulletType = window.getBulletVar(state.variables, 'bulletType');
+            if (vBulletType !== undefined) {
+                b.bulletType = vBulletType;
+                if (vBulletType === 'laser') {
+                    b.isLaser = true;
+                    b.isTrail = false;
+                } else if (vBulletType === 'trail') {
+                    b.isTrail = true;
+                    b.isLaser = false;
+                    if (!b.trailHistory) b.trailHistory = [];
+                } else {
+                    b.isLaser = false;
+                    b.isTrail = false;
+                }
+            }
             let vBulletImage = window.getBulletVar(state.variables, 'bulletImage');
             if (vBulletImage !== undefined) {
                 b.bulletImage = vBulletImage;
@@ -3300,6 +3322,49 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
             }
             b.laserWidth = getLaserWidth(b);
+            // 前後・左右アスペクト比倍率 (multf / multlr) および 当たり判定専用倍率 (hitmultf / hitmultlr)
+            let vMultf = window.getBulletVar(state.variables, 'multf');
+            if (vMultf === undefined) vMultf = window.getBulletVar(state.variables, 'asba');
+            if (vMultf !== undefined) {
+                let multfNum = parseFloat(evalExpr(vMultf, state.variables));
+                if (!isNaN(multfNum)) {
+                    b.multf = multfNum;
+                    b.asba = multfNum;
+                    window.setBulletVar(state.variables, 'multf', multfNum);
+                    window.setBulletVar(state.variables, 'asba', multfNum);
+                }
+            }
+            let vMultlr = window.getBulletVar(state.variables, 'multlr');
+            if (vMultlr === undefined) vMultlr = window.getBulletVar(state.variables, 'aslr');
+            if (vMultlr !== undefined) {
+                let multlrNum = parseFloat(evalExpr(vMultlr, state.variables));
+                if (!isNaN(multlrNum)) {
+                    b.multlr = multlrNum;
+                    b.aslr = multlrNum;
+                    window.setBulletVar(state.variables, 'multlr', multlrNum);
+                    window.setBulletVar(state.variables, 'aslr', multlrNum);
+                }
+            }
+            let vHitmultf = window.getBulletVar(state.variables, 'hitmultf');
+            if (vHitmultf !== undefined && vHitmultf !== '' && vHitmultf !== null && vHitmultf !== 'none') {
+                let hmfNum = parseFloat(evalExpr(vHitmultf, state.variables));
+                if (!isNaN(hmfNum)) {
+                    b.hitmultf = hmfNum;
+                    window.setBulletVar(state.variables, 'hitmultf', hmfNum);
+                }
+            } else if (vHitmultf === '' || vHitmultf === null || vHitmultf === 'none') {
+                b.hitmultf = undefined;
+            }
+            let vHitmultlr = window.getBulletVar(state.variables, 'hitmultlr');
+            if (vHitmultlr !== undefined && vHitmultlr !== '' && vHitmultlr !== null && vHitmultlr !== 'none') {
+                let hmlrNum = parseFloat(evalExpr(vHitmultlr, state.variables));
+                if (!isNaN(hmlrNum)) {
+                    b.hitmultlr = hmlrNum;
+                    window.setBulletVar(state.variables, 'hitmultlr', hmlrNum);
+                }
+            } else if (vHitmultlr === '' || vHitmultlr === null || vHitmultlr === 'none') {
+                b.hitmultlr = undefined;
+            }
             
             // 設置レーザー（警告線付きビーム）の制御
             let warnT = parseFloat(state.variables.warningTime) || 0;

@@ -1923,3 +1923,248 @@ html,
         .mobile-bomb-btn.hidden {
             display: none !important;
         }
+
+        /* 弾画像ピッカーモーダル (シンプルアコーディオン) */
+        .bullet-picker-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10050;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Meiryo', sans-serif !important;
+        }
+        .bullet-picker-modal.hidden {
+            display: none !important;
+        }
+        .bullet-picker-panel {
+            width: min(820px, 95vw);
+            height: min(720px, 86vh);
+            display: flex;
+            flex-direction: column;
+            background: #0d1117;
+            border: 1.5px solid #00ffcc;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 255, 204, 0.2);
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .bullet-picker-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: linear-gradient(90deg, #00382b 0%, #001a14 100%);
+            border-bottom: 1px solid rgba(0, 255, 204, 0.35);
+            flex-shrink: 0;
+        }
+        .bullet-picker-header h4 {
+            margin: 0;
+            color: #00ffcc;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .bullet-picker-close-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .bullet-picker-close-btn:hover {
+            background: #da3633;
+            border-color: #f85149;
+            color: #fff;
+        }
+        .bullet-picker-body {
+            flex: 1 1 auto;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            padding: 14px 18px;
+            display: block !important;
+            box-sizing: border-box;
+            min-height: 0;
+            scrollbar-width: thin;
+            scrollbar-color: #00ffcc #0d1117;
+        }
+        .bullet-picker-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        .bullet-picker-body::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        .bullet-picker-body::-webkit-scrollbar-thumb {
+            background: #238636;
+            border-radius: 4px;
+        }
+        .bullet-picker-body::-webkit-scrollbar-thumb:hover {
+            background: #00ffcc;
+        }
+        .bullet-cat-details {
+            display: block !important;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 8px !important;
+            transition: border-color 0.2s;
+            height: auto !important;
+        }
+        .bullet-cat-details[open] {
+            border-color: #00ffcc;
+        }
+        .bullet-cat-summary {
+            list-style: none !important;
+            height: 42px !important;
+            padding: 0 14px !important;
+            font-size: 14px;
+            font-weight: bold;
+            color: #e6edf3;
+            cursor: pointer;
+            user-select: none;
+            background: #21262d;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            transition: background 0.15s;
+            outline: none;
+            box-sizing: border-box;
+            border-radius: 5px;
+        }
+        .bullet-cat-details[open] .bullet-cat-summary {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: 1px solid #30363d;
+        }
+        .bullet-cat-summary::-webkit-details-marker {
+            display: none !important;
+        }
+        .bullet-cat-summary:hover {
+            background: #30363d;
+            color: #00ffcc;
+        }
+        .bullet-cat-arrow {
+            font-size: 12px;
+            color: #8b949e;
+            transition: transform 0.2s;
+        }
+        .bullet-cat-details[open] .bullet-cat-arrow {
+            transform: rotate(90deg);
+            color: #00ffcc;
+        }
+        .bullet-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+            gap: 8px !important;
+            padding: 12px !important;
+            background: #0d1117;
+            box-sizing: border-box;
+            height: auto !important;
+        }
+        .bullet-item-btn {
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 12px;
+            font-family: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.12s;
+            min-height: 40px !important;
+            height: auto !important;
+            box-sizing: border-box;
+        }
+        .bullet-item-btn:hover {
+            background: #1f6feb;
+            border-color: #58a6ff;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .bullet-item-btn.active {
+            background: #238636;
+            border-color: #3fb950;
+            color: #fff;
+            font-weight: bold;
+        }
+        .bullet-item-thumb-box {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        .bullet-item-thumb {
+            max-width: 20px;
+            max-height: 20px;
+            object-fit: contain;
+        }
+        .bullet-item-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            line-height: 1.2;
+        }
+        .bullet-item-name {
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bullet-item-key {
+            font-size: 10px;
+            color: #8b949e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bullet-item-btn:hover .bullet-item-key {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .bullet-picker-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #58a6ff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: inherit;
+            cursor: pointer;
+            max-width: 175px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            font-weight: bold;
+            transition: all 0.15s;
+        }
+        .bullet-picker-btn:hover {
+            background: #21262d;
+            border-color: #58a6ff;
+            color: #79c0ff;
+        }

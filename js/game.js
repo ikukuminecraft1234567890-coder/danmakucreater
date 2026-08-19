@@ -2394,7 +2394,14 @@ function applyAbilityEffect(cardId, owner) {
                             
                             distSq = isSwordHit ? 0 : (isSwordGraze ? (player.hitboxRadius + bHitR) ** 2 + 1 : Infinity);
                         } else {
-                            distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;
+                            let aspectData = getAspectBulletHitData(b, bHitR);
+                            if (aspectData.isAspect) {
+                                let isHit = isPointInAspectEllipse(player.x, player.y, _pHitR, aspectData);
+                                let isGraze = !b.grazed && isPointInAspectEllipse(player.x, player.y, _pGrazeR, aspectData);
+                                distSq = isHit ? 0 : (isGraze ? (_pHitR + bHitR) ** 2 + 1 : Infinity);
+                            } else {
+                                distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;
+                            }
                         }
                         if (distSq < (_pHitR + bHitR) ** 2) {
                             let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 2 : 50);
@@ -2576,7 +2583,13 @@ function applyAbilityEffect(cardId, owner) {
                             }
                             distSq = isSwordHit ? 0 : Infinity;
                         } else {
-                            distSq = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
+                            let aspectData = getAspectBulletHitData(b, bHitR);
+                            if (aspectData.isAspect) {
+                                let isHit = isPointInAspectEllipse(cpu.x, cpu.y, _cHitR, aspectData);
+                                distSq = isHit ? 0 : Infinity;
+                            } else {
+                                distSq = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
+                            }
                         }
                         if (distSq < (_cHitR + bHitR) ** 2) {
                             let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 5 : 40); // 通常弾は一発5ダメージ
@@ -3226,13 +3239,40 @@ function applyAbilityEffect(cardId, owner) {
 
                         if (drawSize > 0) {
                             ctx.globalAlpha = Math.max(0, Math.min(1.0, auraIntensityVal));
-                            ctx.drawImage(
-                                tex.canvas,
-                                waveX - drawSize / 2,
-                                waveY - drawSize / 2,
-                                drawSize,
-                                drawSize
-                            );
+                            let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+                            let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
+                            if (isNaN(multf) || multf < 0) multf = 1;
+                            let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
+                            if (isNaN(multlr) || multlr < 0) multlr = 1;
+
+                            if (multf === 1 && multlr === 1) {
+                                ctx.drawImage(
+                                    tex.canvas,
+                                    waveX - drawSize / 2,
+                                    waveY - drawSize / 2,
+                                    drawSize,
+                                    drawSize
+                                );
+                            } else {
+                                let angle;
+                                if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                                    let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                                    if (b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
+                                    angle = spriteAngleRad + Math.PI / 2;
+                                } else {
+                                    angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                                }
+                                const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                                ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, waveX, waveY);
+                                ctx.drawImage(
+                                    tex.canvas,
+                                    -drawSize * multlr / 2,
+                                    drawSize * (1 - 2 * multf) / 2,
+                                    drawSize * multlr,
+                                    drawSize * multf
+                                );
+                                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                            }
                         }
                     }
                 }
@@ -3257,9 +3297,16 @@ function applyAbilityEffect(cardId, owner) {
                     const b = bullets[_bi];
                     if (b.radius <= 0) continue;
 
+                    const _bVars = b.bulletState ? b.bulletState.variables : null;
+                    const _hasAspect = (b.multf !== undefined && b.multf !== 1) || (b.multlr !== undefined && b.multlr !== 1) ||
+                                       (b.asba !== undefined && b.asba !== 1) || (b.aslr !== undefined && b.aslr !== 1) ||
+                                       (_bVars && ((_bVars.multf !== undefined && Number(_bVars.multf) !== 1) ||
+                                                  (_bVars.multlr !== undefined && Number(_bVars.multlr) !== 1) ||
+                                                  (_bVars.asba !== undefined && Number(_bVars.asba) !== 1) ||
+                                                  (_bVars.aslr !== undefined && Number(_bVars.aslr) !== 1)));
                     const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
                                        b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
-                                       b.isSweeper || b.bulletImage || b.isNormal;
+                                       b.isSweeper || b.bulletImage || b.isNormal || _hasAspect;
 
                     if (!_isSpecial) {
                         // 通常の円弾のカリング
@@ -3301,7 +3348,10 @@ function applyAbilityEffect(cardId, owner) {
             // 画面外カリング（通常弾のみ）
             // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
             if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece && !b.isTrail) {
-                if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) continue;
+                let _bVars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : {};
+                let maxAspect = Math.max(1, Number(b.multf) || 1, Number(b.multlr) || 1, Number(b.asba) || 1, Number(b.aslr) || 1, Number(_bVars.multf) || 1, Number(_bVars.multlr) || 1, Number(_bVars.asba) || 1, Number(_bVars.aslr) || 1);
+                let cullMargin = b.radius * maxAspect * 2 + 10;
+                if (b.x < -cullMargin || b.x > PLAY_WIDTH + cullMargin || b.y < -cullMargin || b.y > canvas.height + cullMargin) continue;
             }
             {
             /* ↑ 以降の描画コードは従来の forEach ブロックの中身と同一 */
@@ -3735,23 +3785,63 @@ function applyAbilityEffect(cardId, owner) {
                 } else if (b.bulletImage === 'light') {
                     // 光弾の実体（白い円、コア）の描画
                     let drawRadius = b.radius * 1.2;
+                    let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+                    let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
+                    if (isNaN(multf) || multf < 0) multf = 1;
+                    let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
+                    if (isNaN(multlr) || multlr < 0) multlr = 1;
+
                     ctx.save();
                     ctx.fillStyle = '#ffffff'; // 中央は白固定
-                    ctx.beginPath();
-                    ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2);
-                    ctx.fill();
+                    if (multf === 1 && multlr === 1) {
+                        ctx.beginPath();
+                        ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        let angle;
+                        if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                            let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                            if (b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
+                            angle = spriteAngleRad + Math.PI / 2;
+                        } else {
+                            angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                        }
+                        const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                        ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
+                        ctx.beginPath();
+                        ctx.ellipse(0, drawRadius * (1 - multf), Math.max(0.1, drawRadius * multlr), Math.max(0.1, drawRadius * multf), 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    }
                     ctx.restore();
                 } else {
                     let drawRadius = b.radius * 1.5;
-                    if (b.bulletImage && b.bulletImage !== 'none') {
-                        // オフスクリーンCanvasキャッシュから着色済みテクスチャを取得
-                        if (!window.bulletTextureCache) window.bulletTextureCache = {};
-                        const cacheKey = `${b.bulletImage}_${b.color || '#ff3333'}`;
-                        let texture = window.bulletTextureCache[cacheKey];
-                        
-                        if (!texture) {
-                            const baseImg = (window.bulletImages) ? window.bulletImages[b.bulletImage] : null;
-                            if (baseImg && baseImg.complete && baseImg.naturalWidth > 0) {
+                    let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+                    let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
+                    if (isNaN(multf) || multf < 0) multf = 1;
+                    let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
+                    if (isNaN(multlr) || multlr < 0) multlr = 1;
+
+                    let isPalette = (b.bulletType === 'palette') || (vars && vars.bulletType === 'palette') || (window.paletteBulletSet && window.paletteBulletSet.has(b.bulletImage));
+                    let imgKey = b.bulletImage;
+                    if (isPalette && (!imgKey || imgKey === 'none' || imgKey === 'normal')) {
+                        imgKey = 'rednormal';
+                    }
+
+                    if (imgKey && imgKey !== 'none') {
+                        let texture = null;
+                        const baseImg = (window.bulletImages) ? window.bulletImages[imgKey] : null;
+
+                        if (isPalette) {
+                            // パレット弾: 色相変換を行わず、元画像そのままを描画（colorは内部パラメータとして保持）
+                            texture = baseImg;
+                        } else {
+                            // 通常画像弾: オフスクリーンCanvasキャッシュから着色済みテクスチャを取得
+                            if (!window.bulletTextureCache) window.bulletTextureCache = {};
+                            const cacheKey = `${imgKey}_${b.color || '#ff3333'}`;
+                            texture = window.bulletTextureCache[cacheKey];
+                            
+                            if (!texture && baseImg && baseImg.complete && baseImg.naturalWidth > 0) {
                                 const offscreen = document.createElement('canvas');
                                 const w = baseImg.naturalWidth;
                                 const h = baseImg.naturalHeight;
@@ -3780,8 +3870,8 @@ function applyAbilityEffect(cardId, owner) {
                                         let d = max - min;
                                         switch (max) {
                                             case r: hue = (g - bVal) / d + (g < bVal ? 6 : 0); break;
-                                            case g: hue = (bVal - r) / d + 2; break;
-                                            case bVal: hue = (r - g) / d + 4; break;
+                                             case g: hue = (bVal - r) / d + 2; break;
+                                             case bVal: hue = (r - g) / d + 4; break;
                                         }
                                         hue = Math.round((hue / 6) * 360);
                                     }
@@ -3793,12 +3883,12 @@ function applyAbilityEffect(cardId, owner) {
                             }
                         }
 
-                        if (texture) {
+                        if (texture && (texture.complete === undefined || texture.complete)) {
                             // 最適化: ctx.save/restore の代わりに setTransform を使用
                             // spriteAngleが定義されている場合はその絶対角度、なければ進行方向の角度を使用
                             let angle;
-                            if (b.bulletState && b.bulletState.variables && b.bulletState.variables.spriteAngle !== undefined && b.bulletState.variables.spriteAngle !== null) {
-                                let spriteAngleRad = (Number(b.bulletState.variables.spriteAngle) || 0) * Math.PI / 180;
+                            if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                                let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
                                 if (b.bulletState.isPlayerSide) {
                                     spriteAngleRad = -spriteAngleRad;
                                 }
@@ -3808,17 +3898,55 @@ function applyAbilityEffect(cardId, owner) {
                             }
                             const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
                             ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
-                            ctx.drawImage(texture, -drawRadius, -drawRadius, drawRadius * 2, drawRadius * 2);
+                            if (multf === 1 && multlr === 1) {
+                                ctx.drawImage(texture, -drawRadius, -drawRadius, drawRadius * 2, drawRadius * 2);
+                            } else {
+                                ctx.drawImage(texture, -drawRadius * multlr, drawRadius * (1 - 2 * multf), drawRadius * 2 * multlr, drawRadius * 2 * multf);
+                            }
                             ctx.setTransform(1, 0, 0, 1, 0, 0); // リセット
                         } else {
                             let color = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
                             ctx.fillStyle = color;
-                            ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
+                            if (multf === 1 && multlr === 1) {
+                                ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
+                            } else {
+                                let angle;
+                                if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                                    let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                                    if (b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
+                                    angle = spriteAngleRad + Math.PI / 2;
+                                } else {
+                                    angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                                }
+                                const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                                ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
+                                ctx.beginPath();
+                                ctx.ellipse(0, drawRadius * (1 - multf), Math.max(0.1, drawRadius * multlr), Math.max(0.1, drawRadius * multf), 0, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                            }
                         }
                     } else {
                         let color = b.color || (b.team === 'PLAYER' ? '#55aaff' : '#ff4444');
                         ctx.fillStyle = color;
-                        ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
+                        if (multf === 1 && multlr === 1) {
+                            ctx.beginPath(); ctx.arc(b.x, b.y, drawRadius, 0, Math.PI * 2); ctx.fill();
+                        } else {
+                            let angle;
+                            if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                                let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                                if (b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
+                                angle = spriteAngleRad + Math.PI / 2;
+                            } else {
+                                angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                            }
+                            const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                            ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
+                            ctx.beginPath();
+                            ctx.ellipse(0, drawRadius * (1 - multf), Math.max(0.1, drawRadius * multlr), Math.max(0.1, drawRadius * multf), 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        }
                     }
                 }
 
@@ -3940,13 +4068,29 @@ function applyAbilityEffect(cardId, owner) {
                             ctx.stroke();
                         }
                     } else {
-                        ctx.strokeStyle = '#00ff00';
-                        ctx.lineWidth = 1.5;
-                        ctx.fillStyle = 'rgba(0, 255, 0, 0.35)';
-                        ctx.beginPath();
-                        ctx.arc(b.x, b.y, bHitR, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.stroke();
+                        let aspectData = getAspectBulletHitData(b, bHitR);
+                        if (aspectData.isAspect) {
+                            ctx.save();
+                            ctx.translate(aspectData.centerX, aspectData.centerY);
+                            let angle = Math.atan2(aspectData.dirY, aspectData.dirX) + Math.PI / 2;
+                            ctx.rotate(angle);
+                            ctx.strokeStyle = '#00ff00';
+                            ctx.lineWidth = 1.5;
+                            ctx.fillStyle = 'rgba(0, 255, 0, 0.35)';
+                            ctx.beginPath();
+                            ctx.ellipse(0, 0, aspectData.rx, aspectData.ry, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                            ctx.restore();
+                        } else {
+                            ctx.strokeStyle = '#00ff00';
+                            ctx.lineWidth = 1.5;
+                            ctx.fillStyle = 'rgba(0, 255, 0, 0.35)';
+                            ctx.beginPath();
+                            ctx.arc(b.x, b.y, bHitR, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
                     }
                     ctx.restore();
                 }
@@ -6307,7 +6451,8 @@ function applyAbilityEffect(cardId, owner) {
                 'ex', 'ey', 'emitter_x', 'emitter_y',
                 'x_offset', 'y_offset', 'isBounced', 'isTouchWall', 'touchingWall',
                 'isTouchBullet', 'touchingBullet', 'touchColor', 'touchX', 'touchY',
-                'warningTime', 'activeTime', 'laserStartTime', 'laserWidth', 'color', 'bulletType'
+                'warningTime', 'activeTime', 'laserStartTime', 'laserWidth', 'color', 'bulletType',
+                'multf', 'multlr', 'hitmultf', 'hitmultlr', 'asba', 'aslr'
             ]);
             let copiedCount = 0;
             Object.keys(emitterState.variables).forEach(name => {
@@ -6318,6 +6463,85 @@ function applyAbilityEffect(cardId, owner) {
             if (window.showDebugProfiler) {
                 console.log(`[DEBUG] inheritEmitterVariablesToBullet: copied ${copiedCount} custom variables`);
             }
+        }
+
+        // アスペクト比倍率(multf, multlr)および当たり判定専用倍率(hitmultf, hitmultlr)を考慮した当たり判定データ取得（楕円モデル）
+        function getAspectBulletHitData(b, bHitR) {
+            let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+            let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
+            if (isNaN(multf) || multf < 0) multf = 1;
+            let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
+            if (isNaN(multlr) || multlr < 0) multlr = 1;
+
+            let hitmultf = (b.hitmultf !== undefined && b.hitmultf !== null && !isNaN(Number(b.hitmultf))) ? Number(b.hitmultf) : (vars && vars.hitmultf !== undefined && vars.hitmultf !== null && vars.hitmultf !== '' && !isNaN(Number(vars.hitmultf)) ? Number(vars.hitmultf) : multf);
+            if (isNaN(hitmultf) || hitmultf < 0) hitmultf = multf;
+
+            let hitmultlr = (b.hitmultlr !== undefined && b.hitmultlr !== null && !isNaN(Number(b.hitmultlr))) ? Number(b.hitmultlr) : (vars && vars.hitmultlr !== undefined && vars.hitmultlr !== null && vars.hitmultlr !== '' && !isNaN(Number(vars.hitmultlr)) ? Number(vars.hitmultlr) : multlr);
+            if (isNaN(hitmultlr) || hitmultlr < 0) hitmultlr = multlr;
+
+            if (multf === 1 && multlr === 1 && hitmultf === 1 && hitmultlr === 1) {
+                return { isAspect: false, x: b.x, y: b.y, hitR: bHitR };
+            }
+
+            let rad;
+            if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                let spriteAngle = Number(vars.spriteAngle) || 0;
+                if (b.bulletState.isPlayerSide) spriteAngle = -spriteAngle;
+                rad = spriteAngle * Math.PI / 180;
+            } else {
+                rad = Math.atan2(b.vy, b.vx);
+            }
+            let dirX = Math.cos(rad);
+            let dirY = Math.sin(rad);
+
+            let drawRadius = (b.bulletImage === 'light') ? (b.radius * 1.2) : (b.radius * 1.5);
+            let centerOffset = drawRadius * (multf - 1);
+            let centerX = b.x + dirX * centerOffset;
+            let centerY = b.y + dirY * centerOffset;
+
+            let rx = bHitR * hitmultlr;
+            let ry = bHitR * hitmultf;
+
+            return {
+                isAspect: true,
+                isEllipse: true,
+                centerX,
+                centerY,
+                rx,
+                ry,
+                dirX,
+                dirY,
+                rad,
+                multf,
+                multlr,
+                hitmultf,
+                hitmultlr
+            };
+        }
+
+        function isPointInAspectEllipse(px, py, targetRadius, aspectData) {
+            let dx = px - aspectData.centerX;
+            let dy = py - aspectData.centerY;
+            let ly = dx * aspectData.dirX + dy * aspectData.dirY;
+            let lx = -dx * aspectData.dirY + dy * aspectData.dirX;
+            let effRx = aspectData.rx + targetRadius;
+            let effRy = aspectData.ry + targetRadius;
+            return (lx * lx) / (effRx * effRx) + (ly * ly) / (effRy * effRy) <= 1;
+        }
+
+        function computePointToSegmentDistSq(px, py, x1, y1, x2, y2) {
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let lenSq = dx * dx + dy * dy;
+            if (lenSq === 0) {
+                return (px - x1) ** 2 + (py - y1) ** 2;
+            }
+            let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+            if (t < 0) t = 0;
+            else if (t > 1) t = 1;
+            let cx = x1 + t * dx;
+            let cy = y1 + t * dy;
+            return (px - cx) ** 2 + (py - cy) ** 2;
         }
 
         const numericExprCache = new Map();

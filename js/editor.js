@@ -342,6 +342,183 @@ function customCardMakerSwitchTab(tab) {
             `;
         }
 
+        // 弾画像ピッカー機能
+        window.currentBulletPickerBlockIdx = null;
+
+        const bulletBaseImageItems = [
+            { val: 'none', label: '丸（ドロー）', icon: 'none' },
+            { val: 'light', label: '光弾', icon: 'light' },
+            { val: 'sword', label: '剣弾', icon: 'sword.png' },
+            { val: 'normal', label: '通常弾画像 (normal.png)', icon: 'normal.png' },
+            { val: 'marutama', label: '丸弾', icon: 'marutama.png' },
+            { val: 'kome', label: '米弾', icon: 'kome.png' },
+            { val: 'ootama', label: '大玉', icon: 'ootama.png' },
+            { val: 'ohuda', label: 'お札', icon: 'ohuda.png' },
+            { val: 'star', label: '星', icon: 'star.png' },
+            { val: 'knife', label: 'ナイフ', icon: 'knife.png' },
+            { val: 'uroko', label: '鱗弾', icon: 'uroko.png' },
+            { val: 'poihuru', label: 'ポイフル', icon: 'poihuru.png' },
+            { val: 'virus', label: 'ウイルス', icon: 'virus.png' },
+            { val: 'onmyoutama', label: '陰陽弾', icon: 'onmyoutama.png' },
+            { val: 'b_marutama', label: '巨大丸弾', icon: 'b_marutama.png' },
+            { val: 'b_ohuda', label: '巨大お札', icon: 'b_ohuda.png' },
+            { val: 'b_star', label: '巨大星弾', icon: 'b_star.png' },
+            { val: 'b_knife', label: '巨大ナイフ', icon: 'b_knife.png' },
+            { val: 'b_poihuru', label: '巨大ポイフル', icon: 'b_poihuru.png' },
+            { val: 'b_uroko', label: '巨大鱗弾', icon: 'b_uroko.png' },
+            { val: 'dangan', label: '弾丸', icon: 'dangan.png' },
+            { val: 'kunai1', label: 'クナイ1', icon: 'kunai1.png' },
+            { val: 'kunai2', label: 'クナイ2', icon: 'kunai2.png' },
+            { val: 'tyoudan', label: '蝶弾', icon: 'tyoudan.png' }
+        ];
+
+        const bulletPaletteGroups = [
+            { key: 'red', name: '🔴 パレット: 赤 (Red)', count: 11 },
+            { key: 'crim', name: '🍷 パレット: 深紅 (Crimson)', count: 11 },
+            { key: 'blue', name: '🔵 パレット: 青 (Blue)', count: 11 },
+            { key: 'cobalt', name: '🔷 パレット: コバルト (Cobalt)', count: 11 },
+            { key: 'cyan', name: '💠 パレット: シアン (Cyan)', count: 11 },
+            { key: 'aqua', name: '💧 パレット: 水色 (Aqua)', count: 11 },
+            { key: 'yellow', name: '🟡 パレット: 黄 (Yellow)', count: 11 },
+            { key: 'gold', name: '⭐ パレット: 金 (Gold)', count: 11 },
+            { key: 'green', name: '🟢 パレット: 緑 (Green)', count: 11 },
+            { key: 'lime', name: '🌱 パレット: 黄緑 (Lime)', count: 11 },
+            { key: 'olive', name: '🫒 パレット: オリーブ (Olive)', count: 11 },
+            { key: 'orange', name: '🟠 パレット: 橙 (Orange)', count: 11 },
+            { key: 'pink', name: '🌸 パレット: 桃 (Pink)', count: 11 },
+            { key: 'purple', name: '🟣 パレット: 紫 (Purple)', count: 11 },
+            { key: 'white', name: '⚪ パレット: 白 (White)', count: 11 }
+        ];
+
+        const bulletPaletteShapes = [
+            { key: 'amulet', label: 'お札' },
+            { key: 'big', label: '大玉' },
+            { key: 'diamond', label: 'ダイヤ' },
+            { key: 'eye', label: '目玉' },
+            { key: 'gun', label: '弾丸' },
+            { key: 'kunai', label: 'クナイ' },
+            { key: 'kunai2', label: 'クナイ2' },
+            { key: 'normal', label: '通常' },
+            { key: 'orb', label: '宝玉' },
+            { key: 'scale', label: '鱗' },
+            { key: 'star', label: '星' }
+        ];
+
+        function getBulletImageDisplayName(val) {
+            if (!val || val === 'none') return '丸（ドロー）';
+            const base = bulletBaseImageItems.find(b => b.val === val || (b.val === 'onmyoutama' && val === 'onmyoudama'));
+            if (base) return base.label;
+
+            // パレット弾チェック
+            for (let grp of bulletPaletteGroups) {
+                if (val.startsWith(grp.key) || val.startsWith(`pallets/${grp.key}`)) {
+                    let clean = val.replace('pallets/', '');
+                    let shapeKey = clean.substring(grp.key.length);
+                    let shape = bulletPaletteShapes.find(s => s.key === shapeKey);
+                    let shpName = shape ? shape.label : shapeKey;
+                    return `${grp.name.split(' ')[0]} ${shpName} (${clean})`;
+                }
+            }
+            return val;
+        }
+
+        window.openBulletImagePicker = function(blockIdx) {
+            window.currentBulletPickerBlockIdx = blockIdx;
+            const modal = document.getElementById('bullet-image-picker-modal');
+            if (!modal) return;
+            
+            let currentVal = 'none';
+            let script = (typeof getActiveScript === 'function') ? getActiveScript() : null;
+            if (blockIdx !== null && script && script[blockIdx] && script[blockIdx].params) {
+                currentVal = script[blockIdx].params.bulletImage || 'none';
+            }
+            
+            renderBulletPickerContent(currentVal);
+            modal.classList.remove('hidden');
+        };
+
+        window.closeBulletImagePicker = function() {
+            const modal = document.getElementById('bullet-image-picker-modal');
+            if (modal) modal.classList.add('hidden');
+            window.currentBulletPickerBlockIdx = null;
+        };
+
+        window.selectBulletImage = function(imgName) {
+            if (window.currentBulletPickerBlockIdx !== null) {
+                customCardMakerUpdateParam(window.currentBulletPickerBlockIdx, 'bulletImage', imgName);
+            }
+            closeBulletImagePicker();
+        };
+
+        function renderBulletPickerContent(currentVal) {
+            const container = document.getElementById('bullet-picker-container');
+            if (!container) return;
+
+            let html = '';
+
+            // 1. 通常画像カテゴリ
+            let isBaseSelected = bulletBaseImageItems.some(b => b.val === currentVal || (b.val === 'onmyoutama' && currentVal === 'onmyoudama')) || (!currentVal || currentVal === 'none');
+            html += `
+                <details class="bullet-cat-details" ${isBaseSelected ? 'open' : ''}>
+                    <summary class="bullet-cat-summary">
+                        <span>📁 通常画像 (全${bulletBaseImageItems.length}種)</span>
+                        <span class="bullet-cat-arrow">▶</span>
+                    </summary>
+                    <div class="bullet-grid">
+            `;
+            bulletBaseImageItems.forEach(item => {
+                const isActive = (currentVal === item.val || (item.val === 'onmyoutama' && currentVal === 'onmyoudama')) ? 'active' : '';
+                const thumbHtml = (item.icon && item.icon.endsWith('.png')) 
+                    ? `<div class="bullet-item-thumb-box"><img src="${item.icon}" class="bullet-item-thumb" alt=""></div>`
+                    : `<div class="bullet-item-thumb-box"><span style="font-size: 14px; text-align: center;">⚪</span></div>`;
+                html += `
+                    <button type="button" class="bullet-item-btn ${isActive}" onclick="selectBulletImage('${item.val}')">
+                        ${thumbHtml}
+                        <div class="bullet-item-info">
+                            <span class="bullet-item-name">${item.label}</span>
+                            <span class="bullet-item-key">${item.val}</span>
+                        </div>
+                    </button>
+                `;
+            });
+            html += `
+                    </div>
+                </details>
+            `;
+
+            // 2. パレット弾 15色カテゴリ
+            bulletPaletteGroups.forEach(grp => {
+                let isGroupSelected = currentVal && (currentVal.startsWith(grp.key) || currentVal.startsWith(`pallets/${grp.key}`));
+                html += `
+                    <details class="bullet-cat-details" ${isGroupSelected ? 'open' : ''}>
+                        <summary class="bullet-cat-summary">
+                            <span>${grp.name} (全${bulletPaletteShapes.length}種)</span>
+                            <span class="bullet-cat-arrow">▶</span>
+                        </summary>
+                        <div class="bullet-grid">
+                `;
+                bulletPaletteShapes.forEach(shp => {
+                    const pName = `${grp.key}${shp.key}`;
+                    const isActive = (currentVal === pName || currentVal === `pallets/${pName}`) ? 'active' : '';
+                    html += `
+                        <button type="button" class="bullet-item-btn ${isActive}" onclick="selectBulletImage('${pName}')">
+                            <div class="bullet-item-thumb-box"><img src="pallets/${pName}.png" class="bullet-item-thumb" alt=""></div>
+                            <div class="bullet-item-info">
+                                <span class="bullet-item-name">${shp.label}</span>
+                                <span class="bullet-item-key">${pName}</span>
+                            </div>
+                        </button>
+                    `;
+                });
+                html += `
+                        </div>
+                    </details>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
         function renderCardMaker() {
             let tab = customCardMaker.activeTab;
             
@@ -626,31 +803,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
                                 <span>画像:</span>
-                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
-                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
-                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
-                                    <option value="sword" ${b.params.bulletImage === 'sword' ? 'selected' : ''}>剣弾</option>
-                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
-                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
-                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
-                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
-                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
-                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
-                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
-                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
-                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
-                                    <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
-                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
-                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
-                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
-                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
-                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
-                                    <option value="b_uroko" ${b.params.bulletImage === 'b_uroko' ? 'selected' : ''}>巨大鱗弾</option>
-                                    <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
-                                    <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
-                                    <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
-                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
-                                </select>
+                                <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                    ${getBulletImageDisplayName(b.params.bulletImage)} ▾
+                                </button>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
                                 <span>判定:</span>
@@ -682,31 +837,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
                                 <span>画像:</span>
-                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
-                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
-                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
-                                    <option value="sword" ${b.params.bulletImage === 'sword' ? 'selected' : ''}>剣弾</option>
-                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
-                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
-                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
-                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
-                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
-                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
-                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
-                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
-                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
-                                    <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
-                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
-                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
-                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
-                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
-                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
-                                    <option value="b_uroko" ${b.params.bulletImage === 'b_uroko' ? 'selected' : ''}>巨大鱗弾</option>
-                                    <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
-                                    <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
-                                    <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
-                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
-                                </select>
+                                <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                    ${getBulletImageDisplayName(b.params.bulletImage)} ▾
+                                </button>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
                                 <span>判定:</span>
@@ -737,31 +870,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
                                 <span>画像:</span>
-                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
-                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
-                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
-                                    <option value="sword" ${b.params.bulletImage === 'sword' ? 'selected' : ''}>剣弾</option>
-                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
-                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
-                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
-                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
-                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
-                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
-                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
-                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
-                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
-                                    <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
-                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
-                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
-                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
-                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
-                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
-                                    <option value="b_uroko" ${b.params.bulletImage === 'b_uroko' ? 'selected' : ''}>巨大鱗弾</option>
-                                    <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
-                                    <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
-                                    <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
-                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
-                                </select>
+                                <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                    ${getBulletImageDisplayName(b.params.bulletImage)} ▾
+                                </button>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
                                 <span>判定:</span>
@@ -795,31 +906,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
                                 <span>画像:</span>
-                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
-                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
-                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
-                                    <option value="sword" ${b.params.bulletImage === 'sword' ? 'selected' : ''}>剣弾</option>
-                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
-                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
-                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
-                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
-                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
-                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
-                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
-                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
-                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
-                                    <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
-                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
-                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
-                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
-                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
-                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
-                                    <option value="b_uroko" ${b.params.bulletImage === 'b_uroko' ? 'selected' : ''}>巨大鱗弾</option>
-                                    <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
-                                    <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
-                                    <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
-                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
-                                </select>
+                                <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                    ${getBulletImageDisplayName(b.params.bulletImage)} ▾
+                                </button>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
                                 <span>判定:</span>
@@ -852,31 +941,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
                                 <span>画像:</span>
-                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
-                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
-                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
-                                    <option value="sword" ${b.params.bulletImage === 'sword' ? 'selected' : ''}>剣弾</option>
-                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
-                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
-                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
-                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
-                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
-                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
-                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
-                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
-                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
-                                    <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
-                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
-                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
-                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
-                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
-                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
-                                    <option value="b_uroko" ${b.params.bulletImage === 'b_uroko' ? 'selected' : ''}>巨大鱗弾</option>
-                                    <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
-                                    <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
-                                    <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
-                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
-                                </select>
+                                <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                    ${getBulletImageDisplayName(b.params.bulletImage)} ▾
+                                </button>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
                                 <span>判定:</span>
@@ -912,31 +979,9 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="laser" ${b.params.bulletType === 'laser' ? 'selected' : ''}>レーザー</option>
                                 </select>
                                 <span>画像:</span>
-                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletImage', this.value)">
-                                    <option value="none" ${b.params.bulletImage === 'none' ? 'selected' : ''}>丸（ドロー）</option>
-                                    <option value="light" ${b.params.bulletImage === 'light' ? 'selected' : ''}>光弾</option>
-                                    <option value="sword" ${b.params.bulletImage === 'sword' ? 'selected' : ''}>剣弾</option>
-                                    <option value="marutama" ${b.params.bulletImage === 'marutama' ? 'selected' : ''}>丸弾</option>
-                                    <option value="kome" ${b.params.bulletImage === 'kome' ? 'selected' : ''}>米弾</option>
-                                    <option value="ootama" ${b.params.bulletImage === 'ootama' ? 'selected' : ''}>大玉</option>
-                                    <option value="ohuda" ${b.params.bulletImage === 'ohuda' ? 'selected' : ''}>お札</option>
-                                    <option value="star" ${b.params.bulletImage === 'star' ? 'selected' : ''}>星</option>
-                                    <option value="knife" ${b.params.bulletImage === 'knife' ? 'selected' : ''}>ナイフ</option>
-                                    <option value="uroko" ${b.params.bulletImage === 'uroko' ? 'selected' : ''}>鱗弾</option>
-                                    <option value="poihuru" ${b.params.bulletImage === 'poihuru' ? 'selected' : ''}>ポイフル</option>
-                                    <option value="virus" ${b.params.bulletImage === 'virus' ? 'selected' : ''}>ウイルス</option>
-                                    <option value="onmyoutama" ${b.params.bulletImage === 'onmyoutama' || b.params.bulletImage === 'onmyoudama' ? 'selected' : ''}>陰陽弾</option>
-                                    <option value="b_marutama" ${b.params.bulletImage === 'b_marutama' ? 'selected' : ''}>巨大丸弾</option>
-                                    <option value="b_ohuda" ${b.params.bulletImage === 'b_ohuda' ? 'selected' : ''}>巨大お札</option>
-                                    <option value="b_star" ${b.params.bulletImage === 'b_star' ? 'selected' : ''}>巨大星弾</option>
-                                    <option value="b_knife" ${b.params.bulletImage === 'b_knife' ? 'selected' : ''}>巨大ナイフ</option>
-                                    <option value="b_poihuru" ${b.params.bulletImage === 'b_poihuru' ? 'selected' : ''}>巨大ポイフル</option>
-                                    <option value="b_uroko" ${b.params.bulletImage === 'b_uroko' ? 'selected' : ''}>巨大鱗弾</option>
-                                    <option value="dangan" ${b.params.bulletImage === 'dangan' ? 'selected' : ''}>弾丸</option>
-                                    <option value="kunai1" ${b.params.bulletImage === 'kunai1' ? 'selected' : ''}>クナイ1</option>
-                                    <option value="kunai2" ${b.params.bulletImage === 'kunai2' ? 'selected' : ''}>クナイ2</option>
-                                    <option value="tyoudan" ${b.params.bulletImage === 'tyoudan' ? 'selected' : ''}>蝶弾</option>
-                                </select>
+                                <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                    ${getBulletImageDisplayName(b.params.bulletImage)} ▾
+                                </button>
                                 <span>半径:</span>
                                 <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
                                 <span>判定:</span>

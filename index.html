@@ -101,19 +101,32 @@
                         <option value="touchY">touched bullet Y (touchY)</option>
                         <option value="auraRange">光弾のオーラ範囲 (auraRange)</option>
                         <option value="auraIntensity">光弾のオーラ強さ (auraIntensity)</option>
+                        <option value="multf">弾の前後倍率 (multf)</option>
+                        <option value="multlr">弾の左右倍率 (multlr)</option>
+                        <option value="hitmultf">当たり判定専用前後倍率 (hitmultf)</option>
+                        <option value="hitmultlr">当たり判定専用左右倍率 (hitmultlr)</option>
                         <option value="hitRadius">当たり判定半径 (hitRadius)</option>
                         <option value="color">弾の色 (color)</option>
                         <option value="bulletImage">弾の画像 (bulletImage)</option>
+                        <option value="bulletType">弾の種類 (bulletType: normal, laser, palette, trail)</option>
                     </datalist>
                     <datalist id="val-suggestions">
                         <option value="angle">現在の角度 (angle)</option>
                         <option value="angle + 30">角度 + 30度 (angle + 30)</option>
                         <option value="angle - 30">角度 - 30度 (angle - 30)</option>
                         <option value="spriteAngle">画像の回転角度 (spriteAngle)</option>
+                        <option value="multf">前後倍率 (multf)</option>
+                        <option value="multlr">左右倍率 (multlr)</option>
+                        <option value="hitmultf">判定前後倍率 (hitmultf)</option>
+                        <option value="hitmultlr">判定左右倍率 (hitmultlr)</option>
                         <option value="speed">現在の速度 (speed)</option>
                         <option value="speed + 50">速度 + 50 (speed + 50)</option>
                         <option value="speed * 0.5">speed * 0.5</option>
                         <option value="speed * 2">speed * 2</option>
+                        <option value="'normal'">通常弾画像 ('normal')</option>
+                        <option value="'rednormal'">パレット赤通常 ('rednormal')</option>
+                        <option value="'aquastar'">パレットアクア星 ('aquastar')</option>
+                        <option value="'palette'">パレット弾種 ('palette')</option>
                         <option value="laserWidth">レーザー太さ (laserWidth)</option>
                         <option value="12">レーザー標準太さ 12</option>
                         <option value="24">レーザー太め 24</option>
@@ -319,6 +332,19 @@
                         <button class="menu-btn" onclick="customCardMakerCloseEditor()" style="width: 120px; background: #222;">キャンセル</button>
                     </div>
 
+                    <!-- 弾画像ピッカーモーダル (展開・縮小アコーディオン) -->
+                    <div id="bullet-image-picker-modal" class="bullet-picker-modal hidden" onclick="if(event.target === this) closeBulletImagePicker()">
+                        <div class="bullet-picker-panel">
+                            <div class="bullet-picker-header">
+                                <h4>🖼️ 弾画像を選択</h4>
+                                <button type="button" class="bullet-picker-close-btn" onclick="closeBulletImagePicker()">✕</button>
+                            </div>
+                            <div class="bullet-picker-body" id="bullet-picker-container">
+                                <!-- JSで動的生成 -->
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="custom-code-guide-modal" class="code-guide-modal hidden" onclick="if(event.target === this) toggleCustomCodeGuide(false)">
                         <div class="code-guide-panel">
                             <div class="code-guide-header">
@@ -430,6 +456,10 @@ e_変数名       // コア側のカスタム変数 (例: e_xspa)
 color          // 弾の色コード
 laserWidth     // レーザーの現在の太さ
 hitRadius      // 弾の当たり判定半径 (px)
+multf          // 弾の前後倍率 (初期値: 1、後端基準で前方に伸縮。旧: asba)
+multlr         // 弾の左右倍率 (初期値: 1、左右に伸縮。旧: aslr)
+hitmultf       // 当たり判定専用の前後倍率 (未設定時は multf と連動)
+hitmultlr      // 当たり判定専用の左右倍率 (未設定時は multlr と連動)
 auraRange      // 【光弾専用】オーラの範囲倍率 (初期値: 2.75)
 auraIntensity  // 【光弾専用】オーラの強さ倍率 (初期値: 1.0)
 
@@ -456,9 +486,12 @@ touchX, touchY // 接触した弾の位置</pre>
                                     <section>
                                         <h5>パラメータの選択肢 &amp; 組み込み関数</h5>
                                         <pre>// 【画像の種類】
-"none" (丸ドロー), "light" (光弾), "sword" (剣弾), "marutama" (丸弾), "kome" (米弾), "ootama" (大玉), 
-"poihuru" (ポイフル), "star" (星), "uroko" (鱗), "virus" (ウイルス), 
-"onmyoutama" (陰陽玉), "knife" (ナイフ), "ohuda" (お札)
+"none" (丸ドロー), "light" (光弾), "sword" (剣弾), "normal" (通常弾画像), "marutama" (丸弾), "kome" (米弾), "ootama" (大玉), 
+"poihuru" (ポイフル), "star" (星), "uroko" (鱗), "virus" (ウイルス), "onmyoutama" (陰陽玉), "knife" (ナイフ), "ohuda" (お札),
+"pallets/色+形状" (パレット弾全165種: 例 "rednormal", "aquastar", "goldbig" 等。色相変色を受けず元の色のまま描画)
+
+// 【弾の種類 (bulletType)】
+"normal" (通常弾), "laser" (レーザー), "palette" (パレット弾: colorは内部パラメータとしてのみ機能), "trail" (軌跡弾)
 
 // 【座標モード】
 "relative" // 発射台の動きに合わせて弾も一緒に動く (相対)
