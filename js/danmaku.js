@@ -497,7 +497,7 @@ for (let i = 0; i < 1200000; i++) {
 }
 while (true) {
     wait(4)
-    spawnBullet("normal", "#33ffff", 200, 90, 0, -150)
+    spawnBullet("normal", "#33ffff", 200, 90, 0, -150, 6, "none", "relative", "")
 }
     `,
     bulletScript: `

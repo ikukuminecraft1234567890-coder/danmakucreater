@@ -1041,10 +1041,10 @@ once {
     angle += random(-5,5)
     muki = random(-1,1)
 }
-if (muki=-1..0) {
+if (muki==-1..0) {
     spriteAngle += 3
 }
-if (muki=0..1) {
+if (muki==0..1) {
     spriteAngle -= 3
 }
 if (y == -800..0){
@@ -1088,7 +1088,7 @@ while (true) {
         },{
         id: "spell_rush2_2",
         name: "流星「ミーティア」",
-        hp: 3000,
+        hp: 2000,
         duration: 40,
         x_offset: 0,
         y_offset: 0,
@@ -1218,7 +1218,7 @@ if (color==#ff3333) {
         },{
         id: "spell_rush2_3",
         name: "本能「殺意の解放」",
-        hp: 4000,
+        hp: 1200,
         duration: 50,
         x_offset: 0,
         y_offset: 0,
@@ -1297,7 +1297,7 @@ spriteAngle += kakudo
         },{
         id: "spell_rush2_4",
         name: "光芒「ステラレイヴ」",
-        hp: 2000,
+        hp: 1000,
         duration: 50,
         x_offset: 0,
         y_offset: 0,
@@ -1335,7 +1335,7 @@ spriteAngle += kakudo
         },{
         id: "spell_rush2_5",
         name: "「エクリプス」",
-        hp: 5000,
+        hp: 4000,
         duration: 120,
         x_offset: 0,
         y_offset: 0,
