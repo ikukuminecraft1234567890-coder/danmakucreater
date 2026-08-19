@@ -54,7 +54,7 @@ const bossList = [
         id: "boss_rush2",
         name: "ラッシュ2",
         color: "#ff3366",
-        devOnly: true,
+        devOnly: false,
         playerLives: 4,
         spells: [
             "spell_rush2_non_1",
