@@ -4840,9 +4840,10 @@ if (color==#ffffff) {
         wait(1.5)
         hitRadius = 10
         tween("hitmultlr", 0, 1, "seconds", 1, "easeOut")
-        wait(1)
-        tween("multlr", 1, 0, "seconds", 1, "easeIn")
+        wait(0.5)
         tween("hitmultlr", 1, 0, "seconds", 1, "easeIn")
+        wait(0.5)
+        tween("multlr", 1, 0, "seconds", 1, "easeIn")
         wait(1)
         y = -9000
     }
