@@ -4864,6 +4864,51 @@ if (color==#fffffe) {
         // 子弾挙動の独自コード（任意）
     `
 }
+,
+{
+    difficulty: "NORMAL",
+    name: "淼符「双瀑流」",
+    desc: "りゅうたい！！！",
+    duration: 25,            // 制限時間（秒）
+    maxMisses: 2,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 40,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    spawnBullet("normal", "#33ffff", 200, 0 + l, -400, 200, 6, "light", "relative", "3")
+    spawnBullet("normal", "#3388ff", 200, 180 - l, 400, 200, 6, "light", "relative", "3")
+    spawnBullet("normal", "#33ffff", 200, 80, -400, 200, 6, "light", "relative", "3")
+    spawnBullet("normal", "#3388ff", 200, 180 - 80, 400, 200, 6, "light", "relative", "3")
+    wait(0.0167 * 2)
+}
+while (true) {
+    tween("l", l, -90, "seconds", 2)
+    wait(2)
+    tween("l", l, 60, "seconds", 2)
+    wait(2)
+}
+    `,
+    bulletScript: `
+once {
+    yjiku = -1 + random(-0.4,0.4)
+    speed += random(-40,40)
+    angle += random(-10,10)
+}
+y += yjiku
+yjiku += 0.02
+if (speed == 10..5000) {
+    speed -= 0.2
+}
+if (y > 870) {
+    y = -890000
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
+}
 ];
 
 /**
