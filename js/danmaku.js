@@ -1502,7 +1502,7 @@ if (color == #ffffff) {
 }
     `,
     magicCircleScript: `
-if (timer > 1) {
+if (frame == 60..500) {
     y = -8000
 }
     `
