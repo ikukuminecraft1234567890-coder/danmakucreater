@@ -72,7 +72,7 @@ while (true) {
         angle2 -= 43.5
     }
     angle += 0.2
-    wait(0.008)
+    wait(0.0167)
 }
 while (true) {
     tween("xspa", x, 384, "step", 1)
