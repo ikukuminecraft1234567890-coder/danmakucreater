@@ -4877,10 +4877,10 @@ if (color==#fffffe) {
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
 while (true) {
-    //spawnBullet("normal", "#33ffff", 200, 0 + l, -400, 200, 6, "light", "relative", "3")
-    //spawnBullet("normal", "#3388ff", 200, 180 - l, 400, 200, 6, "light", "relative", "3")
-    //spawnBullet("normal", "#33ffff", 200, 80, -400, 200, 6, "light", "relative", "3")
-    //spawnBullet("normal", "#3388ff", 200, 180 - 80, 400, 200, 6, "light", "relative", "3")
+    spawnBullet("normal", "#33ffff", 200, 0 + l, -400, 200, 6, "light", "relative", "3")
+    spawnBullet("normal", "#3388ff", 200, 180 - l, 400, 200, 6, "light", "relative", "3")
+    spawnBullet("normal", "#33ffff", 200, 80, -400, 200, 6, "light", "relative", "3")
+    spawnBullet("normal", "#3388ff", 200, 180 - 80, 400, 200, 6, "light", "relative", "3")
     wait(0.0167 * 2)
 }
 while (true) {
