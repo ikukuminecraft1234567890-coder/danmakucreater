@@ -1455,7 +1455,7 @@ if (timer == 3 - w2) {
     maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 0.1,        // 画面外に弾が出てから消滅するまでの時間
+    despawnTime: 1,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
 while (true) {
