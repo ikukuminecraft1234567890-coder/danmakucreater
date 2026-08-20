@@ -6132,7 +6132,8 @@ function applyAbilityEffect(cardId, owner) {
                 'speed', 'angle', 'duration', 'delay', 'effect', 'count', 'spread', 
                 'offsetX', 'offsetY', 'radius', 'hitRadius', 'value', 'cond', 
                 'warningTime', 'activeTime', 'laserWidth', 'targetX', 'targetY',
-                'distance'
+                'distance', 'multf', 'multlr', 'hitmultf', 'hitmultlr',
+                'growTime', 'keepTime', 'shrinkTime'
             ]);
 
             for (let block of flatBlocks) {

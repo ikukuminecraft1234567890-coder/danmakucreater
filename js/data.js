@@ -1290,22 +1290,35 @@
         window.bulletImages['grain'] = window.bulletImages['kome'];
         window.bulletImages['butterfly'] = window.bulletImages['tyoudan'];
 
-        // パレット弾（pallets/*.png 全165種）プリロード
-        const paletteColors = ['aqua', 'blue', 'cobalt', 'crim', 'cyan', 'gold', 'green', 'lime', 'olive', 'orange', 'pink', 'purple', 'red', 'white', 'yellow'];
-        const paletteShapes = ['amulet', 'big', 'diamond', 'eye', 'gun', 'kunai', 'kunai2', 'normal', 'orb', 'scale', 'star'];
-        window.paletteBulletNames = [];
+        // パレット弾（pallets/*.png 全218種）プリロード
+        const paletteBulletFiles = [
+            "aquaamulet","aquaarrow","aquabig","aquadiamond","aquaeye","aquagun","aquaknife","aquakunai","aquakunai2","aqualaser","aquanormal","aquaorb","aquascale","aquasimple","aquastar",
+            "blueamulet","bluearrow","bluebig","bluebig2","bluediamond","blueeye","bluegun","blueheart","blueknife","bluekunai","bluekunai2","bluelaser","bluenormal","blueorb","bluescale","bluesimple","bluestar",
+            "cobaltamulet","cobaltbig","cobaltdiamond","cobalteye","cobaltgun","cobaltkunai","cobaltkunai2","cobaltlaser","cobaltnormal","cobaltorb","cobaltscale","cobaltstar",
+            "crimamulet","crimbig","crimdiamond","crimeye","crimgun","crimkunai","crimkunai2","crimlaser","crimnormal","crimorb","crimscale","crimstar",
+            "cyanamulet","cyanbig","cyandiamond","cyaneye","cyangun","cyankunai","cyankunai2","cyanlaser","cyannormal","cyanorb","cyanscale","cyanstar",
+            "glayarrow","glayheart","glayknife","glaysimple",
+            "goldamulet","goldbig","golddiamond","goldeye","goldgun","goldkunai","goldkunai2","goldlaser","goldnormal","goldorb","goldscale","goldstar",
+            "greenamulet","greenarrow","greenbig","greenbig2","greendiamond","greeneye","greengun","greenheart","greenknife","greenkunai","greenkunai2","greenlaser","greennormal","greenorb","greenscale","greensimple","greenstar",
+            "heart",
+            "limeamulet","limebig","limediamond","limeeye","limegun","limekunai","limekunai2","limelaser","limenormal","limeorb","limescale","limestar",
+            "oliveamulet","olivebig","olivediamond","oliveeye","olivegun","oliveknife","olivekunai","olivekunai2","olivelaser","olivenormal","oliveorb","olivescale","olivestar",
+            "orangeamulet","orangebig","orangediamond","orangeeye","orangegun","orangekunai","orangekunai2","orangelaser","orangenormal","orangeorb","orangescale","orangestar",
+            "pinkamulet","pinkbig","pinkdiamond","pinkeye","pinkgun","pinkheart","pinkknife","pinkkunai","pinkkunai2","pinklaser","pinknormal","pinkorb","pinkscale","pinksimple","pinkstar",
+            "purpleamulet","purplearrow","purplebig","purplediamond","purpleeye","purplegun","purpleheart","purplekunai","purplekunai2","purplelaser","purplenormal","purpleorb","purplescale","purplestar",
+            "redamulet","redarrow","redbig","redbig2","reddiamond","redeye","redgun","redheart","redknife","redkunai","redkunai2","redlaser","rednormal","redorb","redscale","redsimple","redsmall","redstar",
+            "whiteamulet","whitearrow","whitebig","whitediamond","whiteeye","whitegun","whiteheart","whiteknife","whitekunai","whitekunai2","whitelaser","whitenormal","whiteorb","whitescale","whitesimple","whitestar",
+            "yellowamulet","yellowarrow","yellowbig","yellowbig2","yellowdiamond","yelloweye","yellowgun","yellowheart","yellowkunai","yellowkunai2","yellowlaser","yellownormal","yelloworb","yellowscale","yellowsimple","yellowstar"
+        ];
+        window.paletteBulletNames = [...paletteBulletFiles];
         window.paletteBulletSet = new Set();
-        paletteColors.forEach(col => {
-            paletteShapes.forEach(shp => {
-                const pName = `${col}${shp}`;
-                window.paletteBulletNames.push(pName);
-                window.paletteBulletSet.add(pName);
-                window.paletteBulletSet.add(`pallets/${pName}`);
-                const pImg = new Image();
-                pImg.src = `pallets/${pName}.png`;
-                window.bulletImages[pName] = pImg;
-                window.bulletImages[`pallets/${pName}`] = pImg;
-            });
+        paletteBulletFiles.forEach(pName => {
+            window.paletteBulletSet.add(pName);
+            window.paletteBulletSet.add(`pallets/${pName}`);
+            const pImg = new Image();
+            pImg.src = `pallets/${pName}.png`;
+            window.bulletImages[pName] = pImg;
+            window.bulletImages[`pallets/${pName}`] = pImg;
         });
 
         const reimuImg = new Image();

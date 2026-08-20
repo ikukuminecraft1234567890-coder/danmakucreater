@@ -350,6 +350,7 @@ function customCardMakerSwitchTab(tab) {
             { val: 'light', label: '光弾', icon: 'light' },
             { val: 'sword', label: '剣弾', icon: 'sword.png' },
             { val: 'normal', label: '通常弾画像 (normal.png)', icon: 'normal.png' },
+            { val: 'heart', label: 'ハート (heart.png)', icon: 'pallets/heart.png' },
             { val: 'marutama', label: '丸弾', icon: 'marutama.png' },
             { val: 'kome', label: '米弾', icon: 'kome.png' },
             { val: 'ootama', label: '大玉', icon: 'ootama.png' },
@@ -372,36 +373,104 @@ function customCardMakerSwitchTab(tab) {
             { val: 'tyoudan', label: '蝶弾', icon: 'tyoudan.png' }
         ];
 
-        const bulletPaletteGroups = [
-            { key: 'red', name: '🔴 パレット: 赤 (Red)', count: 11 },
-            { key: 'crim', name: '🍷 パレット: 深紅 (Crimson)', count: 11 },
-            { key: 'blue', name: '🔵 パレット: 青 (Blue)', count: 11 },
-            { key: 'cobalt', name: '🔷 パレット: コバルト (Cobalt)', count: 11 },
-            { key: 'cyan', name: '💠 パレット: シアン (Cyan)', count: 11 },
-            { key: 'aqua', name: '💧 パレット: 水色 (Aqua)', count: 11 },
-            { key: 'yellow', name: '🟡 パレット: 黄 (Yellow)', count: 11 },
-            { key: 'gold', name: '⭐ パレット: 金 (Gold)', count: 11 },
-            { key: 'green', name: '🟢 パレット: 緑 (Green)', count: 11 },
-            { key: 'lime', name: '🌱 パレット: 黄緑 (Lime)', count: 11 },
-            { key: 'olive', name: '🫒 パレット: オリーブ (Olive)', count: 11 },
-            { key: 'orange', name: '🟠 パレット: 橙 (Orange)', count: 11 },
-            { key: 'pink', name: '🌸 パレット: 桃 (Pink)', count: 11 },
-            { key: 'purple', name: '🟣 パレット: 紫 (Purple)', count: 11 },
-            { key: 'white', name: '⚪ パレット: 白 (White)', count: 11 }
-        ];
+        const bulletShapeLabelMap = {
+            'amulet': 'お札', 'arrow': '矢弾', 'big': '大玉', 'big2': '大玉2', 'diamond': 'ダイヤ',
+            'eye': '目玉', 'gun': '弾丸', 'heart': 'ハート', 'knife': 'ナイフ', 'kunai': 'クナイ',
+            'kunai2': 'クナイ2', 'laser': 'レーザー', 'normal': '通常', 'orb': '宝玉', 'scale': '鱗',
+            'simple': 'シンプル', 'small': '小弾', 'star': '星'
+        };
 
-        const bulletPaletteShapes = [
-            { key: 'amulet', label: 'お札' },
-            { key: 'big', label: '大玉' },
-            { key: 'diamond', label: 'ダイヤ' },
-            { key: 'eye', label: '目玉' },
-            { key: 'gun', label: '弾丸' },
-            { key: 'kunai', label: 'クナイ' },
-            { key: 'kunai2', label: 'クナイ2' },
-            { key: 'normal', label: '通常' },
-            { key: 'orb', label: '宝玉' },
-            { key: 'scale', label: '鱗' },
-            { key: 'star', label: '星' }
+        const bulletPaletteGroups = [
+            { key: 'red', name: '🔴 パレット: 赤 (Red)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'arrow', label: '矢弾' }, { key: 'big', label: '大玉' }, { key: 'big2', label: '大玉2' },
+                { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' }, { key: 'gun', label: '弾丸' }, { key: 'heart', label: 'ハート' },
+                { key: 'knife', label: 'ナイフ' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'simple', label: 'シンプル' },
+                { key: 'small', label: '小弾' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'crim', name: '🍷 パレット: 深紅 (Crimson)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'blue', name: '🔵 パレット: 青 (Blue)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'arrow', label: '矢弾' }, { key: 'big', label: '大玉' }, { key: 'big2', label: '大玉2' },
+                { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' }, { key: 'gun', label: '弾丸' }, { key: 'heart', label: 'ハート' },
+                { key: 'knife', label: 'ナイフ' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'simple', label: 'シンプル' },
+                { key: 'star', label: '星' }
+            ]},
+            { key: 'cobalt', name: '🔷 パレット: コバルト (Cobalt)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'cyan', name: '💠 パレット: シアン (Cyan)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'aqua', name: '💧 パレット: 水色 (Aqua)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'arrow', label: '矢弾' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' },
+                { key: 'eye', label: '目玉' }, { key: 'gun', label: '弾丸' }, { key: 'knife', label: 'ナイフ' }, { key: 'kunai', label: 'クナイ' },
+                { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' }, { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' },
+                { key: 'scale', label: '鱗' }, { key: 'simple', label: 'シンプル' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'yellow', name: '🟡 パレット: 黄 (Yellow)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'arrow', label: '矢弾' }, { key: 'big', label: '大玉' }, { key: 'big2', label: '大玉2' },
+                { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' }, { key: 'gun', label: '弾丸' }, { key: 'heart', label: 'ハート' },
+                { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' }, { key: 'normal', label: '通常' },
+                { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'simple', label: 'シンプル' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'gold', name: '⭐ パレット: 金 (Gold)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'green', name: '🟢 パレット: 緑 (Green)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'arrow', label: '矢弾' }, { key: 'big', label: '大玉' }, { key: 'big2', label: '大玉2' },
+                { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' }, { key: 'gun', label: '弾丸' }, { key: 'heart', label: 'ハート' },
+                { key: 'knife', label: 'ナイフ' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'simple', label: 'シンプル' },
+                { key: 'star', label: '星' }
+            ]},
+            { key: 'lime', name: '🌱 パレット: 黄緑 (Lime)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'olive', name: '🫒 パレット: オリーブ (Olive)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'knife', label: 'ナイフ' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' },
+                { key: 'laser', label: 'レーザー' }, { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' },
+                { key: 'star', label: '星' }
+            ]},
+            { key: 'orange', name: '🟠 パレット: 橙 (Orange)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' },
+                { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'pink', name: '🌸 パレット: 桃 (Pink)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' }, { key: 'eye', label: '目玉' },
+                { key: 'gun', label: '弾丸' }, { key: 'heart', label: 'ハート' }, { key: 'knife', label: 'ナイフ' }, { key: 'kunai', label: 'クナイ' },
+                { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' }, { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' },
+                { key: 'scale', label: '鱗' }, { key: 'simple', label: 'シンプル' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'purple', name: '🟣 パレット: 紫 (Purple)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'arrow', label: '矢弾' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' },
+                { key: 'eye', label: '目玉' }, { key: 'gun', label: '弾丸' }, { key: 'heart', label: 'ハート' }, { key: 'kunai', label: 'クナイ' },
+                { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' }, { key: 'normal', label: '通常' }, { key: 'orb', label: '宝玉' },
+                { key: 'scale', label: '鱗' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'white', name: '⚪ パレット: 白 (White)', items: [
+                { key: 'amulet', label: 'お札' }, { key: 'arrow', label: '矢弾' }, { key: 'big', label: '大玉' }, { key: 'diamond', label: 'ダイヤ' },
+                { key: 'eye', label: '目玉' }, { key: 'gun', label: '弾丸' }, { key: 'heart', label: 'ハート' }, { key: 'knife', label: 'ナイフ' },
+                { key: 'kunai', label: 'クナイ' }, { key: 'kunai2', label: 'クナイ2' }, { key: 'laser', label: 'レーザー' }, { key: 'normal', label: '通常' },
+                { key: 'orb', label: '宝玉' }, { key: 'scale', label: '鱗' }, { key: 'simple', label: 'シンプル' }, { key: 'star', label: '星' }
+            ]},
+            { key: 'glay', name: '🌪️ パレット: 灰 (Gray)', items: [
+                { key: 'arrow', label: '矢弾' }, { key: 'heart', label: 'ハート' }, { key: 'knife', label: 'ナイフ' }, { key: 'simple', label: 'シンプル' }
+            ]}
         ];
 
         function getBulletImageDisplayName(val) {
@@ -414,8 +483,8 @@ function customCardMakerSwitchTab(tab) {
                 if (val.startsWith(grp.key) || val.startsWith(`pallets/${grp.key}`)) {
                     let clean = val.replace('pallets/', '');
                     let shapeKey = clean.substring(grp.key.length);
-                    let shape = bulletPaletteShapes.find(s => s.key === shapeKey);
-                    let shpName = shape ? shape.label : shapeKey;
+                    let shape = grp.items.find(s => s.key === shapeKey);
+                    let shpName = shape ? shape.label : (bulletShapeLabelMap[shapeKey] || shapeKey);
                     return `${grp.name.split(' ')[0]} ${shpName} (${clean})`;
                 }
             }
@@ -486,18 +555,18 @@ function customCardMakerSwitchTab(tab) {
                 </details>
             `;
 
-            // 2. パレット弾 15色カテゴリ
+            // 2. パレット弾 16色カテゴリ
             bulletPaletteGroups.forEach(grp => {
                 let isGroupSelected = currentVal && (currentVal.startsWith(grp.key) || currentVal.startsWith(`pallets/${grp.key}`));
                 html += `
                     <details class="bullet-cat-details" ${isGroupSelected ? 'open' : ''}>
                         <summary class="bullet-cat-summary">
-                            <span>${grp.name} (全${bulletPaletteShapes.length}種)</span>
+                            <span>${grp.name} (全${grp.items.length}種)</span>
                             <span class="bullet-cat-arrow">▶</span>
                         </summary>
                         <div class="bullet-grid">
                 `;
-                bulletPaletteShapes.forEach(shp => {
+                grp.items.forEach(shp => {
                     const pName = `${grp.key}${shp.key}`;
                     const isActive = (currentVal === pName || currentVal === `pallets/${pName}`) ? 'active' : '';
                     html += `
