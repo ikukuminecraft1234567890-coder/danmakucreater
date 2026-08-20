@@ -1285,8 +1285,10 @@
             const img = new Image();
             img.src = `${name}.png`;
             window.bulletImages[name] = img;
+            window.bulletImages[`${name}.png`] = img;
         });
         window.bulletImages['onmyoudama'] = window.bulletImages['onmyoutama'];
+        window.bulletImages['onmyoudama.png'] = window.bulletImages['onmyoutama'];
         window.bulletImages['grain'] = window.bulletImages['kome'];
         window.bulletImages['butterfly'] = window.bulletImages['tyoudan'];
 
@@ -1314,11 +1316,15 @@
         window.paletteBulletSet = new Set();
         paletteBulletFiles.forEach(pName => {
             window.paletteBulletSet.add(pName);
+            window.paletteBulletSet.add(`${pName}.png`);
             window.paletteBulletSet.add(`pallets/${pName}`);
+            window.paletteBulletSet.add(`pallets/${pName}.png`);
             const pImg = new Image();
             pImg.src = `pallets/${pName}.png`;
             window.bulletImages[pName] = pImg;
+            window.bulletImages[`${pName}.png`] = pImg;
             window.bulletImages[`pallets/${pName}`] = pImg;
+            window.bulletImages[`pallets/${pName}.png`] = pImg;
         });
 
         const reimuImg = new Image();

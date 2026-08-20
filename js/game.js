@@ -3304,9 +3304,11 @@ function applyAbilityEffect(cardId, owner) {
                                                   (_bVars.multlr !== undefined && Number(_bVars.multlr) !== 1) ||
                                                   (_bVars.asba !== undefined && Number(_bVars.asba) !== 1) ||
                                                   (_bVars.aslr !== undefined && Number(_bVars.aslr) !== 1)));
+                    const _hasDynImg = (b.bulletImage && b.bulletImage !== 'none') || 
+                                       (_bVars && ((_bVars.bulletImage && _bVars.bulletImage !== 'none') || (_bVars.image && _bVars.image !== 'none')));
                     const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
                                        b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
-                                       b.isSweeper || b.bulletImage || b.isNormal || _hasAspect;
+                                       b.isSweeper || _hasDynImg || b.isNormal || _hasAspect;
 
                     if (!_isSpecial) {
                         // 通常の円弾のカリング
@@ -3822,15 +3824,30 @@ function applyAbilityEffect(cardId, owner) {
                     let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
                     if (isNaN(multlr) || multlr < 0) multlr = 1;
 
-                    let isPalette = (b.bulletType === 'palette') || (vars && vars.bulletType === 'palette') || (window.paletteBulletSet && window.paletteBulletSet.has(b.bulletImage));
-                    let imgKey = b.bulletImage;
-                    if (isPalette && (!imgKey || imgKey === 'none' || imgKey === 'normal')) {
+                    let rawImgKey = b.bulletImage || (vars ? (vars.bulletImage || vars.image) : null);
+                    let imgKey = rawImgKey ? String(rawImgKey).trim().replace(/^['"]|['"]$/g, '') : null;
+                    if (imgKey === '""' || imgKey === "''" || !imgKey) imgKey = 'none';
+
+                    let cleanImgKey = (imgKey !== 'none') ? imgKey.replace(/\.png$/i, '').replace(/^pallets\//i, '') : 'none';
+
+                    let isPalette = (b.bulletType === 'palette') || (vars && vars.bulletType === 'palette') ||
+                                    (window.paletteBulletSet && (window.paletteBulletSet.has(imgKey) || window.paletteBulletSet.has(cleanImgKey) || window.paletteBulletSet.has('pallets/' + cleanImgKey)));
+
+                    if (isPalette && (!cleanImgKey || cleanImgKey === 'none' || cleanImgKey === 'normal')) {
+                        cleanImgKey = 'rednormal';
                         imgKey = 'rednormal';
                     }
 
                     if (imgKey && imgKey !== 'none') {
                         let texture = null;
-                        const baseImg = (window.bulletImages) ? window.bulletImages[imgKey] : null;
+                        const baseImg = (window.bulletImages) ? (
+                            window.bulletImages[imgKey] ||
+                            window.bulletImages[cleanImgKey] ||
+                            window.bulletImages['pallets/' + cleanImgKey] ||
+                            window.bulletImages[cleanImgKey + '.png'] ||
+                            window.bulletImages['pallets/' + cleanImgKey + '.png'] ||
+                            null
+                        ) : null;
 
                         if (isPalette) {
                             // パレット弾: 色相変換を行わず、元画像そのままを描画（colorは内部パラメータとして保持）
@@ -3838,7 +3855,7 @@ function applyAbilityEffect(cardId, owner) {
                         } else {
                             // 通常画像弾: オフスクリーンCanvasキャッシュから着色済みテクスチャを取得
                             if (!window.bulletTextureCache) window.bulletTextureCache = {};
-                            const cacheKey = `${imgKey}_${b.color || '#ff3333'}`;
+                            const cacheKey = `${cleanImgKey}_${b.color || '#ff3333'}`;
                             texture = window.bulletTextureCache[cacheKey];
                             
                             if (!texture && baseImg && baseImg.complete && baseImg.naturalWidth > 0) {
@@ -3866,12 +3883,13 @@ function applyAbilityEffect(cardId, owner) {
                                     }
                                 } else {
                                     let max = Math.max(r, g, bVal), min = Math.min(r, g, bVal);
+                                    let hue = 0;
                                     if (max !== min) {
                                         let d = max - min;
                                         switch (max) {
                                             case r: hue = (g - bVal) / d + (g < bVal ? 6 : 0); break;
-                                             case g: hue = (bVal - r) / d + 2; break;
-                                             case bVal: hue = (r - g) / d + 4; break;
+                                            case g: hue = (bVal - r) / d + 2; break;
+                                            case bVal: hue = (r - g) / d + 4; break;
                                         }
                                         hue = Math.round((hue / 6) * 360);
                                     }
