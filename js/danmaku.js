@@ -4787,20 +4787,75 @@ once {
     `
 },
 {
-    difficulty: "NORMAL",
-    name: "弾幕名",
-    desc: "説明文や作成者名など",
-    duration: 15,            // 制限時間（秒）
+    difficulty: "hard",
+    name: "「乱刃陣」",
+    desc: "引き延ばしレーザー、やっぱ見た目がそれっぽくてとてもいい。",
+    duration: 20,            // 制限時間（秒）
     maxMisses: 2,
     x_offset: 0,             // 出現位置の横オフセット
     y_offset: 0,             // 出現位置の縦オフセット
-    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    despawnTime: 5,        // 画面外に弾が出てから消滅するまでの時間
     // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
     emitterScript: `
-        // コア挙動の独自コード
+while (true) {
+    kaisuu += 1
+    angle1 = seedrandom[kaisuu + 1](0,360)
+    angle2 = seedrandom[kaisuu + 2](0,360)
+    angle3 = seedrandom[kaisuu + 3](0,360)
+    angle4 = seedrandom[kaisuu + 4](0,360)
+    spawnRing("normal", "#fffffe", 0, angle1, 18, 200, -50, 20, "whitesimple", "relative", "0")
+    spawnRing("normal", "#fffffe", 0, angle2, 18, -200, -50, 20, "whitesimple", "relative", "0")
+    spawnRing("normal", "#fffffe", 0, angle3, 18, 200, 200, 20, "whitesimple", "relative", "0")
+    spawnRing("normal", "#fffffe", 0, angle4, 18, -200, 200, 20, "whitesimple", "relative", "0")
+    wait(0.5)
+    spawnRing("normal", "#ffffff", 0, angle1, 18, 200, -50, 20, "redsimple", "relative", "10")
+    spawnRing("normal", "#ffffff", 0, angle2, 18, -200, -50, 20, "redsimple", "relative", "10")
+    spawnRing("normal", "#ffffff", 0, angle3, 18, 200, 200, 20, "redsimple", "relative", "10")
+    spawnRing("normal", "#ffffff", 0, angle4, 18, -200, 200, 20, "redsimple", "relative", "10")
+    wait(0.5)
+    for (let i = 0; i < 4; i++) {
+        kaisuu2 += 1
+        r1 = seedrandom[kaisuu2](0,360)
+        spawnRing("normal", "#ff3333", 300, r1, 36, 200, -50, 20, "blueknife", "relative", "6")
+        r1 = seedrandom[kaisuu2 + 5](0,360)
+        spawnRing("normal", "#ff3333", 300, r1, 36, -200, -50, 20, "blueknife", "relative", "6")
+        r1 = seedrandom[kaisuu2 + 10](0,360)
+        spawnRing("normal", "#ff3333", 300, r1, 36, 200, 200, 20, "blueknife", "relative", "6")
+        r1 = seedrandom[kaisuu2 + 15](0,360)
+        spawnRing("normal", "#ff3333", 300, r1, 36, -200, 200, 20, "blueknife", "relative", "6")
+        wait(0.167 * 5)
+    }
+    wait(0.1)
+}
     `,
     bulletScript: `
-        // 弾挙動の独自コード
+if (color==#ffffff) {
+    once {
+        advance(-100)
+        multf = 30
+        hitmultf = 80
+        hitmultlr = 0
+        hitRadius = 0
+        tween("multlr", 0, 1, "seconds", 1, "easeOut")
+        wait(1.5)
+        hitRadius = 10
+        tween("hitmultlr", 0, 1, "seconds", 1, "easeOut")
+        wait(1)
+        tween("multlr", 1, 0, "seconds", 1, "easeIn")
+        tween("hitmultlr", 1, 0, "seconds", 1, "easeIn")
+        wait(1)
+        y = -9000
+    }
+}
+if (color==#fffffe) {
+    once {
+        advance(-100)
+        multf = 30
+        multlr = 0.1
+        wait(0.6)
+        y = -90000
+    }
+}
     `,
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
