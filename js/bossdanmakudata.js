@@ -1417,7 +1417,8 @@ if (color==#ff3333) {
         wait(0.8)
         hitRadius = 15
         wait(2.2)
-        tweenWait("multlr", 0.5, 0, "seconds", 0.4)
+        tween("multlr", 0.5, 0, "seconds", 0.4)
+        wait(0.4)
         y = -8000
     }
 }
