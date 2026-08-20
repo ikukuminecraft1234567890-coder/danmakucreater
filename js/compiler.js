@@ -66,7 +66,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `while (true) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             if (!window.DanmakuCompiler.hasDirectWait(block.children)) {
-                js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+                js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);\n`;
                 js += ind + `  yield;\n`;
             }
             js += ind + `}\n`;
@@ -96,7 +96,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `while (${cond}) {\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             if (!window.DanmakuCompiler.hasDirectWait(block.children)) {
-                js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+                js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);\n`;
                 js += ind + `  yield;\n`;
             }
             js += ind + `}\n`;
@@ -178,7 +178,7 @@ window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     if (isBulletScript && blocks && blocks.length > 0) {
         funcStr += `  while (true) {\n`;
         funcStr += window.DanmakuCompiler.generateBlocksJS(blocks, 2);
-        funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, 0.01);\n`;
+        funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);\n`;
         funcStr += `    yield;\n`;
         funcStr += `  }\n`;
     } else {
