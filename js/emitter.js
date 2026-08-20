@@ -476,6 +476,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                         syncAttackerFromEmitterVariables(state, attacker);
                         break;
                     }
+                    case 'bullet_image_set': {
+                        let img = block.params.bulletImage || block.params.value || 'none';
+                        let evaluated = evalExpr(img, state.variables, block, 'bulletImage');
+                        if (evaluated !== undefined && evaluated !== null) img = evaluated;
+                        img = String(img).trim().replace(/^['"]|['"]$/g, '');
+                        state.variables.bulletImage = img;
+                        state.variables.image = img;
+                        break;
+                    }
                     case 'aim_at_target': {
                         let dx = target.x - (attacker.x + (state.variables.x_offset || 0));
                         let dy = target.y - (attacker.y + (state.variables.y_offset || 0));
@@ -2217,6 +2226,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 break;
                             }
+                            case 'bullet_image_set': {
+                                let img = block.params.bulletImage || block.params.value || 'none';
+                                let evaluated = evalExpr(img, state.variables, block, 'bulletImage');
+                                if (evaluated !== undefined && evaluated !== null) img = evaluated;
+                                img = String(img).trim().replace(/^['"]|['"]$/g, '');
+                                state.variables.bulletImage = img;
+                                state.variables.image = img;
+                                if (b) b.bulletImage = img;
+                                break;
+                            }
                             case 'spawn_bullet':
                             case 'spawn_trail':
                             case 'spawn_trail_resist': {
@@ -3300,8 +3319,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
             }
             let vBulletImage = window.getBulletVar(state.variables, 'bulletImage');
+            if (vBulletImage === undefined) {
+                vBulletImage = window.getBulletVar(state.variables, 'image');
+            }
             if (vBulletImage !== undefined) {
-                b.bulletImage = vBulletImage;
+                let imgStr = String(vBulletImage).trim().replace(/^['"]|['"]$/g, '');
+                b.bulletImage = imgStr;
             }
             let vColor = window.getBulletVar(state.variables, 'color');
             if (vColor !== undefined) {

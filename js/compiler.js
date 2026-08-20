@@ -46,6 +46,11 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         if (t === 'wait') {
             js += ind + `state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
             js += ind + `yield;\n`;
+        } else if (t === 'bullet_image_set') {
+            let img = JSON.stringify(block.params.bulletImage || block.params.value || 'none');
+            js += ind + `vars['bulletImage'] = ${img};\n`;
+            js += ind + `vars['image'] = ${img};\n`;
+            js += ind + `if (b) b.bulletImage = ${img};\n`;
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
             let varName = block.params.var || block.params.name;
             if (varName) {

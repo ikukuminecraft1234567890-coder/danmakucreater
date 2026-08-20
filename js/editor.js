@@ -82,9 +82,8 @@ function customCardMakerSwitchTab(tab) {
                 block.params.name = 'color';
                 block.params.value = '#33ffff';
             } else if (type === 'bullet_image_set') {
-                block.type = 'set_var';
-                block.params.name = 'bulletImage';
-                block.params.value = "'star'";
+                block.type = 'bullet_image_set';
+                block.params.bulletImage = 'redeye';
             } else if (type === 'move_owner') {
                 block.params.preset = 'center';
                 block.params.duration = '0';
@@ -499,7 +498,7 @@ function customCardMakerSwitchTab(tab) {
             let currentVal = 'none';
             let script = (typeof getActiveScript === 'function') ? getActiveScript() : null;
             if (blockIdx !== null && script && script[blockIdx] && script[blockIdx].params) {
-                currentVal = script[blockIdx].params.bulletImage || 'none';
+                currentVal = script[blockIdx].params.bulletImage || script[blockIdx].params.value || 'none';
             }
             
             renderBulletPickerContent(currentVal);
@@ -800,6 +799,16 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="-" ${b.params.op === '-' ? 'selected' : ''}>-=</option>
                                 </select>
                                 <input type="text" list="val-suggestions" style="width:70px;" value="${b.params.value}" onchange="customCardMakerUpdateParam(${idx}, 'value', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'bullet_image_set':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] 画像変更:</span>
+                                <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                    ${getBulletImageDisplayName(b.params.bulletImage || b.params.value || 'none')} ▾
+                                </button>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -1987,6 +1996,11 @@ function customCardMakerSwitchMode(mode) {
                     case 'change_var':
                         line = `${b.params.name || 'angle'} ${b.params.op === '-' ? '-=' : '+='} ${b.params.value || '10'}`;
                         break;
+                    case 'bullet_image_set': {
+                        let img = b.params.bulletImage || b.params.value || 'none';
+                        line = `imageTo("${img}")`;
+                        break;
+                    }
                     case 'aim_at_target':
                         line = `aimAtTarget()`;
                         break;
@@ -2396,6 +2410,11 @@ function customCardMakerSwitchMode(mode) {
                         condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
                         condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
                         block = { type: 'if', params: { cond: condStr, aifTol: tol, aifCond: condRaw }, indent };
+                    }
+                    let mImageTo = trimmed.match(/^(?:imageTo|imageto|changeImage)\((.*?)\)$/i);
+                    if (mImageTo) {
+                        let arg = mImageTo[1].trim().replace(/^['"]|['"]$/g, '');
+                        block = { type: 'bullet_image_set', params: { bulletImage: arg || 'none' }, indent };
                     }
                     let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
@@ -2954,6 +2973,11 @@ function customCardMakerSwitchMode(mode) {
                     condStr = condStr.replace(/([^&|?,:=()]+)\s*==\s*([^&|?,:=()]+)/g, `abs($1 - $2) <= ${tol}`);
                     condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
                     block = { type: 'if', params: { cond: condStr, aifTol: tol, aifCond: condRaw }, indent: indent };
+                }
+                let mImageTo = trimmed.match(/^(?:imageTo|imageto|changeImage)\((.*?)\)$/i);
+                if (mImageTo) {
+                    let arg = mImageTo[1].trim().replace(/^['"]|['"]$/g, '');
+                    block = { type: 'bullet_image_set', params: { bulletImage: arg || 'none' }, indent: indent };
                 }
                 let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                 if (mAim) {
