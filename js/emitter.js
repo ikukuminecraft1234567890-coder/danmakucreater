@@ -478,8 +478,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                     case 'bullet_image_set': {
                         let img = block.params.bulletImage || block.params.value || 'none';
-                        let evaluated = evalExpr(img, state.variables, block, 'bulletImage');
-                        if (evaluated !== undefined && evaluated !== null) img = evaluated;
+                        if (typeof resolveBulletImageParam === 'function') {
+                            img = resolveBulletImageParam(img, state.variables);
+                        } else {
+                            img = String(img).trim().replace(/^['"]|['"]$/g, '');
+                            if (state.variables && state.variables[img] !== undefined) img = state.variables[img];
+                        }
                         img = String(img).trim().replace(/^['"]|['"]$/g, '');
                         state.variables.bulletImage = img;
                         state.variables.image = img;
@@ -2228,12 +2232,21 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             case 'bullet_image_set': {
                                 let img = block.params.bulletImage || block.params.value || 'none';
-                                let evaluated = evalExpr(img, state.variables, block, 'bulletImage');
-                                if (evaluated !== undefined && evaluated !== null) img = evaluated;
+                                if (typeof resolveBulletImageParam === 'function') {
+                                    img = resolveBulletImageParam(img, state.variables);
+                                } else {
+                                    img = String(img).trim().replace(/^['"]|['"]$/g, '');
+                                    if (state.variables && state.variables[img] !== undefined) img = state.variables[img];
+                                }
                                 img = String(img).trim().replace(/^['"]|['"]$/g, '');
                                 state.variables.bulletImage = img;
                                 state.variables.image = img;
-                                if (b) b.bulletImage = img;
+                                if (b) {
+                                    b.bulletImage = img;
+                                    if (typeof isBulletImageKey === 'function' && window.paletteBulletSet && window.paletteBulletSet.has(img)) {
+                                        b.bulletType = 'palette';
+                                    }
+                                }
                                 break;
                             }
                             case 'spawn_bullet':

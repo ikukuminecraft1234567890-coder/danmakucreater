@@ -6164,7 +6164,12 @@ function applyAbilityEffect(cardId, owner) {
                 for (let key in b.params) {
                     if (Object.prototype.hasOwnProperty.call(b.params, key)) {
                         let val = b.params[key];
-                        if (typeof val === 'string' && val.trim() !== '' && keysToCompile.has(key)) {
+                        let isNonNumericVal = (key === 'value' || key === 'bulletImage') && (
+                            block.type === 'bullet_image_set' ||
+                            (block.type === 'set_var' && (block.params.name === 'bulletImage' || block.params.name === 'image' || block.params.name === 'color')) ||
+                            (block.type === 'const_var' && (block.params.name === 'bulletImage' || block.params.name === 'image' || block.params.name === 'color'))
+                        );
+                        if (typeof val === 'string' && val.trim() !== '' && keysToCompile.has(key) && !isNonNumericVal) {
                             if (key === 'cond') {
                                 b.compiledParams[key] = compileCondition(val);
                             } else {
@@ -6261,6 +6266,37 @@ function applyAbilityEffect(cardId, owner) {
             thread.magicCircleScript = parent.magicCircleScript;
         }
 
+        function isBulletImageKey(key) {
+            if (!key || typeof key !== 'string') return false;
+            let s = key.trim().replace(/^['"]|['"]$/g, '');
+            let clean = s.replace(/\.png$/i, '').replace(/^pallets\//i, '');
+            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain'].includes(s) ||
+                ['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain'].includes(clean)) {
+                return true;
+            }
+            if (window.paletteBulletSet && (window.paletteBulletSet.has(s) || window.paletteBulletSet.has(clean) || window.paletteBulletSet.has('pallets/' + clean))) {
+                return true;
+            }
+            if (window.bulletImages && (window.bulletImages[s] || window.bulletImages[clean] || window.bulletImages['pallets/' + clean])) {
+                return true;
+            }
+            return false;
+        }
+
+        function resolveBulletImageParam(imgParam, variables) {
+            if (imgParam === undefined || imgParam === null) return 'none';
+            let s = String(imgParam).trim();
+            if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+                s = s.substring(1, s.length - 1).trim();
+            }
+            if (variables && variables[s] !== undefined) {
+                let v = variables[s];
+                if (typeof v === 'string') return v.trim().replace(/^['"]|['"]$/g, '');
+                return String(v);
+            }
+            return s;
+        }
+
         function evalValue(expr, variables, block, key) {
             if (typeof expr === 'number') return expr;
             let s = String(expr).trim();
@@ -6268,7 +6304,7 @@ function applyAbilityEffect(cardId, owner) {
             if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) return s.substring(1, s.length - 1);
             if (variables && variables[s] !== undefined) return variables[s];
             if (isCssColorLiteral(s)) return s;
-            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2'].includes(s)) return s;
+            if (isBulletImageKey(s)) return s;
             // "12,522" のようなコンマ区切り座標リテラルは数式評価せずそのまま文字列として返す
             if (/^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?$/.test(s)) return s;
             return evalExpr(expr, variables || {}, block, key);
@@ -6280,7 +6316,7 @@ function applyAbilityEffect(cardId, owner) {
                 raw = raw.substring(1, raw.length - 1);
             }
             if (variables && variables[raw] !== undefined) return String(variables[raw]);
-            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2'].includes(raw)) return raw;
+            if (isBulletImageKey(raw)) return raw;
             // カンマ区切りの座標指定（例: x0,y0 など）の各大要素を個別に evalExpr する
             if (raw.includes(',')) {
                 let parts = raw.split(',').map(part => {
