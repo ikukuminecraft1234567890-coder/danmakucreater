@@ -4749,6 +4749,41 @@ once {
     magicCircleScript: `
         // 子弾挙動の独自コード（任意）
     `
+},
+{
+    difficulty: "NORMAL",
+    name: "「花火大会」",
+    desc: "引き延ばすやつめっちゃ良いね！おもろい。",
+    duration: 20,            // 制限時間（秒）
+    maxMisses: 1,
+    x_offset: 0,             // 出現位置の横オフセット
+    y_offset: 0,             // 出現位置の縦オフセット
+    despawnTime: 1.5,        // 画面外に弾が出てから消滅するまでの時間
+    // エディタの「JSコード」からコピーした、独自のJS風コードをそのまま貼り付けられます
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 8; i++) {
+        spx = random(-400,400)
+        spy = random(-200,200)
+        angle = random(0,360)
+        spawnRing("normal", "#ff3333", 0, angle, 12, spx, spy, 20, "redsimple", "relative", "10")
+    }
+    wait(1)
+}
+    `,
+    bulletScript: `
+once {
+    advance(10)
+    tween("multf", 0, 5, "seconds", 0.8)
+    tween("hitmultf", 0, 10, "seconds", 0.8)
+    tween("multlr", 0, 0.4, "seconds", 0.8)
+    wait(0.4)
+    speed = 400
+}
+    `,
+    magicCircleScript: `
+        // 子弾挙動の独自コード（任意）
+    `
 }
 ];
 
