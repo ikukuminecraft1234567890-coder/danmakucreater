@@ -1937,7 +1937,7 @@ function applyAbilityEffect(cardId, owner) {
 
                     // スペルボーナス計算（ボス戦専用）
                     if (window.isBossMode && isCustomCardTesting && !customCardTestEmitterDone) {
-                        if (!window.spellBonusFailed) {
+                        if (!window.spellBonusFailed || window.isS2Danmaku) {
                             let duration = (activeCards && activeCards[0] && activeCards[0].duration) ? activeCards[0].duration : 30;
                             let timeRatio = Math.max(0, actionTimer / duration);
                             let maxB = window.spellMaxBonus || 10000000;
@@ -2661,7 +2661,7 @@ function applyAbilityEffect(cardId, owner) {
                                         let cardDur = (currentCardObj && currentCardObj.duration !== undefined) ? (Number(currentCardObj.duration) || 30) : 30;
                                         let curRemTime = Math.max(0, (typeof actionTimer === 'number') ? actionTimer : 0);
                                         let clearElapsed = Math.max(0, cardDur - curRemTime);
-                                        let isGet = !window.spellBonusFailed && (window.spellMissCount || 0) === 0 && (window.spellBombCount || 0) === 0;
+                                        let isGet = window.isS2Danmaku || (!window.spellBonusFailed && (window.spellMissCount || 0) === 0 && (window.spellBombCount || 0) === 0);
                                         if (isGet) {
                                             if (window.playSound) {
                                                 window.playSound('se_cardget');
@@ -3055,13 +3055,14 @@ function applyAbilityEffect(cardId, owner) {
                                 window.spellTransitionTimer = 1.5;
                                 let cardDur = (activeCards && activeCards[0] && activeCards[0].duration !== undefined) ? (Number(activeCards[0].duration) || 30) : 30;
 
-                                if (window.isEnduranceSpell) {
-                                    // 耐久スペル: 時間切れ＝撃破扱い、最大ボーナス
+                                if (window.isEnduranceSpell || window.isS2Danmaku) {
+                                    // 耐久スペル / S2弾幕: 時間切れ耐えきりでボーナス獲得
                                     let maxB = window.spellMaxBonus || 10000000;
+                                    let awarded = window.isEnduranceSpell ? maxB : Math.floor(maxB * 0.3);
                                     window.spellBonusFailed = false;
-                                    window.spellCurrentBonus = maxB;
-                                    window.spellClearResult = { type: 'GET', bonus: maxB, timer: 1.5, clearTime: cardDur, duration: cardDur, isTimeout: true };
-                                    window.totalScore = (window.totalScore || 0) + maxB;
+                                    window.spellCurrentBonus = awarded;
+                                    window.spellClearResult = { type: 'GET', bonus: awarded, timer: 1.5, clearTime: cardDur, duration: cardDur, isTimeout: true };
+                                    window.totalScore = (window.totalScore || 0) + awarded;
                                     if (window.playSound) {
                                         window.playSound('se_tan00');
                                         window.playSound('se_cardget');
@@ -4893,7 +4894,7 @@ function applyAbilityEffect(cardId, owner) {
                         let bonusY = curBannerY + bannerH + 11;
                         ctx.textAlign = 'right';
                         ctx.textBaseline = 'middle';
-                        if (!window.spellBonusFailed) {
+                        if (!window.spellBonusFailed || window.isS2Danmaku) {
                             ctx.font = "italic bold 12px 'Trebuchet MS', 'Arial', sans-serif";
                             ctx.fillStyle = 'rgba(0,0,0,0.85)';
                             ctx.fillText('Bonus  ' + (window.spellCurrentBonus || 0).toLocaleString(), bannerEndX - 13.5, bonusY + 1);
@@ -5663,7 +5664,8 @@ function applyAbilityEffect(cardId, owner) {
                 return;
             }
             
-            if (window.isBossMode && typeof playBossBattle === 'function') {
+            // 本物のボス戦（ボスラッシュ）の時のみ playBossBattle を呼ぶ
+            if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof playBossBattle === 'function') {
                 if (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id && typeof updateBossHighScore === 'function') {
                     updateBossHighScore(currentBoss.id, window.totalScore || 0);
                 }
@@ -5706,6 +5708,8 @@ function applyAbilityEffect(cardId, owner) {
             window.spellTransitionTimer = 0;
             window.lastTimeoutSecond = 11;
             window.spellDeclarationTimer = 2.8;
+            window.totalScore = 0; // スコアリセット
+            window.isS2Danmaku = (tempCustomCard.season === 2) || (typeof window.currentDanmakuSeason !== 'undefined' && window.currentDanmakuSeason === 2);
             if (window.isBossMode && window.playSound) window.playSound('se_cat00');
 
             customCardTestEmitterDone = false;
@@ -5823,7 +5827,7 @@ function applyAbilityEffect(cardId, owner) {
                 const y = clientY - rect.top;
                 
                 // テストプレイ(開発環境)かどうか判定 (カードメーカーテストプレイ / 共有弾幕テスト)
-                const isDevTestPlay = isCustomCardTesting && (!window.isBossMode || (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource !== 'boss'));
+                const isDevTestPlay = isCustomCardTesting && (typeof currentTestPlaySource === 'undefined' || currentTestPlaySource !== 'boss');
 
                 // 上部コーナー判定 (上部 130px、左右 130px)
                 if (y < 130) {

@@ -66,19 +66,30 @@ eval(fs.readFileSync(path.join(jsDir, 'game.js'), 'utf8'));
 eval(fs.readFileSync(path.join(jsDir, 'editor.js'), 'utf8'));
 eval(fs.readFileSync(path.join(jsDir, 'compiler.js'), 'utf8'));
 eval(fs.readFileSync(path.join(jsDir, 'danmaku.js'), 'utf8') + ';\nwindow.sharedDanmakuList = sharedDanmakuList;');
+if (fs.existsSync(path.join(jsDir, 'danmaku2.js'))) {
+    eval(fs.readFileSync(path.join(jsDir, 'danmaku2.js'), 'utf8') + ';\nwindow.sharedDanmakuListS2 = typeof sharedDanmakuListS2 !== "undefined" ? sharedDanmakuListS2 : [];');
+} else {
+    window.sharedDanmakuListS2 = [];
+}
 eval(fs.readFileSync(path.join(jsDir, 'emitter.js'), 'utf8'));
 eval(fs.readFileSync(path.join(jsDir, 'compiledanmaku.js'), 'utf8'));
 
 console.log(`========================================`);
 console.log(`DANMAKU VALIDATION & STATIC ANALYSIS`);
-console.log(`Total danmaku to test: ${window.sharedDanmakuList.length}`);
+console.log(`Total S1 danmaku to test: ${window.sharedDanmakuList.length}`);
+console.log(`Total S2 danmaku to test: ${window.sharedDanmakuListS2.length}`);
 console.log(`========================================\n`);
 
 let issuesFound = 0;
 
-window.sharedDanmakuList.forEach((danmaku, idx) => {
-    const cardId = danmaku.id || ('danmaku_' + idx);
-    const cardName = danmaku.name || `Card #${idx}`;
+const allDanmakuToTest = [
+    ...window.sharedDanmakuList.map((d, i) => ({ ...d, _season: 1, _id: d.id || ('danmaku_' + i) })),
+    ...window.sharedDanmakuListS2.map((d, i) => ({ ...d, _season: 2, _id: d.id || ('danmaku_s2_' + i) }))
+];
+
+allDanmakuToTest.forEach((danmaku, idx) => {
+    const cardId = danmaku._id;
+    const cardName = `[S${danmaku._season}] ` + (danmaku.name || `Card #${idx}`);
     let cardIssues = [];
 
     // 1. 静的コード解析 (Static Analysis)

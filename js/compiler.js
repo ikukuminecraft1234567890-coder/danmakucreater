@@ -26,13 +26,11 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
     return defaultVal;
 };
 
-// ループの直接の子ブロック（ネストしたループ内は除く）にwaitが含まれるか調べる
+// ループの直接の子ブロックに無条件のwaitが含まれるか調べる（if/onceなど条件付きの内部は除く）
 window.DanmakuCompiler.hasDirectWait = function(blocks) {
     if (!blocks) return false;
     for (let b of blocks) {
         if (b.type === 'wait' || b.type === 'tween_var_wait') return true;
-        // if/once の中も探す（ただし forever/while/repeat は別スレッド扱いでスキップ）
-        if ((b.type === 'if' || b.type === 'once') && window.DanmakuCompiler.hasDirectWait(b.children)) return true;
     }
     return false;
 };

@@ -334,12 +334,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let loopState = state.stack[state.stack.length - 1];
                         if (loopState.forever) {
                             loopState.pc = 0;
-                            state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+                            state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
                             break;
                         } else if (loopState.type === 'while') {
                             if (evalCondition(loopState.cond || 'false', state.variables)) {
                                 loopState.pc = 0;
-                                state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+                                state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
                                 break;
                             }
                             state.stack.pop();
@@ -2000,13 +2000,14 @@ function stepEmitter(c, state, attacker, target, dt) {
 
             // スクリプトで使用する場合のみ、Math.sqrt (平方根) 計算を実行して高速化
             if (window.needsDistanceCalc) {
-                state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
                 let dx = target.x - b.x;
                 let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
                 state.variables.dist = Math.sqrt(dx * dx + dy * dy);
             } else {
-                state.variables.speed = b.vx * b.vx + b.vy * b.vy === 0 ? 0 : 200; // ダミー値（平方根を回避）
                 state.variables.dist = 0;
+            }
+            if (state.variables.speed === undefined || state.variables.speed === null) {
+                state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             }
             
             const _t2 = performance.now(); // セットアップ完了
@@ -2089,12 +2090,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let loopState = stack[stackLen - 1];
                                 if (loopState.forever) {
                                     loopState.pc = 0;
-                                    state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+                                    state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
                                     break;
                                 } else if (loopState.type === 'while') {
                                     if (evalCondition(loopState.cond || 'false', vars)) {
                                         loopState.pc = 0;
-                                        state.waitTimer = Math.max(state.waitTimer || 0, 0.001);
+                                        state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
                                         break;
                                     }
                                     stack.pop();
@@ -2127,7 +2128,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 // 弾の挙動は、最後まで実行し終えたら自動的に最初からループ実行する
                                 // once は弾生（この弾が存在する間）で一度きり — ループしてもリセットしない
                                 state.pc = 0;
-                                state.waitTimer = 0.01; // 1フレーム待機
+                                state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167); // 1フレーム待機
                                 brokeToWait = true;
                                 break;
                             }
@@ -2136,7 +2137,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let block = currentBlocks[currentPC];
                         if (!block) {
                             state.pc = 0;
-                            state.waitTimer = 0.01;
+                            state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
                             brokeToWait = true;
                             break;
                         }

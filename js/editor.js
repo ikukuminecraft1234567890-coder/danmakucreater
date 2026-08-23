@@ -1653,9 +1653,13 @@ function customCardMakerSwitchTab(tab) {
             if (success && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'shared' && typeof currentSharedDanmakuName !== 'undefined' && currentSharedDanmakuName) {
                 let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
                 let isNoMiss = missCount === 0;
+                let bombCount = typeof window.spellBombCount === 'number' ? window.spellBombCount : 0;
+                let isNoBomb = bombCount === 0;
                 let maxMisses = window.playerMaxMisses;
                 let isInfMisses = maxMisses === Infinity;
-                saveClearedSharedDanmaku(currentSharedDanmakuName, isNoMiss, missCount, isInfMisses);
+                let season = window.currentDanmakuSeason || 1;
+                let finalScore = window.totalScore || 0;
+                saveClearedSharedDanmaku(currentSharedDanmakuName, isNoMiss, isNoBomb, missCount, isInfMisses, finalScore, season);
             }
             
             if (typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id) {
@@ -3577,13 +3581,31 @@ function customCardMakerSwitchMode(mode) {
         initZoomControls();
 
         // -------------------------------------------------------------
-        // 共有弾幕（作った弾幕一覧）表示・プレイ機能
+        // 共有弾幕（作った弾幕一覧）S1 / S2 表示・プレイ機能
         // -------------------------------------------------------------
         let currentSharedDanmakuName = null;
+        let currentSharedDanmakuSeason = 1;
+        window.currentSharedDanmakuSeason = currentSharedDanmakuSeason;
 
-        function getSharedDanmakuMinMiss(name) {
+        function showSharedDanmakuSeasonSelect() {
+            showScreen('screen-shared-danmaku-season-select');
+        }
+        window.showSharedDanmakuSeasonSelect = showSharedDanmakuSeasonSelect;
+
+        function openSharedDanmakuSeason(season) {
+            currentSharedDanmakuSeason = season === 2 ? 2 : 1;
+            window.currentSharedDanmakuSeason = currentSharedDanmakuSeason;
+            sharedDanmakuPage = 0;
+            showScreen('screen-shared-danmaku');
+            renderSharedDanmakuList();
+        }
+        window.openSharedDanmakuSeason = openSharedDanmakuSeason;
+
+        function getSharedDanmakuMinMiss(name, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            const key = season === 2 ? 'touhou_kyoukaisen_minmiss_s2' : 'touhou_kyoukaisen_minmiss_shared';
             try {
-                const saved = localStorage.getItem('touhou_kyoukaisen_minmiss_shared');
+                const saved = localStorage.getItem(key);
                 if (saved) {
                     const minMissDict = JSON.parse(saved);
                     return minMissDict[name];
@@ -3592,58 +3614,110 @@ function customCardMakerSwitchMode(mode) {
             return undefined;
         }
 
-        function saveClearedSharedDanmaku(name, isNoMiss, missCount, isInfMisses) {
+        function getSharedDanmakuHighScore(name, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            const key = season === 2 ? 'touhou_kyoukaisen_highscore_s2' : 'touhou_kyoukaisen_highscore_shared';
+            try {
+                const saved = localStorage.getItem(key);
+                if (saved) {
+                    const dict = JSON.parse(saved);
+                    return dict[name];
+                }
+            } catch(e) {}
+            return undefined;
+        }
+
+        function saveClearedSharedDanmaku(name, isNoMiss, isNoBomb, missCount, isInfMisses, finalScore, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            const clearedKey = season === 2 ? 'touhou_kyoukaisen_cleared_s2' : 'touhou_kyoukaisen_cleared_shared';
+            const nomissKey = season === 2 ? 'touhou_kyoukaisen_nomiss_s2' : 'touhou_kyoukaisen_nomiss_shared';
+            const nobombKey = season === 2 ? 'touhou_kyoukaisen_nobomb_s2' : 'touhou_kyoukaisen_nobomb_shared';
+            const nnKey = season === 2 ? 'touhou_kyoukaisen_nn_s2' : 'touhou_kyoukaisen_nn_shared';
+            const minmissKey = season === 2 ? 'touhou_kyoukaisen_minmiss_s2' : 'touhou_kyoukaisen_minmiss_shared';
+            const scoreKey = season === 2 ? 'touhou_kyoukaisen_highscore_s2' : 'touhou_kyoukaisen_highscore_shared';
+
+            // 1. クリア記録
             let clearedList = [];
             try {
-                const saved = localStorage.getItem('touhou_kyoukaisen_cleared_shared');
-                if (saved) {
-                    clearedList = JSON.parse(saved);
-                }
+                const saved = localStorage.getItem(clearedKey);
+                if (saved) clearedList = JSON.parse(saved);
             } catch(e) {}
             if (!clearedList.includes(name)) {
                 clearedList.push(name);
-                try {
-                    localStorage.setItem('touhou_kyoukaisen_cleared_shared', JSON.stringify(clearedList));
-                } catch(e) {}
+                try { localStorage.setItem(clearedKey, JSON.stringify(clearedList)); } catch(e) {}
             }
 
-            if (isInfMisses) {
-                let minMissDict = {};
-                try {
-                    const savedMinMiss = localStorage.getItem('touhou_kyoukaisen_minmiss_shared');
-                    if (savedMinMiss) {
-                        minMissDict = JSON.parse(savedMinMiss);
-                    }
-                } catch(e) {}
-                
-                if (typeof missCount === 'number') {
-                    if (!(name in minMissDict) || missCount < minMissDict[name]) {
-                        minMissDict[name] = missCount;
-                        try {
-                            localStorage.setItem('touhou_kyoukaisen_minmiss_shared', JSON.stringify(minMissDict));
-                        } catch(e) {}
-                    }
+            // 2. 最小ミス数記録
+            let minMissDict = {};
+            try {
+                const savedMinMiss = localStorage.getItem(minmissKey);
+                if (savedMinMiss) minMissDict = JSON.parse(savedMinMiss);
+            } catch(e) {}
+            if (typeof missCount === 'number') {
+                if (!(name in minMissDict) || missCount < minMissDict[name]) {
+                    minMissDict[name] = missCount;
+                    try { localStorage.setItem(minmissKey, JSON.stringify(minMissDict)); } catch(e) {}
                 }
-            } else if (isNoMiss) {
+            }
+
+            // 3. 一プレイでノーミス＆ノーボム達成（NN / ノーノー融合）
+            if (isNoMiss && isNoBomb) {
+                let nnList = [];
+                try {
+                    const savedNN = localStorage.getItem(nnKey);
+                    if (savedNN) nnList = JSON.parse(savedNN);
+                } catch(e) {}
+                if (!nnList.includes(name)) {
+                    nnList.push(name);
+                    try { localStorage.setItem(nnKey, JSON.stringify(nnList)); } catch(e) {}
+                }
+            }
+
+            // 4. ノーミス記録
+            if (isNoMiss) {
                 let noMissList = [];
                 try {
-                    const savedNoMiss = localStorage.getItem('touhou_kyoukaisen_nomiss_shared');
-                    if (savedNoMiss) {
-                        noMissList = JSON.parse(savedNoMiss);
-                    }
+                    const savedNoMiss = localStorage.getItem(nomissKey);
+                    if (savedNoMiss) noMissList = JSON.parse(savedNoMiss);
                 } catch(e) {}
                 if (!noMissList.includes(name)) {
                     noMissList.push(name);
-                    try {
-                        localStorage.setItem('touhou_kyoukaisen_nomiss_shared', JSON.stringify(noMissList));
-                    } catch(e) {}
+                    try { localStorage.setItem(nomissKey, JSON.stringify(noMissList)); } catch(e) {}
+                }
+            }
+
+            // 5. ノーボム記録
+            if (isNoBomb) {
+                let noBombList = [];
+                try {
+                    const savedNoBomb = localStorage.getItem(nobombKey);
+                    if (savedNoBomb) noBombList = JSON.parse(savedNoBomb);
+                } catch(e) {}
+                if (!noBombList.includes(name)) {
+                    noBombList.push(name);
+                    try { localStorage.setItem(nobombKey, JSON.stringify(noBombList)); } catch(e) {}
+                }
+            }
+
+            // 6. ハイスコア記録
+            if (typeof finalScore === 'number' && finalScore > 0) {
+                let scoreDict = {};
+                try {
+                    const savedScore = localStorage.getItem(scoreKey);
+                    if (savedScore) scoreDict = JSON.parse(savedScore);
+                } catch(e) {}
+                if (!(name in scoreDict) || finalScore > scoreDict[name]) {
+                    scoreDict[name] = finalScore;
+                    try { localStorage.setItem(scoreKey, JSON.stringify(scoreDict)); } catch(e) {}
                 }
             }
         }
 
-        function isSharedDanmakuCleared(name) {
+        function isSharedDanmakuCleared(name, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            const clearedKey = season === 2 ? 'touhou_kyoukaisen_cleared_s2' : 'touhou_kyoukaisen_cleared_shared';
             try {
-                const saved = localStorage.getItem('touhou_kyoukaisen_cleared_shared');
+                const saved = localStorage.getItem(clearedKey);
                 if (saved) {
                     const clearedList = JSON.parse(saved);
                     return clearedList.includes(name);
@@ -3652,9 +3726,37 @@ function customCardMakerSwitchMode(mode) {
             return false;
         }
 
-        function isSharedDanmakuNoMiss(name) {
+        function isSharedDanmakuNN(name, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            const nnKey = season === 2 ? 'touhou_kyoukaisen_nn_s2' : 'touhou_kyoukaisen_nn_shared';
             try {
-                const saved = localStorage.getItem('touhou_kyoukaisen_nomiss_shared');
+                const saved = localStorage.getItem(nnKey);
+                if (saved) {
+                    const list = JSON.parse(saved);
+                    return list.includes(name);
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function isSharedDanmakuNoBomb(name, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            const nobombKey = season === 2 ? 'touhou_kyoukaisen_nobomb_s2' : 'touhou_kyoukaisen_nobomb_shared';
+            try {
+                const saved = localStorage.getItem(nobombKey);
+                if (saved) {
+                    const list = JSON.parse(saved);
+                    return list.includes(name);
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function isSharedDanmakuNoMiss(name, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            const nomissKey = season === 2 ? 'touhou_kyoukaisen_nomiss_s2' : 'touhou_kyoukaisen_nomiss_shared';
+            try {
+                const saved = localStorage.getItem(nomissKey);
                 if (saved) {
                     const noMissList = JSON.parse(saved);
                     return noMissList.includes(name);
@@ -3664,15 +3766,15 @@ function customCardMakerSwitchMode(mode) {
         }
 
         function showSharedDanmakuScreen() {
-            showScreen('screen-shared-danmaku');
-            renderSharedDanmakuList();
+            openSharedDanmakuSeason(currentSharedDanmakuSeason || 1);
         }
 
         let sharedDanmakuPage = 0;
         const SHARED_PAGE_SIZE = 8;
 
         function changeSharedDanmakuPage(delta) {
-            const total = typeof sharedDanmakuList !== 'undefined' ? sharedDanmakuList.length : 0;
+            const list = currentSharedDanmakuSeason === 2 ? (window.sharedDanmakuListS2 || []) : (window.sharedDanmakuList || []);
+            const total = list.length;
             const maxPage = Math.max(0, Math.ceil(total / SHARED_PAGE_SIZE) - 1);
             sharedDanmakuPage = Math.max(0, Math.min(maxPage, sharedDanmakuPage + delta));
             renderSharedDanmakuList();
@@ -3684,18 +3786,66 @@ function customCardMakerSwitchMode(mode) {
             if (!container) return;
             container.innerHTML = '';
 
-            if (typeof sharedDanmakuList === 'undefined' || sharedDanmakuList.length === 0) {
-                container.innerHTML = '<div style="color:#888; font-size:12px; text-align:center; padding:50px 0; border:1.5px dashed rgba(255,255,255,0.1); border-radius:8px;">作った弾幕がありません。「js/danmaku.js」にデータを追加してください。</div>';
+            const isS2 = currentSharedDanmakuSeason === 2;
+            const list = isS2 ? (window.sharedDanmakuListS2 || []) : (window.sharedDanmakuList || []);
+
+            // ヘッダータイトルの更新
+            const titleEl = document.getElementById('shared-danmaku-title');
+            if (titleEl) {
+                if (isS2) {
+                    titleEl.textContent = '作った弾幕 - シーズン2';
+                    titleEl.style.color = '#00ccff';
+                    titleEl.style.textShadow = '0 0 8px rgba(0, 204, 255, 0.8)';
+                } else {
+                    titleEl.textContent = '作った弾幕 - シーズン1';
+                    titleEl.style.color = '#d800ff';
+                    titleEl.style.textShadow = '0 0 8px rgba(216, 0, 255, 0.8)';
+                }
+            }
+
+            // タブのアクティブスタイル更新
+            const tab1 = document.getElementById('tab-season-1');
+            const tab2 = document.getElementById('tab-season-2');
+            if (tab1) {
+                if (!isS2) {
+                    tab1.style.background = 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)';
+                    tab1.style.borderColor = '#d800ff';
+                    tab1.style.color = '#fff';
+                    tab1.style.boxShadow = '0 0 8px rgba(216, 0, 255, 0.6)';
+                } else {
+                    tab1.style.background = '#1a1a24';
+                    tab1.style.borderColor = '#444';
+                    tab1.style.color = '#888';
+                    tab1.style.boxShadow = 'none';
+                }
+            }
+            if (tab2) {
+                if (isS2) {
+                    tab2.style.background = 'linear-gradient(135deg, #004466 0%, #001a2b 100%)';
+                    tab2.style.borderColor = '#00ccff';
+                    tab2.style.color = '#fff';
+                    tab2.style.boxShadow = '0 0 8px rgba(0, 204, 255, 0.6)';
+                } else {
+                    tab2.style.background = '#1a1a24';
+                    tab2.style.borderColor = '#444';
+                    tab2.style.color = '#888';
+                    tab2.style.boxShadow = 'none';
+                }
+            }
+
+            if (list.length === 0) {
+                const targetFile = isS2 ? 'js/danmaku2.js' : 'js/danmaku.js';
+                container.innerHTML = `<div style="color:#888; font-size:12px; text-align:center; padding:50px 0; border:1.5px dashed rgba(255,255,255,0.1); border-radius:8px;">作った弾幕がありません。「${targetFile}」にデータを追加してください。</div>`;
                 const pageInfo = document.getElementById('shared-page-info');
                 if (pageInfo) pageInfo.textContent = '1 / 1';
                 return;
             }
 
-            const total = sharedDanmakuList.length;
+            const total = list.length;
             const totalPages = Math.ceil(total / SHARED_PAGE_SIZE);
             sharedDanmakuPage = Math.max(0, Math.min(totalPages - 1, sharedDanmakuPage));
             const start = sharedDanmakuPage * SHARED_PAGE_SIZE;
-            const pageItems = sharedDanmakuList.slice(start, start + SHARED_PAGE_SIZE);
+            const pageItems = list.slice(start, start + SHARED_PAGE_SIZE);
 
             // ページ情報更新
             const pageInfo = document.getElementById('shared-page-info');
@@ -3707,83 +3857,129 @@ function customCardMakerSwitchMode(mode) {
 
             pageItems.forEach((card, pageIdx) => {
                 const idx = start + pageIdx; // 元のリスト上のインデックス
-                const isCleared = isSharedDanmakuCleared(card.name);
+                const isCleared = isSharedDanmakuCleared(card.name, currentSharedDanmakuSeason);
+                const isNoMiss = isSharedDanmakuNoMiss(card.name, currentSharedDanmakuSeason);
+                const minMissCount = getSharedDanmakuMinMiss(card.name, currentSharedDanmakuSeason);
+                const highScore = getSharedDanmakuHighScore(card.name, currentSharedDanmakuSeason);
                 
-                // 配色出し分け (クリア時は青、未クリア時は紫)
-                const borderNormal = isCleared ? 'rgba(0,120,255,0.3)' : 'rgba(216,0,255,0.3)';
-                const borderHover = isCleared ? 'rgba(0,120,255,0.7)' : 'rgba(216,0,255,0.7)';
+                // 配色出し分け (クリア時は青/シアン、未クリア時は紫/ダーク)
+                const borderNormal = isCleared ? (isS2 ? 'rgba(0,180,255,0.35)' : 'rgba(0,120,255,0.3)') : (isS2 ? 'rgba(0,100,160,0.25)' : 'rgba(216,0,255,0.25)');
+                const borderHover = isCleared ? (isS2 ? 'rgba(0,200,255,0.7)' : 'rgba(0,140,255,0.7)') : (isS2 ? 'rgba(0,160,255,0.6)' : 'rgba(216,0,255,0.6)');
                 const titleColor = isCleared ? '#ccffff' : '#ffccff';
                 const titleShadow = isCleared ? 'rgba(0,120,255,0.4)' : 'rgba(216,0,255,0.4)';
-                const btnBg = isCleared ? 'linear-gradient(135deg, #002255 0%, #000c22 100%)' : 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)';
-                const btnBorder = isCleared ? '#0088ff' : '#d800ff';
-                const btnShadow = isCleared ? 'rgba(0,136,255,0.6)' : 'rgba(216,0,255,0.6)';
+                const btnBg = isCleared ? (isS2 ? 'linear-gradient(135deg, #003355 0%, #001122 100%)' : 'linear-gradient(135deg, #002255 0%, #000c22 100%)') : (isS2 ? 'linear-gradient(135deg, #004466 0%, #001a2b 100%)' : 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)');
+                const btnBorder = isCleared ? (isS2 ? '#00ccff' : '#0088ff') : (isS2 ? '#00aacc' : '#d800ff');
+                const btnShadow = isCleared ? (isS2 ? 'rgba(0,204,255,0.6)' : 'rgba(0,136,255,0.6)') : (isS2 ? 'rgba(0,170,204,0.5)' : 'rgba(216,0,255,0.5)');
 
                 const cardDiv = document.createElement('div');
-                cardDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid ${borderNormal}; border-radius: 8px; margin-bottom: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: border-color 0.2s;`;
+                cardDiv.className = 'shared-danmaku-card';
+                cardDiv.style.border = `1px solid ${borderNormal}`;
                 cardDiv.onmouseover = () => { cardDiv.style.borderColor = borderHover; };
                 cardDiv.onmouseout = () => { cardDiv.style.borderColor = borderNormal; };
                 
-                const infoDiv = document.createElement('div');
-                infoDiv.style.flex = '1';
-                infoDiv.style.paddingRight = '10px';
-                
-                const titleSpan = document.createElement('span');
-                titleSpan.style.cssText = `font-weight: bold; color: ${titleColor}; font-size: 14px; text-shadow: 0 0 5px ${titleShadow}; vertical-align: middle;`;
-                titleSpan.textContent = card.name;
-                
-                if (isCleared) {
-                    let isInf = card.maxMisses === Infinity || String(card.maxMisses).trim().toLowerCase() === 'inf' || String(card.maxMisses).trim().toLowerCase() === 'infinity';
-                    if (isInf) {
-                        const minMissCount = getSharedDanmakuMinMiss(card.name);
-                        if (typeof minMissCount === 'number') {
-                            const minMissBadge = document.createElement('span');
-                            minMissBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
-                            minMissBadge.textContent = '★Miss: ' + minMissCount;
-                            titleSpan.appendChild(minMissBadge);
-                        } else {
-                            const clearBadge = document.createElement('span');
-                            clearBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
-                            clearBadge.textContent = '★CLEARED';
-                            titleSpan.appendChild(clearBadge);
-                        }
-                    } else {
-                        const clearBadge = document.createElement('span');
-                        clearBadge.style.cssText = 'margin-left: 6px; font-size: 9px; color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
-                        clearBadge.textContent = '★CLEARED';
-                        titleSpan.appendChild(clearBadge);
-
-                        const isNoMiss = isSharedDanmakuNoMiss(card.name);
-                        if (isNoMiss) {
-                            const noMissBadge = document.createElement('span');
-                            noMissBadge.style.cssText = 'margin-left: 4px; font-size: 9px; color: #ffbb00; background: rgba(255,187,0,0.15); border: 1px solid rgba(255,187,0,0.4); padding: 1px 4px; border-radius: 3px; vertical-align: middle; font-weight: bold;';
-                            noMissBadge.textContent = '★NoMiss';
-                            titleSpan.appendChild(noMissBadge);
-                        }
-                    }
-                }
-                
-                const timeSpan = document.createElement('span');
-                timeSpan.style.cssText = 'margin-left: 8px; font-size: 10px; color: #00ffcc; background: rgba(0,255,200,0.15); border: 1px solid rgba(0,255,200,0.3); padding: 1px 4px; border-radius: 3px; vertical-align: middle;';
-                timeSpan.textContent = `${card.duration}秒`;
-                
-                const descP = document.createElement('p');
-                descP.style.cssText = 'margin: 4px 0 0 0; font-size: 11px; color: #ccc; line-height: 1.35;';
-                descP.textContent = card.desc || '説明はありません。';
-                
-                infoDiv.appendChild(titleSpan);
-                infoDiv.appendChild(timeSpan);
-                infoDiv.appendChild(descP);
-                
-                const playBtn = document.createElement('button');
-                playBtn.className = 'menu-btn';
-                playBtn.style.cssText = `width: 75px; height: 30px; font-size: 12px; margin: 0; background: ${btnBg}; border-color: ${btnBorder}; text-shadow: 0 0 6px ${btnShadow}; font-weight: bold; flex-shrink: 0;`;
-                playBtn.textContent = 'プレイ';
-                playBtn.onclick = () => playSharedDanmaku(idx);
-                
+                // 難易度バッジ
                 const diff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(card.difficulty) : (card.difficulty || 'NORMAL');
                 const badge = document.createElement('div');
                 badge.className = `difficulty-badge difficulty-${diff.toLowerCase()}`;
                 badge.textContent = diff.charAt(0).toUpperCase();
+                badge.style.flexShrink = '0';
+                
+                // 情報コンテナ
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'shared-danmaku-card-info';
+                
+                // 1行目: [タイトル] [秒数] [Score] [★NoMiss] または [★CLEARED][Miss: 〇]
+                const headerLine = document.createElement('div');
+                headerLine.className = 'shared-danmaku-header-line';
+
+                // タイトルテキスト
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'shared-danmaku-title-text';
+                titleSpan.style.color = titleColor;
+                titleSpan.style.textShadow = `0 0 5px ${titleShadow}`;
+                titleSpan.textContent = card.name;
+                headerLine.appendChild(titleSpan);
+
+                // 秒数バッジ
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'shared-danmaku-badge';
+                timeSpan.style.cssText = 'color: #00ffcc; background: rgba(0,255,200,0.15); border: 1px solid rgba(0,255,200,0.3);';
+                timeSpan.textContent = `${card.duration || 15}秒`;
+                headerLine.appendChild(timeSpan);
+
+                // スコアバッジ（S2または記録がある場合）
+                if (typeof highScore === 'number' && highScore > 0) {
+                    const scoreSpan = document.createElement('span');
+                    scoreSpan.className = 'shared-danmaku-badge';
+                    scoreSpan.style.cssText = 'color: #ffdd44; background: rgba(255,221,68,0.15); border: 1px solid rgba(255,221,68,0.35);';
+                    scoreSpan.textContent = `Score: ${highScore.toLocaleString()}`;
+                    headerLine.appendChild(scoreSpan);
+                }
+
+                // クリア・ノーミス・ノーボム・ノーノー（NN）バッジ出し分け
+                if (isCleared) {
+                    const isNN = isSharedDanmakuNN(card.name, currentSharedDanmakuSeason);
+                    if (isNN) {
+                        // 一プレイでノーミス＆ノーボム達成時は融合して [★NN] を表示
+                        const nnBadge = document.createElement('span');
+                        nnBadge.className = 'shared-danmaku-badge';
+                        nnBadge.style.cssText = 'color: #ffffff; background: linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #0070f3 100%); border: 1px solid #ffd700; box-shadow: 0 0 8px rgba(255, 0, 128, 0.6); text-shadow: 0 0 4px #fff; font-weight: bold;';
+                        nnBadge.textContent = '★NN';
+                        headerLine.appendChild(nnBadge);
+                    } else {
+                        const isNoMiss = isSharedDanmakuNoMiss(card.name, currentSharedDanmakuSeason);
+                        const isNoBomb = isSharedDanmakuNoBomb(card.name, currentSharedDanmakuSeason);
+
+                        if (isNoMiss) {
+                            const noMissBadge = document.createElement('span');
+                            noMissBadge.className = 'shared-danmaku-badge';
+                            noMissBadge.style.cssText = 'color: #ffbb00; background: rgba(255,187,0,0.18); border: 1px solid rgba(255,187,0,0.5);';
+                            noMissBadge.textContent = '★NoMiss';
+                            headerLine.appendChild(noMissBadge);
+                        }
+
+                        if (isNoBomb) {
+                            const noBombBadge = document.createElement('span');
+                            noBombBadge.className = 'shared-danmaku-badge';
+                            noBombBadge.style.cssText = 'color: #00e5ff; background: rgba(0,229,255,0.18); border: 1px solid rgba(0,229,255,0.5);';
+                            noBombBadge.textContent = '★NoBomb';
+                            headerLine.appendChild(noBombBadge);
+                        }
+
+                        if (!isNoMiss && !isNoBomb) {
+                            const clearBadge = document.createElement('span');
+                            clearBadge.className = 'shared-danmaku-badge';
+                            clearBadge.style.cssText = 'color: #00ff66; background: rgba(0,255,100,0.15); border: 1px solid rgba(0,255,100,0.3);';
+                            clearBadge.textContent = '★CLEARED';
+                            headerLine.appendChild(clearBadge);
+                        }
+
+                        if (!isNoMiss && typeof minMissCount === 'number') {
+                            const minMissBadge = document.createElement('span');
+                            minMissBadge.className = 'shared-danmaku-badge';
+                            minMissBadge.style.cssText = 'color: #33ff99; background: rgba(51,255,153,0.15); border: 1px solid rgba(51,255,153,0.3);';
+                            minMissBadge.textContent = `Miss: ${minMissCount}`;
+                            headerLine.appendChild(minMissBadge);
+                        }
+                    }
+                }
+
+                // 2行目: 説明文
+                const descP = document.createElement('p');
+                descP.className = 'shared-danmaku-desc';
+                descP.textContent = card.desc || '説明はありません。';
+                
+                infoDiv.appendChild(headerLine);
+                infoDiv.appendChild(descP);
+                
+                // プレイボタン
+                const playBtn = document.createElement('button');
+                playBtn.className = 'menu-btn shared-danmaku-play-btn';
+                playBtn.style.background = btnBg;
+                playBtn.style.borderColor = btnBorder;
+                playBtn.style.textShadow = `0 0 6px ${btnShadow}`;
+                playBtn.textContent = 'プレイ';
+                playBtn.onclick = () => playSharedDanmaku(idx, currentSharedDanmakuSeason);
                 
                 cardDiv.appendChild(badge);
                 cardDiv.appendChild(infoDiv);
@@ -3792,8 +3988,11 @@ function customCardMakerSwitchMode(mode) {
             });
         }
 
-        function playSharedDanmaku(idx) {
-            const sharedCard = sharedDanmakuList[idx];
+        function playSharedDanmaku(idx, season) {
+            season = season || currentSharedDanmakuSeason || 1;
+            window.currentDanmakuSeason = season;
+            const list = season === 2 ? (window.sharedDanmakuListS2 || []) : (window.sharedDanmakuList || []);
+            const sharedCard = list[idx];
             if (!sharedCard) return;
             currentSharedDanmakuName = sharedCard.name;
 
@@ -3827,13 +4026,19 @@ function customCardMakerSwitchMode(mode) {
             let cardDiffVal = sharedCard.difficulty || 'NORMAL';
             let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(cardDiffVal) : cardDiffVal.toUpperCase();
 
-            let cardHp = parseInt(sharedCard.hp, 10) || 0;
+            let isS2 = season === 2;
+            let defaultHp = isS2 ? 2000 : 0;
+            let cardHp = (sharedCard.hp !== undefined && sharedCard.hp !== null) ? parseInt(sharedCard.hp, 10) : defaultHp;
+            if (isNaN(cardHp)) cardHp = defaultHp;
+
+            let cardId = sharedCard.id || (isS2 ? ('danmaku_s2_' + idx) : ('danmaku_' + idx));
 
             let tempCustomCard = {
-                id: sharedCard.id || ('danmaku_' + idx),
+                id: cardId,
                 name: (sharedCard.name || '共有弾幕').replace(/^【A】/, ''),
                 duration: cardDuration,
                 hp: cardHp,
+                season: season,
                 x_offset: xOffset,
                 y_offset: yOffset,
                 despawnTime: despawnTime,
@@ -3846,7 +4051,7 @@ function customCardMakerSwitchMode(mode) {
                     return isNaN(parsed) ? 2 : parsed;
                 })(),
                 difficulty: formattedDiff,
-                pattern: 'custom_test_shared_' + idx,
+                pattern: isS2 ? ('custom_test_shared_s2_' + idx) : ('custom_test_shared_' + idx),
                 interval: 0.1,
                 rawCost: 0,
                 cost: 0,
@@ -3870,6 +4075,7 @@ function customCardMakerSwitchMode(mode) {
 
             isCustomCardTesting = true;
             window.isBossMode = cardHp > 0;
+            window.isS2Danmaku = isS2;
             if (typeof checkBulletTouchRequirement === 'function') {
                 checkBulletTouchRequirement();
             }
@@ -3885,6 +4091,7 @@ function customCardMakerSwitchMode(mode) {
             window.spellTransitionTimer = 0;
             window.lastTimeoutSecond = 11;
             window.spellDeclarationTimer = 2.8;
+            window.totalScore = 0; // スコア初期化
             if (window.isBossMode && window.playSound) window.playSound('se_cat00');
             player.respawnTimer = 0;
             window.playerMissCount = 0;
@@ -3897,7 +4104,7 @@ function customCardMakerSwitchMode(mode) {
             document.getElementById('titleScreen').style.display = 'none';
             isGameRunning = true;
 
-            // モバイルボムボタンの表示切り替え（ボス戦モード時のみ表示）
+            // モバイルボムボタンの表示切り替え（ボス戦/S2モード時のみ表示）
             const bombBtn = document.getElementById('mobile-bomb-button');
             if (bombBtn) {
                 if (window.isBossMode && window.mobileBombSetting !== 'double_tap') {

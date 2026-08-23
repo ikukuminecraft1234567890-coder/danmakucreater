@@ -35,7 +35,7 @@
                 <button class="menu-btn" onclick="showScreen('screen-card-maker'); renderCardMakerList();" style="background: linear-gradient(135deg, #005544 0%, #002211 100%); border-color: #00ffcc; text-shadow: 0 0 8px rgba(0, 255, 200, 0.6); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
                     弾幕クリエイトを開始する
                 </button>
-                <button class="menu-btn" onclick="showSharedDanmakuScreen();" style="background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
+                <button class="menu-btn" onclick="showSharedDanmakuSeasonSelect();" style="background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
                     作った弾幕一覧
                 </button>
                 <button class="menu-btn" onclick="showBossListScreen();" style="background: linear-gradient(135deg, #660022 0%, #2a0011 100%); border-color: #ff3366; text-shadow: 0 0 8px rgba(255, 51, 102, 0.7); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
@@ -539,16 +539,40 @@ while (true) {
                 </div>
             </div>
             
+            <!-- 6.5 作った弾幕 シーズン選択画面 -->
+            <div id="screen-shared-danmaku-season-select" class="selection-group hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px 10px; box-sizing: border-box;">
+                <h3 style="margin: 0 0 8px 0; color: #d800ff; text-shadow: 0 0 10px rgba(216, 0, 255, 0.8); font-size: 20px;">作った弾幕 - シーズン選択</h3>
+                <button class="menu-btn" onclick="openSharedDanmakuSeason(1)" style="background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6); font-weight: bold; width: 280px; height: 50px; font-size: 16px;">
+                    シーズン1 (Season 1)
+                </button>
+                <button class="menu-btn" onclick="openSharedDanmakuSeason(2)" style="background: linear-gradient(135deg, #004466 0%, #001a2b 100%); border-color: #00ccff; text-shadow: 0 0 8px rgba(0, 204, 255, 0.7); font-weight: bold; width: 280px; height: 50px; font-size: 16px;">
+                    シーズン2 (Season 2)
+                </button>
+                <button class="menu-btn" onclick="showScreen('screen-menu')" style="margin-top: 15px; background: #222; border-color: #555; width: 220px; font-size: 14px;">
+                    タイトル画面に戻る
+                </button>
+            </div>
+            
             <!-- 7. 作った弾幕一覧（共有弾幕）画面 -->
-            <div id="screen-shared-danmaku" class="selection-group hidden" style="width: 100%; height: calc(100% - 40px); display: flex; flex-direction: column; align-items: center; gap: 8px; box-sizing: border-box; justify-content: space-between; padding: 5px 0;">
-                <div id="shared-danmaku-list-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; padding: 5px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(216,0,255,0.2); box-sizing: border-box;">
+            <div id="screen-shared-danmaku" class="selection-group hidden" style="width: 100%; height: 100%; max-height: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; box-sizing: border-box; justify-content: space-between; padding: 4px 0;">
+                <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0;">
+                    <h3 id="shared-danmaku-title" style="margin: 0; color: #d800ff; text-shadow: 0 0 8px rgba(216,0,255,0.8); font-size: 16px;">作った弾幕 - シーズン1</h3>
+                    <div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
+                        <button id="tab-season-1" class="menu-btn shared-danmaku-tab-btn" onclick="openSharedDanmakuSeason(1)">シーズン1</button>
+                        <button id="tab-season-2" class="menu-btn shared-danmaku-tab-btn" onclick="openSharedDanmakuSeason(2)">シーズン2</button>
+                    </div>
                 </div>
-                <div id="shared-danmaku-pagination" style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin: 2px 0;">
-                    <button id="shared-page-prev" class="menu-btn" style="width:50px; height:28px; font-size:14px; margin:0; padding:0;" onclick="changeSharedDanmakuPage(-1)">◀</button>
-                    <span id="shared-page-info" style="color:#ccccff; font-size:13px; min-width:80px; text-align:center;">1 / 1</span>
-                    <button id="shared-page-next" class="menu-btn" style="width:50px; height:28px; font-size:14px; margin:0; padding:0;" onclick="changeSharedDanmakuPage(1)">▶</button>
+                <div id="shared-danmaku-list-container" style="display: flex; flex-direction: column; gap: 4px; width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; padding: 4px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(216,0,255,0.2); box-sizing: border-box;">
                 </div>
-                <button class="menu-btn" onclick="showScreen('screen-menu')" style="margin-top: 5px; background: #222; width: 220px; font-size: 14px; flex-shrink: 0;">タイトル画面に戻る</button>
+                <div id="shared-danmaku-pagination" style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin: 1px 0;">
+                    <button id="shared-page-prev" class="menu-btn shared-danmaku-page-btn" onclick="changeSharedDanmakuPage(-1)">◀</button>
+                    <span id="shared-page-info" style="color:#ccccff; font-size:12px; min-width:60px; text-align:center;">1 / 1</span>
+                    <button id="shared-page-next" class="menu-btn shared-danmaku-page-btn" onclick="changeSharedDanmakuPage(1)">▶</button>
+                </div>
+                <div style="display: flex; gap: 8px; width: 100%; justify-content: center; flex-shrink: 0;">
+                    <button class="menu-btn shared-danmaku-bottom-btn" onclick="showSharedDanmakuSeasonSelect()" style="background: #2a1a3a; border-color: #a855f7; width: 125px;">◀ シーズン選択</button>
+                    <button class="menu-btn shared-danmaku-bottom-btn" onclick="showScreen('screen-menu')" style="background: #222; border-color: #555; width: 125px;">タイトルへ</button>
+                </div>
             </div>
 
             <!-- 7.5 ボス一覧（ボスに挑戦！）画面 -->
@@ -667,17 +691,19 @@ while (true) {
 
 
     <!-- Modular Game Scripts (Pure Pre-compiled AOT Execution) -->
-    <script src="js/sound.js?v=1.3.9"></script>
+    <script src="js/sound.js?v=1.4.0"></script>
     <script>
-        document.write('<script src="js/compiledanmaku.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/bossdanmakucompiledata.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/compiler.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/bossdata.js?v=1.3.9&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/danmaku.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/danmaku2.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/compiledanmaku.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bossdanmakucompiledata.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/compiler.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bossdata.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
     </script>
-    <script src="js/data.js?v=1.3.9"></script>
-    <script src="js/emitter.js?v=1.3.9"></script>
-    <script src="js/game.js?v=1.3.9"></script>
-    <script src="js/editor.js?v=1.3.9"></script>
+    <script src="js/data.js?v=1.4.0"></script>
+    <script src="js/emitter.js?v=1.4.0"></script>
+    <script src="js/game.js?v=1.4.0"></script>
+    <script src="js/editor.js?v=1.4.0"></script>
 
 </body>
 
