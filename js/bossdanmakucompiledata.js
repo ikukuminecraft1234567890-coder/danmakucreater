@@ -449,14 +449,14 @@ window.compiledBossDanmaku['spell_reimu_1_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff4466").trim().toLowerCase())) {
       vars['speed'] = 500;
-      let _prev_g_153 = vars['g'];
-      for (let _loopIdx_153 = 0, _limit_153 = Math.round(20); _loopIdx_153 < _limit_153; _loopIdx_153++) {
-        vars['g'] = _loopIdx_153;
+      let _prev_g_163 = vars['g'];
+      for (let _loopIdx_163 = 0, _limit_163 = Math.round(20); _loopIdx_163 < _limit_163; _loopIdx_163++) {
+        vars['g'] = _loopIdx_163;
         vars['speed'] = (vars['speed'] || 0) + (-25);
         state.waitTimer = Math.max(0.0167, 0.04);
         yield;
       }
-      vars['g'] = _prev_g_153;
+      vars['g'] = _prev_g_163;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -467,14 +467,14 @@ window.compiledBossDanmaku['spell_reimu_1_bullet'] = window.compiledDanmaku['spe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff6600").trim().toLowerCase())) {
       vars['speed'] = 750;
-      let _prev_g_154 = vars['g'];
-      for (let _loopIdx_154 = 0, _limit_154 = Math.round(20); _loopIdx_154 < _limit_154; _loopIdx_154++) {
-        vars['g'] = _loopIdx_154;
+      let _prev_g_164 = vars['g'];
+      for (let _loopIdx_164 = 0, _limit_164 = Math.round(20); _loopIdx_164 < _limit_164; _loopIdx_164++) {
+        vars['g'] = _loopIdx_164;
         vars['speed'] = (vars['speed'] || 0) + (-25 * 1.5);
         state.waitTimer = Math.max(0.0167, 0.04);
         yield;
       }
-      vars['g'] = _prev_g_154;
+      vars['g'] = _prev_g_164;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -507,16 +507,16 @@ window.compiledBossDanmaku['spell_reimu_non_2'] = window.compiledDanmaku['spell_
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff2255", speed: "150", angle: "angle", count: "8", offsetX: "0", offsetY: "0", radius: "16", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "12", }, state, b, attacker, target, _util)) {
       yield;
     }
-    let _prev_k_155 = vars['k'];
-    for (let _loopIdx_155 = 0, _limit_155 = Math.round(3); _loopIdx_155 < _limit_155; _loopIdx_155++) {
-      vars['k'] = _loopIdx_155;
+    let _prev_k_165 = vars['k'];
+    for (let _loopIdx_165 = 0, _limit_165 = Math.round(3); _loopIdx_165 < _limit_165; _loopIdx_165++) {
+      vars['k'] = _loopIdx_165;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffaa33", speed: "190 + k * 20", angle: "angle + rand(-15, 15)", count: "12", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "ohuda", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
       state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
-    vars['k'] = _prev_k_155;
+    vars['k'] = _prev_k_165;
     state.waitTimer = Math.max(0.0167, 0.4);
     yield;
   }
@@ -551,16 +551,16 @@ window.compiledBossDanmaku['spell_reimu_2'] = window.compiledDanmaku['spell_reim
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "140", angle: "angle", count: "6", offsetX: "0", offsetY: "0", radius: "16", bulletImage: "onmyoutama", coordMode: "relative", hitRadius: "12", }, state, b, attacker, target, _util)) {
       yield;
     }
-    let _prev_i_156 = vars['i'];
-    for (let _loopIdx_156 = 0, _limit_156 = Math.round(4); _loopIdx_156 < _limit_156; _loopIdx_156++) {
-      vars['i'] = _loopIdx_156;
+    let _prev_i_166 = vars['i'];
+    for (let _loopIdx_166 = 0, _limit_166 = Math.round(4); _loopIdx_166 < _limit_166; _loopIdx_166++) {
+      vars['i'] = _loopIdx_166;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#33ccff", speed: "200", angle: "angle + i * 15", count: "10", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "ohuda", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
       state.waitTimer = Math.max(0.0167, 0.12);
       yield;
     }
-    vars['i'] = _prev_i_156;
+    vars['i'] = _prev_i_166;
     state.waitTimer = Math.max(0.0167, 0.6);
     yield;
   }
@@ -686,8 +686,8 @@ window.compiledBossDanmaku['spell_rush1_1_bullet'] = window.compiledDanmaku['spe
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#999999").trim().toLowerCase())) {
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (20) && ((vars.frame !== undefined ? vars.frame : 0)) <= (21)))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['g6p61dsbn']) {
-          state.onceMap['g6p61dsbn'] = true;
+        if (!state.onceMap['6cilkci7m']) {
+          state.onceMap['6cilkci7m'] = true;
           vars['angle'] = (vars['angle'] || 0) + (10 * (vars.muki !== undefined ? vars.muki : 0));
           vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
         }
@@ -711,9 +711,9 @@ window.compiledBossDanmaku['spell_rush1_non_2'] = window.compiledDanmaku['spell_
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['spd'] = 0;
-    let _prev_i_157 = vars['i'];
-    for (let _loopIdx_157 = 0, _limit_157 = Math.round(10); _loopIdx_157 < _limit_157; _loopIdx_157++) {
-      vars['i'] = _loopIdx_157;
+    let _prev_i_167 = vars['i'];
+    for (let _loopIdx_167 = 0, _limit_167 = Math.round(10); _loopIdx_167 < _limit_167; _loopIdx_167++) {
+      vars['i'] = _loopIdx_167;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "300 + spd", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "kunai1", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -722,7 +722,7 @@ window.compiledBossDanmaku['spell_rush1_non_2'] = window.compiledDanmaku['spell_
       state.waitTimer = Math.max(0.0167, 0.0167);
       yield;
     }
-    vars['i'] = _prev_i_157;
+    vars['i'] = _prev_i_167;
     vars['angle'] = (vars['angle'] || 0) + (10);
     state.waitTimer = Math.max(0.0167, 0.2);
     yield;
@@ -747,9 +747,9 @@ window.compiledBossDanmaku['spell_rush1_2'] = window.compiledDanmaku['spell_rush
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_158 = vars['i'];
-    for (let _loopIdx_158 = 0, _limit_158 = Math.round(30); _loopIdx_158 < _limit_158; _loopIdx_158++) {
-      vars['i'] = _loopIdx_158;
+    let _prev_i_168 = vars['i'];
+    for (let _loopIdx_168 = 0, _limit_168 = Math.round(30); _loopIdx_168 < _limit_168; _loopIdx_168++) {
+      vars['i'] = _loopIdx_168;
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "600", angle: "angle", offsetX: "100", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "5", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -759,7 +759,7 @@ window.compiledBossDanmaku['spell_rush1_2'] = window.compiledDanmaku['spell_rush
       state.waitTimer = Math.max(0.0167, 0.0167 * 2);
       yield;
     }
-    vars['i'] = _prev_i_158;
+    vars['i'] = _prev_i_168;
     state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffdd33", speed: "200", angle: "0", count: "36", offsetX: "0", offsetY: "0", radius: "30", bulletImage: "tyoudan", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
@@ -783,8 +783,8 @@ window.compiledBossDanmaku['spell_rush1_2_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['zh6lr3paz']) {
-        state.onceMap['zh6lr3paz'] = true;
+      if (!state.onceMap['dpic5xsy0']) {
+        state.onceMap['dpic5xsy0'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -931,8 +931,8 @@ window.compiledBossDanmaku['spell_rush1_3_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (5)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['gz7905bzy']) {
-        state.onceMap['gz7905bzy'] = true;
+      if (!state.onceMap['rk90b1p2w']) {
+        state.onceMap['rk90b1p2w'] = true;
         vars['speed'] = 30000;
       }
     }
@@ -953,24 +953,24 @@ window.compiledBossDanmaku['spell_rush1_non_4'] = window.compiledDanmaku['spell_
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_159 = vars['i'];
-    for (let _loopIdx_159 = 0, _limit_159 = Math.round(30); _loopIdx_159 < _limit_159; _loopIdx_159++) {
-      vars['i'] = _loopIdx_159;
+    let _prev_i_169 = vars['i'];
+    for (let _loopIdx_169 = 0, _limit_169 = Math.round(30); _loopIdx_169 < _limit_169; _loopIdx_169++) {
+      vars['i'] = _loopIdx_169;
       vars['spd'] = 0;
-      let _prev_i_160 = vars['i'];
-      for (let _loopIdx_160 = 0, _limit_160 = Math.round(3); _loopIdx_160 < _limit_160; _loopIdx_160++) {
-        vars['i'] = _loopIdx_160;
+      let _prev_i_170 = vars['i'];
+      for (let _loopIdx_170 = 0, _limit_170 = Math.round(3); _loopIdx_170 < _limit_170; _loopIdx_170++) {
+        vars['i'] = _loopIdx_170;
         if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "200 + spd", angle: "angle", count: "4", offsetX: "0", offsetY: "0", radius: "8", bulletImage: "dangan", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
           yield;
         }
         vars['spd'] = (vars['spd'] || 0) + (50);
       }
-      vars['i'] = _prev_i_160;
+      vars['i'] = _prev_i_170;
       vars['angle'] = (vars['angle'] || 0) + (9.346);
       state.waitTimer = Math.max(0.0167, 0.0167 * 3);
       yield;
     }
-    vars['i'] = _prev_i_159;
+    vars['i'] = _prev_i_169;
     state.waitTimer = Math.max(0.0167, 0.5);
     yield;
     vars['idousakix'] = 384 + random(-100,100);
@@ -1006,8 +1006,8 @@ window.compiledBossDanmaku['spell_rush1_4'] = window.compiledDanmaku['spell_rush
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['8cl4ixngo']) {
-      state.onceMap['8cl4ixngo'] = true;
+    if (!state.onceMap['mq3cmta34']) {
+      state.onceMap['mq3cmta34'] = true;
       if (_util.executeBlock({ type: 'spawn_bullet_resist', bulletType: "normal", color: "#ff3333", speed: "700", angle: "0", offsetX: "0", offsetY: "100", radius: "10", bulletImage: "knife", coordMode: "absolute", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -1093,9 +1093,9 @@ window.compiledBossDanmaku['spell_rush1_non_5'] = window.compiledDanmaku['spell_
   while (true) {
     vars['ey'] = 348;
     vars['spd'] = 0;
-    let _prev_i_161 = vars['i'];
-    for (let _loopIdx_161 = 0, _limit_161 = Math.round(9); _loopIdx_161 < _limit_161; _loopIdx_161++) {
-      vars['i'] = _loopIdx_161;
+    let _prev_i_171 = vars['i'];
+    for (let _loopIdx_171 = 0, _limit_171 = Math.round(9); _loopIdx_171 < _limit_171; _loopIdx_171++) {
+      vars['i'] = _loopIdx_171;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "300 + spd", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "kunai1", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -1104,7 +1104,7 @@ window.compiledBossDanmaku['spell_rush1_non_5'] = window.compiledDanmaku['spell_
       state.waitTimer = Math.max(0.0167, 0.0167);
       yield;
     }
-    vars['i'] = _prev_i_161;
+    vars['i'] = _prev_i_171;
     vars['angle'] = (vars['angle'] || 0) + (-20 + 1.5);
     state.waitTimer = Math.max(0.0167, 0.0167);
     yield;
@@ -1445,8 +1445,8 @@ window.compiledBossDanmaku['spell_rush1_6_bullet'] = window.compiledDanmaku['spe
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (180) && ((vars.frame !== undefined ? vars.frame : 0)) <= (99999)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['1t2ersfgu']) {
-        state.onceMap['1t2ersfgu'] = true;
+      if (!state.onceMap['ue0jatp0i']) {
+        state.onceMap['ue0jatp0i'] = true;
         vars['imanokakudo'] = (vars.angle !== undefined ? vars.angle : 0);
       }
       vars['angle'] = (vars.imanokakudo !== undefined ? vars.imanokakudo : 0);
@@ -1470,9 +1470,9 @@ window.compiledBossDanmaku['spell_rush1_non_7'] = window.compiledDanmaku['spell_
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_162 = vars['i'];
-    for (let _loopIdx_162 = 0, _limit_162 = Math.round(3); _loopIdx_162 < _limit_162; _loopIdx_162++) {
-      vars['i'] = _loopIdx_162;
+    let _prev_i_172 = vars['i'];
+    for (let _loopIdx_172 = 0, _limit_172 = Math.round(3); _loopIdx_172 < _limit_172; _loopIdx_172++) {
+      vars['i'] = _loopIdx_172;
       vars['idousakix'] = 384 + random(-250,250);
       vars['idousakiy'] = 200 + random(-100,100);
       if (_util.executeBlock({ type: 'tween_var', name: "ex", from: "ex", to: "idousakix", mode: "seconds", duration: "0.1", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
@@ -1483,28 +1483,28 @@ window.compiledBossDanmaku['spell_rush1_non_7'] = window.compiledDanmaku['spell_
       }
       state.waitTimer = Math.max(0.0167, 0.1);
       yield;
-      let _prev_i_163 = vars['i'];
-      for (let _loopIdx_163 = 0, _limit_163 = Math.round(20); _loopIdx_163 < _limit_163; _loopIdx_163++) {
-        vars['i'] = _loopIdx_163;
+      let _prev_i_173 = vars['i'];
+      for (let _loopIdx_173 = 0, _limit_173 = Math.round(20); _loopIdx_173 < _limit_173; _loopIdx_173++) {
+        vars['i'] = _loopIdx_173;
         vars['spd'] = 0;
-        let _prev_i_164 = vars['i'];
-        for (let _loopIdx_164 = 0, _limit_164 = Math.round(3); _loopIdx_164 < _limit_164; _loopIdx_164++) {
-          vars['i'] = _loopIdx_164;
+        let _prev_i_174 = vars['i'];
+        for (let _loopIdx_174 = 0, _limit_174 = Math.round(3); _loopIdx_174 < _limit_174; _loopIdx_174++) {
+          vars['i'] = _loopIdx_174;
           if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "200 + spd", angle: "angle", count: "4", offsetX: "0", offsetY: "0", radius: "8", bulletImage: "dangan", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
             yield;
           }
           vars['spd'] = (vars['spd'] || 0) + (50);
         }
-        vars['i'] = _prev_i_164;
+        vars['i'] = _prev_i_174;
         vars['angle'] = (vars['angle'] || 0) + (9.346);
         state.waitTimer = Math.max(0.0167, 0.0167 * 2);
         yield;
       }
-      vars['i'] = _prev_i_163;
+      vars['i'] = _prev_i_173;
       state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
-    vars['i'] = _prev_i_162;
+    vars['i'] = _prev_i_172;
     state.waitTimer = Math.max(0.0167, 0.2);
     yield;
     vars['idousakix'] = 384;
@@ -1553,9 +1553,9 @@ window.compiledBossDanmaku['spell_rush1_7'] = window.compiledDanmaku['spell_rush
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
     }
-    let _prev_i_165 = vars['i'];
-    for (let _loopIdx_165 = 0, _limit_165 = Math.round(100); _loopIdx_165 < _limit_165; _loopIdx_165++) {
-      vars['i'] = _loopIdx_165;
+    let _prev_i_175 = vars['i'];
+    for (let _loopIdx_175 = 0, _limit_175 = Math.round(100); _loopIdx_175 < _limit_175; _loopIdx_175++) {
+      vars['i'] = _loopIdx_175;
       vars['bure'] = random(-100,300);
       vars['bure2'] = random(-10,10);
       vars['bure2'] = (vars['bure2'] || 0) + (random(-10,10));
@@ -1564,15 +1564,15 @@ window.compiledBossDanmaku['spell_rush1_7'] = window.compiledDanmaku['spell_rush
         yield;
       }
     }
-    vars['i'] = _prev_i_165;
+    vars['i'] = _prev_i_175;
     state.waitTimer = Math.max(0.0167, 0.8);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
     }
-    let _prev_i_166 = vars['i'];
-    for (let _loopIdx_166 = 0, _limit_166 = Math.round(100); _loopIdx_166 < _limit_166; _loopIdx_166++) {
-      vars['i'] = _loopIdx_166;
+    let _prev_i_176 = vars['i'];
+    for (let _loopIdx_176 = 0, _limit_176 = Math.round(100); _loopIdx_176 < _limit_176; _loopIdx_176++) {
+      vars['i'] = _loopIdx_176;
       vars['bure'] = random(-100,300);
       vars['bure2'] = random(-10,10);
       vars['bure2'] = (vars['bure2'] || 0) + (random(-10,10));
@@ -1581,18 +1581,18 @@ window.compiledBossDanmaku['spell_rush1_7'] = window.compiledDanmaku['spell_rush
         yield;
       }
     }
-    vars['i'] = _prev_i_166;
+    vars['i'] = _prev_i_176;
     state.waitTimer = Math.max(0.0167, 1.5);
     yield;
     if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
       yield;
     }
-    let _prev_i_167 = vars['i'];
-    for (let _loopIdx_167 = 0, _limit_167 = Math.round(13); _loopIdx_167 < _limit_167; _loopIdx_167++) {
-      vars['i'] = _loopIdx_167;
-      let _prev_i_168 = vars['i'];
-      for (let _loopIdx_168 = 0, _limit_168 = Math.round(100); _loopIdx_168 < _limit_168; _loopIdx_168++) {
-        vars['i'] = _loopIdx_168;
+    let _prev_i_177 = vars['i'];
+    for (let _loopIdx_177 = 0, _limit_177 = Math.round(13); _loopIdx_177 < _limit_177; _loopIdx_177++) {
+      vars['i'] = _loopIdx_177;
+      let _prev_i_178 = vars['i'];
+      for (let _loopIdx_178 = 0, _limit_178 = Math.round(100); _loopIdx_178 < _limit_178; _loopIdx_178++) {
+        vars['i'] = _loopIdx_178;
         vars['bure'] = random(-100,300);
         vars['bure2'] = random(-10,10);
         vars['bure2'] = (vars['bure2'] || 0) + (random(-10,10));
@@ -1601,12 +1601,12 @@ window.compiledBossDanmaku['spell_rush1_7'] = window.compiledDanmaku['spell_rush
           yield;
         }
       }
-      vars['i'] = _prev_i_168;
+      vars['i'] = _prev_i_178;
       vars['angle'] = (vars['angle'] || 0) + (30);
       state.waitTimer = Math.max(0.0167, 0.1);
       yield;
     }
-    vars['i'] = _prev_i_167;
+    vars['i'] = _prev_i_177;
   }
 };
 window.compiledBossDanmaku['spell_rush1_7_bullet'] = window.compiledDanmaku['spell_rush1_7_bullet'] = function*(state, b, attacker, target, _util) {
@@ -1629,31 +1629,31 @@ window.compiledBossDanmaku['spell_rush1_non_8'] = window.compiledDanmaku['spell_
   const seedrandom = _util.seedrandom;
   while (true) {
     vars['l'] = 0;
-    let _prev_i_169 = vars['i'];
-    for (let _loopIdx_169 = 0, _limit_169 = Math.round(120); _loopIdx_169 < _limit_169; _loopIdx_169++) {
-      vars['i'] = _loopIdx_169;
-      let _prev_f_170 = vars['f'];
-      for (let _loopIdx_170 = 0, _limit_170 = Math.round(2); _loopIdx_170 < _limit_170; _loopIdx_170++) {
-        vars['f'] = _loopIdx_170;
-        let _prev_g_171 = vars['g'];
-        for (let _loopIdx_171 = 0, _limit_171 = Math.round(8); _loopIdx_171 < _limit_171; _loopIdx_171++) {
-          vars['g'] = _loopIdx_171;
+    let _prev_i_179 = vars['i'];
+    for (let _loopIdx_179 = 0, _limit_179 = Math.round(120); _loopIdx_179 < _limit_179; _loopIdx_179++) {
+      vars['i'] = _loopIdx_179;
+      let _prev_f_180 = vars['f'];
+      for (let _loopIdx_180 = 0, _limit_180 = Math.round(2); _loopIdx_180 < _limit_180; _loopIdx_180++) {
+        vars['f'] = _loopIdx_180;
+        let _prev_g_181 = vars['g'];
+        for (let _loopIdx_181 = 0, _limit_181 = Math.round(8); _loopIdx_181 < _limit_181; _loopIdx_181++) {
+          vars['g'] = _loopIdx_181;
           if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "300", angle: "angle", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "dangan", coordMode: "relative", hitRadius: "3", }, state, b, attacker, target, _util)) {
             yield;
           }
           vars['angle'] = (vars['angle'] || 0) + (45);
         }
-        vars['g'] = _prev_g_171;
+        vars['g'] = _prev_g_181;
         vars['angle'] = (vars['angle'] || 0) + (1);
       }
-      vars['f'] = _prev_f_170;
+      vars['f'] = _prev_f_180;
       vars['angle'] = (vars['angle'] || 0) - (3);
       vars['angle'] = (vars['angle'] || 0) + (2 + (vars.l !== undefined ? vars.l : 0));
       vars['l'] = (vars['l'] || 0) + (0.83 + random(0,1));
       state.waitTimer = Math.max(0.0167, 0.0167);
       yield;
     }
-    vars['i'] = _prev_i_169;
+    vars['i'] = _prev_i_179;
     state.waitTimer = Math.max(0.0167, 0.8);
     yield;
   }
@@ -1677,9 +1677,9 @@ window.compiledBossDanmaku['spell_rush1_8'] = window.compiledDanmaku['spell_rush
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_172 = vars['i'];
-    for (let _loopIdx_172 = 0, _limit_172 = Math.round(50); _loopIdx_172 < _limit_172; _loopIdx_172++) {
-      vars['i'] = _loopIdx_172;
+    let _prev_i_182 = vars['i'];
+    for (let _loopIdx_182 = 0, _limit_182 = Math.round(50); _loopIdx_182 < _limit_182; _loopIdx_182++) {
+      vars['i'] = _loopIdx_182;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -1696,7 +1696,7 @@ window.compiledBossDanmaku['spell_rush1_8'] = window.compiledDanmaku['spell_rush
       state.waitTimer = Math.max(0.0167, 0.0167 * 2);
       yield;
     }
-    vars['i'] = _prev_i_172;
+    vars['i'] = _prev_i_182;
     vars['spd'] = 0;
     state.waitTimer = Math.max(0.0167, 1);
     yield;
@@ -1789,9 +1789,9 @@ window.compiledBossDanmaku['spell_rush1_9'] = window.compiledDanmaku['spell_rush
     state.waitTimer = Math.max(0.0167, 1.3);
     yield;
     vars['spd'] = 0;
-    let _prev_i_173 = vars['i'];
-    for (let _loopIdx_173 = 0, _limit_173 = Math.round(10); _loopIdx_173 < _limit_173; _loopIdx_173++) {
-      vars['i'] = _loopIdx_173;
+    let _prev_i_183 = vars['i'];
+    for (let _loopIdx_183 = 0, _limit_183 = Math.round(10); _loopIdx_183 < _limit_183; _loopIdx_183++) {
+      vars['i'] = _loopIdx_183;
       if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (0) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (40)))) {
         if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#00ffff", speed: "50 + spd", angle: "180", offsetX: "768", offsetY: "ty", radius: "20", bulletImage: "tyoudan", coordMode: "absolute", hitRadius: "6", }, state, b, attacker, target, _util)) {
           yield;
@@ -1804,13 +1804,13 @@ window.compiledBossDanmaku['spell_rush1_9'] = window.compiledDanmaku['spell_rush
       }
       vars['spd'] = (vars['spd'] || 0) + (50);
     }
-    vars['i'] = _prev_i_173;
+    vars['i'] = _prev_i_183;
     state.waitTimer = Math.max(0.0167, 1.3);
     yield;
     vars['spd'] = 0;
-    let _prev_i_174 = vars['i'];
-    for (let _loopIdx_174 = 0, _limit_174 = Math.round(10); _loopIdx_174 < _limit_174; _loopIdx_174++) {
-      vars['i'] = _loopIdx_174;
+    let _prev_i_184 = vars['i'];
+    for (let _loopIdx_184 = 0, _limit_184 = Math.round(10); _loopIdx_184 < _limit_184; _loopIdx_184++) {
+      vars['i'] = _loopIdx_184;
       if (!!((((vars.cardSecond !== undefined ? vars.cardSecond : 0)) >= (0) && ((vars.cardSecond !== undefined ? vars.cardSecond : 0)) <= (40)))) {
         if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#00ffff", speed: "50 + spd", angle: "0", offsetX: "0", offsetY: "ty", radius: "20", bulletImage: "tyoudan", coordMode: "absolute", hitRadius: "6", }, state, b, attacker, target, _util)) {
           yield;
@@ -1823,7 +1823,7 @@ window.compiledBossDanmaku['spell_rush1_9'] = window.compiledDanmaku['spell_rush
       }
       vars['spd'] = (vars['spd'] || 0) + (50);
     }
-    vars['i'] = _prev_i_174;
+    vars['i'] = _prev_i_184;
   }
 },
   function*(state, b, attacker, target, _util) {
@@ -1858,19 +1858,19 @@ window.compiledBossDanmaku['spell_rush1_9_bullet'] = window.compiledDanmaku['spe
       }
     }
     if (!!((vars.n !== undefined ? (vars.cardSecond === 20 * vars.n) : (Math.round(vars.cardSecond / 20) >= 1 && Math.abs(vars.cardSecond - 20 * Math.round(vars.cardSecond / 20)) < 0.017)))) {
-      let _prev_i_175 = vars['i'];
-      for (let _loopIdx_175 = 0, _limit_175 = Math.round(120); _loopIdx_175 < _limit_175; _loopIdx_175++) {
-        vars['i'] = _loopIdx_175;
+      let _prev_i_185 = vars['i'];
+      for (let _loopIdx_185 = 0, _limit_185 = Math.round(120); _loopIdx_185 < _limit_185; _loopIdx_185++) {
+        vars['i'] = _loopIdx_185;
         vars['y'] = -8900;
         state.waitTimer = Math.max(0.0167, 0.0167);
         yield;
       }
-      vars['i'] = _prev_i_175;
+      vars['i'] = _prev_i_185;
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#00ffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['rd59t38w9']) {
-        state.onceMap['rd59t38w9'] = true;
+      if (!state.onceMap['zf7fwog01']) {
+        state.onceMap['zf7fwog01'] = true;
         vars['hozon'] = (vars.speed !== undefined ? vars.speed : 0);
         vars['speed'] = 0;
         state.waitTimer = Math.max(0.0167, 1);
@@ -1981,8 +1981,8 @@ window.compiledBossDanmaku['spell_rush2_non_1_bullet'] = window.compiledDanmaku[
   while (true) {
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (60) && ((vars.frame !== undefined ? vars.frame : 0)) <= (61)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['sqcgxnx2q']) {
-        state.onceMap['sqcgxnx2q'] = true;
+      if (!state.onceMap['9514fjcab']) {
+        state.onceMap['9514fjcab'] = true;
         vars['muki'] = random(-1,1);
         if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle", count: "5", spread: "30", offsetX: "0", offsetY: "0", radius: "7", bulletImage: "star", coordMode: "relative", hitRadius: "4", }, state, b, attacker, target, _util)) {
           yield;
@@ -2017,15 +2017,15 @@ window.compiledBossDanmaku['spell_rush2_1'] = window.compiledDanmaku['spell_rush
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_176 = vars['i'];
-    for (let _loopIdx_176 = 0, _limit_176 = Math.round(120); _loopIdx_176 < _limit_176; _loopIdx_176++) {
-      vars['i'] = _loopIdx_176;
+    let _prev_i_186 = vars['i'];
+    for (let _loopIdx_186 = 0, _limit_186 = Math.round(120); _loopIdx_186 < _limit_186; _loopIdx_186++) {
+      vars['i'] = _loopIdx_186;
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle", offsetX: "0", offsetY: "0", radius: "25", bulletImage: "b_star", coordMode: "relative", hitRadius: "15", }, state, b, attacker, target, _util)) {
         yield;
       }
       vars['angle'] = (vars['angle'] || 0) + (10);
     }
-    vars['i'] = _prev_i_176;
+    vars['i'] = _prev_i_186;
     state.waitTimer = Math.max(0.0167, 2);
     yield;
   }
@@ -2037,8 +2037,8 @@ window.compiledBossDanmaku['spell_rush2_1_bullet'] = window.compiledDanmaku['spe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['08nzvouf3']) {
-      state.onceMap['08nzvouf3'] = true;
+    if (!state.onceMap['6yk2r6ztj']) {
+      state.onceMap['6yk2r6ztj'] = true;
       vars['speed'] = (vars['speed'] || 0) + (random(-50,150));
       vars['angle'] = (vars['angle'] || 0) + (random(-5,5));
       vars['muki'] = random(-1,1);
@@ -2070,9 +2070,9 @@ window.compiledBossDanmaku['spell_rush2_non_2'] = window.compiledDanmaku['spell_
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_177 = vars['i'];
-    for (let _loopIdx_177 = 0, _limit_177 = Math.round(10); _loopIdx_177 < _limit_177; _loopIdx_177++) {
-      vars['i'] = _loopIdx_177;
+    let _prev_i_187 = vars['i'];
+    for (let _loopIdx_187 = 0, _limit_187 = Math.round(10); _loopIdx_187 < _limit_187; _loopIdx_187++) {
+      vars['i'] = _loopIdx_187;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ff3333", speed: "200", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "kunai1", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -2080,13 +2080,13 @@ window.compiledBossDanmaku['spell_rush2_non_2'] = window.compiledDanmaku['spell_
       state.waitTimer = Math.max(0.0167, 0.0167);
       yield;
     }
-    vars['i'] = _prev_i_177;
+    vars['i'] = _prev_i_187;
     vars['angle'] = (vars['angle'] || 0) + (10);
     state.waitTimer = Math.max(0.0167, 0.2);
     yield;
-    let _prev_i_178 = vars['i'];
-    for (let _loopIdx_178 = 0, _limit_178 = Math.round(10); _loopIdx_178 < _limit_178; _loopIdx_178++) {
-      vars['i'] = _loopIdx_178;
+    let _prev_i_188 = vars['i'];
+    for (let _loopIdx_188 = 0, _limit_188 = Math.round(10); _loopIdx_188 < _limit_188; _loopIdx_188++) {
+      vars['i'] = _loopIdx_188;
       if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#3388ff", speed: "200", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "9", bulletImage: "kunai1", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -2094,7 +2094,7 @@ window.compiledBossDanmaku['spell_rush2_non_2'] = window.compiledDanmaku['spell_
       state.waitTimer = Math.max(0.0167, 0.0167);
       yield;
     }
-    vars['i'] = _prev_i_178;
+    vars['i'] = _prev_i_188;
     state.waitTimer = Math.max(0.0167, 0.2);
     yield;
     vars['angle'] = (vars['angle'] || 0) + (10);
@@ -2239,9 +2239,9 @@ window.compiledBossDanmaku['spell_rush2_non_3'] = window.compiledDanmaku['spell_
       yield;
     }
     vars['setangle'] = -30;
-    let _prev_i_179 = vars['i'];
-    for (let _loopIdx_179 = 0, _limit_179 = Math.round(5); _loopIdx_179 < _limit_179; _loopIdx_179++) {
-      vars['i'] = _loopIdx_179;
+    let _prev_i_189 = vars['i'];
+    for (let _loopIdx_189 = 0, _limit_189 = Math.round(5); _loopIdx_189 < _limit_189; _loopIdx_189++) {
+      vars['i'] = _loopIdx_189;
       if (_util.executeBlock({ type: 'spawn_way', bulletType: "normal", color: "#ff3333", speed: "400", angle: "angle", count: "1", spread: "0", offsetX: "200", offsetY: "0", radius: "35", bulletImage: "knife", coordMode: "relative", hitRadius: "6", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -2250,7 +2250,7 @@ window.compiledBossDanmaku['spell_rush2_non_3'] = window.compiledDanmaku['spell_
       }
       vars['setangle'] = (vars['setangle'] || 0) + (15);
     }
-    vars['i'] = _prev_i_179;
+    vars['i'] = _prev_i_189;
   }
 }
 ];
@@ -2261,8 +2261,8 @@ window.compiledBossDanmaku['spell_rush2_non_3_bullet'] = window.compiledDanmaku[
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['w53vly1u3']) {
-      state.onceMap['w53vly1u3'] = true;
+    if (!state.onceMap['vxg8p7208']) {
+      state.onceMap['vxg8p7208'] = true;
       vars['muki'] = random(-1,1);
       if (!!((((vars.muki !== undefined ? vars.muki : 0)) >= (-1) && ((vars.muki !== undefined ? vars.muki : 0)) <= (0)))) {
         vars['kakudo'] = -3;
@@ -2276,8 +2276,8 @@ window.compiledBossDanmaku['spell_rush2_non_3_bullet'] = window.compiledDanmaku[
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['fvoorl73y']) {
-        state.onceMap['fvoorl73y'] = true;
+      if (!state.onceMap['p6kmu8fa6']) {
+        state.onceMap['p6kmu8fa6'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -2302,9 +2302,9 @@ window.compiledBossDanmaku['spell_rush2_3'] = window.compiledDanmaku['spell_rush
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_180 = vars['i'];
-    for (let _loopIdx_180 = 0, _limit_180 = Math.round(30); _loopIdx_180 < _limit_180; _loopIdx_180++) {
-      vars['i'] = _loopIdx_180;
+    let _prev_i_190 = vars['i'];
+    for (let _loopIdx_190 = 0, _limit_190 = Math.round(30); _loopIdx_190 < _limit_190; _loopIdx_190++) {
+      vars['i'] = _loopIdx_190;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -2319,10 +2319,10 @@ window.compiledBossDanmaku['spell_rush2_3'] = window.compiledDanmaku['spell_rush
       state.waitTimer = Math.max(0.0167, 0.167 * 3);
       yield;
     }
-    vars['i'] = _prev_i_180;
-    let _prev_i_181 = vars['i'];
-    for (let _loopIdx_181 = 0, _limit_181 = Math.round(6000000); _loopIdx_181 < _limit_181; _loopIdx_181++) {
-      vars['i'] = _loopIdx_181;
+    vars['i'] = _prev_i_190;
+    let _prev_i_191 = vars['i'];
+    for (let _loopIdx_191 = 0, _limit_191 = Math.round(6000000); _loopIdx_191 < _limit_191; _loopIdx_191++) {
+      vars['i'] = _loopIdx_191;
       if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -2347,7 +2347,7 @@ window.compiledBossDanmaku['spell_rush2_3'] = window.compiledDanmaku['spell_rush
       state.waitTimer = Math.max(0.0167, 0.167 * 3);
       yield;
     }
-    vars['i'] = _prev_i_181;
+    vars['i'] = _prev_i_191;
     state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);
     yield;
   }
@@ -2359,8 +2359,8 @@ window.compiledBossDanmaku['spell_rush2_3_bullet'] = window.compiledDanmaku['spe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['uwz6qdux5']) {
-      state.onceMap['uwz6qdux5'] = true;
+    if (!state.onceMap['u7o6l3fb1']) {
+      state.onceMap['u7o6l3fb1'] = true;
       vars['muki'] = random(-1,1);
       if (!!((((vars.muki !== undefined ? vars.muki : 0)) >= (-1) && ((vars.muki !== undefined ? vars.muki : 0)) <= (0)))) {
         vars['kakudo'] = -3;
@@ -2387,9 +2387,9 @@ window.compiledBossDanmaku['spell_rush2_non_4'] = window.compiledDanmaku['spell_
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
   while (true) {
-    let _prev_i_182 = vars['i'];
-    for (let _loopIdx_182 = 0, _limit_182 = Math.round(2); _loopIdx_182 < _limit_182; _loopIdx_182++) {
-      vars['i'] = _loopIdx_182;
+    let _prev_i_192 = vars['i'];
+    for (let _loopIdx_192 = 0, _limit_192 = Math.round(2); _loopIdx_192 < _limit_192; _loopIdx_192++) {
+      vars['i'] = _loopIdx_192;
       if (_util.executeBlock({ type: 'spawn_bullet', bulletType: "normal", color: "#44ff44", speed: "200", angle: "angle", offsetX: "0", offsetY: "0", radius: "22", bulletImage: "b_star", coordMode: "relative", hitRadius: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -2399,7 +2399,7 @@ window.compiledBossDanmaku['spell_rush2_non_4'] = window.compiledDanmaku['spell_
       }
       vars['angle'] = (vars['angle'] || 0) + (random(0,360));
     }
-    vars['i'] = _prev_i_182;
+    vars['i'] = _prev_i_192;
     state.waitTimer = Math.max(0.0167, 0.0167 * 2);
     yield;
   }
@@ -2411,8 +2411,8 @@ window.compiledBossDanmaku['spell_rush2_non_4_bullet'] = window.compiledDanmaku[
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['anvc38oeq']) {
-      state.onceMap['anvc38oeq'] = true;
+    if (!state.onceMap['ys7lpghqx']) {
+      state.onceMap['ys7lpghqx'] = true;
       vars['speed'] = (vars['speed'] || 0) + (random(0,200));
       vars['muki'] = random(-1,1);
       if (!!((((vars.muki !== undefined ? vars.muki : 0)) >= (-1) && ((vars.muki !== undefined ? vars.muki : 0)) <= (0)))) {
@@ -2475,8 +2475,8 @@ window.compiledBossDanmaku['spell_rush2_4_bullet'] = window.compiledDanmaku['spe
   const seedrandom = _util.seedrandom;
   while (true) {
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['cpl88a196']) {
-      state.onceMap['cpl88a196'] = true;
+    if (!state.onceMap['i78zq0xrz']) {
+      state.onceMap['i78zq0xrz'] = true;
       vars['speed'] = (vars['speed'] || 0) + (random(-100,20));
       vars['muki'] = random(-1,1);
       if (!!((((vars.muki !== undefined ? vars.muki : 0)) >= (-1) && ((vars.muki !== undefined ? vars.muki : 0)) <= (0)))) {
@@ -2540,15 +2540,15 @@ window.compiledBossDanmaku['spell_rush2_5'] = window.compiledDanmaku['spell_rush
         yield;
       }
     }
-    let _prev_i_183 = vars['i'];
-    for (let _loopIdx_183 = 0, _limit_183 = Math.round(3); _loopIdx_183 < _limit_183; _loopIdx_183++) {
-      vars['i'] = _loopIdx_183;
+    let _prev_i_193 = vars['i'];
+    for (let _loopIdx_193 = 0, _limit_193 = Math.round(3); _loopIdx_193 < _limit_193; _loopIdx_193++) {
+      vars['i'] = _loopIdx_193;
       state.waitTimer = Math.max(0.0167, 0.167 * 2);
       yield;
       vars['spd'] = 0;
-      let _prev_i_184 = vars['i'];
-      for (let _loopIdx_184 = 0, _limit_184 = Math.round(4); _loopIdx_184 < _limit_184; _loopIdx_184++) {
-        vars['i'] = _loopIdx_184;
+      let _prev_i_194 = vars['i'];
+      for (let _loopIdx_194 = 0, _limit_194 = Math.round(4); _loopIdx_194 < _limit_194; _loopIdx_194++) {
+        vars['i'] = _loopIdx_194;
         if (!!((((vars.enemyHp !== undefined ? vars.enemyHp : 0)) >= (1000) && ((vars.enemyHp !== undefined ? vars.enemyHp : 0)) <= (5000)))) {
           if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffaa33", speed: "200 + spd", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "25", bulletImage: "b_star", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
             yield;
@@ -2564,14 +2564,14 @@ window.compiledBossDanmaku['spell_rush2_5'] = window.compiledDanmaku['spell_rush
           vars['angle'] = (vars['angle'] || 0) + (8);
         }
       }
-      vars['i'] = _prev_i_184;
+      vars['i'] = _prev_i_194;
       vars['angle'] = (vars['angle'] || 0) + (15 - 32);
       state.waitTimer = Math.max(0.0167, 0.167 * 2);
       yield;
       vars['spd'] = 0;
-      let _prev_i_185 = vars['i'];
-      for (let _loopIdx_185 = 0, _limit_185 = Math.round(4); _loopIdx_185 < _limit_185; _loopIdx_185++) {
-        vars['i'] = _loopIdx_185;
+      let _prev_i_195 = vars['i'];
+      for (let _loopIdx_195 = 0, _limit_195 = Math.round(4); _loopIdx_195 < _limit_195; _loopIdx_195++) {
+        vars['i'] = _loopIdx_195;
         if (!!((((vars.enemyHp !== undefined ? vars.enemyHp : 0)) >= (1000) && ((vars.enemyHp !== undefined ? vars.enemyHp : 0)) <= (5000)))) {
           if (_util.executeBlock({ type: 'spawn_ring', bulletType: "normal", color: "#ffaa33", speed: "200 + spd", angle: "angle", count: "12", offsetX: "0", offsetY: "0", radius: "25", bulletImage: "b_star", coordMode: "relative", hitRadius: "16", }, state, b, attacker, target, _util)) {
             yield;
@@ -2590,10 +2590,10 @@ window.compiledBossDanmaku['spell_rush2_5'] = window.compiledDanmaku['spell_rush
           vars['angle'] = (vars['angle'] || 0) - (8);
         }
       }
-      vars['i'] = _prev_i_185;
+      vars['i'] = _prev_i_195;
       vars['angle'] = (vars['angle'] || 0) + (15 + 32);
     }
-    vars['i'] = _prev_i_183;
+    vars['i'] = _prev_i_193;
     state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);
     yield;
   }
@@ -2606,8 +2606,8 @@ window.compiledBossDanmaku['spell_rush2_5_bullet'] = window.compiledDanmaku['spe
   while (true) {
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['89nuxp5vb']) {
-        state.onceMap['89nuxp5vb'] = true;
+      if (!state.onceMap['dgblzapcv']) {
+        state.onceMap['dgblzapcv'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "30", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -2621,8 +2621,8 @@ window.compiledBossDanmaku['spell_rush2_5_bullet'] = window.compiledDanmaku['spe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['5jski04px']) {
-        state.onceMap['5jski04px'] = true;
+      if (!state.onceMap['leb41ck50']) {
+        state.onceMap['leb41ck50'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "30", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -2647,8 +2647,8 @@ window.compiledBossDanmaku['spell_rush2_5_bullet'] = window.compiledDanmaku['spe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa33").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['474sbd2b9']) {
-        state.onceMap['474sbd2b9'] = true;
+      if (!state.onceMap['s1clso83y']) {
+        state.onceMap['s1clso83y'] = true;
         vars['muki'] = random(-1,1);
         if (!!((((vars.muki !== undefined ? vars.muki : 0)) >= (-1) && ((vars.muki !== undefined ? vars.muki : 0)) <= (0)))) {
           vars['kakudo'] = -3;
