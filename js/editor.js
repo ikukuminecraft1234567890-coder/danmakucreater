@@ -702,13 +702,6 @@ function customCardMakerSwitchTab(tab) {
                                 ${renderBlockControls(idx)}
                             `;
                             break;
-                        case 'aim_at_coord':
-                            blockDiv.className = 'maker-block color-control';
-                            html = `
-                                <span>[制御] <span style="color:#ffcc00;font-weight:bold;">aimAt</span>(${b.params.targetX || '0'}, ${b.params.targetY || '0'})</span>
-                                ${renderBlockControls(idx)}
-                            `;
-                            break;
                         case 'if': {
                             if (b.params.aifTol !== undefined) {
                                 blockDiv.className = 'maker-block color-control';
@@ -2422,7 +2415,7 @@ function customCardMakerSwitchMode(mode) {
                     }
                     let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
-                    let mAimCoord = trimmed.match(/^aimAt\((.*?)\)$/i);
+                    let mAimCoord = trimmed.match(/^(?:aimAt|aimAtCoord)\((.*?)\)$/i);
                     if (mAimCoord) {
                         let args = splitArgs(mAimCoord[1]).map(s => s.trim());
                         block = { type: 'aim_at_coord', params: { targetX: args[0] || '0', targetY: args[1] || '0' }, indent };
@@ -2987,7 +2980,7 @@ function customCardMakerSwitchMode(mode) {
                 if (mAim) {
                     block = { type: 'aim_at_target', params: {}, indent: indent };
                 }
-                let mAimCoord = trimmed.match(/^aimAt\((.*?)\)$/i);
+                let mAimCoord = trimmed.match(/^(?:aimAt|aimAtCoord)\((.*?)\)$/i);
                 if (mAimCoord) {
                     let args = splitArgs(mAimCoord[1]).map(s => s.trim());
                     block = { type: 'aim_at_coord', params: { targetX: args[0] || '0', targetY: args[1] || '0' }, indent: indent };

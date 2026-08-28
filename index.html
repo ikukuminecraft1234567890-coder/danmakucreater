@@ -392,6 +392,9 @@ spawnMagicCircle("色", Xオフセット, Yオフセット)
 // ターゲットの方向を向く (angle に代入)
 aimAtTarget()
 
+// 指定座標の方向を向く (angle に代入)
+aimAt(X座標, Y座標)
+
 // 座標の瞬間移動 / スライド移動
 moveTo("位置") または slideTo("位置", 秒数)
 ※ 位置: "center", "left", "right", "farLeft", "farRight", "leftUp", "rightUp"
@@ -416,6 +419,9 @@ laserWidth = 16  // レーザー幅
 
 // ターゲットの方向に向き直す
 aimAtTarget()
+
+// 指定座標の方向に向き直す
+aimAt(X座標, Y座標)
 
 // 毎秒指定の度数で追尾(ホーミング)
 homing(90)

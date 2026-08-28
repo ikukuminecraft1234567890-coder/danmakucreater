@@ -32,7 +32,7 @@ const sharedDanmakuListS2 = [
         difficulty: "NORMAL",
         name: "【S2サンプル】瞬光スパイラルバースト",
         desc: "S2開幕記念サンプル！HPを削って速攻を狙おう！",
-        hp: 1400,
+        hp: 1000,
         duration: 25,
         maxMisses: 3,
         x_offset: 0,
@@ -41,32 +41,25 @@ const sharedDanmakuListS2 = [
         emitterScript: `
 while (true) {
     aimAtTarget()
-    spawnRing("normal", "#33ccff", 180, angle, 12, 0, 0, 8, "star", "relative", 6)
-    spawnRing("normal", "#ff3388", 140, angle + 15, 12, 0, 0, 8, "star", "relative", 6)
-    angle += 7
+    spawnRing("normal", "#33ccff", 180, angle, 6, 0, 0, 8, "star", "relative", 6)
+    spawnRing("normal", "#ff3388", 140, angle + 30, 6, 0, 0, 8, "star", "relative", 6)
     wait(0.18)
-}
-while (true) {
-    wait(2.0)
-    aimAtTarget()
-    spawnWay("normal", "#ffcc00", 240, angle, 5, 40, 0, 0, 30, "kome", "relative", 6)
-    wait(0.1)
-    spawnWay("normal", "#ffaa00", 260, angle, 5, 40, 0, 0, 30, "kome", "relative", 6)
 }
         `,
         bulletScript: `
 speed = 180
-bounce()
-if (isBounced) {
-    color = #ffdd00
-    aimAtTarget()
+if(color!=#ffdd00) {
+    if (isBounced) {
+        color = #ffdd00
+        aimAtTarget()
+    }
 }
         `,
         magicCircleScript: ``
     },{
     difficulty: "Hard",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
     name: "天秤「光魔のペンデュラム」",           // 弾幕名・スペルカード名
-    desc: "説明文や作成者名",
+    desc: "ペンデュラムって天秤って意味なんだね...",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
     duration: 30,               // 制限時間（秒）
     maxMisses: 3,               // 許容被弾回数（"inf"で無限）
@@ -147,7 +140,7 @@ if (color==#ffaa33) {
 },{
     difficulty: "easy",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
     name: "天祝「アポロ11」",           // 弾幕名・スペルカード名
-    desc: "説明文や作成者名",
+    desc: "やっぱZUNの弾幕パクっただけあってそこそこおもろい。",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
     duration: 50,               // 制限時間（秒）
     maxMisses: 3,               // 許容被弾回数（"inf"で無限）
@@ -208,6 +201,25 @@ if (color!=#888888) {
         speed = 200
     }
 }
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    name: "スペル名",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 30,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+
+    `,
+    bulletScript: `
+
     `,
     magicCircleScript: `
 

@@ -505,8 +505,20 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let tyRaw = evalExpr(block.params.targetY || '0', state.variables);
                         let txAbs = Number(txRaw) || 0;
                         let tyAbs = isPlayerSide ? (canvas.height - (Number(tyRaw) || 0)) : (Number(tyRaw) || 0);
-                        let dxC = txAbs - (attacker.x + (state.variables.x_offset || 0));
-                        let dyC = tyAbs - (attacker.y + (state.variables.y_offset || 0));
+
+                        let curX, curY;
+                        if (typeof b !== 'undefined' && b) {
+                            curX = state.variables.x !== undefined ? state.variables.x : b.x;
+                            curY = state.variables.y !== undefined ? (isPlayerSide ? canvas.height - state.variables.y : state.variables.y) : b.y;
+                        } else {
+                            let baseX = state.variables.x !== undefined ? state.variables.x : attacker.x;
+                            let baseY = state.variables.y !== undefined ? (isPlayerSide ? canvas.height - state.variables.y : state.variables.y) : attacker.y;
+                            curX = baseX + (state.variables.x_offset || 0);
+                            curY = baseY + (state.variables.y_offset || 0);
+                        }
+
+                        let dxC = txAbs - curX;
+                        let dyC = isPlayerSide ? (curY - tyAbs) : (tyAbs - curY);
                         state.variables.angle = Math.atan2(dyC, dxC) * 180 / Math.PI;
                         break;
                     }
@@ -1426,8 +1438,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let total = evalExpr(block.params.duration || '1', state.variables);
                             if (mode === 'frames') total = Math.max(1, total);
                             else total = Math.max(0.001, total);
-                            state.variables[varName] = fromVal;
-                            state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
+                            let fNum = Number(fromVal);
+                            if (isNaN(fNum)) fNum = 0;
+                            let tNum = Number(toVal);
+                            if (isNaN(tNum)) tNum = 0;
+                            state.variables[varName] = fNum;
+                            state.tweens.push({ name: varName, from: fNum, to: tNum, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
                         }
                         if (block.type === 'tween_var_wait') {
                             state.waitingTweenName = varName;
@@ -1798,6 +1814,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                             state.variables[tw.name + '_y'] = nextY;
                             state.variables[tw.name + '.x'] = nextX;
                             state.variables[tw.name + '.y'] = nextY;
+                            if (tw.name === 'xy') {
+                                state.variables.x = nextX;
+                                state.variables.y = nextY;
+                            }
                         }
                         return !isDone;
                     }
@@ -1822,15 +1842,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let easedT = applyEasing(t, tw.easing);
                         
                         if (tw.isAngleTween) {
+                            let fVal = Number(tw.from) || 0;
+                            let tVal = Number(tw.to) || 0;
                             if (tw.rotMode === 'direct') {
-                                state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                                state.variables[tw.name] = fVal + (tVal - fVal) * easedT;
                             } else {
-                                let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
-                                let newAngle = tw.from + diff * easedT;
+                                let diff = ((tVal - fVal + 180) % 360 + 360) % 360 - 180;
+                                let newAngle = fVal + diff * easedT;
                                 state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
                             }
                         } else {
-                            state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                            let fVal = Number(tw.from) || 0;
+                            let tVal = Number(tw.to) || 0;
+                            state.variables[tw.name] = fVal + (tVal - fVal) * easedT;
                         }
                         
                         return t < 1; // done if t==1
@@ -1967,16 +1991,27 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardFrame = state.variables.frame;
             }
             
-            state.variables.x = b.x;
-            state.variables.y = isPlayerSide ? (canvas.height - b.y) : b.y;
+            let hasXTween = !!(state.tweens && state.tweens.some(t => t.name === 'x' || t.name === 'xy' || (t.isCoordPair && (t.name.includes('x') || t.fromX !== undefined))));
+            let hasYTween = !!(state.tweens && state.tweens.some(t => t.name === 'y' || t.name === 'xy' || (t.isCoordPair && (t.name.includes('y') || t.fromY !== undefined))));
+
+            if (!hasXTween) {
+                state.variables.x = b.x;
+            }
+            if (!hasYTween) {
+                state.variables.y = isPlayerSide ? (canvas.height - b.y) : b.y;
+            }
             let initXY = undefined;
             if (window.needsXyCoord) {
-                state.variables.xy = `${state.variables.x},${state.variables.y}`;
-                initXY = state.variables.xy;
-                state.variables['xy_x'] = state.variables.x;
-                state.variables['xy_y'] = state.variables.y;
-                state.variables['xy.x'] = state.variables.x;
-                state.variables['xy.y'] = state.variables.y;
+                if (!hasXTween && !hasYTween) {
+                    state.variables.xy = `${state.variables.x},${state.variables.y}`;
+                    initXY = state.variables.xy;
+                    state.variables['xy_x'] = state.variables.x;
+                    state.variables['xy_y'] = state.variables.y;
+                    state.variables['xy.x'] = state.variables.x;
+                    state.variables['xy.y'] = state.variables.y;
+                } else {
+                    initXY = state.variables.xy;
+                }
             }
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
@@ -2989,8 +3024,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let tyRawB = evalExpr(block.params.targetY || '0', state.variables, block, 'targetY');
                                 let txAbsB = Number(txRawB) || 0;
                                 let tyAbsB = isPlayerSide ? (canvas.height - (Number(tyRawB) || 0)) : (Number(tyRawB) || 0);
-                                let dxB = txAbsB - b.x;
-                                let dyB = isPlayerSide ? (b.y - tyAbsB) : (tyAbsB - b.y);
+                                let curX = state.variables.x !== undefined ? state.variables.x : b.x;
+                                let curY = state.variables.y !== undefined ? (isPlayerSide ? canvas.height - state.variables.y : state.variables.y) : b.y;
+                                let dxB = txAbsB - curX;
+                                let dyB = isPlayerSide ? (curY - tyAbsB) : (tyAbsB - curY);
                                 state.variables.angle = Math.atan2(dyB, dxB) * 180 / Math.PI;
                                 break;
                             }
@@ -3192,8 +3229,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         let total = evalExpr(block.params.duration || '1', state.variables, block, 'duration');
                                         if (mode === 'frames') total = Math.max(1, total);
                                         else total = Math.max(0.001, total);
-                                        state.variables[varName] = fromVal;
-                                        state.tweens.push({ name: varName, from: fromVal, to: toVal, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
+                                        let fNum = Number(fromVal);
+                                        if (isNaN(fNum)) fNum = 0;
+                                        let tNum = Number(toVal);
+                                        if (isNaN(tNum)) tNum = 0;
+                                        state.variables[varName] = fNum;
+                                        state.tweens.push({ name: varName, from: fNum, to: tNum, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
                                     }
                                     if (block.type === 'tween_var_wait') {
                                         state.waitingTweenName = varName;
@@ -3236,6 +3277,12 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             b.vx = Math.cos(finalAngleRad) * state.variables.speed;
             b.vy = Math.sin(finalAngleRad) * state.variables.speed;
+            if (hasXTween) {
+                b.vx = 0;
+            }
+            if (hasYTween) {
+                b.vy = 0;
+            }
             
             // Sync mutated coordinates
             // xy の変更を x, y に同期 (開始時の initXY から明示的に変化した時のみ同期することで、x や y 単体を個別に変更した際に古い xy でリセットされるのを防ぐ)
@@ -3257,14 +3304,15 @@ function stepEmitter(c, state, attacker, target, dt) {
             let angleChanged = false;
 
             if (state.variables.x !== undefined) {
-                if (Math.abs(state.variables.x - initX) > 0.001) {
+                if (Math.abs(state.variables.x - initX) > 0.001 || hasXTween) {
                     b.x = state.variables.x;
                     xChanged = true;
                 }
             }
             if (state.variables.y !== undefined) {
                 let targetY = isPlayerSide ? (canvas.height - state.variables.y) : state.variables.y;
-                if (Math.abs(targetY - b.y) > 0.001) {
+                let originalY = isPlayerSide ? (canvas.height - initY) : initY;
+                if (Math.abs(targetY - originalY) > 0.001 || hasYTween) {
                     b.y = targetY;
                     yChanged = true;
                 }
