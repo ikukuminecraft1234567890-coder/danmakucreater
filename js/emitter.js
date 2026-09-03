@@ -472,7 +472,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let val = evalExpr(block.params.value, state.variables);
                         let delta = block.params.op === '-' ? -val : val;
                         if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-                        if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
+                        if (!state.constVars.has(varName)) {
+                            let newVal = (Number(state.variables[varName]) || 0) + delta;
+                            setScriptVariable(state, varName, newVal, false);
+                        }
                         syncAttackerFromEmitterVariables(state, attacker);
                         break;
                     }
@@ -537,6 +540,168 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 state.variables.ey = isPlayerSide ? (canvas.height - targetPos.y) : targetPos.y;
                                 state.variables.exy = `${targetPos.x},${state.variables.ey}`;
                             }
+                        }
+                        break;
+                    }
+                    case 'bullet': {
+                        let bp = (typeof p !== 'undefined' ? (p.params || p) : (block.params || block));
+                        let type = bp.bulletType || 'normal';
+                        let isTrail = (type === 'trail');
+                        let isLaser = (type === 'laser');
+                        let isLife = (type === 'life');
+                        let speed = evalExpr(bp.speed !== undefined ? bp.speed : '200', state.variables);
+                        let centerAngle = evalExpr(bp.angle !== undefined ? bp.angle : (state.variables.angle !== undefined ? state.variables.angle : '0'), state.variables);
+                        let bColor = resolveColorParam(bp.color || '#ff3333', state.variables);
+                        
+                        let ox = evalExpr(bp.offsetX !== undefined ? bp.offsetX : (bp.x !== undefined ? bp.x : '0'), state.variables);
+                        let oy = evalExpr(bp.offsetY !== undefined ? bp.offsetY : (bp.y !== undefined ? bp.y : '0'), state.variables);
+
+                        let coordMode = bp.coordMode || ((bp.isAbsolute === 'true' || bp.isAbsolute === true) ? 'absolute' : 'relative');
+                        let spawnX, spawnY;
+                        if (coordMode === 'absolute') {
+                            spawnX = ox;
+                            spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                        } else {
+                            let baseX = state.variables.x !== undefined ? state.variables.x : attacker.x;
+                            let baseY = state.variables.y !== undefined ? (isPlayerSide ? canvas.height - state.variables.y : state.variables.y) : attacker.y;
+                            spawnX = baseX + (state.variables.x_offset || 0) + ox;
+                            spawnY = baseY + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                        }
+                        
+                        let bRadius = evalExpr(bp.radius || (isTrail ? '8' : '6'), state.variables);
+                        let bHitRadius = bp.hitRadius ? evalExpr(bp.hitRadius, state.variables) : undefined;
+                        if (bHitRadius !== undefined) {
+                            let hrNum = Number(bHitRadius);
+                            if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                        }
+                        let bImg = (isTrail || isLaser) ? 'none' : (bp.bulletImage || bp.image || 'none');
+
+                        let countVal = 1;
+                        if (bp.way !== undefined && bp.way !== '') {
+                            countVal = Math.max(1, parseInt(evalExpr(bp.way, state.variables)) || 1);
+                        } else if (bp.count !== undefined && bp.count !== '') {
+                            countVal = Math.max(1, parseInt(evalExpr(bp.count, state.variables)) || 1);
+                        }
+
+                        let hasDistance = (bp.distance !== undefined && bp.distance !== '') || (bp.spread !== undefined && bp.spread !== '');
+                        let spreadVal = hasDistance ? Number(evalExpr(bp.distance !== undefined ? bp.distance : bp.spread, state.variables)) : null;
+                        let dType = String(bp.distanceType !== undefined ? bp.distanceType : (bp.distancetype !== undefined ? bp.distancetype : (bp.distance_type !== undefined ? bp.distance_type : 'total'))).toLowerCase();
+
+                        for (let k = 0; k < countVal; k++) {
+                            let curAngle = centerAngle;
+                            if (countVal > 1) {
+                                if (spreadVal === null || isNaN(spreadVal)) {
+                                    // 全方位 (Ring): 360度等間隔
+                                    curAngle = centerAngle + (360 / countVal) * k;
+                                } else if (dType === 'step' || dType === 'each' || dType === 'interval' || dType === 'between') {
+                                    // 弾同士の間隔 (step): spreadVal度刻み
+                                    curAngle = centerAngle + (k - (countVal - 1) / 2) * spreadVal;
+                                } else {
+                                    // 全体の間隔 (total / spread): spreadVal度幅に扇状
+                                    curAngle = (countVal === 1) ? centerAngle : (centerAngle - spreadVal / 2 + (spreadVal / (countVal - 1)) * k);
+                                }
+                            }
+
+                            let angleRad = curAngle * Math.PI / 180;
+                            if (isPlayerSide) {
+                                angleRad = -angleRad;
+                            }
+
+                            let newBullet = {
+                                x: spawnX,
+                                y: spawnY,
+                                startX: spawnX,
+                                startY: spawnY,
+                                vx: Math.cos(angleRad) * speed,
+                                vy: Math.sin(angleRad) * speed,
+                                radius: bRadius,
+                                hitRadius: bHitRadius !== undefined ? bHitRadius : bRadius,
+                                bulletImage: bImg,
+                                team: attacker.team,
+                                color: bColor,
+                                bulletType: type,
+                                customDmg: 20,
+                                isCustom: true,
+                                update: null
+                            };
+                            
+                            if (isLaser) {
+                                newBullet.isLaser = true;
+                            }
+                            if (isTrail) {
+                                newBullet.isTrail = true;
+                                newBullet.growTime = (bp.growTime !== undefined && bp.growTime !== '') ? Number(evalExpr(bp.growTime, state.variables)) : 0.2;
+                                newBullet.keepTime = (bp.keepTime !== undefined && bp.keepTime !== '') ? Number(evalExpr(bp.keepTime, state.variables)) : 0.3;
+                                newBullet.shrinkTime = (bp.shrinkTime !== undefined && bp.shrinkTime !== '') ? Number(evalExpr(bp.shrinkTime, state.variables)) : 0.5;
+                                newBullet.round = (bp.round !== undefined) ? (bp.round === 'true' || bp.round === true) : true;
+                                newBullet.trailHistory = [];
+                            }
+                            if (isLife) {
+                                newBullet.isLifeBullet = true;
+                                let hpVal = Number(evalExpr(bp.health !== undefined ? bp.health : (bp.hp !== undefined ? bp.hp : '200'), state.variables));
+                                newBullet.health = !isNaN(hpVal) ? hpVal : 200;
+                                newBullet.maxHealth = newBullet.health;
+                                newBullet.flashTimer = 0;
+                            }
+                            if (bp.destroyResist === 'true' || bp.destroyResist === true || bp.resist === 'true' || bp.resist === true) {
+                                newBullet.destroyResist = true;
+                            }
+
+                            newBullet.threatWeight = computeBulletThreatWeight(
+                                spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
+                            );
+
+                            let isFromBullet = typeof b !== 'undefined' && b !== null;
+                            let defaultScript = isFromBullet ? (state.magicCircleScript || []) : (state.bulletScript || []);
+                            let defaultFn = isFromBullet ? ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_magic'] : null) : ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_bullet'] : (state.compiledFn || null));
+                            let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                            let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                            let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                            newBullet.bulletState = initBulletState(cScript, speed, curAngle, attacker, target, cFn);
+                            newBullet.bulletState.id = state.id || null;
+                            newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                            newBullet.bulletState.bulletScript = cScript;
+                            newBullet.bulletState.isPlayerSide = isPlayerSide;
+                            inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                            newBullet.bulletState.variables.bulletType = type;
+                            if (isTrail) {
+                                newBullet.bulletState.variables.growTime = bp.growTime || '0.2';
+                                newBullet.bulletState.variables.keepTime = bp.keepTime || '0.3';
+                                newBullet.bulletState.variables.shrinkTime = bp.shrinkTime || '0.5';
+                                newBullet.bulletState.variables.round = (bp.round !== undefined) ? String(bp.round) : 'true';
+                            }
+                            newBullet.bulletState.variables.color = bColor;
+                            newBullet.bulletState.variables.radius = bRadius;
+                            newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : bRadius;
+                            newBullet.bulletState.variables.bulletImage = bImg;
+                            newBullet.bulletState.variables.speed = speed;
+                            newBullet.bulletState.variables.angle = curAngle;
+                            if (isLife) {
+                                newBullet.bulletState.variables.health = newBullet.health;
+                                newBullet.bulletState.variables.maxHealth = newBullet.maxHealth;
+                                newBullet.bulletState.variables.hp = newBullet.health;
+                            }
+                            let cVars = (bp.customVars && typeof bp.customVars === 'object') ? bp.customVars : bp;
+                            if (cVars && typeof cVars === 'object') {
+                                for (let cvKey in cVars) {
+                                    if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
+                                    let cvRaw = cVars[cvKey];
+                                    if (cvRaw === undefined || cvRaw === null || typeof cvRaw === 'object') continue;
+                                    let cvVal = evalExpr(cvRaw, state.variables);
+                                    newBullet.bulletState.variables[cvKey] = cvVal;
+                                    newBullet[cvKey] = cvVal;
+                                }
+                            }
+                            newBullet.sharedEmitterState = state;
+                            if (hasScript) {
+                                newBullet.update = (b, bdt) => {
+                                    runCustomBulletScript(b, bdt, attacker, target);
+                                };
+                            } else {
+                                newBullet.update = null;
+                            }
+                            
+                            bullets.push(newBullet);
                         }
                         break;
                     }
@@ -2015,6 +2180,8 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
+            state.variables.enemyHp = (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0;
+            state.variables.enemyMaxHp = (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0;
 
             // 送信機（エミッター）の現在位置（差分追従方式で上書きを防ぐ）
             let emitterDx = attacker.x - (b.prevEmitterX !== undefined ? b.prevEmitterX : attacker.x);
@@ -2045,6 +2212,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             }
             
+            if (b.isDestroyed) {
+                state.variables.isDestroyed = true;
+                state.variables.destroyed = true;
+                state.variables.is_destroyed = true;
+                state.finished = false;
+                state.compiledGenerator = null;
+            }
+
             const _t2 = performance.now(); // セットアップ完了
 
             if (!state.finished) {
@@ -2058,7 +2233,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         window.DanmakuCompilerRuntime._computeBulletThreatWeight = computeBulletThreatWeight;
                         state.compiledGenerator = state.compiledFn(state, b, attacker, target, window.DanmakuCompilerRuntime);
                     }
-                    let dtRemaining = dt;
+                    let dtRemaining = b.isDestroyed ? Math.max(dt, 0.016) : dt;
                     let safetyCounter = 0;
                     while (dtRemaining > 0 && !state.finished && safetyCounter < 1000) {
                         safetyCounter++;
@@ -2091,7 +2266,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                     }
                 } else {
-                let dtRemaining = dt;
+                let dtRemaining = b.isDestroyed ? Math.max(dt, 0.016) : dt;
                 while (dtRemaining > 0 && !state.finished) {
                     if (state.waitTimer > 0) {
                         if (dtRemaining >= state.waitTimer) {
@@ -3009,7 +3184,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let delta = block.params.op === '-' ? -val : val;
                                 let before = state.variables[varName];
                                 if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-                                if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
+                                if (!state.constVars.has(varName)) {
+                                    let newVal = (Number(state.variables[varName]) || 0) + delta;
+                                    setScriptVariable(state, varName, newVal, false);
+                                }
                                 if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${block.params.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${state.variables[varName]})`);
                                 break;
                             }
@@ -4344,7 +4522,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 testPassed: customCardMaker.testPassed,
                 x_offset: document.getElementById('custom-card-x-offset') ? document.getElementById('custom-card-x-offset').value : "0",
                 y_offset: document.getElementById('custom-card-y-offset') ? document.getElementById('custom-card-y-offset').value : "0",
-                hp: document.getElementById('custom-card-hp') ? document.getElementById('custom-card-hp').value : "0",
+                hp: document.getElementById('custom-card-hp') ? document.getElementById('custom-card-hp').value : "1000",
                 despawnTime: document.getElementById('custom-card-despawn-time') ? document.getElementById('custom-card-despawn-time').value : "1.5",
                 maxMisses: document.getElementById('custom-card-max-misses') ? document.getElementById('custom-card-max-misses').value : "2",
                 codeText: document.getElementById('workspace-code-textarea').value
@@ -4391,7 +4569,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.despawnTime = Number(draftData.despawnTime) || 1.5;
                 if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset;
                 if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset;
-                if (document.getElementById('custom-card-hp')) document.getElementById('custom-card-hp').value = draftData.hp || "0";
+                if (document.getElementById('custom-card-hp')) document.getElementById('custom-card-hp').value = draftData.hp !== undefined ? draftData.hp : "1000";
                 if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime;
                 if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses;
                 if (document.getElementById('custom-card-difficulty')) document.getElementById('custom-card-difficulty').value = customCardMaker.difficulty;

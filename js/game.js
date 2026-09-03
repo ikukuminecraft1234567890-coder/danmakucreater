@@ -1589,6 +1589,59 @@ function applyAbilityEffect(cardId, owner) {
 
             startGameLoop();
         }
+
+        function handleBossDefeat(isBomb) {
+            if (!isCustomCardTesting || !window.isBossMode || window.isEnduranceSpell) return;
+            if (typeof cpu === 'undefined' || !cpu || cpu.hp > 0) return;
+            let deathEff = (typeof customCardDeathEffect !== 'undefined' ? customCardDeathEffect : (window.customCardDeathEffect || null));
+            if (deathEff || window.customCardClearEffect || (window.spellTransitionTimer && window.spellTransitionTimer > 0)) {
+                return;
+            }
+            // 画面全体の弾消し
+            bullets.length = 0;
+            magicCircles.length = 0;
+
+            // 敵撃破音 SE (se_tan00.wav)
+            if (window.playSound) {
+                window.playSound('se_tan00');
+            }
+
+            let currentCardObj = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
+            let isNonSpell = !currentCardObj || !currentCardObj.name || !currentCardObj.name.trim();
+
+            if (isNonSpell) {
+                // 通常弾幕はボーナスなし＆待機なしで即座に次のスペカへ！
+                window.spellClearResult = null;
+                window.spellTransitionTimer = 0;
+                if (!window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
+                    if (typeof playBossBattle === 'function') {
+                        playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
+                    }
+                } else {
+                    triggerCustomCardClear();
+                }
+            } else {
+                // スペルカードフェーズは1.5秒間のボーナス演出待機
+                window.spellTransitionTimer = 1.5;
+                let cardDur = (currentCardObj && currentCardObj.duration !== undefined) ? (Number(currentCardObj.duration) || 30) : 30;
+                let curRemTime = Math.max(0, (typeof actionTimer === 'number') ? actionTimer : 0);
+                let clearElapsed = Math.max(0, cardDur - curRemTime);
+                let isGet = !isBomb && (window.isS2Danmaku || (!window.spellBonusFailed && (window.spellMissCount || 0) === 0 && (window.spellBombCount || 0) === 0));
+                if (isGet) {
+                    if (window.playSound) {
+                        window.playSound('se_cardget');
+                    }
+                    let awardedBonus = window.spellCurrentBonus || 0;
+                    window.spellClearResult = { type: 'GET', bonus: awardedBonus, timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
+                    window.totalScore = (window.totalScore || 0) + awardedBonus;
+                } else {
+                    window.spellBonusFailed = true;
+                    window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
+                }
+            }
+        }
+        window.handleBossDefeat = handleBossDefeat;
+
         function tickSimulation(dt) {
             // エディタ表示中、またはゲーム中(BATTLE)でない場合はシミュレーションを進めない (裏でのエミッターや弾の暴走を完全にブロック)
             if (!isGameRunning || gameState !== 'BATTLE') {
@@ -2175,6 +2228,31 @@ function applyAbilityEffect(cardId, owner) {
                     }
 
                     // フェーズ② 物理・delete
+                    if (b.isLifeBullet) {
+                        if (b.bulletState && b.bulletState.variables) {
+                            if (b.bulletState.variables.health !== undefined && !isNaN(Number(b.bulletState.variables.health))) {
+                                b.health = Number(b.bulletState.variables.health);
+                            } else if (b.bulletState.variables.hp !== undefined && !isNaN(Number(b.bulletState.variables.hp))) {
+                                b.health = Number(b.bulletState.variables.hp);
+                            }
+                        }
+                        if (b.health <= 0) {
+                            if (!b._hasRunDestroyScript) {
+                                b._hasRunDestroyScript = true;
+                                b.isDestroyed = true;
+                                if (b.bulletState && b.bulletState.variables) {
+                                    b.bulletState.variables.isDestroyed = true;
+                                    b.bulletState.variables.destroyed = true;
+                                    b.bulletState.variables.is_destroyed = true;
+                                }
+                                if (typeof b.update === 'function') {
+                                    try { b.update(b, 0); } catch(e) {}
+                                }
+                            }
+                            if (useFastRemove) { b._dead = true; _perfPhx += performance.now() - _phxStart; continue; }
+                            bullets.splice(i, 1); _perfPhx += performance.now() - _phxStart; continue;
+                        }
+                    }
                     if (isBulletExpired(b)) {
                         if (useFastRemove) { b._dead = true; _perfPhx += performance.now() - _phxStart; continue; }
                         bullets.splice(i, 1); _perfPhx += performance.now() - _phxStart; continue;
@@ -2472,7 +2550,62 @@ function applyAbilityEffect(cardId, owner) {
                             }
                         }
                     } else if (b.team === 'PLAYER') {
-                        if (_cInv || _cEndure || b.isWarningLaser) {
+                        if (b.isWarningLaser) {
+                            continue;
+                        }
+
+                        // life弾（耐久値つき敵弾）への当たり判定（攻撃が吸われる）
+                        let hitLifeBullet = false;
+                        let bHitR = b.hitRadius !== undefined ? Number(b.hitRadius) : (b.radius || 6);
+                        for (let ebIdx = 0; ebIdx < bullets.length; ebIdx++) {
+                            let eb = bullets[ebIdx];
+                            if (!eb || eb === b || eb._dead || eb.team === 'PLAYER' || !eb.isLifeBullet || eb.health <= 0) continue;
+                            let ebHitR = eb.hitRadius !== undefined ? Number(eb.hitRadius) : (eb.radius || 6);
+                            let dSq = (eb.x - b.x) ** 2 + (eb.y - b.y) ** 2;
+                            if (dSq < (ebHitR + bHitR) ** 2) {
+                                let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 5 : 40);
+                                if (!b.isNormal && _acLen2) dmg = Math.floor(dmg / 2);
+                                if (_pp8)  dmg = Math.floor(dmg * 1.25);
+                                if (_pp14) dmg = Math.floor(dmg * 1.10);
+                                if (_pp16) dmg = Math.floor(dmg * 1.25);
+                                if (_pp22) dmg = Math.floor(dmg * 1.20);
+
+                                eb.health = Math.max(0, eb.health - dmg);
+                                if (eb.bulletState && eb.bulletState.variables) {
+                                    eb.bulletState.variables.health = eb.health;
+                                    eb.bulletState.variables.hp = eb.health;
+                                }
+
+                                if (isCustomCardTesting && window.isBossMode) {
+                                    window.totalScore = (window.totalScore || 0) + 50;
+                                }
+
+                                if (eb.health <= 0) {
+                                    if (!eb._hasRunDestroyScript) {
+                                        eb._hasRunDestroyScript = true;
+                                        eb.isDestroyed = true;
+                                        if (eb.bulletState && eb.bulletState.variables) {
+                                            eb.bulletState.variables.isDestroyed = true;
+                                            eb.bulletState.variables.destroyed = true;
+                                            eb.bulletState.variables.is_destroyed = true;
+                                        }
+                                        if (typeof eb.update === 'function') {
+                                            try { eb.update(eb, 0); } catch(e) {}
+                                        }
+                                    }
+                                    eb._dead = true;
+                                }
+
+                                hitLifeBullet = true;
+                                break;
+                            }
+                        }
+                        if (hitLifeBullet) {
+                            if (useFastRemove) { b._dead = true; continue; }
+                            bullets.splice(i, 1); continue;
+                        }
+
+                        if (_cInv || _cEndure) {
                             continue;
                         }
                         let distSq;
@@ -2629,51 +2762,8 @@ function applyAbilityEffect(cardId, owner) {
                                     }
                                 }
 
-                                if (cpu.hp <= 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
-                                    // 画面全体の弾消し
-                                    bullets.length = 0;
-                                    magicCircles.length = 0;
-
-                                    // 敵撃破音 SE (se_tan00.wav)
-                                    if (window.playSound) {
-                                        window.playSound('se_tan00');
-                                    }
-
-                                    // ノーミスノーボム撃破判定（通常弾幕以外のみスペルカードボーナス判定）
-                                    let currentCardObj = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
-                                    let isNonSpell = !currentCardObj || !currentCardObj.name || !currentCardObj.name.trim();
-                                    
-                                    if (isNonSpell) {
-                                        // 通常弾幕はボーナスなし＆待機なしで即座に次のスペカへ！
-                                        window.spellClearResult = null;
-                                        window.spellTransitionTimer = 0;
-                                        if (!window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
-                                            if (typeof playBossBattle === 'function') {
-                                                playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
-                                            }
-                                        } else {
-                                            triggerCustomCardClear();
-                                        }
-                                        return;
-                                    } else {
-                                        // スペルカードフェーズは1.5秒間のボーナス演出待機
-                                        window.spellTransitionTimer = 1.5;
-                                        let cardDur = (currentCardObj && currentCardObj.duration !== undefined) ? (Number(currentCardObj.duration) || 30) : 30;
-                                        let curRemTime = Math.max(0, (typeof actionTimer === 'number') ? actionTimer : 0);
-                                        let clearElapsed = Math.max(0, cardDur - curRemTime);
-                                        let isGet = window.isS2Danmaku || (!window.spellBonusFailed && (window.spellMissCount || 0) === 0 && (window.spellBombCount || 0) === 0);
-                                        if (isGet) {
-                                            if (window.playSound) {
-                                                window.playSound('se_cardget');
-                                            }
-                                            let awardedBonus = window.spellCurrentBonus || 0;
-                                            window.spellClearResult = { type: 'GET', bonus: awardedBonus, timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
-                                            window.totalScore = (window.totalScore || 0) + awardedBonus;
-                                        } else {
-                                            window.spellBonusFailed = true;
-                                            window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
-                                        }
-                                    }
+                                if (cpu.hp <= 0) {
+                                    handleBossDefeat(false);
                                 }
                             }
                             if (!cpu.recentHits) cpu.recentHits = [];
@@ -2783,10 +2873,38 @@ function applyAbilityEffect(cardId, owner) {
                     
                     bullets = bullets.filter(b => {
                         const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
-                        if (isLaserOrBeam || b.destroyResist) return true;
                         if (b.team === 'PLAYER') return true; // 自機の弾はボム衝撃波で消さない
                         let dist = Math.sqrt((b.x - sw.x) ** 2 + (b.y - sw.y) ** 2);
-                        return dist > sw.r;
+                        let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
+                        let inRange = (dist <= sw.r + bHitR);
+
+                        if (inRange && b.isLifeBullet && b.health > 0) {
+                            let bombDmg = 250 * dt; // ボムの持続ダメージ
+                            b.health = Math.max(0, b.health - bombDmg);
+                            if (b.bulletState && b.bulletState.variables) {
+                                b.bulletState.variables.health = b.health;
+                                b.bulletState.variables.hp = b.health;
+                            }
+                            if (b.health <= 0) {
+                                if (!b._hasRunDestroyScript) {
+                                    b._hasRunDestroyScript = true;
+                                    b.isDestroyed = true;
+                                    if (b.bulletState && b.bulletState.variables) {
+                                        b.bulletState.variables.isDestroyed = true;
+                                        b.bulletState.variables.destroyed = true;
+                                        b.bulletState.variables.is_destroyed = true;
+                                    }
+                                    if (typeof b.update === 'function') {
+                                        try { b.update(b, 0); } catch(e) {}
+                                    }
+                                }
+                                return false; // 破壊消滅
+                            }
+                            return true; // 耐久が残っていれば耐える
+                        }
+
+                        if (isLaserOrBeam || b.destroyResist) return true;
+                        return !inRange;
                     });
 
                     // ボムの範囲内の敵（ボス・CPU）に毎秒100ダメージ
@@ -2812,35 +2930,8 @@ function applyAbilityEffect(cardId, owner) {
                             }
 
                             // 撃破判定
-                            if (cpu.hp <= 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
-                                bullets.length = 0;
-                                magicCircles.length = 0;
-
-                                if (window.playSound) {
-                                    window.playSound('se_tan00');
-                                }
-
-                                let currentCardObj = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
-                                let isNonSpell = !currentCardObj || !currentCardObj.name || !currentCardObj.name.trim();
-
-                                if (isNonSpell) {
-                                    window.spellClearResult = null;
-                                    window.spellTransitionTimer = 0;
-                                    if (!window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss' && typeof currentBoss !== 'undefined' && currentBoss && typeof currentBossSpellIndex === 'number' && currentBossSpellIndex + 1 < (currentBoss.spells || []).length) {
-                                        if (typeof playBossBattle === 'function') {
-                                            playBossBattle(currentBossIndex, currentBossSpellIndex + 1, true);
-                                        }
-                                    } else {
-                                        triggerCustomCardClear();
-                                    }
-                                } else {
-                                    window.spellTransitionTimer = 1.5;
-                                    window.spellBonusFailed = true; // ボム使用撃破のためボーナスは失敗
-                                    let cardDur = (currentCardObj && currentCardObj.duration !== undefined) ? (Number(currentCardObj.duration) || 30) : 30;
-                                    let curRemTime = Math.max(0, (typeof actionTimer === 'number') ? actionTimer : 0);
-                                    let clearElapsed = Math.max(0, cardDur - curRemTime);
-                                    window.spellClearResult = { type: 'FAILED', timer: 1.5, clearTime: clearElapsed, duration: cardDur, isTimeout: false };
-                                }
+                            if (cpu.hp <= 0) {
+                                handleBossDefeat(true);
                             }
                         }
                     }
@@ -3028,6 +3119,11 @@ function applyAbilityEffect(cardId, owner) {
                         customCardDeathEffect = { timer: 3.0, particles };
                     }
                 }
+                // スクリプト操作等も含めたボス戦モードの敵HP0による撃破チェック
+                if (isCustomCardTesting && window.isBossMode && !window.isEnduranceSpell && typeof cpu !== 'undefined' && cpu && cpu.hp <= 0) {
+                    handleBossDefeat(false);
+                }
+
                 // actionTimer が切れた時の処理
                 if (actionTimer <= 0 && !customCardDeathEffect && !window.customCardClearEffect) {
                     if (window.isBossMode) {
@@ -6401,6 +6497,7 @@ function applyAbilityEffect(cardId, owner) {
             let s = String(cond || '').trim();
             let normalized = s.replace(/\s+/g, '').toLowerCase();
             if (normalized === 'bounced') s = 'isBounced';
+            else if (normalized === 'isdestroyed' || normalized === 'destroyed' || normalized === 'is_destroyed') s = 'isDestroyed';
             else if (normalized === 'wall' || normalized === 'touchwall') s = 'isTouchWall';
             else if (normalized === 'touchingwall') s = 'touchingWall';
             else if (normalized === 'bullet' || normalized === 'touchbullet') s = 'isTouchBullet';
@@ -6475,6 +6572,19 @@ function applyAbilityEffect(cardId, owner) {
             if (state.constVars.has(name) && !isConst) return;
             state.variables[name] = value;
             if (isConst) state.constVars.add(name);
+            
+            // 敵ボスのHP直接操作（enemyHp, bossHp等）
+            if (name === 'enemyHp' || name === 'enemy_hp' || name === 'bossHp' || name === 'boss_hp') {
+                if (typeof cpu !== 'undefined' && cpu) {
+                    let hpNum = parseFloat(value);
+                    if (!isNaN(hpNum)) {
+                        cpu.hp = Math.max(0, hpNum);
+                        if (cpu.hp <= 0 && typeof handleBossDefeat === 'function') {
+                            handleBossDefeat(false);
+                        }
+                    }
+                }
+            }
             
             // 座標ペア（コンマ区切り）の自動パース機能
             if (typeof value === 'string' && value.includes(',')) {

@@ -86,6 +86,9 @@
                         <option value="player_y">プレイヤーのY座標 (player_y)</option>
                         <option value="enemyHp">敵の現在HP (enemyHp)</option>
                         <option value="enemyMaxHp">敵の最大HP (enemyMaxHp)</option>
+                        <option value="health">耐久弾のHP (health)</option>
+                        <option value="destroyResist">弾消し耐性 (destroyResist)</option>
+                        <option value="isDestroyed">破壊された瞬間 (isDestroyed)</option>
                         <option value="timer">弾のタイマー (timer)</option>
                         <option value="second">秒数 (second)</option>
                         <option value="frame">フレーム数 (frame)</option>
@@ -203,7 +206,7 @@
                         </div>
                         <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
                             <label style="font-size: 11px; color: #ff88aa;">ボスHP</label>
-                            <input type="number" id="custom-card-hp" class="metadata-input" min="0" max="99999" step="100" value="0" placeholder="0=耐久" oninput="saveCustomCardDraft(false, false, true)">
+                            <input type="number" id="custom-card-hp" class="metadata-input" min="0" max="99999" step="100" value="1000" placeholder="1000" oninput="saveCustomCardDraft(false, false, true)">
                         </div>
                         <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
                             <label style="font-size: 11px; color: #aaa;">制限時間(s)</label>
@@ -261,6 +264,7 @@
                             <button class="palette-btn color-motion" id="palette-btn-aim-coord" onclick="customCardMakerAddBlock('aim_at_coord')">座標を向く</button>
                             <button class="palette-btn color-motion" id="palette-btn-move-owner" onclick="customCardMakerAddBlock('move_owner')">位置を指定する</button>
                             <button class="palette-btn color-motion" id="palette-btn-slide-owner" onclick="customCardMakerAddBlock('slide_owner')">滑らかに移動する</button>
+                            <button class="palette-btn color-action" id="palette-btn-bullet" onclick="customCardMakerAddBlock('bullet')" style="border: 1.5px solid #00ffcc; font-weight: bold; color: #00ffcc;">汎用弾 bullet(...)</button>
                             <button class="palette-btn color-action" id="palette-btn-spawn" onclick="customCardMakerAddBlock('spawn_bullet')">弾を発射する</button>
                             <button class="palette-btn color-action" id="palette-btn-spawn-resist" onclick="customCardMakerAddBlock('spawn_bullet_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">弾を発射する(耐性)</button>
                             <button class="palette-btn color-action" id="palette-btn-spawn-trail" onclick="customCardMakerAddBlock('spawn_trail')">軌跡弾を発射する</button>
@@ -377,7 +381,17 @@ wait(0.5)</pre>
 
                                     <section>
                                         <h5>コア (Emitter) &amp; 子弾設定の命令</h5>
-                                        <pre>// 弾を単発発射
+                                        <pre>// 統合版 汎用弾の発射 (推奨)
+bullet({ "type": "normal", "image": "star", "speed": 200, "angle": angle, "way": 1, "distance": 10, "distancetype": "step", "health": 200, "destroyResist": true, "自作変数": 10 })
+※ wayのみ指定で全方位弾、distance指定でWay弾 (distancetype: "step" / "total")
+※ type: "life" で自機ショットを吸い込んでダメージを受ける耐久弾
+※ destroyResist: true でボム等の一括弾消し耐性 (HP破壊やボムダメージは有効)
+
+// 敵HP (enemyHp) の直接操作
+enemyHp = 500   // HPを直接500にする
+enemyHp -= 100  // HPを100減らす (ダメージ)
+
+// 弾を単発発射 (従来形式)
 spawnBullet("型", "色", 速度, 角度, Xオフセット, Yオフセット, 半径, "画像", "座標モード", 判定半径)
 
 // 弾を全方位(リング状)に発射
@@ -417,6 +431,12 @@ spriteAngle += 5 // 画像だけ回転 (見た目のみ)
 color = #ff3333  // 色変更
 laserWidth = 16  // レーザー幅
 
+// 破壊された瞬間に実行 (耐久弾の分裂・効果音など)
+if (isDestroyed) {
+    spawnRing("normal", "#ffff00", 160, 0, 8, 0, 0, 6, "star", "relative", 6)
+    playSound("tan00")
+}
+
 // ターゲットの方向に向き直す
 aimAtTarget()
 
@@ -448,7 +468,10 @@ x, y           // 現在のX, Y座標
 xy             // 現在のX, Y座標ペア (例: xy = "100,200" で一括同期)
 tx, ty         // ターゲット(相手)のX, Y座標
 player_x, player_y // プレイヤーの座標(絶対座標)
-enemyHp, enemyMaxHp // 敵ボスの現在HP、最大HP
+enemyHp        // 敵ボスの現在HP (直接代入・加減算でボスHPを変更可能)
+enemyMaxHp     // 敵ボスの最大HP (デフォルト: 1000)
+health, hp     // 耐久弾の残りHP
+destroyResist  // 弾消し耐性の有無 (true / false)
 dist           // 相手との直線距離
 second, timer  // 経過秒数 (弾は発射から、コアはカード開始から)
 frame          // 経過フレーム数
@@ -474,6 +497,7 @@ n              // 自然数 (1, 2, 3...) (例: cardSecond == 5 * n で5秒おき
                // ※ 誤差許容は == を使用し、厳密一致は === を使用します。
 
 // --- 衝突・状態判定 (0 または 1) ---
+isDestroyed, destroyed // 弾が破壊された瞬間 (HPが0になった瞬間)
 isBounced      // bounce() で壁反射した瞬間
 isTouchWall    // 壁に衝突した瞬間 (画面の枠線10px手前)
 touchingWall   // 壁に接触中

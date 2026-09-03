@@ -96,6 +96,29 @@ function customCardMakerSwitchTab(tab) {
                 block.params.duration = '1.0';
             } else if (type === 'play_sound') {
                 block.params.soundName = 'shot';
+            } else if (type === 'bullet') {
+                block.type = 'bullet';
+                block.params.bulletType = 'normal';
+                block.params.color = '#ff3333';
+                block.params.speed = '200';
+                block.params.angle = 'angle';
+                block.params.radius = '6';
+                block.params.hitRadius = '';
+                block.params.bulletImage = 'none';
+                block.params.coordMode = 'relative';
+                block.params.isAbsolute = 'false';
+                block.params.offsetX = '0';
+                block.params.offsetY = '0';
+                block.params.health = '200';
+                block.params.way = '1';
+                block.params.distance = '';
+                block.params.distanceType = 'total';
+                block.params.destroyResist = 'false';
+                block.params.growTime = '0.2';
+                block.params.keepTime = '0.3';
+                block.params.shrinkTime = '0.5';
+                block.params.round = 'true';
+                block.params.customVars = {};
             } else if (type === 'spawn_bullet') {
                 block.params.bulletType = 'normal';
                 block.params.color = '#ff3333';
@@ -282,6 +305,37 @@ function customCardMakerSwitchTab(tab) {
                 condStr = condStr.replace(/([^&|?,:=()]+)\s*!=\s*([^&|?,:=()]+)/g, `abs($1 - $2) > ${tol}`);
                 script[idx].params.cond = condStr;
             }
+            customCardMaker.testPassed = false;
+            saveCustomCardDraft(false);
+            renderCardMaker();
+        }
+
+        function customCardMakerUpdateBulletCustomVar(idx, key, value) {
+            let script = getActiveScript();
+            if (!script[idx].params.customVars) script[idx].params.customVars = {};
+            script[idx].params.customVars[key] = value;
+            customCardMaker.testPassed = false;
+            saveCustomCardDraft(false);
+            renderCardMaker();
+        }
+
+        function customCardMakerDeleteBulletCustomVar(idx, key) {
+            let script = getActiveScript();
+            if (script[idx].params.customVars) {
+                delete script[idx].params.customVars[key];
+            }
+            customCardMaker.testPassed = false;
+            saveCustomCardDraft(false);
+            renderCardMaker();
+        }
+
+        function customCardMakerAddBulletCustomVar(idx) {
+            let key = prompt('自作変数名を入力してください:');
+            if (!key || !key.trim()) return;
+            key = key.trim();
+            let script = getActiveScript();
+            if (!script[idx].params.customVars) script[idx].params.customVars = {};
+            script[idx].params.customVars[key] = '0';
             customCardMaker.testPassed = false;
             saveCustomCardDraft(false);
             renderCardMaker();
@@ -715,7 +769,8 @@ function customCardMakerSwitchTab(tab) {
                             let cond = b.params.cond || 'isBounced';
                             let normalizedCond = cond.replace(/\s+/g, '');
                             let selectVal = 'custom';
-                            if (normalizedCond === 'isbounced' || cond === 'isBounced') selectVal = 'isBounced';
+                            if (normalizedCond === 'isdestroyed' || cond === 'isDestroyed' || normalizedCond === 'destroyed') selectVal = 'isDestroyed';
+                            else if (normalizedCond === 'isbounced' || cond === 'isBounced') selectVal = 'isBounced';
                             else if (normalizedCond === 'istouchedge' || cond === 'isTouchEdge') selectVal = 'isTouchEdge';
                             else if (normalizedCond === 'touchingedge' || cond === 'touchingEdge') selectVal = 'touchingEdge';
                             else if (normalizedCond === 'istouchbullet' || cond === 'isTouchBullet') selectVal = 'isTouchBullet';
@@ -736,6 +791,7 @@ function customCardMakerSwitchTab(tab) {
                             html = `
                                 <span>[制御] もし</span>
                                 <select onchange="customCardMakerOnIfCondSelectChange(${idx}, this.value)" style="margin-right: 4px;">
+                                    <option value="isDestroyed" ${selectVal === 'isDestroyed' ? 'selected' : ''}>破壊された瞬間 (isDestroyed)</option>
                                     <option value="isBounced" ${selectVal === 'isBounced' ? 'selected' : ''}>壁に触れたら (isBounced)</option>
                                     <option value="isTouchEdge" ${selectVal === 'isTouchEdge' ? 'selected' : ''}>画面端に触れた瞬間 (isTouchEdge)</option>
                                     <option value="touchingEdge" ${selectVal === 'touchingEdge' ? 'selected' : ''}>画面端に接触中 (touchingEdge)</option>
@@ -865,6 +921,90 @@ function customCardMakerSwitchTab(tab) {
                                 ${renderBlockControls(idx)}
                             `;
                             break;
+                        case 'bullet': {
+                            blockDiv.className = 'maker-block color-action';
+                            let bType = b.params.bulletType || 'normal';
+                            let isLife = (bType === 'life');
+                            let isTrail = (bType === 'trail');
+                            let isNormal = (bType === 'normal');
+
+                            let customVarsHtml = '';
+                            let cVars = b.params.customVars || {};
+                            let cvKeys = Object.keys(cVars);
+                            if (cvKeys.length > 0) {
+                                customVarsHtml = `<div style="margin-top:6px; padding:4px 6px; background:rgba(0,0,0,0.25); border-radius:4px; font-size:12px;">
+                                    <span style="color:#00ffcc; font-weight:bold;">自作変数:</span>
+                                    ${cvKeys.map(k => `
+                                        <span style="display:inline-block; margin:2px 6px 2px 0;">
+                                            <span style="color:#ffcc66;">${k}:</span>
+                                            <input type="text" list="val-suggestions" style="width:50px;" value="${cVars[k]}" onchange="customCardMakerUpdateBulletCustomVar(${idx}, '${k}', this.value)">
+                                            <button type="button" style="padding:0 4px; font-size:10px; color:#ff4444; background:transparent; border:none; cursor:pointer;" onclick="customCardMakerDeleteBulletCustomVar(${idx}, '${k}')" title="削除">×</button>
+                                        </span>
+                                    `).join('')}
+                                </div>`;
+                            }
+
+                            html = `
+                                <span style="color:#00ffcc; font-weight:bold;">[汎用弾] bullet(...)</span>
+                                <span>種類:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'bulletType', this.value)">
+                                    <option value="normal" ${bType === 'normal' ? 'selected' : ''}>通常弾 (normal)</option>
+                                    <option value="life" ${bType === 'life' ? 'selected' : ''}>耐久弾 (life)</option>
+                                    <option value="trail" ${bType === 'trail' ? 'selected' : ''}>軌跡弾 (trail)</option>
+                                    <option value="laser" ${bType === 'laser' ? 'selected' : ''}>レーザー (laser)</option>
+                                </select>
+                                ${(isNormal || isLife) ? `
+                                    <span>画像:</span>
+                                    <button type="button" class="bullet-picker-btn" onclick="openBulletImagePicker(${idx})" title="クリックして展開・画像を選択">
+                                        ${getBulletImageDisplayName(b.params.bulletImage)} ▾
+                                    </button>
+                                ` : ''}
+                                <span>半径:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.radius || '6'}" onchange="customCardMakerUpdateParam(${idx}, 'radius', this.value)">
+                                <span>判定:</span>
+                                <input type="text" placeholder="自動" list="val-suggestions" style="width:30px;" value="${b.params.hitRadius || ''}" onchange="customCardMakerUpdateParam(${idx}, 'hitRadius', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'coordMode', this.value)">
+                                    <option value="relative" ${(b.params.coordMode === 'relative' || b.params.isAbsolute === 'false' || b.params.isAbsolute === false) ? 'selected' : ''}>相対座標</option>
+                                    <option value="absolute" ${(b.params.coordMode === 'absolute' || b.params.isAbsolute === 'true' || b.params.isAbsolute === true) ? 'selected' : ''}>絶対座標</option>
+                                </select>
+                                <span>色:</span>
+                                <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
+                                <span>速度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed !== undefined ? b.params.speed : '200'}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
+                                <span>角度:</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.angle !== undefined ? b.params.angle : 'angle'}" onchange="customCardMakerUpdateParam(${idx}, 'angle', this.value)">
+                                <span>way数:</span>
+                                <input type="text" list="val-suggestions" style="width:36px;" value="${b.params.way !== undefined ? b.params.way : '1'}" onchange="customCardMakerUpdateParam(${idx}, 'way', this.value)">
+                                <span>間隔/範囲:</span>
+                                <input type="text" placeholder="全方位" list="val-suggestions" style="width:44px;" value="${b.params.distance !== undefined ? b.params.distance : ''}" onchange="customCardMakerUpdateParam(${idx}, 'distance', this.value)">
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'distanceType', this.value)">
+                                    <option value="total" ${b.params.distanceType !== 'step' ? 'selected' : ''}>全体幅</option>
+                                    <option value="step" ${b.params.distanceType === 'step' ? 'selected' : ''}>弾間隔</option>
+                                </select>
+                                <span>X:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetX || b.params.x || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetX', this.value)">
+                                <span>Y:</span>
+                                <input type="text" list="val-suggestions" style="width:40px;" value="${b.params.offsetY || b.params.y || '0'}" onchange="customCardMakerUpdateParam(${idx}, 'offsetY', this.value)">
+                                ${isLife ? `
+                                    <span style="color:#ff77aa; font-weight:bold;">HP(耐久):</span>
+                                    <input type="text" list="val-suggestions" style="width:45px; border-color:#ff77aa;" value="${b.params.health || '200'}" onchange="customCardMakerUpdateParam(${idx}, 'health', this.value)">
+                                ` : ''}
+                                ${isTrail ? `
+                                    <span style="color:#ffff66;">伸び:</span>
+                                    <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.growTime || '0.2'}" onchange="customCardMakerUpdateParam(${idx}, 'growTime', this.value)">
+                                    <span style="color:#ffff66;">維持:</span>
+                                    <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.keepTime || '0.3'}" onchange="customCardMakerUpdateParam(${idx}, 'keepTime', this.value)">
+                                    <span style="color:#ffff66;">縮み:</span>
+                                    <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.shrinkTime || '0.5'}" onchange="customCardMakerUpdateParam(${idx}, 'shrinkTime', this.value)">
+                                    <label style="margin-left:4px; font-size:11px; cursor:pointer;"><input type="checkbox" ${b.params.round === 'true' || b.params.round === true || b.params.round === undefined ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'round', this.checked ? 'true' : 'false')">丸</label>
+                                ` : ''}
+                                <label style="margin-left:4px; font-size:11px; cursor:pointer;" title="ボム等の弾消し耐性（HP破壊やボムダメージは有効）"><input type="checkbox" ${(b.params.destroyResist === 'true' || b.params.destroyResist === true) ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'destroyResist', this.checked ? 'true' : 'false')">耐性</label>
+                                <button type="button" class="menu-btn" style="min-width:24px; height:22px; padding:0 5px; font-size:11px; margin-left:4px;" onclick="customCardMakerAddBulletCustomVar(${idx})" title="この弾専用の変数を追加">+変数</button>
+                                ${renderBlockControls(idx)}
+                                ${customVarsHtml}
+                            `;
+                            break;
+                        }
                         case 'spawn_bullet':
                             blockDiv.className = 'maker-block color-action';
                             html = `
@@ -2022,6 +2162,69 @@ function customCardMakerSwitchMode(mode) {
                         line = `playSound("${name}")`;
                         break;
                     }
+                    case 'bullet': {
+                        let bp = b.params || {};
+                        let customArr = [];
+                        if (bp.customVars && typeof bp.customVars === 'object') {
+                            for (let k in bp.customVars) {
+                                let v = bp.customVars[k];
+                                customArr.push(`"${k}": ${v}`);
+                            }
+                        }
+                        let parts = [];
+                        parts.push(`"type": "${bp.bulletType || 'normal'}"`);
+                        if (bp.bulletImage && bp.bulletImage !== 'none') {
+                            parts.push(`"image": "${bp.bulletImage}"`);
+                        }
+                        if (bp.speed !== undefined && bp.speed !== '200') {
+                            parts.push(`"speed": ${bp.speed}`);
+                        }
+                        if (bp.angle !== undefined && bp.angle !== 'angle') {
+                            parts.push(`"angle": ${bp.angle}`);
+                        }
+                        if (bp.radius !== undefined && bp.radius !== '6') {
+                            parts.push(`"radius": ${bp.radius}`);
+                        }
+                        if (bp.hitRadius !== undefined && bp.hitRadius !== '') {
+                            parts.push(`"hitRadius": ${bp.hitRadius}`);
+                        }
+                        if (bp.coordMode === 'absolute' || bp.isAbsolute === 'true' || bp.isAbsolute === true) {
+                            parts.push(`"isAbsolute": true`);
+                        }
+                        if (bp.offsetX !== undefined && bp.offsetX !== '0') {
+                            parts.push(`"x": ${bp.offsetX}`);
+                        }
+                        if (bp.offsetY !== undefined && bp.offsetY !== '0') {
+                            parts.push(`"y": ${bp.offsetY}`);
+                        }
+                        if (bp.color !== undefined && bp.color !== '#ff3333') {
+                            parts.push(`"color": "${bp.color}"`);
+                        }
+                        if (bp.way !== undefined && bp.way !== '' && String(bp.way) !== '1') {
+                            parts.push(`"way": ${bp.way}`);
+                        }
+                        if (bp.distance !== undefined && bp.distance !== '') {
+                            parts.push(`"distance": ${bp.distance}`);
+                            if (bp.distanceType && bp.distanceType !== 'total') {
+                                parts.push(`"distanceType": "${bp.distanceType}"`);
+                            }
+                        }
+                        if (bp.destroyResist === 'true' || bp.destroyResist === true || bp.resist === 'true' || bp.resist === true) {
+                            parts.push(`"destroyResist": true`);
+                        }
+                        if (bp.bulletType === 'life') {
+                            parts.push(`"health": ${bp.health !== undefined ? bp.health : '200'}`);
+                        }
+                        if (bp.bulletType === 'trail') {
+                            if (bp.growTime) parts.push(`"growTime": ${bp.growTime}`);
+                            if (bp.keepTime) parts.push(`"keepTime": ${bp.keepTime}`);
+                            if (bp.shrinkTime) parts.push(`"shrinkTime": ${bp.shrinkTime}`);
+                            if (bp.round !== undefined) parts.push(`"round": ${bp.round}`);
+                        }
+                        parts.push(...customArr);
+                        line = `bullet({ ${parts.join(', ')} })`;
+                        break;
+                    }
                     case 'spawn_bullet': {
                         let bt = b.params.bulletType || 'normal';
                         let col = b.params.color || '#ff3333';
@@ -2353,6 +2556,222 @@ function customCardMakerSwitchMode(mode) {
             return args;
         }
 
+        // 統一弾関数 bullet(...) のパラメータ解析ヘルパー
+        function parseBulletParams(argsStr) {
+            let result = {
+                bulletType: 'normal',
+                bulletImage: 'none',
+                speed: '200',
+                angle: 'angle',
+                radius: '6',
+                hitRadius: '',
+                coordMode: 'relative',
+                isAbsolute: 'false',
+                offsetX: '0',
+                offsetY: '0',
+                color: '#ff3333',
+                health: '200',
+                destroyResist: 'false',
+                way: '1',
+                distance: '',
+                distanceType: 'total',
+                growTime: '0.2',
+                keepTime: '0.3',
+                shrinkTime: '0.5',
+                round: 'true',
+                customVars: {}
+            };
+
+            if (!argsStr || !argsStr.trim()) return result;
+
+            let s = argsStr.trim();
+            let i = 0;
+            let n = s.length;
+
+            while (i < n) {
+                while (i < n && (/\s/.test(s[i]) || s[i] === ',' || s[i] === '{')) {
+                    i++;
+                }
+                if (i >= n) break;
+                if (s[i] === '}') {
+                    i++;
+                    continue;
+                }
+
+                let key = '';
+                let quote = null;
+                if (s[i] === '"' || s[i] === "'" || s[i] === '`') {
+                    quote = s[i];
+                    i++;
+                    while (i < n && (s[i] !== quote || s[i-1] === '\\')) {
+                        key += s[i];
+                        i++;
+                    }
+                    if (i < n) i++;
+                } else {
+                    while (i < n && s[i] !== ':' && !/\s/.test(s[i]) && s[i] !== '}' && s[i] !== ',') {
+                        key += s[i];
+                        i++;
+                    }
+                }
+                key = key.trim();
+
+                while (i < n && (/\s/.test(s[i]) || s[i] === ':')) {
+                    i++;
+                }
+                if (i >= n) break;
+
+                let val = '';
+                let vQuote = null;
+                let vDepth = 0;
+                let pDepth = 0;
+                let bDepth = 0;
+
+                while (i < n) {
+                    let ch = s[i];
+                    if (vQuote) {
+                        if (ch === vQuote && s[i-1] !== '\\') {
+                            vQuote = null;
+                        }
+                        val += ch;
+                        i++;
+                    } else if (ch === '"' || ch === "'" || ch === '`') {
+                        vQuote = ch;
+                        val += ch;
+                        i++;
+                    } else if (ch === '(') {
+                        pDepth++;
+                        val += ch;
+                        i++;
+                    } else if (ch === ')') {
+                        if (pDepth > 0) pDepth--;
+                        val += ch;
+                        i++;
+                    } else if (ch === '[') {
+                        bDepth++;
+                        val += ch;
+                        i++;
+                    } else if (ch === ']') {
+                        if (bDepth > 0) bDepth--;
+                        val += ch;
+                        i++;
+                    } else if (ch === '{') {
+                        vDepth++;
+                        val += ch;
+                        i++;
+                    } else if (ch === '}') {
+                        if (vDepth > 0) {
+                            vDepth--;
+                            val += ch;
+                            i++;
+                        } else {
+                            i++;
+                            break;
+                        }
+                    } else if (ch === ',' && vDepth === 0 && pDepth === 0 && bDepth === 0) {
+                        i++;
+                        break;
+                    } else {
+                        val += ch;
+                        i++;
+                    }
+                }
+                val = val.trim();
+
+                if (!key) continue;
+
+                let k = key;
+                let v = val;
+                let vUnquoted = ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'")) || (v.startsWith("`") && v.endsWith("`")))
+                    ? v.substring(1, v.length - 1)
+                    : v;
+
+                switch (k) {
+                    case 'type':
+                    case 'bulletType':
+                        result.bulletType = vUnquoted || 'normal';
+                        break;
+                    case 'image':
+                    case 'bulletImage':
+                        result.bulletImage = vUnquoted || 'none';
+                        break;
+                    case 'speed':
+                        result.speed = v;
+                        break;
+                    case 'angle':
+                        result.angle = v;
+                        break;
+                    case 'radius':
+                        result.radius = v;
+                        break;
+                    case 'hitRadius':
+                        result.hitRadius = v;
+                        break;
+                    case 'isAbsolute':
+                        result.isAbsolute = v;
+                        result.coordMode = (v === 'true' || v === true || vUnquoted === 'true') ? 'absolute' : 'relative';
+                        break;
+                    case 'coordMode':
+                        result.coordMode = vUnquoted || 'relative';
+                        result.isAbsolute = (result.coordMode === 'absolute') ? 'true' : 'false';
+                        break;
+                    case 'x':
+                    case 'offsetX':
+                        result.offsetX = v;
+                        break;
+                    case 'y':
+                    case 'offsetY':
+                        result.offsetY = v;
+                        break;
+                    case 'color':
+                        result.color = vUnquoted;
+                        break;
+                    case 'health':
+                    case 'hp':
+                    case 'life':
+                        result.health = v;
+                        break;
+                    case 'destroyresist':
+                    case 'destroyResist':
+                    case 'resist':
+                    case 'isresist':
+                    case 'isResist':
+                        result.destroyResist = (v === 'true' || v === true || vUnquoted === 'true') ? 'true' : 'false';
+                        break;
+                    case 'way':
+                    case 'count':
+                        result.way = v;
+                        break;
+                    case 'distance':
+                    case 'spread':
+                        result.distance = v;
+                        break;
+                    case 'distancetype':
+                    case 'distanceType':
+                    case 'distance_type':
+                        result.distanceType = vUnquoted || 'total';
+                        break;
+                    case 'growTime':
+                        result.growTime = v;
+                        break;
+                    case 'keepTime':
+                        result.keepTime = v;
+                        break;
+                    case 'shrinkTime':
+                        result.shrinkTime = v;
+                        break;
+                    case 'round':
+                        result.round = v;
+                        break;
+                    default:
+                        result.customVars[k] = v;
+                        break;
+                }
+            }
+
+            return result;
+        }
+
         // 波括弧スタイルのコードをブロックリストに変換するヘルパー
         // repeat(20){ spawnRing(...); } のようなスタイルに対応
         function _codeToBlocksBrace(code) {
@@ -2374,6 +2793,15 @@ function customCardMakerSwitchMode(mode) {
 
                 const makeBlock = (trimmed, indent) => {
                     let block = null;
+                    let mBullet = trimmed.match(/^bullet\(([\s\S]*)\)$/i);
+                    if (mBullet) {
+                        let p = parseBulletParams(mBullet[1]);
+                        block = {
+                            type: 'bullet',
+                            params: p,
+                            indent
+                        };
+                    }
                     let mPlaySound = trimmed.match(/^playSound\((.*?)\)$/i);
                     if (mPlaySound) {
                         let args = splitArgs(mPlaySound[1]).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
@@ -2797,12 +3225,12 @@ function customCardMakerSwitchMode(mode) {
                         };
                     }
                     if (!block) {
-                        let mChange = trimmed.match(/^(\w+)\s*([+\-])=\s*(.+)$/);
+                        let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
                         if (mChange) block = { type: 'change_var', params: { name: mChange[1], op: mChange[2], value: mChange[3] }, indent };
                         else {
-                            let mConst = trimmed.match(/^(const|let|var)\s+(\w+)\s*=\s*(.+)$/i);
+                            let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
                             if (mConst) block = { type: 'const_var', params: { name: mConst[2], value: mConst[3] }, indent };
-                            else { let mSet = trimmed.match(/^(\w+)\s*=\s*(.+)$/); if (mSet) block = { type: 'set_var', params: { name: mSet[1], value: mSet[2] }, indent }; }
+                            else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) block = { type: 'set_var', params: { name: mSet[1], value: mSet[2] }, indent }; }
                         }
                     }
                     return block;
@@ -2846,7 +3274,7 @@ function customCardMakerSwitchMode(mode) {
                 if (ch === '(') parenDepth++;
                 if (ch === ')') parenDepth = Math.max(0, parenDepth - 1);
 
-                if (ch === '{' || ch === '}') {
+                if ((ch === '{' || ch === '}') && parenDepth === 0) {
                     if (token.trim()) rawLines.push(token);
                     rawLines.push(ch);
                     token = '';
@@ -3287,6 +3715,16 @@ function customCardMakerSwitchMode(mode) {
                     };
                 }
 
+                let mBullet = trimmed.match(/^bullet\(([\s\S]*)\)$/i);
+                if (mBullet) {
+                    let p = parseBulletParams(mBullet[1]);
+                    block = {
+                        type: 'bullet',
+                        params: p,
+                        indent: indent
+                    };
+                }
+
                 let mSpawn = trimmed.match(/^spawnBullet\((.*?)\)$/i);
                 if (mSpawn) {
                     let args = splitArgs(mSpawn[1]).map(s => {
@@ -3486,7 +3924,7 @@ function customCardMakerSwitchMode(mode) {
                 }
                 
                 if (!block) {
-                    let mChange = trimmed.match(/^(\w+)\s*([+\-])=\s*(.+)$/);
+                    let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
                     if (mChange) {
                         block = {
                             type: 'change_var',
@@ -3494,9 +3932,9 @@ function customCardMakerSwitchMode(mode) {
                             indent: indent
                         };
                     } else {
-                        let mConst = trimmed.match(/^(const|let|var)\s+(\w+)\s*=\s*(.+)$/i);
+                        let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
                             if (mConst) { block = { type: 'const_var', params: { name: mConst[2].trim(), value: mConst[3].trim() }, indent: indent }; }
-                            else { let mSet = trimmed.match(/^(\w+)\s*=\s*(.+)$/); if (mSet) { block = { type: 'set_var', params: { name: mSet[1].trim(), value: mSet[2].trim() }, indent: indent }; } }
+                            else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) { block = { type: 'set_var', params: { name: mSet[1].trim(), value: mSet[2].trim() }, indent: indent }; } }
                     }
                 }
                 

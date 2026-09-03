@@ -88,9 +88,86 @@ while (true) {
 --------------------------------------------------------------------------------
 ■ 3. 弾の生成コマンド（全種類一覧）
 --------------------------------------------------------------------------------
-引数の指定順序に注意してください。
 
-◆ 1. 直線弾・単発弾の生成
+★ 【最新・推奨】 統一弾生成関数: bullet(...)
+あらゆる種類の弾（通常弾、トレイル弾、レーザー、耐久値つき life 弾）を柔軟に生成でき、
+自作の変数を弾に持たせることも可能です。引数はオブジェクトの並び、または単一オブジェクトで自由に指定できます。
+
+構文例（複数オブジェクト形式）:
+bullet({"type":"life"},{"image":"redscale"},{"speed":200},{"angle":angle},{"radius":6},{"hitRadius":6},{"isAbsolute": false},{"x":0},{"y":0},{"color": "rgb(255, 0, 0)"},{"health":200},{"自作の変数1":10},{"自作の変数2":"aaa"})
+
+構文例（単一オブジェクト形式・省略可能）:
+bullet({ type: "life", image: "star", speed: 200, angle: angle, health: 300, myScore: 100 })
+bullet({ type: "trail", speed: 180, angle: 45, color: "#ffff00", growTime: 0.2, keepTime: 0.3, shrinkTime: 0.5, round: true })
+bullet({ speed: 250, angle: angle, color: "#00ffff" }) // 省略時は type: "normal"
+
+構文例（全方位弾 & Way弾）:
+bullet({ "way": 50, speed: 200, angle: angle }) // 全方位50発（Ring弾）
+bullet({ "way": 5, "distance": 6, "distancetype": "step", angle: angle }) // 弾同士の間隔6度ずつの5way弾
+bullet({ "way": 5, "distance": 60, "distancetype": "total", angle: angle }) // 全体60度幅に広がる5way弾
+bullet({ "type": "life", "way": 16, "health": 200, "image": "redscale" }) // 全方位16発の耐久弾
+
+【対応プロパティ】
+・type        : "normal" / "trail" / "laser" / "life" (デフォルト: "normal")
+・image       : 弾画像名（"kome", "star", "redscale" 等。normal, life のみ有効）
+・speed       : 弾速 (デフォルト: 200)
+・angle       : 発射角度 / 中心角 (デフォルト: 0 または現在の angle)
+・way         : 発射弾数 (デフォルト: 1)。1より大きいとき複数弾を同時発射
+・distance    : 拡散角度幅 または 弾同士の間隔 (度数法)。指定なしなら全方位(360度)
+・distancetype: "step"（弾同士の間隔） / "total"（全体の角度幅、デフォルト）
+・radius      : 見た目の半径 (デフォルト: 6)
+・hitRadius   : 当たり判定半径 (デフォルト: radius と同じ)
+・isAbsolute  : false (相対座標) / true (絶対座標)
+・x, y        : 発射オフセット / 座標
+・color       : 色 ("#ff0000" や "rgb(255, 0, 0)")
+・health      : 耐久値（type: "life" の場合のみ有効。デフォルト: 200）
+・destroyResist: 弾消し耐性（true / false。ボムや被弾時の即死弾消しを防ぐ）
+・growTime, keepTime, shrinkTime, round : トレイル用パラメータ（type: "trail" の場合）
+・自作変数    : {"自作変数名": 値} を指定すると、その弾の bulletScript 内で初期値として使用可能。
+
+【life 弾（耐久値つき弾）の仕様】
+・基本は通常弾と同じ挙動をしますが、自機ショットが当たると攻撃を吸い込み（自機ショット消滅）、
+  ダメージを受けて HP が減少します。
+・ボムの衝撃波の範囲内に入るとボムの持続ダメージを受けます。
+・HP が 0 になると破壊されて静かに消滅します（弾消し耐性 destroyResist が付いていても HP 破壊は有効です）。
+・弾スクリプト（bulletScript）内で `if (isDestroyed)` または `if (destroyed)` を使うことで、
+  「弾が破壊された瞬間に分裂弾をばら撒く」「効果音を鳴らす」などの処理が可能です！
+
+例 (破壊された瞬間に分裂する耐久弾):
+bulletScript: `
+if (isDestroyed) {
+    spawnRing("normal", "#ffff00", 160, 0, 8, 0, 0, 6, "star", "relative", 6)
+    playSound("break")
+}
+`
+
+--------------------------------------------------------------------------------
+■ 敵HP（ボスHP）の参照と直接操作
+--------------------------------------------------------------------------------
+【ボスHPのデフォルト】: 1000 （カード作成画面のボスHP初期値）
+
+【変数】
+・enemyHp    : 敵ボスの現在HP（参照および直接書き換え可能）
+・enemyMaxHp : 敵ボスの最大HP（参照用）
+
+【スクリプトからの敵HP直接操作】
+エミッタースクリプトや弾スクリプト内で、敵HPを直接代入・加減算できます：
+```javascript
+// 敵HPを直接500に設定
+enemyHp = 500
+
+// 敵HPを直接100減らす（ダメージを与える）
+enemyHp -= 100
+
+// 敵HPに応じた弾幕フェーズ分岐
+if (enemyHp <= 500) {
+    spawnRing("normal", "#ff0000", 250, angle, 24)
+}
+```
+
+
+--------------------------------------------------------------------------------
+◆ 1. 直線弾・単発弾の生成 (従来形式)
 spawnStraight(bulletType, color, speed, angle, offsetX, offsetY, radius, bulletImage, coordMode, hitRadius)
 （※ spawnBullet も同等）
 例: spawnStraight("normal", "#ff3344", 200, angle, 0, 0, 8, "star", "relative", 6)
