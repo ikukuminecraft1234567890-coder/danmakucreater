@@ -2507,7 +2507,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let hrNum = Number(bHitRadius);
                                     if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
                                 }
-                                let bImg = (isTrail || isLaser) ? 'none' : (bp.bulletImage || bp.image || 'none');
+                                let bImg = (isTrail || isLaser) ? 'none' : (typeof resolveBulletImageParam === 'function' ? resolveBulletImageParam(bp.bulletImage || bp.image || 'none', state.variables) : (bp.bulletImage || bp.image || 'none'));
 
                                 let countVal = 1;
                                 if (bp.way !== undefined && bp.way !== '') {
@@ -3348,8 +3348,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                             case 'set_var': {
                                 let varName = block.params.name;
                                 let val = evalValue(block.params.value, state.variables, block, 'value');
-                                if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} set_var: ${varName} = ${val} (raw: ${block.params.value})`);
-                        setScriptVariable(state, varName, val, block.type === 'const_var');
+                                setScriptVariable(state, varName, val, block.type === 'const_var');
+                                if (b && (varName === 'image' || varName === 'bulletImage')) {
+                                    let cleanVal = String(val).trim().replace(/^['"]|['"]$/g, '');
+                                    b.bulletImage = cleanVal;
+                                    if (typeof isBulletImageKey === 'function' && window.paletteBulletSet && window.paletteBulletSet.has(cleanVal)) {
+                                        b.bulletType = 'palette';
+                                    }
+                                }
                                 break;
                             }
                             case 'change_var': {

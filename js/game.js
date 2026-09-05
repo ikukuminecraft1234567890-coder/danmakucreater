@@ -1876,7 +1876,7 @@ function applyAbilityEffect(cardId, owner) {
                                 const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
                                 if (isLaserOrBeam) continue;
                                 let distSq = (b.x - r.x) ** 2 + (b.y - r.y) ** 2;
-                                let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
+                                let bHitR = getBulletHitRadius(b);
                                 if (distSq < (r.radius + bHitR) ** 2) {
                                     bullets.splice(j, 1); // 弾消去のみ（ボムによる弾消去時はかけらはドロップしない）
                                 }
@@ -1901,7 +1901,7 @@ function applyAbilityEffect(cardId, owner) {
                                 const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
                                 if (isLaserOrBeam) continue;
                                 let distSq = (b.x - r.x) ** 2 + (b.y - r.y) ** 2;
-                                let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
+                                let bHitR = getBulletHitRadius(b);
                                 if (distSq < (r.radius + bHitR) ** 2) {
                                     bullets.splice(j, 1);
                                 }
@@ -2335,7 +2335,7 @@ function applyAbilityEffect(cardId, owner) {
                         }
                     }
 
-                    let bHitR = b.isLaser ? getLaserWidth(b) / 2 : (b.hitRadius !== undefined ? b.hitRadius : b.radius);
+                    let bHitR = getBulletHitRadius(b);
 
                     if (b.isBombPiece) {
                         let distSq = (player.x - b.x) ** 2 + (player.y - b.y) ** 2;
@@ -2875,7 +2875,7 @@ function applyAbilityEffect(cardId, owner) {
                         const isLaserOrBeam = b.isLaser || b.isBeam || b.isWarningLaser || b.isCustomBeam || b.isGungnir;
                         if (b.team === 'PLAYER') return true; // 自機の弾はボム衝撃波で消さない
                         let dist = Math.sqrt((b.x - sw.x) ** 2 + (b.y - sw.y) ** 2);
-                        let bHitR = b.hitRadius !== undefined ? b.hitRadius : b.radius;
+                        let bHitR = getBulletHitRadius(b);
                         let inRange = (dist <= sw.r + bHitR);
 
                         if (inRange && b.isLifeBullet && b.health > 0) {
@@ -3290,18 +3290,19 @@ function applyAbilityEffect(cardId, owner) {
             let tDrawBStart = performance.now();
             const _drawNow = tDrawBStart; // performance.now() をループ外で1回だけキャッシュ
 
-            // ── 光弾のオーラ（グロー）を先行して描画（加算合成＋揺らぎエフェクト） ──
-            // 光弾が1つも無ければこのパスを完全スキップ（毎フレーム全弾ループしない）
-            const _hasLightBullet = bullets.some(b => b.bulletImage === 'light' && b.radius > 0);
+            // ── 光弾・光式怨霊のオーラ（グロー）を先行して描画（加算合成＋揺らぎエフェクト） ──
+            // 光弾または光式怨霊が1つも無ければこのパスを完全スキップ（毎フレーム全弾ループしない）
+            const _hasLightBullet = bullets.some(b => (b.bulletImage === 'light' || (isOnryouBulletKey(b.bulletImage) && isLightOnryouBulletKey(b.bulletImage))) && b.radius > 0);
             if (_hasLightBullet) {
                 ctx.save();
                 ctx.globalCompositeOperation = 'lighter'; // 加算合成で光っぽく繋げる
                 for (let _li = 0; _li < bullets.length; _li++) {
                     const b = bullets[_li];
-                    if (b.bulletImage !== 'light') continue;
                     if (b.radius <= 0) continue;
                     // 画面外カリング（オーラ分を考慮して通常より広い範囲でカリング判定）
                     if (b.x < -b.radius - 35 || b.x > PLAY_WIDTH + b.radius + 35 || b.y < -b.radius - 35 || b.y > canvas.height + b.radius + 35) continue;
+
+                    if (b.bulletImage === 'light') {
                     
                     // 弾ごとに異なる揺らぎを作るためのシード値
                     let seed = b.x * 0.05 + b.y * 0.05;
@@ -3370,6 +3371,43 @@ function applyAbilityEffect(cardId, owner) {
                                 );
                                 ctx.setTransform(1, 0, 0, 1, 0, 0);
                             }
+                        }
+                    }
+                    } else if (isOnryouBulletKey(b.bulletImage) && isLightOnryouBulletKey(b.bulletImage)) {
+                        // 光式怨霊のオーラ（怨霊スプライト画像）を加算合成で先行描画
+                        let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+                        if (b.animOffset === undefined) {
+                            b.animOffset = (vars && vars.animOffset !== undefined) ? Number(vars.animOffset) : (Math.random() * 10000);
+                        }
+                        let spriteScale = (vars && vars.spriteScale !== undefined) ? Number(vars.spriteScale) : 1.6;
+                        let spriteRadius = b.radius * spriteScale;
+                        let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.44);
+
+                        let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
+                        if (isNaN(multf) || multf < 0) multf = 1;
+                        let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
+                        if (isNaN(multlr) || multlr < 0) multlr = 1;
+
+                        let animInterval = (vars && vars.animInterval !== undefined) ? Number(vars.animInterval) :
+                                           ((vars && vars.animSpeed !== undefined) ? Number(vars.animSpeed) : (window.ONRYOU_ANIM_INTERVAL || 125));
+                        let texture = getOnryouAnimatedTexture(b.bulletImage, b.color, animInterval, b.animOffset);
+                        if (texture && (texture.complete === undefined || texture.complete)) {
+                            let angle;
+                            if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                                let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                                if (b.bulletState && b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
+                                angle = spriteAngleRad + Math.PI / 2;
+                            } else {
+                                angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                            }
+                            const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                            ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
+                            if (multf === 1 && multlr === 1) {
+                                ctx.drawImage(texture, -spriteRadius, spriteOffsetY - spriteRadius, spriteRadius * 2, spriteRadius * 2);
+                            } else {
+                                ctx.drawImage(texture, -spriteRadius * multlr, spriteOffsetY + spriteRadius * (1 - 2 * multf), spriteRadius * 2 * multlr, spriteRadius * 2 * multf);
+                            }
+                            ctx.setTransform(1, 0, 0, 1, 0, 0);
                         }
                     }
                 }
@@ -3921,7 +3959,8 @@ function applyAbilityEffect(cardId, owner) {
                     let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
                     if (isNaN(multlr) || multlr < 0) multlr = 1;
 
-                    let rawImgKey = b.bulletImage || (vars ? (vars.bulletImage || vars.image) : null);
+                    let varImg = vars ? (vars.bulletImage || vars.image) : null;
+                    let rawImgKey = (varImg && varImg !== 'none' && varImg !== '""' && varImg !== "''") ? varImg : (b.bulletImage || varImg || 'none');
                     let imgKey = rawImgKey ? String(rawImgKey).trim().replace(/^['"]|['"]$/g, '') : null;
                     if (imgKey === '""' || imgKey === "''" || !imgKey) imgKey = 'none';
 
@@ -3937,21 +3976,32 @@ function applyAbilityEffect(cardId, owner) {
 
                     if (imgKey && imgKey !== 'none') {
                         let texture = null;
-                        const baseImg = (window.bulletImages) ? (
-                            window.bulletImages[imgKey] ||
-                            window.bulletImages[cleanImgKey] ||
-                            window.bulletImages['pallets/' + cleanImgKey] ||
-                            window.bulletImages[cleanImgKey + '.png'] ||
-                            window.bulletImages['pallets/' + cleanImgKey + '.png'] ||
-                            null
-                        ) : null;
+                        const isOnryou = isOnryouBulletKey(imgKey) || isOnryouBulletKey(cleanImgKey);
+                        const isLightOnryou = isOnryou && (isLightOnryouBulletKey(imgKey) || isLightOnryouBulletKey(cleanImgKey));
 
-                        if (isPalette) {
-                            // パレット弾: 色相変換を行わず、元画像そのままを描画（colorは内部パラメータとして保持）
-                            texture = baseImg;
+                        if (isOnryou) {
+                            if (b.animOffset === undefined) {
+                                b.animOffset = (vars && vars.animOffset !== undefined) ? Number(vars.animOffset) : (Math.random() * 10000);
+                            }
+                            let animInterval = (vars && vars.animInterval !== undefined) ? Number(vars.animInterval) :
+                                               ((vars && vars.animSpeed !== undefined) ? Number(vars.animSpeed) : (window.ONRYOU_ANIM_INTERVAL || 125));
+                            texture = getOnryouAnimatedTexture(cleanImgKey, b.color, animInterval, b.animOffset);
                         } else {
-                            // 通常画像弾: オフスクリーンCanvasキャッシュから着色済みテクスチャを取得
-                            if (!window.bulletTextureCache) window.bulletTextureCache = {};
+                            const baseImg = (window.bulletImages) ? (
+                                window.bulletImages[imgKey] ||
+                                window.bulletImages[cleanImgKey] ||
+                                window.bulletImages['pallets/' + cleanImgKey] ||
+                                window.bulletImages[cleanImgKey + '.png'] ||
+                                window.bulletImages['pallets/' + cleanImgKey + '.png'] ||
+                                null
+                            ) : null;
+
+                            if (isPalette) {
+                                // パレット弾: 色相変換を行わず、元画像そのままを描画（colorは内部パラメータとして保持）
+                                texture = baseImg;
+                            } else {
+                                // 通常画像弾: オフスクリーンCanvasキャッシュから着色済みテクスチャを取得
+                                if (!window.bulletTextureCache) window.bulletTextureCache = {};
                             const cacheKey = `${cleanImgKey}_${b.color || '#ff3333'}`;
                             texture = window.bulletTextureCache[cacheKey];
                             
@@ -3997,8 +4047,49 @@ function applyAbilityEffect(cardId, owner) {
                                 texture = offscreen;
                             }
                         }
+                    }
 
-                        if (texture && (texture.complete === undefined || texture.complete)) {
+                        if (isOnryou) {
+                            // 怨霊弾の描画（通常怨霊: 加算スプライト+白弾 / 光式怨霊: 白弾コアを最前面に乗せる）
+                            let angle;
+                            if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                                let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                                if (b.bulletState.isPlayerSide) {
+                                    spriteAngleRad = -spriteAngleRad;
+                                }
+                                angle = spriteAngleRad + Math.PI / 2;
+                            } else {
+                                angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                            }
+                            const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                            ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
+
+                            let spriteScale = (vars && vars.spriteScale !== undefined) ? Number(vars.spriteScale) : 1.6;
+                            let spriteRadius = b.radius * spriteScale;
+                            let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.44);
+
+                            if (!isLightOnryou && texture && (texture.complete === undefined || texture.complete)) {
+                                // 通常怨霊: 怨霊スプライト画像を加算合成（lighter）で描画
+                                ctx.globalCompositeOperation = 'lighter';
+                                if (multf === 1 && multlr === 1) {
+                                    ctx.drawImage(texture, -spriteRadius, spriteOffsetY - spriteRadius, spriteRadius * 2, spriteRadius * 2);
+                                } else {
+                                    ctx.drawImage(texture, -spriteRadius * multlr, spriteOffsetY + spriteRadius * (1 - 2 * multf), spriteRadius * 2 * multlr, spriteRadius * 2 * multf);
+                                }
+                                ctx.globalCompositeOperation = 'source-over';
+                            }
+                            // （光式怨霊は先行オーラパスでオーラ画像を既に加算描画済み）
+
+                            // 白い弾（コア）を中心 (0, 0) に描画（当たり判定と完全一致）
+                            let coreOffsetY = (vars && vars.coreOffset !== undefined) ? Number(vars.coreOffset) : 0;
+                            let coreR = (vars && vars.coreRadius !== undefined) ? Number(vars.coreRadius) : (b.radius * 0.5);
+                            ctx.fillStyle = '#ffffff';
+                            ctx.beginPath();
+                            ctx.arc(0, coreOffsetY, Math.max(0.5, coreR), 0, Math.PI * 2);
+                            ctx.fill();
+
+                            ctx.setTransform(1, 0, 0, 1, 0, 0); // リセット
+                        } else if (texture && (texture.complete === undefined || texture.complete)) {
                             // 最適化: ctx.save/restore の代わりに setTransform を使用
                             // spriteAngleが定義されている場合はその絶対角度、なければ進行方向の角度を使用
                             let angle;
@@ -4067,7 +4158,7 @@ function applyAbilityEffect(cardId, owner) {
 
                 // デバッグ用当たり判定の描画（Dキー押下時）
                 if (window.debugShowHitboxes) {
-                    let bHitR = b.isLaser ? getLaserWidth(b) / 2 : (b.hitRadius !== undefined ? b.hitRadius : b.radius);
+                    let bHitR = getBulletHitRadius(b);
                     ctx.save();
                     if (b.isLaser) {
                         let x1 = b.x;
@@ -6366,12 +6457,76 @@ function applyAbilityEffect(cardId, owner) {
             thread.magicCircleScript = parent.magicCircleScript;
         }
 
+        window.ONRYOU_ANIM_INTERVAL = 125; // 8 FPS (125ms per frame)
+
+        function isOnryouBulletKey(key) {
+            if (!key) return false;
+            let s = String(key).toLowerCase().trim().replace(/^['"]|['"]$/g, '').replace(/\.png$/i, '');
+            return s.startsWith('onryou') || s.startsWith('l_onryou') || s.endsWith('怨霊') || s === '怨霊';
+        }
+        window.isOnryouBulletKey = isOnryouBulletKey;
+
+        function isLightOnryouBulletKey(key) {
+            if (!key) return false;
+            let s = String(key).toLowerCase().trim().replace(/^['"]|['"]$/g, '').replace(/\.png$/i, '');
+            return s.includes('light') || s.startsWith('l_onryou') || s.includes('光式');
+        }
+        window.isLightOnryouBulletKey = isLightOnryouBulletKey;
+
+        function getBulletHitRadius(b) {
+            if (!b) return 0;
+            if (b.isLaser) return getLaserWidth(b) / 2;
+            let hr = (b.hitRadius !== undefined && b.hitRadius !== '' && b.hitRadius !== null) ? Number(b.hitRadius) : ((b.radius !== undefined) ? b.radius : 8);
+            if (isNaN(hr)) hr = 8;
+            let img = b.bulletImage || (b.bulletState && b.bulletState.variables ? (b.bulletState.variables.bulletImage || b.bulletState.variables.image) : null);
+            if (img && isOnryouBulletKey(img)) {
+                let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+                if (vars && vars.coreRadius !== undefined) return Number(vars.coreRadius);
+                return hr * 0.5;
+            }
+            return hr;
+        }
+        window.getBulletHitRadius = getBulletHitRadius;
+
+        function getOnryouVariant(key, color) {
+            let s = String(key).toLowerCase().trim().replace(/^['"]|['"]$/g, '').replace(/\.png$/i, '');
+            if (s.includes('blue') || s === 'onryou_b' || s === '青怨霊' || s === 'l_onryou_b') return 'blue';
+            if (s.includes('green') || s === 'onryou_g' || s === '緑怨霊' || s === 'l_onryou_g') return 'green';
+            if (s.includes('yellow') || s === 'onryou_y' || s === '黄怨霊' || s === 'l_onryou_y') return 'yellow';
+            if (s.includes('red') || s === 'onryou_r' || s === '赤怨霊' || s === 'l_onryou_r') return 'red';
+            // 単に onryou / 怨霊 の場合は弾の color から推測
+            if (color) {
+                let [r, g, bVal] = parseColorToRgb(color);
+                if (bVal > r + 30 && bVal > g + 30) return 'blue';
+                if (g > r + 30 && g > bVal + 30) return 'green';
+                if (r > 150 && g > 150 && bVal < 100) return 'yellow';
+            }
+            return 'red';
+        }
+        window.getOnryouVariant = getOnryouVariant;
+
+        function getOnryouAnimatedTexture(key, color, animInterval, animOffset = 0) {
+            let variant = getOnryouVariant(key, color);
+            if (window.onryouFrames && window.onryouFrames[variant] && window.onryouFrames[variant].length > 0) {
+                let frames = window.onryouFrames[variant];
+                let interval = animInterval || window.ONRYOU_ANIM_INTERVAL || 125;
+                let time = performance.now() + (animOffset || 0);
+                let frameIdx = Math.floor(time / interval) % frames.length;
+                return frames[frameIdx];
+            }
+            return window.bulletImages ? (window.bulletImages[`onryou_${variant}`] || window.bulletImages['onryou']) : null;
+        }
+        window.getOnryouAnimatedTexture = getOnryouAnimatedTexture;
+
         function isBulletImageKey(key) {
             if (!key || typeof key !== 'string') return false;
             let s = key.trim().replace(/^['"]|['"]$/g, '');
             let clean = s.replace(/\.png$/i, '').replace(/^pallets\//i, '');
-            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain'].includes(s) ||
-                ['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain'].includes(clean)) {
+            if (isOnryouBulletKey(s) || isOnryouBulletKey(clean)) {
+                return true;
+            }
+            if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain', 'onryou', 'onryou_red', 'onryou_blue', 'onryou_green', 'onryou_yellow', 'onryou_light_red', 'onryou_light_blue', 'onryou_light_green', 'onryou_light_yellow', 'onryou_light'].includes(s) ||
+                ['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain', 'onryou', 'onryou_red', 'onryou_blue', 'onryou_green', 'onryou_yellow', 'onryou_light_red', 'onryou_light_blue', 'onryou_light_green', 'onryou_light_yellow', 'onryou_light'].includes(clean)) {
                 return true;
             }
             if (window.paletteBulletSet && (window.paletteBulletSet.has(s) || window.paletteBulletSet.has(clean) || window.paletteBulletSet.has('pallets/' + clean))) {

@@ -21,6 +21,14 @@ const BULLET_IMAGES = [
     { label: 'virus', desc: 'ウイルス弾', insertText: 'virus' },
     { label: 'dangan', desc: '弾丸', insertText: 'dangan' },
     { label: 'tyoudan', desc: '蝶弾 (蝶型の弾)', insertText: 'tyoudan' },
+    { label: 'onryou_red', desc: '赤怨霊(通常)', insertText: 'onryou_red' },
+    { label: 'onryou_blue', desc: '青怨霊(通常)', insertText: 'onryou_blue' },
+    { label: 'onryou_green', desc: '緑怨霊(通常)', insertText: 'onryou_green' },
+    { label: 'onryou_yellow', desc: '黄怨霊(通常)', insertText: 'onryou_yellow' },
+    { label: 'onryou_light_red', desc: '光式赤怨霊(光弾)', insertText: 'onryou_light_red' },
+    { label: 'onryou_light_blue', desc: '光式青怨霊(光弾)', insertText: 'onryou_light_blue' },
+    { label: 'onryou_light_green', desc: '光式緑怨霊(光弾)', insertText: 'onryou_light_green' },
+    { label: 'onryou_light_yellow', desc: '光式黄怨霊(光弾)', insertText: 'onryou_light_yellow' },
     { label: 'none', desc: '通常丸弾', insertText: 'none' }
 ];
 

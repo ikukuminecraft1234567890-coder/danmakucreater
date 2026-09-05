@@ -1278,7 +1278,9 @@
         const bulletImgNames = [
             'knife', 'kome', 'marutama', 'ohuda', 'ootama', 'poihuru', 'star', 'uroko', 'virus', 'onmyoutama', 'sword',
             'b_knife', 'b_marutama', 'b_ohuda', 'b_poihuru', 'b_star', 'b_uroko',
-            'dangan', 'kunai1', 'kunai2', 'tyoudan', 'normal'
+            'dangan', 'kunai1', 'kunai2', 'tyoudan', 'normal',
+            'onryou_red', 'onryou_blue', 'onryou_green', 'onryou_yellow',
+            'onryou_light_red', 'onryou_light_blue', 'onryou_light_green', 'onryou_light_yellow'
         ];
         window.bulletImages = {};
         bulletImgNames.forEach(name => {
@@ -1291,6 +1293,64 @@
         window.bulletImages['onmyoudama.png'] = window.bulletImages['onmyoutama'];
         window.bulletImages['grain'] = window.bulletImages['kome'];
         window.bulletImages['butterfly'] = window.bulletImages['tyoudan'];
+
+        // 怨霊アニメーションフレームの管理 (4色 × 4コマ 32x32px)
+        window.onryouFrames = { red: [], blue: [], green: [], yellow: [] };
+        const onryouMasterImg = new Image();
+        onryouMasterImg.src = 'onryou.png';
+        window.bulletImages['onryou'] = onryouMasterImg;
+        window.bulletImages['onryou.png'] = onryouMasterImg;
+
+        function initOnryouFrames() {
+            if (!onryouMasterImg.complete || onryouMasterImg.naturalWidth <= 0) return;
+            const colors = [
+                { key: 'red', startX: 0, startY: 0 },
+                { key: 'blue', startX: 128, startY: 0 },
+                { key: 'green', startX: 0, startY: 32 },
+                { key: 'yellow', startX: 128, startY: 32 }
+            ];
+            colors.forEach(col => {
+                window.onryouFrames[col.key] = [];
+                for (let i = 0; i < 4; i++) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 32;
+                    canvas.height = 32;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(onryouMasterImg, col.startX + i * 32, col.startY, 32, 32, 0, 0, 32, 32);
+                    window.onryouFrames[col.key].push(canvas);
+                }
+                window.bulletImages[`onryou_${col.key}`] = window.onryouFrames[col.key][0];
+                window.bulletImages[`onryou_${col.key}.png`] = window.onryouFrames[col.key][0];
+            });
+            // エイリアス（通常怨霊）
+            window.bulletImages['onryou_r'] = window.bulletImages['onryou_red'];
+            window.bulletImages['onryou_b'] = window.bulletImages['onryou_blue'];
+            window.bulletImages['onryou_g'] = window.bulletImages['onryou_green'];
+            window.bulletImages['onryou_y'] = window.bulletImages['onryou_yellow'];
+            window.bulletImages['赤怨霊'] = window.bulletImages['onryou_red'];
+            window.bulletImages['青怨霊'] = window.bulletImages['onryou_blue'];
+            window.bulletImages['緑怨霊'] = window.bulletImages['onryou_green'];
+            window.bulletImages['黄怨霊'] = window.bulletImages['onryou_yellow'];
+            window.bulletImages['怨霊'] = window.bulletImages['onryou_red'];
+
+            // エイリアス（光式怨霊）
+            window.bulletImages['l_onryou_red'] = window.bulletImages['onryou_light_red'];
+            window.bulletImages['l_onryou_blue'] = window.bulletImages['onryou_light_blue'];
+            window.bulletImages['l_onryou_green'] = window.bulletImages['onryou_light_green'];
+            window.bulletImages['l_onryou_yellow'] = window.bulletImages['onryou_light_yellow'];
+            window.bulletImages['光式赤怨霊'] = window.bulletImages['onryou_light_red'];
+            window.bulletImages['光式青怨霊'] = window.bulletImages['onryou_light_blue'];
+            window.bulletImages['光式緑怨霊'] = window.bulletImages['onryou_light_green'];
+            window.bulletImages['光式黄怨霊'] = window.bulletImages['onryou_light_yellow'];
+            window.bulletImages['光式怨霊'] = window.bulletImages['onryou_light_red'];
+            window.bulletImages['onryou_light'] = window.bulletImages['onryou_light_red'];
+            window.bulletImages['l_onryou'] = window.bulletImages['onryou_light_red'];
+        }
+        if (onryouMasterImg.complete && onryouMasterImg.naturalWidth > 0) {
+            initOnryouFrames();
+        } else {
+            onryouMasterImg.onload = initOnryouFrames;
+        }
 
         // パレット弾（pallets/*.png 全218種）プリロード
         const paletteBulletFiles = [
@@ -1648,6 +1708,12 @@
             // （JSコードエディタのカーソル移動・改行・文字入力をブロックしないため）
             const focused = document.activeElement;
             if (focused && (focused.tagName === 'TEXTAREA' || focused.tagName === 'INPUT')) return;
+
+            // クリアエフェクト中は Z / Enter / Space キーでもタップ進行可能
+            if (window.customCardClearEffect && (e.key === 'z' || e.key === 'Z' || e.key === 'Enter' || e.key === ' ')) {
+                window.customCardClearEffect.tapCount = (window.customCardClearEffect.tapCount || 0) + 1;
+                return;
+            }
 
             // ポーズキー判定: ESCキー または +キー（+ / ; / NumpadAdd）
             if (isGameRunning && (e.key === 'Escape' || e.key === '+' || e.key === ';' || e.code === 'NumpadAdd' || e.key === 'Add' || e.key === '=')) {

@@ -615,6 +615,49 @@ while (true) {
     magicCircleScript: `
 
     `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    name: "「おｗ」",           // 弾幕名・スペルカード名
+    desc: "名前未定",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 80,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 358
+    wait(1)
+    muki = 1
+    bullet({ "type": "life", "image": "b_star", "speed": 300, "angle": angle + 45, "radius": 35, "hitRadius": 40, "color": "#ffdd33", "way": 4, "destroyResist": true, "health": 100 })
+    muki = -1
+    bullet({ "type": "life", "image": "b_star", "speed": 300, "radius": 35, "hitRadius": 40, "color": "#ffdd33", "way": 4, "destroyResist": true, "health": 100 })
+    wait(6)
+}
+    `,
+    bulletScript: `
+if (color==#ffdd33) {
+    once {
+        tweenAngle(angle, angle + 180, "seconds", 1)
+        for (let i = 0; i < 60; i++) {
+            spriteAngle += 5 * muki
+            wf(1)
+        }
+        tween("angle", angle, angle - 180, "seconds", 4)
+    }
+    spriteAngle += 5 * muki
+    if (cardFrame == 5 * n) {
+        bullet({ "type": "normal", "image": "redscale", "angle": angle - 90, "radius": 10, "hitRadius": 4, "destroyResist": true })
+    }
+    if (frame == 300) {
+        y = -900000
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
 }
 ];
 

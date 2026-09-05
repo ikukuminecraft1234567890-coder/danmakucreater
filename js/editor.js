@@ -426,7 +426,15 @@ function customCardMakerSwitchTab(tab) {
             { val: 'dangan', label: '弾丸', icon: 'dangan.png' },
             { val: 'kunai1', label: 'クナイ1', icon: 'kunai1.png' },
             { val: 'kunai2', label: 'クナイ2', icon: 'kunai2.png' },
-            { val: 'tyoudan', label: '蝶弾', icon: 'tyoudan.png' }
+            { val: 'tyoudan', label: '蝶弾', icon: 'tyoudan.png' },
+            { val: 'onryou_red', label: '赤怨霊(通常)', icon: 'onryou_red.png' },
+            { val: 'onryou_blue', label: '青怨霊(通常)', icon: 'onryou_blue.png' },
+            { val: 'onryou_green', label: '緑怨霊(通常)', icon: 'onryou_green.png' },
+            { val: 'onryou_yellow', label: '黄怨霊(通常)', icon: 'onryou_yellow.png' },
+            { val: 'onryou_light_red', label: '光式赤怨霊(光弾)', icon: 'onryou_light_red.png' },
+            { val: 'onryou_light_blue', label: '光式青怨霊(光弾)', icon: 'onryou_light_blue.png' },
+            { val: 'onryou_light_green', label: '光式緑怨霊(光弾)', icon: 'onryou_light_green.png' },
+            { val: 'onryou_light_yellow', label: '光式黄怨霊(光弾)', icon: 'onryou_light_yellow.png' }
         ];
 
         const bulletShapeLabelMap = {
@@ -668,7 +676,8 @@ function customCardMakerSwitchTab(tab) {
             setDisplay('palette-btn-changevar', 'block');
             setDisplay('palette-btn-tweenvar', 'block');
             setDisplay('palette-btn-tweenvarwait', 'block');
-            setDisplay('palette-btn-setlaser', (tab === 'bullet') ? 'block' : 'none');
+            let isBulletTab = (tab === 'bullet' || tab === 'magicCircle');
+            setDisplay('palette-btn-setlaser', isBulletTab ? 'block' : 'none');
             
             // 動作グループ
             setDisplay('palette-btn-aim', 'block');
@@ -679,17 +688,17 @@ function customCardMakerSwitchTab(tab) {
             setDisplay('palette-btn-spawn-ring', 'block');
             setDisplay('palette-btn-spawn-way', 'block');
             setDisplay('palette-btn-magic-circle', 'block');
-            setDisplay('palette-btn-homing', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-speed-add', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-speed-set', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-angle-add', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-angle-set', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-color-set', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-bullet-image-set', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-slow', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-fast', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-bounce', (tab === 'bullet') ? 'block' : 'none');
-            setDisplay('palette-btn-advance', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-homing', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-speed-add', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-speed-set', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-angle-add', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-angle-set', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-color-set', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-bullet-image-set', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-slow', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-fast', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-bounce', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-advance', isBulletTab ? 'block' : 'none');
             
             let container = document.getElementById('workspace-blocks-container');
             container.innerHTML = '';

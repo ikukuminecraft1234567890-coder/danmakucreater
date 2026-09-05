@@ -4,7 +4,7 @@
  */
 
 declare type BulletType = 'normal' | 'trail' | 'laser';
-declare type BulletImage = 'ohuda' | 'kome' | 'star' | 'b_star' | 'onmyoutama' | 'marutama' | 'ootama' | 'poihuru' | 'uroko' | 'sword' | 'knife' | 'kunai1' | 'kunai2' | 'virus' | 'dangan' | 'tyoudan' | 'butterfly' | 'none';
+declare type BulletImage = 'ohuda' | 'kome' | 'star' | 'b_star' | 'onmyoutama' | 'marutama' | 'ootama' | 'poihuru' | 'uroko' | 'sword' | 'knife' | 'kunai1' | 'kunai2' | 'virus' | 'dangan' | 'tyoudan' | 'butterfly' | 'onryou_red' | 'onryou_blue' | 'onryou_green' | 'onryou_yellow' | 'onryou' | 'onryou_light_red' | 'onryou_light_blue' | 'onryou_light_green' | 'onryou_light_yellow' | 'onryou_light' | 'none';
 declare type CoordMode = 'relative' | 'absolute';
 declare type EasingType = 'linear' | 'easeIn' | 'easeOut' | 'easeInOut';
 declare type TweenMode = 'seconds' | 'frames' | 'step' | 'vecstep';

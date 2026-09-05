@@ -56,7 +56,11 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
             let varName = block.params.var || block.params.name;
             if (varName) {
-                js += ind + `vars['${varName}'] = ${window.DanmakuCompiler.getExpr(block, 'value', '0')};\n`;
+                let valExpr = window.DanmakuCompiler.getExpr(block, 'value', '0');
+                js += ind + `vars['${varName}'] = ${valExpr};\n`;
+                if (varName === 'image' || varName === 'bulletImage') {
+                    js += ind + `if (b) b.bulletImage = String(${valExpr}).replace(/^['"]|['"]$/g, '');\n`;
+                }
             }
         } else if (t === 'change_var') {
             let varName = block.params.var || block.params.name;

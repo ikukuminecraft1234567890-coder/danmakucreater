@@ -234,6 +234,16 @@ spawnMagicCircle(color, offsetX, offsetY)
   "virus"       : ウイルス弾
   "dangan"      : 弾丸（拳銃弾）
   "tyoudan"     : 蝶弾（蝶の形をした弾）
+  "onryou_red"  : 赤怨霊（通常怨霊: 加算合成+頭部白弾、約8FPS）
+  "onryou_blue" : 青怨霊（通常怨霊: 加算合成+頭部白弾、約8FPS）
+  "onryou_green": 緑怨霊（通常怨霊: 加算合成+頭部白弾、約8FPS）
+  "onryou_yellow": 黄怨霊（通常怨霊: 加算合成+頭部白弾、約8FPS）
+  "onryou"      : 怨霊（弾の色に応じて赤・青・緑・黄を自動選択）
+  "onryou_light_red"  : 光式赤怨霊（光式怨霊: 白弾が最前面に重なる光弾挙動）
+  "onryou_light_blue" : 光式青怨霊（光式怨霊: 白弾が最前面に重なる光弾挙動）
+  "onryou_light_green": 光式緑怨霊（光式怨霊: 白弾が最前面に重なる光弾挙動）
+  "onryou_light_yellow": 光式黄怨霊（光式怨霊: 白弾が最前面に重なる光弾挙動）
+  "onryou_light"      : 光式怨霊（弾の色に応じて赤・青・緑・黄を自動選択）
 
 【座標モード（coordMode）】
   "relative"    : ボス/発射元の現在位置基準（通常はこれ）
