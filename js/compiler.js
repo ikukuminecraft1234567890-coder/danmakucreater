@@ -30,7 +30,7 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
 window.DanmakuCompiler.hasDirectWait = function(blocks) {
     if (!blocks) return false;
     for (let b of blocks) {
-        if (b.type === 'wait' || b.type === 'tween_var_wait') return true;
+        if (b.type === 'wait' || b.type === 'wait_frame' || b.type === 'wf' || b.type === 'tween_var_wait') return true;
     }
     return false;
 };
@@ -43,6 +43,10 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         let t = block.type;
         if (t === 'wait') {
             js += ind + `state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
+            js += ind + `yield;\n`;
+        } else if (t === 'wait_frame' || t === 'wf') {
+            let framesExpr = window.DanmakuCompiler.getExpr(block, 'frames', '1');
+            js += ind + `state.waitTimer = Math.max(0.0167, (${framesExpr}) / 60);\n`;
             js += ind + `yield;\n`;
         } else if (t === 'bullet_image_set') {
             let img = JSON.stringify(block.params.bulletImage || block.params.value || 'none');

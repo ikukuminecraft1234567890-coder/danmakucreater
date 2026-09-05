@@ -180,10 +180,10 @@
             duration: 15,
             activeTab: 'emitter', // 'emitter' or 'bullet' or 'bounce'
             emitterScript: [
-                { type: 'repeat', params: { count: '12' }, indent: 0 },
-                { type: 'spawn_bullet', params: { bulletType: 'normal', color: '#ff3333', radius: '6', speed: '200', angle: 'angle' }, indent: 1 },
-                { type: 'change_var', params: { name: 'angle', value: '30' }, indent: 1 },
-                { type: 'wait', params: { duration: '0.2' }, indent: 1 }
+                { type: 'forever', params: {}, indent: 0 },
+                { type: 'bullet', params: { bulletType: 'normal', color: '#ff3333', speed: '200', angle: 'angle', radius: '6', bulletImage: 'none', coordMode: 'relative' }, indent: 1 },
+                { type: 'change_var', params: { name: 'angle', op: '+', value: '30' }, indent: 1 },
+                { type: 'wait_frame', params: { frames: '12' }, indent: 1 }
             ],
             bulletScript: [],
             bounceScript: [],

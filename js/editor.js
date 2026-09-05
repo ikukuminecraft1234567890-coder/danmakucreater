@@ -40,6 +40,9 @@ function customCardMakerSwitchTab(tab) {
             
             if (type === 'wait') {
                 block.params.duration = '0.2';
+            } else if (type === 'wait_frame' || type === 'wf') {
+                block.type = 'wait_frame';
+                block.params.frames = '10';
             } else if (type === 'repeat') {
                 block.params.count = '10';
             } else if (type === 'if') {
@@ -644,44 +647,49 @@ function customCardMakerSwitchTab(tab) {
         function renderCardMaker() {
             let tab = customCardMaker.activeTab;
             
+            const setDisplay = (id, disp) => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = disp;
+            };
+
             // 制御グループ
-            document.getElementById('palette-title-control').style.display = 'block';
-            document.getElementById('palette-btn-repeat').style.display = 'block';
-            document.getElementById('palette-btn-forever').style.display = 'block';
-            document.getElementById('palette-btn-wait').style.display = 'block';
-            document.getElementById('palette-btn-if').style.display = 'block';
-            document.getElementById('palette-btn-once').style.display = 'block';
+            setDisplay('palette-title-control', 'block');
+            setDisplay('palette-btn-repeat', 'block');
+            setDisplay('palette-btn-forever', 'block');
+            setDisplay('palette-btn-wf', 'block');
+            setDisplay('palette-btn-wait', 'block');
+            setDisplay('palette-btn-if', 'block');
+            setDisplay('palette-btn-once', 'block');
             
             // 変数グループ
-            document.getElementById('palette-title-vars').style.display = 'block';
-            document.getElementById('palette-btn-setconst').style.display = 'block';
-            document.getElementById('palette-btn-setvar').style.display = 'block';
-            document.getElementById('palette-btn-changevar').style.display = 'block';
-            document.getElementById('palette-btn-tweenvar').style.display = 'block';
-            document.getElementById('palette-btn-tweenvarwait').style.display = 'block';
-            document.getElementById('palette-btn-setlaser').style.display = (tab === 'bullet') ? 'block' : 'none';
+            setDisplay('palette-title-vars', 'block');
+            setDisplay('palette-btn-setconst', 'block');
+            setDisplay('palette-btn-setvar', 'block');
+            setDisplay('palette-btn-changevar', 'block');
+            setDisplay('palette-btn-tweenvar', 'block');
+            setDisplay('palette-btn-tweenvarwait', 'block');
+            setDisplay('palette-btn-setlaser', (tab === 'bullet') ? 'block' : 'none');
             
             // 動作グループ
-            document.getElementById('palette-btn-aim').style.display = 'block';
-            document.getElementById('palette-btn-move-owner').style.display = (tab === 'emitter') ? 'block' : 'none';
-            document.getElementById('palette-btn-slide-owner').style.display = (tab === 'emitter') ? 'block' : 'none';
-            document.getElementById('palette-btn-spawn').style.display = 'block';
-            document.getElementById('palette-btn-spawn-ring').style.display = 'block';
-            document.getElementById('palette-btn-spawn-way').style.display = 'block';
-            if (document.getElementById('palette-btn-magic-circle')) {
-                document.getElementById('palette-btn-magic-circle').style.display = 'block';
-            }
-            document.getElementById('palette-btn-homing').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-speed-add').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-speed-set').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-angle-add').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-angle-set').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-color-set').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-bullet-image-set').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-slow').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-fast').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-bounce').style.display = (tab === 'bullet') ? 'block' : 'none';
-            document.getElementById('palette-btn-advance').style.display = (tab === 'bullet') ? 'block' : 'none';
+            setDisplay('palette-btn-aim', 'block');
+            setDisplay('palette-btn-move-owner', (tab === 'emitter') ? 'block' : 'none');
+            setDisplay('palette-btn-slide-owner', (tab === 'emitter') ? 'block' : 'none');
+            setDisplay('palette-btn-bullet', 'block');
+            setDisplay('palette-btn-spawn', 'block');
+            setDisplay('palette-btn-spawn-ring', 'block');
+            setDisplay('palette-btn-spawn-way', 'block');
+            setDisplay('palette-btn-magic-circle', 'block');
+            setDisplay('palette-btn-homing', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-speed-add', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-speed-set', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-angle-add', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-angle-set', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-color-set', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-bullet-image-set', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-slow', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-fast', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-bounce', (tab === 'bullet') ? 'block' : 'none');
+            setDisplay('palette-btn-advance', (tab === 'bullet') ? 'block' : 'none');
             
             let container = document.getElementById('workspace-blocks-container');
             container.innerHTML = '';
@@ -717,8 +725,18 @@ function customCardMakerSwitchTab(tab) {
                             blockDiv.className = 'maker-block color-control';
                             html = `
                                 <span>[制御]</span>
-                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">
-                                <span>秒待つ</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.duration || '0.2'}" onchange="customCardMakerUpdateParam(${idx}, 'duration', this.value)">
+                                <span>秒待つ (wait)</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'wait_frame':
+                        case 'wf':
+                            blockDiv.className = 'maker-block color-control';
+                            html = `
+                                <span>[制御]</span>
+                                <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.frames !== undefined ? b.params.frames : (b.params.duration !== undefined ? b.params.duration : '10')}" onchange="customCardMakerUpdateParam(${idx}, 'frames', this.value)">
+                                <span>フレーム待つ (wf)</span>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -2109,6 +2127,10 @@ function customCardMakerSwitchMode(mode) {
                      case 'wait':
                         line = `wait(${b.params.duration || '0.2'})`;
                         break;
+                     case 'wait_frame':
+                     case 'wf':
+                        line = `wf(${b.params.frames !== undefined ? b.params.frames : (b.params.duration !== undefined ? b.params.duration : '10')})`;
+                        break;
                     case 'repeat':
                         {
                             let indexVar = b.params.indexVar || 'i';
@@ -2815,6 +2837,8 @@ function customCardMakerSwitchMode(mode) {
                     }
                     let mWait = trimmed.match(/^wait\((.*?)\)$/i);
                     if (mWait) block = { type: 'wait', params: { duration: mWait[1].trim() }, indent };
+                    let mWf = trimmed.match(/^(?:wf|waitframe|wait_frame)\((.*?)\)$/i);
+                    if (mWf) block = { type: 'wait_frame', params: { frames: mWf[1].trim() }, indent };
                     let mRepeat = trimmed.match(/^repeat\((.*?)\)$/i);
                     if (mRepeat) block = { type: 'repeat', params: { count: mRepeat[1].trim() }, indent };
                     let mForever = trimmed.match(/^forever\(\)$/i);
@@ -3365,6 +3389,10 @@ function customCardMakerSwitchMode(mode) {
                 let mWait = trimmed.match(/^wait\((.*?)\)$/i);
                 if (mWait) {
                     block = { type: 'wait', params: { duration: mWait[1].trim() }, indent: indent };
+                }
+                let mWf = trimmed.match(/^(?:wf|waitframe|wait_frame)\((.*?)\)$/i);
+                if (mWf) {
+                    block = { type: 'wait_frame', params: { frames: mWf[1].trim() }, indent: indent };
                 }
                 let mRepeat = trimmed.match(/^repeat\((.*?)\)$/i);
                 if (mRepeat) {

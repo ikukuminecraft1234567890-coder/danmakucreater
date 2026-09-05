@@ -396,6 +396,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                         brokeToWait = true;
                         break;
                     }
+                    case 'wait_frame':
+                    case 'wf': {
+                        let framesVal = evalExpr(block.params.frames !== undefined ? block.params.frames : (block.params.duration !== undefined ? block.params.duration : '1'), state.variables, block, 'frames');
+                        let fNum = Math.max(1, Number(framesVal) || 1);
+                        state.waitTimer = Math.max(0.0167, fNum / 60);
+                        brokeToWait = true;
+                        break;
+                    }
                     case 'repeat': {
                         let count = Math.round(evalExpr(block.params.count, state.variables, block, 'count'));
                         let loopCount = Math.max(1, count);
@@ -2367,6 +2375,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 brokeToWait = true;
                                 break;
                             }
+                            case 'wait_frame':
+                            case 'wf': {
+                                let framesVal = evalExpr(block.params.frames !== undefined ? block.params.frames : (block.params.duration !== undefined ? block.params.duration : '1'), state.variables, block, 'frames');
+                                let fNum = Math.max(1, Number(framesVal) || 1);
+                                state.waitTimer = Math.max(0.0167, fNum / 60);
+                                brokeToWait = true;
+                                break;
+                            }
                             case 'repeat': {
                                 let count = Math.round(evalExpr(block.params.count, state.variables, block, 'count'));
                                 let loopCount = Math.max(1, count);
@@ -2457,6 +2473,164 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     if (typeof isBulletImageKey === 'function' && window.paletteBulletSet && window.paletteBulletSet.has(img)) {
                                         b.bulletType = 'palette';
                                     }
+                                }
+                                break;
+                            }
+                            case 'bullet': {
+                                let bp = (typeof p !== 'undefined' ? (p.params || p) : (block.params || block));
+                                let type = bp.bulletType || 'normal';
+                                let isTrail = (type === 'trail');
+                                let isLaser = (type === 'laser');
+                                let isLife = (type === 'life');
+                                let speed = evalExpr(bp.speed !== undefined ? bp.speed : '200', state.variables, block, 'speed');
+                                let centerAngle = evalExpr(bp.angle !== undefined ? bp.angle : (state.variables.angle !== undefined ? state.variables.angle : '0'), state.variables, block, 'angle');
+                                let bColor = resolveColorParam(bp.color || '#ff3333', state.variables);
+                                
+                                let ox = evalExpr(bp.offsetX !== undefined ? bp.offsetX : (bp.x !== undefined ? bp.x : '0'), state.variables, block, 'offsetX');
+                                let oy = evalExpr(bp.offsetY !== undefined ? bp.offsetY : (bp.y !== undefined ? bp.y : '0'), state.variables, block, 'offsetY');
+
+                                let coordMode = bp.coordMode || ((bp.isAbsolute === 'true' || bp.isAbsolute === true) ? 'absolute' : 'relative');
+                                let spawnX, spawnY;
+                                if (coordMode === 'absolute') {
+                                    spawnX = ox;
+                                    spawnY = isPlayerSide ? (canvas.height - oy) : oy;
+                                } else {
+                                    let baseX = state.variables.x !== undefined ? state.variables.x : (b ? b.x : attacker.x);
+                                    let baseY = state.variables.y !== undefined ? (isPlayerSide ? canvas.height - state.variables.y : state.variables.y) : (b ? b.y : attacker.y);
+                                    spawnX = baseX + (state.variables.x_offset || 0) + ox;
+                                    spawnY = baseY + (state.variables.y_offset || 0) + (isPlayerSide ? -oy : oy);
+                                }
+                                
+                                let bRadius = evalExpr(bp.radius || (isTrail ? '8' : '6'), state.variables, block, 'radius');
+                                let bHitRadius = bp.hitRadius ? evalExpr(bp.hitRadius, state.variables, block, 'hitRadius') : undefined;
+                                if (bHitRadius !== undefined) {
+                                    let hrNum = Number(bHitRadius);
+                                    if (!isNaN(hrNum) && hrNum < 0.1) bHitRadius = 0;
+                                }
+                                let bImg = (isTrail || isLaser) ? 'none' : (bp.bulletImage || bp.image || 'none');
+
+                                let countVal = 1;
+                                if (bp.way !== undefined && bp.way !== '') {
+                                    countVal = Math.max(1, parseInt(evalExpr(bp.way, state.variables, block, 'way')) || 1);
+                                } else if (bp.count !== undefined && bp.count !== '') {
+                                    countVal = Math.max(1, parseInt(evalExpr(bp.count, state.variables, block, 'count')) || 1);
+                                }
+
+                                let hasDistance = (bp.distance !== undefined && bp.distance !== '') || (bp.spread !== undefined && bp.spread !== '');
+                                let spreadVal = hasDistance ? Number(evalExpr(bp.distance !== undefined ? bp.distance : bp.spread, state.variables, block, 'distance')) : null;
+                                let dType = String(bp.distanceType !== undefined ? bp.distanceType : (bp.distancetype !== undefined ? bp.distancetype : (bp.distance_type !== undefined ? bp.distance_type : 'total'))).toLowerCase();
+
+                                for (let k = 0; k < countVal; k++) {
+                                    let curAngle = centerAngle;
+                                    if (countVal > 1) {
+                                        if (spreadVal === null || isNaN(spreadVal)) {
+                                            curAngle = centerAngle + (360 / countVal) * k;
+                                        } else if (dType === 'step' || dType === 'each' || dType === 'interval' || dType === 'between') {
+                                            curAngle = centerAngle + (k - (countVal - 1) / 2) * spreadVal;
+                                        } else {
+                                            curAngle = (countVal === 1) ? centerAngle : (centerAngle - spreadVal / 2 + (spreadVal / (countVal - 1)) * k);
+                                        }
+                                    }
+
+                                    let angleRad = curAngle * Math.PI / 180;
+                                    if (isPlayerSide) {
+                                        angleRad = -angleRad;
+                                    }
+
+                                    let newBullet = {
+                                        x: spawnX,
+                                        y: spawnY,
+                                        startX: spawnX,
+                                        startY: spawnY,
+                                        vx: Math.cos(angleRad) * speed,
+                                        vy: Math.sin(angleRad) * speed,
+                                        radius: bRadius,
+                                        hitRadius: bHitRadius !== undefined ? bHitRadius : bRadius,
+                                        bulletImage: bImg,
+                                        team: attacker.team,
+                                        color: bColor,
+                                        bulletType: type,
+                                        customDmg: 20,
+                                        isCustom: true,
+                                        update: null
+                                    };
+                                    
+                                    if (isLaser) {
+                                        newBullet.isLaser = true;
+                                    }
+                                    if (isTrail) {
+                                        newBullet.isTrail = true;
+                                        newBullet.growTime = (bp.growTime !== undefined && bp.growTime !== '') ? Number(evalExpr(bp.growTime, state.variables, block, 'growTime')) : 0.2;
+                                        newBullet.keepTime = (bp.keepTime !== undefined && bp.keepTime !== '') ? Number(evalExpr(bp.keepTime, state.variables, block, 'keepTime')) : 0.3;
+                                        newBullet.shrinkTime = (bp.shrinkTime !== undefined && bp.shrinkTime !== '') ? Number(evalExpr(bp.shrinkTime, state.variables, block, 'shrinkTime')) : 0.5;
+                                        newBullet.round = (bp.round !== undefined) ? (bp.round === 'true' || bp.round === true) : true;
+                                        newBullet.trailHistory = [];
+                                    }
+                                    if (isLife) {
+                                        newBullet.isLifeBullet = true;
+                                        let hpVal = Number(evalExpr(bp.health !== undefined ? bp.health : (bp.hp !== undefined ? bp.hp : '200'), state.variables, block, 'health'));
+                                        newBullet.health = !isNaN(hpVal) ? hpVal : 200;
+                                        newBullet.maxHealth = newBullet.health;
+                                        newBullet.flashTimer = 0;
+                                    }
+                                    if (bp.destroyResist === 'true' || bp.destroyResist === true || bp.resist === 'true' || bp.resist === true) {
+                                        newBullet.destroyResist = true;
+                                    }
+
+                                    newBullet.threatWeight = computeBulletThreatWeight(
+                                        spawnX, spawnY, newBullet.vx, newBullet.vy, target.x, target.y
+                                    );
+
+                                    let defaultScript = (state.magicCircleScript || []);
+                                    let defaultFn = ((window.compiledDanmaku && state.id) ? window.compiledDanmaku[state.id + '_magic'] : null);
+                                    let cScript = (block.children && block.children.length > 0) ? block.children : defaultScript;
+                                    let cFn = (block.children && block.children.length > 0) ? (block.compiledFn || null) : defaultFn;
+                                    let hasScript = (cScript && cScript.length > 0) || !!cFn;
+                                    newBullet.bulletState = initBulletState(cScript, speed, curAngle, attacker, target, cFn);
+                                    newBullet.bulletState.id = state.id || null;
+                                    newBullet.bulletState.magicCircleScript = state.magicCircleScript || [];
+                                    newBullet.bulletState.bulletScript = cScript;
+                                    newBullet.bulletState.isPlayerSide = isPlayerSide;
+                                    inheritEmitterVariablesToBullet(state, newBullet.bulletState);
+                                    newBullet.bulletState.variables.bulletType = type;
+                                    if (isTrail) {
+                                        newBullet.bulletState.variables.growTime = bp.growTime || '0.2';
+                                        newBullet.bulletState.variables.keepTime = bp.keepTime || '0.3';
+                                        newBullet.bulletState.variables.shrinkTime = bp.shrinkTime || '0.5';
+                                        newBullet.bulletState.variables.round = (bp.round !== undefined) ? String(bp.round) : 'true';
+                                    }
+                                    newBullet.bulletState.variables.color = bColor;
+                                    newBullet.bulletState.variables.radius = bRadius;
+                                    newBullet.bulletState.variables.hitRadius = bHitRadius !== undefined ? bHitRadius : bRadius;
+                                    newBullet.bulletState.variables.bulletImage = bImg;
+                                    newBullet.bulletState.variables.speed = speed;
+                                    newBullet.bulletState.variables.angle = curAngle;
+                                    if (isLife) {
+                                        newBullet.bulletState.variables.health = newBullet.health;
+                                        newBullet.bulletState.variables.maxHealth = newBullet.maxHealth;
+                                        newBullet.bulletState.variables.hp = newBullet.health;
+                                    }
+                                    let cVars = (bp.customVars && typeof bp.customVars === 'object') ? bp.customVars : bp;
+                                    if (cVars && typeof cVars === 'object') {
+                                        for (let cvKey in cVars) {
+                                            if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
+                                            let cvRaw = cVars[cvKey];
+                                            if (cvRaw === undefined || cvRaw === null || typeof cvRaw === 'object') continue;
+                                            let cvVal = evalExpr(cvRaw, state.variables, block, cvKey);
+                                            newBullet.bulletState.variables[cvKey] = cvVal;
+                                            newBullet[cvKey] = cvVal;
+                                        }
+                                    }
+                                    newBullet.sharedEmitterState = state.sharedEmitterState || state;
+                                    if (hasScript) {
+                                        newBullet.update = (childB, childBDT) => {
+                                            runCustomBulletScript(childB, childBDT, attacker, target);
+                                        };
+                                    } else {
+                                        newBullet.update = null;
+                                    }
+                                    
+                                    bullets.push(newBullet);
                                 }
                                 break;
                             }
@@ -4667,10 +4841,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.maxMisses = 2;
                 customCardMaker.difficulty = 'NORMAL';
                 customCardMaker.emitterScript = [
-                    { type: 'repeat', params: { count: '12' }, indent: 0 },
-                    { type: 'spawn_bullet', params: { bulletType: 'normal', color: '#ff3333', radius: '6', speed: '200', angle: 'angle' }, indent: 1 },
-                    { type: 'change_var', params: { name: 'angle', value: '30' }, indent: 1 },
-                    { type: 'wait', params: { duration: '0.2' }, indent: 1 }
+                    { type: 'forever', params: {}, indent: 0 },
+                    { type: 'bullet', params: { bulletType: 'normal', color: '#ff3333', speed: '200', angle: 'angle', radius: '6', bulletImage: 'none', coordMode: 'relative' }, indent: 1 },
+                    { type: 'change_var', params: { name: 'angle', op: '+', value: '30' }, indent: 1 },
+                    { type: 'wait_frame', params: { frames: '12' }, indent: 1 }
                 ];
                 customCardMaker.x_offset = 0;
                 customCardMaker.y_offset = 0;

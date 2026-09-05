@@ -245,7 +245,7 @@
                             <div class="palette-group-title" id="palette-title-control">制御 (Control)</div>
                             <button class="palette-btn color-control" id="palette-btn-repeat" onclick="customCardMakerAddBlock('repeat')">くりかえす [N] 回</button>
                             <button class="palette-btn color-control" id="palette-btn-forever" onclick="customCardMakerAddBlock('forever')">ずっとくりかえす</button>
-                            <button class="palette-btn color-control" id="palette-btn-wait" onclick="customCardMakerAddBlock('wait')">[T] 秒待つ</button>
+                            <button class="palette-btn color-control" id="palette-btn-wf" onclick="customCardMakerAddBlock('wait_frame')">[F] フレーム待つ (wf)</button>
                             <button class="palette-btn color-control" id="palette-btn-if" onclick="customCardMakerAddBlock('if')">もし [条件] なら</button>
                             <button class="palette-btn color-control" id="palette-btn-aif" onclick="customCardMakerAddBlock('aif')">近似条件(aif)</button>
                             <button class="palette-btn color-control" id="palette-btn-once" onclick="customCardMakerAddBlock('once')">1度だけ実行する</button>
@@ -265,25 +265,6 @@
                             <button class="palette-btn color-motion" id="palette-btn-move-owner" onclick="customCardMakerAddBlock('move_owner')">位置を指定する</button>
                             <button class="palette-btn color-motion" id="palette-btn-slide-owner" onclick="customCardMakerAddBlock('slide_owner')">滑らかに移動する</button>
                             <button class="palette-btn color-action" id="palette-btn-bullet" onclick="customCardMakerAddBlock('bullet')" style="border: 1.5px solid #00ffcc; font-weight: bold; color: #00ffcc;">汎用弾 bullet(...)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn" onclick="customCardMakerAddBlock('spawn_bullet')">弾を発射する</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-resist" onclick="customCardMakerAddBlock('spawn_bullet_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">弾を発射する(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-trail" onclick="customCardMakerAddBlock('spawn_trail')">軌跡弾を発射する</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-trail-resist" onclick="customCardMakerAddBlock('spawn_trail_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">軌跡弾を発射する(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-laser-way" onclick="customCardMakerAddBlock('spawn_laser_way')">レーザーWay弾発射</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-laser-way-resist" onclick="customCardMakerAddBlock('spawn_laser_way_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">レーザーWay弾(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-laser-ring" onclick="customCardMakerAddBlock('spawn_laser_ring')">レーザーRing弾発射</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-laser-ring-resist" onclick="customCardMakerAddBlock('spawn_laser_ring_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">レーザーRing弾(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-beam" onclick="customCardMakerAddBlock('spawn_beam')">設置レーザー発射</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-beam-resist" onclick="customCardMakerAddBlock('spawn_beam_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">設置レーザー(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-beam-way" onclick="customCardMakerAddBlock('spawn_beam_way')">設置レーザーWay発射</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-beam-way-resist" onclick="customCardMakerAddBlock('spawn_beam_way_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">設置Way(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-beam-ring" onclick="customCardMakerAddBlock('spawn_beam_ring')">設置レーザーRing発射</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-beam-ring-resist" onclick="customCardMakerAddBlock('spawn_beam_ring_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">設置Ring(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-ring" onclick="customCardMakerAddBlock('spawn_ring')">全方位円形弾を発射</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-ring-resist" onclick="customCardMakerAddBlock('spawn_ring_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">全方位円形弾を発射(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-way" onclick="customCardMakerAddBlock('spawn_way')">Way弾を発射</button>
-                            <button class="palette-btn color-action" id="palette-btn-spawn-way-resist" onclick="customCardMakerAddBlock('spawn_way_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">Way弾を発射(耐性)</button>
-                            <button class="palette-btn color-action" id="palette-btn-magic-circle" onclick="customCardMakerAddBlock('spawn_magic_circle')">子弾(魔法陣)を発射</button>
                             <button class="palette-btn color-action" id="palette-btn-play-sound" onclick="customCardMakerAddBlock('play_sound')">サウンドを鳴らす</button>
                             <button class="palette-btn color-motion" id="palette-btn-homing" onclick="customCardMakerAddBlock('homing')">相手を追尾する</button>
                             <button class="palette-btn color-motion" id="palette-btn-speed-add" onclick="customCardMakerAddBlock('speed_add')">speed += value</button>
@@ -298,6 +279,33 @@
                             <button class="palette-btn color-motion" id="palette-btn-fast" onclick="customCardMakerAddBlock('speed_scale_fast')">fast(e, f)</button>
                             <button class="palette-btn color-motion" id="palette-btn-bounce" onclick="customCardMakerAddBlock('bounce')">壁で反射する</button>
                             <button class="palette-btn color-motion" id="palette-btn-advance" onclick="customCardMakerAddBlock('advance')">進行方向に [D] px進める</button>
+
+                            <!-- 旧式ブロック（折りたたみ） -->
+                            <details class="palette-legacy-group" style="margin-top: 10px; border: 1px solid #444; border-radius: 4px; padding: 4px; background: rgba(0,0,0,0.25);">
+                                <summary style="cursor: pointer; color: #888; font-size: 11px; padding: 4px; user-select: none; font-weight: bold;">旧式ブロック (Legacy)</summary>
+                                <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px;">
+                                    <button class="palette-btn color-control" id="palette-btn-wait" onclick="customCardMakerAddBlock('wait')">[T] 秒待つ (旧式 wait)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn" onclick="customCardMakerAddBlock('spawn_bullet')">弾を発射する</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-resist" onclick="customCardMakerAddBlock('spawn_bullet_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">弾を発射する(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-trail" onclick="customCardMakerAddBlock('spawn_trail')">軌跡弾を発射する</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-trail-resist" onclick="customCardMakerAddBlock('spawn_trail_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">軌跡弾を発射する(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-laser-way" onclick="customCardMakerAddBlock('spawn_laser_way')">レーザーWay弾発射</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-laser-way-resist" onclick="customCardMakerAddBlock('spawn_laser_way_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">レーザーWay弾(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-laser-ring" onclick="customCardMakerAddBlock('spawn_laser_ring')">レーザーRing弾発射</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-laser-ring-resist" onclick="customCardMakerAddBlock('spawn_laser_ring_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">レーザーRing弾(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-beam" onclick="customCardMakerAddBlock('spawn_beam')">設置レーザー発射</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-beam-resist" onclick="customCardMakerAddBlock('spawn_beam_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">設置レーザー(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-beam-way" onclick="customCardMakerAddBlock('spawn_beam_way')">設置レーザーWay発射</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-beam-way-resist" onclick="customCardMakerAddBlock('spawn_beam_way_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">設置Way(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-beam-ring" onclick="customCardMakerAddBlock('spawn_beam_ring')">設置レーザーRing発射</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-beam-ring-resist" onclick="customCardMakerAddBlock('spawn_beam_ring_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">設置Ring(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-ring" onclick="customCardMakerAddBlock('spawn_ring')">全方位円形弾を発射</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-ring-resist" onclick="customCardMakerAddBlock('spawn_ring_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">全方位円形弾を発射(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-way" onclick="customCardMakerAddBlock('spawn_way')">Way弾を発射</button>
+                                    <button class="palette-btn color-action" id="palette-btn-spawn-way-resist" onclick="customCardMakerAddBlock('spawn_way_resist')" style="border: 1.5px dashed #ffb833; font-weight: bold;">Way弾を発射(耐性)</button>
+                                    <button class="palette-btn color-action" id="palette-btn-magic-circle" onclick="customCardMakerAddBlock('spawn_magic_circle')">子弾(魔法陣)を発射</button>
+                                </div>
+                            </details>
                         </div>
 
                         <!-- ワークスペース -->
