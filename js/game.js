@@ -6342,7 +6342,8 @@ function applyAbilityEffect(cardId, owner) {
                 'offsetX', 'offsetY', 'radius', 'hitRadius', 'value', 'cond', 
                 'warningTime', 'activeTime', 'laserWidth', 'targetX', 'targetY',
                 'distance', 'multf', 'multlr', 'hitmultf', 'hitmultlr',
-                'growTime', 'keepTime', 'shrinkTime'
+                'growTime', 'keepTime', 'shrinkTime',
+                'frames', 'way', 'health', 'hp', 'turnSpeed', 'stepVal', 'x', 'y'
             ]);
 
             for (let block of flatBlocks) {
@@ -7027,6 +7028,8 @@ function applyAbilityEffect(cardId, owner) {
                 return null;
             }
         }
+        window.compileNumericExpr = compileNumericExpr;
+        window.compileCondition = compileCondition;
 
         function evalNumericExprFast(expr, variables) {
             const fn = compileNumericExpr(expr);

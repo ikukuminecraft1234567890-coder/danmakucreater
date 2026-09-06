@@ -1,18 +1,23 @@
 window.DanmakuCompiler = window.DanmakuCompiler || {};
 
+window.DanmakuCompiler.formatCompiledBody = function(body) {
+    if (!body) return body;
+    return body
+        .replace(/__v/g, 'vars')
+        .replace(/__rand/g, 'random')
+        .replace(/__fuzzyEqual/g, '_util.fuzzyEqual')
+        .replace(/__fuzzyNotEqual/g, '_util.fuzzyNotEqual')
+        .replace(/__seedrandom/g, '_util.seedrandom')
+        .replace(/__checkInterval/g, '_util.checkInterval');
+};
+
 window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
     if (block.compiledParams && block.compiledParams[key]) {
         let fn = block.compiledParams[key];
         if (typeof fn === 'function') {
             let body = fn.__sourceCode;
             if (body) {
-                body = body.replace(/__v/g, 'vars');
-                body = body.replace(/__rand/g, 'random');
-                body = body.replace(/__fuzzyEqual/g, '_util.fuzzyEqual');
-                body = body.replace(/__fuzzyNotEqual/g, '_util.fuzzyNotEqual');
-                body = body.replace(/__seedrandom/g, '_util.seedrandom');
-                body = body.replace(/__checkInterval/g, '_util.checkInterval');
-                return body;
+                return window.DanmakuCompiler.formatCompiledBody(body);
             }
         } else if (typeof fn === 'number') {
             return String(fn);
@@ -21,7 +26,36 @@ window.DanmakuCompiler.getExpr = function(block, key, defaultVal) {
         }
     }
     if (block.params && block.params[key] !== undefined) {
-        return JSON.stringify(block.params[key]);
+        let rawVal = block.params[key];
+        if (typeof rawVal === 'number') {
+            return String(rawVal);
+        }
+        if (typeof rawVal === 'string') {
+            let trimmed = rawVal.trim();
+            if (!isNaN(Number(trimmed)) && trimmed !== '') {
+                return trimmed;
+            }
+            let compileCondFn = (typeof compileCondition === 'function') ? compileCondition : (typeof window !== 'undefined' ? window.compileCondition : null);
+            if (key === 'cond' && compileCondFn) {
+                try {
+                    let fn = compileCondFn(trimmed);
+                    if (fn && fn.__sourceCode) {
+                        return window.DanmakuCompiler.formatCompiledBody(fn.__sourceCode);
+                    }
+                } catch (e) {}
+            }
+            let compileFn = (typeof compileNumericExpr === 'function') ? compileNumericExpr : (typeof window !== 'undefined' ? window.compileNumericExpr : null);
+            if (compileFn) {
+                try {
+                    let fn = compileFn(trimmed);
+                    if (fn && fn.__sourceCode) {
+                        return window.DanmakuCompiler.formatCompiledBody(fn.__sourceCode);
+                    }
+                } catch (e) {}
+            }
+            return JSON.stringify(rawVal);
+        }
+        return JSON.stringify(rawVal);
     }
     return defaultVal;
 };

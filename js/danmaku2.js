@@ -658,6 +658,62 @@ if (color==#ffdd33) {
     magicCircleScript: `
 
     `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    name: "壁「ウォーターウォール」",           // 弾幕名・スペルカード名
+    desc: "普通にやってておもろかったです、うん。ちなみに私は取得した",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 50,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 90; i++) {
+        bullet({ "type": "normal", "image": "onryou_red", "radius": 20, "hitRadius": 10, "color": "#ffaa33", "way": 8 })
+        angle += 31.3
+        wf(1)
+    }
+    wf(30)
+    fl = 0
+    for (let i = 0; i < 50; i++) {
+        wf(1)
+        fl += 1
+        bullet({ "type": "life", "image": "bluenormal", "speed": 0, "hitRadius": 20, "color": "#6688ff", "way": 2, "health": 30 })
+        angle += 3.6
+        bullet({ "type": "life", "image": "bluenormal", "speed": 0, "hitRadius": 20, "color": "#6688ff", "way": 2, "health": 50 })
+        angle += 3.6
+        bullet({ "type": "life", "image": "bluenormal", "speed": 0, "hitRadius": 20, "color": "#6688ff", "way": 2, "health": 10 })
+        angle += 3.6
+        bullet({ "type": "life", "image": "bluenormal", "speed": 0, "hitRadius": 20, "color": "#6688ff", "way": 2, "health": 30 })
+        angle += 3.6
+    }
+    fl = 0
+    wf(200)
+}
+    `,
+    bulletScript: `
+if (color==#6688ff) {
+    once {
+        hensuu = random(50,200)
+        advance(hensuu)
+        tween("radius", 20, 6, "seconds", 0.5)
+        wait(0.5)
+        imageTo("light")
+        wf(120 - fl)
+        hitRadius = 6
+        angle += 180 + random(-18,18)
+        tween("speed", speed, 20 + hensuu, "seconds", 1)
+    }
+}
+if (isDestroyed) {
+    enemyHp -= 20
+}
+    `,
+    magicCircleScript: `
+
+    `
 }
 ];
 
