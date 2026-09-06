@@ -148,6 +148,7 @@ function compileDanmakuToJS() {
         runtimeBlocksCode = runtimeBlocksCode.replace(/computeBulletThreatWeight\(/g, '_util._computeBulletThreatWeight(');
         runtimeBlocksCode = runtimeBlocksCode.replace(/attacker\.x/g, '(window.DanmakuCompilerRuntime._getCurrentX(b, attacker, state))');
         runtimeBlocksCode = runtimeBlocksCode.replace(/attacker\.y/g, '(window.DanmakuCompilerRuntime._getCurrentY(b, attacker, state, window.canvas ? window.canvas.height : 900))');
+        runtimeBlocksCode = runtimeBlocksCode.replace(/setScriptVariable\(/g, 'window.setScriptVariable(');
 
 
         let outputJS = `// ==========================================
@@ -169,6 +170,27 @@ window.DanmakuCompilerRuntime.resolveColorParam = function(val, vars) {
     if (s.startsWith('#')) return s;
     if (vars && vars[s]) return String(vars[s]);
     return s;
+};
+
+window.setScriptVariable = window.setScriptVariable || function(state, name, value, isConst) {
+    if (!name) return;
+    if (!state.constVars) state.constVars = new Set();
+    if (state.constVars.has(name) && !isConst) return;
+    state.variables[name] = value;
+    if (isConst) state.constVars.add(name);
+    if (name === 'enemyHp' || name === 'enemy_hp' || name === 'bossHp' || name === 'boss_hp') {
+        if (typeof cpu !== 'undefined' && cpu) {
+            let hpNum = parseFloat(value);
+            if (!isNaN(hpNum)) {
+                cpu.hp = Math.max(0, hpNum);
+                state.variables[name] = cpu.hp;
+                state.variables.enemyHp = cpu.hp;
+                if (cpu.hp <= 0 && typeof handleBossDefeat === 'function') {
+                    handleBossDefeat(false);
+                }
+            }
+        }
+    }
 };
 
 // 実行エンジン (extracted from emitter.js)

@@ -675,7 +675,7 @@ while (true) {
         angle += 31.3
         wf(1)
     }
-    wf(30)
+    wf(70)
     fl = 0
     for (let i = 0; i < 50; i++) {
         wf(1)
@@ -701,7 +701,7 @@ if (color==#6688ff) {
         tween("radius", 20, 6, "seconds", 0.5)
         wait(0.5)
         imageTo("light")
-        wf(120 - fl)
+        wf(70 - fl)
         hitRadius = 6
         angle += 180 + random(-18,18)
         tween("speed", speed, 20 + hensuu, "seconds", 1)

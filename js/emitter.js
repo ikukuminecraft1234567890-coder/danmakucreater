@@ -1906,8 +1906,11 @@ function stepEmitter(c, state, attacker, target, dt) {
         function runCustomBulletScript(b, dt, attacker, target) {
             let state = b.bulletState;
             if (!state) return;
-            if (state.finished && (!state.tweens || state.tweens.length === 0)) {
-                b.update = null;
+            if (!b._origUpdate && b.update) b._origUpdate = b.update;
+            if (!b.isDestroyed && state.finished && (!state.tweens || state.tweens.length === 0)) {
+                if (!b.health || b.health <= 0) {
+                    b.update = null;
+                }
                 return;
             }
             if (window.showDebugProfiler && state.variables.timer === 0) {
@@ -2220,12 +2223,21 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
             }
             
+            if (typeof cpu !== 'undefined' && cpu) {
+                state.variables.enemyHp = cpu.hp;
+                state.variables.enemyMaxHp = cpu.maxHp;
+            }
+
             if (b.isDestroyed) {
                 state.variables.isDestroyed = true;
                 state.variables.destroyed = true;
                 state.variables.is_destroyed = true;
                 state.finished = false;
                 state.compiledGenerator = null;
+                state.waitTimer = 0;
+                state.waitingTweenName = null;
+                state.pc = 0;
+                state.stack = [];
             }
 
             const _t2 = performance.now(); // セットアップ完了
@@ -2266,7 +2278,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             const result = state.compiledGenerator.next();
                             if (result.done) { 
                                 state.finished = true;
-                                if (!state.tweens || state.tweens.length === 0) {
+                                if (!b.isDestroyed && (!b.health || b.health <= 0) && (!state.tweens || state.tweens.length === 0)) {
                                     b.update = null;
                                 }
                                 break;
@@ -2343,6 +2355,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     }
                                 }
                             } else {
+                                if (b && b.isDestroyed) {
+                                    state.finished = true;
+                                    break;
+                                }
                                 // 弾の挙動は、最後まで実行し終えたら自動的に最初からループ実行する
                                 // once は弾生（この弾が存在する間）で一度きり — ループしてもリセットしない
                                 state.pc = 0;
@@ -2354,6 +2370,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         
                         let block = currentBlocks[currentPC];
                         if (!block) {
+                            if (b && b.isDestroyed) {
+                                state.finished = true;
+                                break;
+                            }
                             state.pc = 0;
                             state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
                             brokeToWait = true;
@@ -2370,6 +2390,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'wait': {
+                                if (b && b.isDestroyed) break;
                                 let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
                                 state.waitTimer = Math.max(0.0167, dur);
                                 brokeToWait = true;
@@ -2377,6 +2398,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             case 'wait_frame':
                             case 'wf': {
+                                if (b && b.isDestroyed) break;
                                 let framesVal = evalExpr(block.params.frames !== undefined ? block.params.frames : (block.params.duration !== undefined ? block.params.duration : '1'), state.variables, block, 'frames');
                                 let fNum = Math.max(1, Number(framesVal) || 1);
                                 state.waitTimer = Math.max(0.0167, fNum / 60);
@@ -2384,6 +2406,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'repeat': {
+                                if (b && b.isDestroyed) break;
                                 let count = Math.round(evalExpr(block.params.count, state.variables, block, 'count'));
                                 let loopCount = Math.max(1, count);
                                 if (block.params.indexVar) state.variables[block.params.indexVar] = 0;
@@ -2401,6 +2424,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'forever': {
+                                if (b && b.isDestroyed) break;
                                 state.stack.push({
                                     type: 'forever',
                                     pc: 0,
@@ -2412,6 +2436,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'while': {
+                                if (b && b.isDestroyed) break;
                                 let condStr = block.params.cond || 'false';
                                 if (evalCondition(condStr, state.variables, block, 'cond') && block.children && block.children.length > 0) {
                                     state.stack.push({
@@ -3365,7 +3390,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let before = state.variables[varName];
                                 if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
                                 if (!state.constVars.has(varName)) {
-                                    let newVal = (Number(state.variables[varName]) || 0) + delta;
+                                    let curHp = (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') && (typeof cpu !== 'undefined' && cpu) ? cpu.hp : (Number(state.variables[varName]) || 0);
+                                    let newVal = curHp + delta;
                                     setScriptVariable(state, varName, newVal, false);
                                 }
                                 if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${block.params.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${state.variables[varName]})`);
@@ -3615,6 +3641,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                     } // 内側ループ
                     
+                    if (b && b.isDestroyed) {
+                        state.finished = true;
+                        break;
+                    }
                     if (brokeToWait || state.waitingTweenName) {
                         state.waitTimer -= dtRemaining;
                         dtRemaining = 0;

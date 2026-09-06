@@ -76,12 +76,16 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         let block = blocks[i];
         let t = block.type;
         if (t === 'wait') {
-            js += ind + `state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
-            js += ind + `yield;\n`;
+            js += ind + `if (!b || !b.isDestroyed) {\n`;
+            js += ind + `  state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
+            js += ind + `  yield;\n`;
+            js += ind + `}\n`;
         } else if (t === 'wait_frame' || t === 'wf') {
             let framesExpr = window.DanmakuCompiler.getExpr(block, 'frames', '1');
-            js += ind + `state.waitTimer = Math.max(0.0167, (${framesExpr}) / 60);\n`;
-            js += ind + `yield;\n`;
+            js += ind + `if (!b || !b.isDestroyed) {\n`;
+            js += ind + `  state.waitTimer = Math.max(0.0167, (${framesExpr}) / 60);\n`;
+            js += ind + `  yield;\n`;
+            js += ind + `}\n`;
         } else if (t === 'bullet_image_set') {
             let img = JSON.stringify(block.params.bulletImage || block.params.value || 'none');
             js += ind + `vars['bulletImage'] = ${img};\n`;
@@ -91,21 +95,44 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             let varName = block.params.var || block.params.name;
             if (varName) {
                 let valExpr = window.DanmakuCompiler.getExpr(block, 'value', '0');
-                js += ind + `vars['${varName}'] = ${valExpr};\n`;
-                if (varName === 'image' || varName === 'bulletImage') {
-                    js += ind + `if (b) b.bulletImage = String(${valExpr}).replace(/^['"]|['"]$/g, '');\n`;
+                if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
+                    js += ind + `if (typeof cpu !== 'undefined' && cpu) {\n`;
+                    js += ind + `  cpu.hp = Math.max(0, ${valExpr});\n`;
+                    js += ind + `  vars['${varName}'] = cpu.hp;\n`;
+                    js += ind + `  if (cpu.hp <= 0 && typeof handleBossDefeat === 'function') handleBossDefeat(false);\n`;
+                    js += ind + `} else {\n`;
+                    js += ind + `  vars['${varName}'] = ${valExpr};\n`;
+                    js += ind + `}\n`;
+                } else {
+                    js += ind + `vars['${varName}'] = ${valExpr};\n`;
+                    if (varName === 'image' || varName === 'bulletImage') {
+                        js += ind + `if (b) b.bulletImage = String(${valExpr}).replace(/^['"]|['"]$/g, '');\n`;
+                    }
                 }
             }
         } else if (t === 'change_var') {
             let varName = block.params.var || block.params.name;
             if (varName) {
                 let op = block.params.op === '-' ? '-' : '+';
-                js += ind + `vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${window.DanmakuCompiler.getExpr(block, 'value', '0')});\n`;
+                let valExpr = window.DanmakuCompiler.getExpr(block, 'value', '0');
+                if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
+                    js += ind + `if (typeof cpu !== 'undefined' && cpu) {\n`;
+                    js += ind + `  cpu.hp = Math.max(0, cpu.hp ${op} (${valExpr}));\n`;
+                    js += ind + `  vars['${varName}'] = cpu.hp;\n`;
+                    js += ind + `  if (cpu.hp <= 0 && typeof handleBossDefeat === 'function') handleBossDefeat(false);\n`;
+                    js += ind + `} else {\n`;
+                    js += ind + `  vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${valExpr});\n`;
+                    js += ind + `}\n`;
+                } else {
+                    js += ind + `vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${valExpr});\n`;
+                }
             }
         } else if (t === 'forever') {
             js += ind + `while (true) {\n`;
+            js += ind + `  if (b && b.isDestroyed) break;\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             if (!window.DanmakuCompiler.hasDirectWait(block.children)) {
+                js += ind + `  if (b && b.isDestroyed) break;\n`;
                 js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);\n`;
                 js += ind + `  yield;\n`;
             }
@@ -121,6 +148,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                 // これにより並列スレッドがvars['i']を共有してもforカウンターが狂わない
                 js += ind + `let ${prevVar} = ${idxVar};\n`;
                 js += ind + `for (let ${loopIdx} = 0, _limit_${uid} = Math.round(${count}); ${loopIdx} < _limit_${uid}; ${loopIdx}++) {\n`;
+                js += ind + `  if (b && b.isDestroyed) break;\n`;
                 js += ind + `  ${idxVar} = ${loopIdx};\n`;
                 js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
                 js += ind + `}\n`;
@@ -128,14 +156,17 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             } else {
                 let idxVar = `_i_${uid}`;
                 js += ind + `for (let _limit_${uid} = Math.round(${count}), ${idxVar} = 0; ${idxVar} < _limit_${uid}; ${idxVar}++) {\n`;
+                js += ind + `  if (b && b.isDestroyed) break;\n`;
                 js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
                 js += ind + `}\n`;
             }
         } else if (t === 'while') {
             let cond = window.DanmakuCompiler.getExpr(block, 'cond', 'false');
             js += ind + `while (${cond}) {\n`;
+            js += ind + `  if (b && b.isDestroyed) break;\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             if (!window.DanmakuCompiler.hasDirectWait(block.children)) {
+                js += ind + `  if (b && b.isDestroyed) break;\n`;
                 js += ind + `  state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);\n`;
                 js += ind + `  yield;\n`;
             }
@@ -214,10 +245,19 @@ window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     funcStr += `  const random = _util.rand;\n`;
     funcStr += `  const rand = _util.rand;\n`;
     funcStr += `  const seedrandom = _util.seedrandom;\n`;
+    funcStr += `  if (typeof cpu !== 'undefined' && cpu) {\n`;
+    funcStr += `    vars['enemyHp'] = cpu.hp;\n`;
+    funcStr += `    vars['enemyMaxHp'] = cpu.maxHp;\n`;
+    funcStr += `  }\n`;
     
     if (isBulletScript && blocks && blocks.length > 0) {
         funcStr += `  while (true) {\n`;
+        funcStr += `    if (typeof cpu !== 'undefined' && cpu) {\n`;
+        funcStr += `      vars['enemyHp'] = cpu.hp;\n`;
+        funcStr += `      vars['enemyMaxHp'] = cpu.maxHp;\n`;
+        funcStr += `    }\n`;
         funcStr += window.DanmakuCompiler.generateBlocksJS(blocks, 2);
+        funcStr += `    if (b && b.isDestroyed) break;\n`;
         funcStr += `    state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);\n`;
         funcStr += `    yield;\n`;
         funcStr += `  }\n`;

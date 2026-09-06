@@ -2245,8 +2245,9 @@ function applyAbilityEffect(cardId, owner) {
                                     b.bulletState.variables.destroyed = true;
                                     b.bulletState.variables.is_destroyed = true;
                                 }
-                                if (typeof b.update === 'function') {
-                                    try { b.update(b, 0); } catch(e) {}
+                                let updateFn = (typeof b.update === 'function') ? b.update : b._origUpdate;
+                                if (typeof updateFn === 'function') {
+                                    try { updateFn(b, 0); } catch(e) {}
                                 }
                             }
                             if (useFastRemove) { b._dead = true; _perfPhx += performance.now() - _phxStart; continue; }
@@ -2589,8 +2590,9 @@ function applyAbilityEffect(cardId, owner) {
                                             eb.bulletState.variables.destroyed = true;
                                             eb.bulletState.variables.is_destroyed = true;
                                         }
-                                        if (typeof eb.update === 'function') {
-                                            try { eb.update(eb, 0); } catch(e) {}
+                                        let updateFn = (typeof eb.update === 'function') ? eb.update : eb._origUpdate;
+                                        if (typeof updateFn === 'function') {
+                                            try { updateFn(eb, 0); } catch(e) {}
                                         }
                                     }
                                     eb._dead = true;
@@ -2894,8 +2896,9 @@ function applyAbilityEffect(cardId, owner) {
                                         b.bulletState.variables.destroyed = true;
                                         b.bulletState.variables.is_destroyed = true;
                                     }
-                                    if (typeof b.update === 'function') {
-                                        try { b.update(b, 0); } catch(e) {}
+                                    let updateFn = (typeof b.update === 'function') ? b.update : b._origUpdate;
+                                    if (typeof updateFn === 'function') {
+                                        try { updateFn(b, 0); } catch(e) {}
                                     }
                                 }
                                 return false; // 破壊消滅
@@ -6735,6 +6738,8 @@ function applyAbilityEffect(cardId, owner) {
                     let hpNum = parseFloat(value);
                     if (!isNaN(hpNum)) {
                         cpu.hp = Math.max(0, hpNum);
+                        state.variables[name] = cpu.hp;
+                        state.variables.enemyHp = cpu.hp;
                         if (cpu.hp <= 0 && typeof handleBossDefeat === 'function') {
                             handleBossDefeat(false);
                         }
@@ -7030,6 +7035,7 @@ function applyAbilityEffect(cardId, owner) {
         }
         window.compileNumericExpr = compileNumericExpr;
         window.compileCondition = compileCondition;
+        window.setScriptVariable = setScriptVariable;
 
         function evalNumericExprFast(expr, variables) {
             const fn = compileNumericExpr(expr);
