@@ -3384,7 +3384,7 @@ function applyAbilityEffect(cardId, owner) {
                         }
                         let spriteScale = (vars && vars.spriteScale !== undefined) ? Number(vars.spriteScale) : 1.6;
                         let spriteRadius = b.radius * spriteScale;
-                        let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.44);
+                        let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.22);
 
                         let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
                         if (isNaN(multf) || multf < 0) multf = 1;
@@ -4069,7 +4069,7 @@ function applyAbilityEffect(cardId, owner) {
 
                             let spriteScale = (vars && vars.spriteScale !== undefined) ? Number(vars.spriteScale) : 1.6;
                             let spriteRadius = b.radius * spriteScale;
-                            let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.44);
+                            let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.22);
 
                             if (!isLightOnryou && texture && (texture.complete === undefined || texture.complete)) {
                                 // 通常怨霊: 怨霊スプライト画像を加算合成（lighter）で描画
@@ -4084,8 +4084,8 @@ function applyAbilityEffect(cardId, owner) {
                             // （光式怨霊は先行オーラパスでオーラ画像を既に加算描画済み）
 
                             // 白い弾（コア）を中心 (0, 0) に描画（当たり判定と完全一致）
-                            let coreOffsetY = (vars && vars.coreOffset !== undefined) ? Number(vars.coreOffset) : 0;
-                            let coreR = (vars && vars.coreRadius !== undefined) ? Number(vars.coreRadius) : (b.radius * 0.5);
+                            let coreOffsetY = (vars && vars.coreOffset !== undefined) ? Number(vars.coreOffset) : ((vars && vars.coreOffsetY !== undefined) ? Number(vars.coreOffsetY) : 0);
+                            let coreR = (vars && vars.coreRadius !== undefined) ? Number(vars.coreRadius) : ((vars && vars.coreR !== undefined) ? Number(vars.coreR) : (b.radius * 0.6));
                             ctx.fillStyle = '#ffffff';
                             ctx.beginPath();
                             ctx.arc(0, coreOffsetY, Math.max(0.5, coreR), 0, Math.PI * 2);
@@ -6486,7 +6486,8 @@ function applyAbilityEffect(cardId, owner) {
             if (img && isOnryouBulletKey(img)) {
                 let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
                 if (vars && vars.coreRadius !== undefined) return Number(vars.coreRadius);
-                return hr * 0.5;
+                if (vars && vars.coreR !== undefined) return Number(vars.coreR);
+                return hr * 0.6;
             }
             return hr;
         }
