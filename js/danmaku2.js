@@ -710,6 +710,45 @@ if (isDestroyed) {
     magicCircleScript: `
 
     `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    name: "兆候「フラワーストレート」",           // 弾幕名・スペルカード名
+    desc: "https://x.com/cobrablitzz/status/2096907938376081639",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 50,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    angle = random(0,360)
+    spx = random(360,430)
+    spy = random(50,800)
+    bullet({ "type": "normal", "image": "kunai2", "radius": 12, "hitRadius": 10, "isAbsolute": true, "x": spx * 1.8, "y": spy, "way": 6, "destroyResist": true })
+    wf(4)
+}
+    `,
+    bulletScript: `
+once {
+    syoyou = random(0.5,2)
+    syoyou2 = random(2,7)
+    kakudo = random(-0.5,0.5)
+    tween("speed", 0, 300, "seconds", syoyou)
+}
+if (x < 400) {
+    once {
+        tween("speed", 300, 0, "seconds", syoyou2)
+    }
+}
+if (frame == 60..100) {
+    angle += kakudo
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+
+    `
 }
 ];
 

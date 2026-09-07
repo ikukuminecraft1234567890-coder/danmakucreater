@@ -5397,8 +5397,9 @@ function applyAbilityEffect(cardId, owner) {
             // ── クリアエフェクト描画 ───────────────────────────────
             if (isCustomCardTesting && window.customCardClearEffect) {
                 ctx.save();
+                const clearEff = window.customCardClearEffect;
                 // 虹色の紙吹雪（パーティクル）
-                window.customCardClearEffect.particles.forEach(p => {
+                clearEff.particles.forEach(p => {
                     ctx.globalAlpha = p.alpha * 0.9;
                     ctx.fillStyle = `hsl(${p.hue}, 100%, 65%)`;
                     ctx.beginPath();
@@ -5407,68 +5408,128 @@ function applyAbilityEffect(cardId, owner) {
                 });
                 
                 // 「SPELL CARD CLEAR!」テキスト（エフェクト開始から0.3秒でフェードイン）
-                let elapsed = window.customCardClearEffect.elapsed || 0;
+                let elapsed = clearEff.elapsed || 0;
                 let textAlpha = Math.min(1.0, Math.max(0, (elapsed - 0.3) / 0.3));
                 if (textAlpha > 0) {
                     ctx.globalAlpha = textAlpha;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    const isBossClear = window.isBossMode && !window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss';
+                    const isBossClear = clearEff.isBossClear !== undefined ? clearEff.isBossClear : (window.isBossMode && !window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss');
                     const clearLabel = isBossClear ? 'BOSS' : 'SPELL CARD';
-                    
-                    // 背景の帯状の半透明パネル
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-                    ctx.fillRect(0, canvas.height / 2 - 85, PLAY_WIDTH, 230);
-                    
-                    // 影
-                    ctx.fillStyle = 'rgba(0,0,0,0.85)';
-                    ctx.font = "italic bold 34px sans-serif";
-                    ctx.fillText(clearLabel, PLAY_WIDTH / 2 + 2, canvas.height / 2 - 30 + 2);
-                    ctx.font = "italic bold 56px sans-serif";
-                    ctx.fillText('CLEAR!', PLAY_WIDTH / 2 + 3, canvas.height / 2 + 25 + 3);
-                    
-                    // 本体（金色の文字グラデーション）
-                    let gradText = ctx.createLinearGradient(0, canvas.height / 2 - 50, 0, canvas.height / 2 + 50);
+                    const centerY = canvas.height / 2;
+
+                    // 背景の帯状の半透明パネル（レイアウト拡張）
+                    let panelH = 290;
+                    let panelY = centerY - 110;
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+                    ctx.fillRect(0, panelY, PLAY_WIDTH, panelH);
+
+                    // パネルの上下アクセント金枠線
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(0, panelY);
+                    ctx.lineTo(PLAY_WIDTH, panelY);
+                    ctx.moveTo(0, panelY + panelH);
+                    ctx.lineTo(PLAY_WIDTH, panelY + panelH);
+                    ctx.stroke();
+
+                    // ラベル ("SPELL CARD" / "BOSS")
+                    let gradText = ctx.createLinearGradient(0, centerY - 85, 0, centerY + 10);
                     gradText.addColorStop(0, '#ffe066');
                     gradText.addColorStop(0.5, '#f5b041');
                     gradText.addColorStop(1, '#d35400');
-                    ctx.fillStyle = gradText;
                     
-                    ctx.font = "italic bold 34px sans-serif";
-                    ctx.fillText(clearLabel, PLAY_WIDTH / 2, canvas.height / 2 - 30);
-                    ctx.font = "italic bold 56px sans-serif";
-                    ctx.fillText('CLEAR!', PLAY_WIDTH / 2, canvas.height / 2 + 25);
-
-                    // ミス数（被弾数）の表示
-                    let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
                     ctx.fillStyle = 'rgba(0,0,0,0.85)';
-                    ctx.font = 'bold 20px sans-serif';
-                    ctx.fillText('Miss: ' + missCount, PLAY_WIDTH / 2 + 1.5, canvas.height / 2 + 70 + 1.5);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 20px sans-serif';
-                    ctx.fillText('Miss: ' + missCount, PLAY_WIDTH / 2, canvas.height / 2 + 70);
+                    ctx.font = "italic bold 30px sans-serif";
+                    ctx.fillText(clearLabel, PLAY_WIDTH / 2 + 2, centerY - 68 + 2);
+                    ctx.fillStyle = gradText;
+                    ctx.fillText(clearLabel, PLAY_WIDTH / 2, centerY - 68);
 
-                    if (isBossClear && missCount === 0) {
-                        ctx.font = "italic bold 24px 'Trebuchet MS', sans-serif";
-                        ctx.fillStyle = 'rgba(0,0,0,0.85)';
-                        ctx.fillText('NO MISS!', PLAY_WIDTH / 2 + 2, canvas.height / 2 + 96 + 2);
+                    // 「CLEAR!」
+                    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                    ctx.font = "italic bold 52px sans-serif";
+                    ctx.fillText('CLEAR!', PLAY_WIDTH / 2 + 3, centerY - 20 + 3);
+                    ctx.fillStyle = gradText;
+                    ctx.fillText('CLEAR!', PLAY_WIDTH / 2, centerY - 20);
+
+                    // クリアしたスペル名の描画
+                    let spellName = clearEff.spellName || '';
+                    if (!spellName) {
+                        let c = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
+                        if (c && c.name) spellName = c.name.replace(/^【未コンパイル】/, '').trim();
+                        else if (typeof currentSharedDanmakuName !== 'undefined' && currentSharedDanmakuName) spellName = currentSharedDanmakuName.replace(/^【未コンパイル】/, '').trim();
+                    }
+                    if (spellName) {
+                        let displaySpell = (isBossClear && clearEff.bossName) ? `${clearEff.bossName} - ${spellName}` : spellName;
+                        let maxW = PLAY_WIDTH - 36;
+                        let fontSize = 22;
+                        ctx.font = `bold ${fontSize}px sans-serif`;
+                        let measured = ctx.measureText(displaySpell).width;
+                        while (measured > maxW && fontSize > 13) {
+                            fontSize--;
+                            ctx.font = `bold ${fontSize}px sans-serif`;
+                            measured = ctx.measureText(displaySpell).width;
+                        }
+                        // 影
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                        ctx.fillText(displaySpell, PLAY_WIDTH / 2 + 1.5, centerY + 28 + 1.5);
+                        // 本体文字（淡い水色〜白グラデーション）
+                        let gradSpell = ctx.createLinearGradient(0, centerY + 18, 0, centerY + 38);
+                        gradSpell.addColorStop(0, '#ffffff');
+                        gradSpell.addColorStop(1, '#d0f0ff');
+                        ctx.fillStyle = gradSpell;
+                        ctx.fillText(displaySpell, PLAY_WIDTH / 2, centerY + 28);
+                    }
+
+                    // ミス数 ＆ ボム数（使用数・残数）の表示
+                    let missCount = typeof clearEff.missCount === 'number' ? clearEff.missCount : (typeof window.playerMissCount === 'number' ? window.playerMissCount : 0);
+                    let bombCount = typeof clearEff.bombCount === 'number' ? clearEff.bombCount : (typeof window.spellBombCount === 'number' ? window.spellBombCount : 0);
+                    let remBombs = typeof clearEff.remBombs === 'number' ? clearEff.remBombs : (typeof player !== 'undefined' && typeof player.bombs === 'number' ? player.bombs : 0);
+                    
+                    let statsText = `Miss: ${missCount}    Bomb: ${bombCount} (残 ${remBombs})`;
+                    ctx.font = 'bold 20px sans-serif';
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+                    ctx.fillText(statsText, PLAY_WIDTH / 2 + 1.5, centerY + 66 + 1.5);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(statsText, PLAY_WIDTH / 2, centerY + 66);
+
+                    // ── ノーミス / ノーボム / NN 達成バッジ ──
+                    let isNoMiss = missCount === 0;
+                    let isNoBomb = bombCount === 0;
+                    if (isNoMiss && isNoBomb) {
+                        ctx.font = "italic bold 22px 'Trebuchet MS', sans-serif";
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+                        ctx.fillText('★ NO MISS NO BOMB (NN)! ★', PLAY_WIDTH / 2 + 2, centerY + 100 + 2);
                         ctx.fillStyle = '#66ffff';
-                        ctx.fillText('NO MISS!', PLAY_WIDTH / 2, canvas.height / 2 + 96);
+                        ctx.fillText('★ NO MISS NO BOMB (NN)! ★', PLAY_WIDTH / 2, centerY + 100);
+                    } else if (isNoMiss) {
+                        ctx.font = "italic bold 22px 'Trebuchet MS', sans-serif";
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+                        ctx.fillText('NO MISS!', PLAY_WIDTH / 2 + 2, centerY + 100 + 2);
+                        ctx.fillStyle = '#66ffff';
+                        ctx.fillText('NO MISS!', PLAY_WIDTH / 2, centerY + 100);
+                    } else if (isNoBomb) {
+                        ctx.font = "italic bold 22px 'Trebuchet MS', sans-serif";
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+                        ctx.fillText('NO BOMB!', PLAY_WIDTH / 2 + 2, centerY + 100 + 2);
+                        ctx.fillStyle = '#ffe066';
+                        ctx.fillText('NO BOMB!', PLAY_WIDTH / 2, centerY + 100);
                     }
                     
                     // タップ数インジケーター（5回でエディタに戻る）
-                    let tapCount = window.customCardClearEffect.tapCount || 0;
-                    let remaining = 5 - tapCount;
+                    let tapCount = clearEff.tapCount || 0;
                     ctx.fillStyle = '#aaffaa';
                     ctx.font = 'bold 16px sans-serif';
-                    ctx.fillText('タップして戻る (' + tapCount + '/5)', PLAY_WIDTH / 2, canvas.height / 2 + 130);
+                    ctx.fillText('タップして戻る (' + tapCount + '/5)', PLAY_WIDTH / 2, centerY + 135);
+                    
                     // ●の連打インジケーター
                     let dotSpacing = 22;
                     let dotStartX = PLAY_WIDTH / 2 - dotSpacing * 2;
                     for (let di = 0; di < 5; di++) {
                         ctx.globalAlpha = textAlpha;
                         ctx.beginPath();
-                        ctx.arc(dotStartX + di * dotSpacing, canvas.height / 2 + 155, 7, 0, Math.PI * 2);
+                        ctx.arc(dotStartX + di * dotSpacing, centerY + 160, 7, 0, Math.PI * 2);
                         ctx.fillStyle = di < tapCount ? '#ffe066' : 'rgba(255,255,255,0.25)';
                         ctx.fill();
                     }
@@ -5638,10 +5699,12 @@ function applyAbilityEffect(cardId, owner) {
             magicCircles.length = 0;
             const old = document.getElementById('boss-practice-result');
             if (old) old.remove();
+            let pSpell = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.spells && typeof currentBossSpellIndex === 'number' && currentBoss.spells[currentBossSpellIndex]) ? currentBoss.spells[currentBossSpellIndex].name : '';
             const panel = document.createElement('div');
             panel.id = 'boss-practice-result';
             panel.style.cssText = 'position:fixed; inset:0; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:rgba(0,0,0,0.72); color:#fff; font-family:sans-serif;';
-            panel.innerHTML = '<div style="font-size:30px;font-weight:bold;color:#66ddff;text-shadow:0 0 12px #00aaff;">SPELL PRACTICE</div><div style="font-size:15px;color:#d0d0e0;">リトライしますか？</div>';
+            let spellHtml = pSpell ? `<div style="font-size:18px;font-weight:bold;color:#ffe066;">${pSpell}</div>` : '';
+            panel.innerHTML = `<div style="font-size:30px;font-weight:bold;color:#66ddff;text-shadow:0 0 12px #00aaff;">SPELL PRACTICE</div>${spellHtml}<div style="font-size:15px;color:#d0d0e0;">リトライしますか？</div>`;
             const actions = document.createElement('div');
             actions.style.cssText = 'display:flex; gap:12px;';
             const retry = document.createElement('button');
@@ -5680,7 +5743,50 @@ function applyAbilityEffect(cardId, owner) {
                     hue: Math.random() * 360
                 });
             }
-            window.customCardClearEffect = { elapsed: 0, tapCount: 0, particles };
+
+            let card = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
+            let spellName = '';
+            if (card && card.name && card.name.trim()) {
+                spellName = card.name.trim();
+            } else if (typeof currentSharedDanmakuName !== 'undefined' && currentSharedDanmakuName && currentSharedDanmakuName.trim()) {
+                spellName = currentSharedDanmakuName.trim();
+            } else if (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.spells && currentBoss.spells.length > 0) {
+                let sIdx = (typeof currentBossSpellIndex === 'number') ? Math.min(currentBossSpellIndex, currentBoss.spells.length - 1) : (currentBoss.spells.length - 1);
+                if (sIdx >= 0 && currentBoss.spells[sIdx]) {
+                    let sObj = typeof window.getBossSpell === 'function' ? window.getBossSpell(currentBoss.spells[sIdx]) : currentBoss.spells[sIdx];
+                    if (sObj && sObj.name) {
+                        spellName = (sObj.name || '').trim();
+                    }
+                }
+            } else if (typeof customCardMaker !== 'undefined' && customCardMaker && customCardMaker.name && customCardMaker.name.trim()) {
+                spellName = customCardMaker.name.trim();
+            } else if (typeof document !== 'undefined' && document.getElementById('custom-card-name') && document.getElementById('custom-card-name').value.trim()) {
+                spellName = document.getElementById('custom-card-name').value.trim();
+            }
+            if (spellName) {
+                spellName = spellName.replace(/^【未コンパイル】/, '').trim();
+            }
+
+            const isBossClear = window.isBossMode && !window.isBossPracticeMode && typeof currentTestPlaySource !== 'undefined' && currentTestPlaySource === 'boss';
+            let bossName = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.name) ? currentBoss.name.trim() : '';
+
+            let missCount = typeof window.playerMissCount === 'number' ? window.playerMissCount : 0;
+            let bombCount = typeof window.spellBombCount === 'number' ? window.spellBombCount : 0;
+            let remBombs = (typeof player !== 'undefined' && typeof player.bombs === 'number') ? player.bombs : 0;
+            let maxBombs = (typeof player !== 'undefined' && typeof player.maxBombs === 'number') ? player.maxBombs : 0;
+
+            window.customCardClearEffect = {
+                elapsed: 0,
+                tapCount: 0,
+                particles,
+                spellName,
+                bossName,
+                isBossClear,
+                missCount,
+                bombCount,
+                remBombs,
+                maxBombs
+            };
             customCardTestEmitterDone = true;
 
             if (window.isBossMode && typeof currentBoss !== 'undefined' && currentBoss && currentBoss.id && typeof updateBossHighScore === 'function') {
