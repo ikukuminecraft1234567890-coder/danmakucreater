@@ -434,7 +434,10 @@ function customCardMakerSwitchTab(tab) {
             { val: 'onryou_light_red', label: '光式赤怨霊(光弾)', icon: 'onryou_light_red.png' },
             { val: 'onryou_light_blue', label: '光式青怨霊(光弾)', icon: 'onryou_light_blue.png' },
             { val: 'onryou_light_green', label: '光式緑怨霊(光弾)', icon: 'onryou_light_green.png' },
-            { val: 'onryou_light_yellow', label: '光式黄怨霊(光弾)', icon: 'onryou_light_yellow.png' }
+            { val: 'onryou_light_yellow', label: '光式黄怨霊(光弾)', icon: 'onryou_light_yellow.png' },
+            { val: 'mahoujin', label: '魔法陣(32px)', icon: 'mahoujin.png' },
+            { val: 'mahoujin64', label: '魔法陣64(64px)', icon: 'mahoujin64.png' },
+            { val: 'mahoujin128', label: '魔法陣128(128px)', icon: 'mahoujin128.png' }
         ];
 
         const bulletShapeLabelMap = {

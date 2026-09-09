@@ -2406,7 +2406,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 break;
                             }
                             case 'repeat': {
-                                if (b && b.isDestroyed) break;
                                 let count = Math.round(evalExpr(block.params.count, state.variables, block, 'count'));
                                 let loopCount = Math.max(1, count);
                                 if (block.params.indexVar) state.variables[block.params.indexVar] = 0;

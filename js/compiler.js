@@ -148,7 +148,6 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                 // これにより並列スレッドがvars['i']を共有してもforカウンターが狂わない
                 js += ind + `let ${prevVar} = ${idxVar};\n`;
                 js += ind + `for (let ${loopIdx} = 0, _limit_${uid} = Math.round(${count}); ${loopIdx} < _limit_${uid}; ${loopIdx}++) {\n`;
-                js += ind + `  if (b && b.isDestroyed) break;\n`;
                 js += ind + `  ${idxVar} = ${loopIdx};\n`;
                 js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
                 js += ind + `}\n`;
@@ -156,7 +155,6 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             } else {
                 let idxVar = `_i_${uid}`;
                 js += ind + `for (let _limit_${uid} = Math.round(${count}), ${idxVar} = 0; ${idxVar} < _limit_${uid}; ${idxVar}++) {\n`;
-                js += ind + `  if (b && b.isDestroyed) break;\n`;
                 js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
                 js += ind + `}\n`;
             }

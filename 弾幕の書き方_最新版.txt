@@ -244,6 +244,9 @@ spawnMagicCircle(color, offsetX, offsetY)
   "onryou_light_green": 光式緑怨霊（光式怨霊: 白弾が最前面に重なる光弾挙動）
   "onryou_light_yellow": 光式黄怨霊（光式怨霊: 白弾が最前面に重なる光弾挙動）
   "onryou_light"      : 光式怨霊（弾の色に応じて赤・青・緑・黄を自動選択）
+  "mahoujin"    : 魔法陣（32x32px、色指定による色相変化対応）
+  "mahoujin64"  : 魔法陣64（64x64px、中型魔法陣）
+  "mahoujin128" : 魔法陣128（128x128px、大型魔法陣）
 
 【座標モード（coordMode）】
   "relative"    : ボス/発射元の現在位置基準（通常はこれ）

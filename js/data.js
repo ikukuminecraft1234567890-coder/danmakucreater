@@ -1280,7 +1280,8 @@
             'b_knife', 'b_marutama', 'b_ohuda', 'b_poihuru', 'b_star', 'b_uroko',
             'dangan', 'kunai1', 'kunai2', 'tyoudan', 'normal',
             'onryou_red', 'onryou_blue', 'onryou_green', 'onryou_yellow',
-            'onryou_light_red', 'onryou_light_blue', 'onryou_light_green', 'onryou_light_yellow'
+            'onryou_light_red', 'onryou_light_blue', 'onryou_light_green', 'onryou_light_yellow',
+            'mahoujin', 'mahoujin64', 'mahoujin128'
         ];
         window.bulletImages = {};
         bulletImgNames.forEach(name => {
@@ -1293,6 +1294,13 @@
         window.bulletImages['onmyoudama.png'] = window.bulletImages['onmyoutama'];
         window.bulletImages['grain'] = window.bulletImages['kome'];
         window.bulletImages['butterfly'] = window.bulletImages['tyoudan'];
+        window.bulletImages['mahoujin_64'] = window.bulletImages['mahoujin64'];
+        window.bulletImages['mahoujin_64.png'] = window.bulletImages['mahoujin64'];
+        window.bulletImages['mahoujin_128'] = window.bulletImages['mahoujin128'];
+        window.bulletImages['mahoujin_128.png'] = window.bulletImages['mahoujin128'];
+        window.bulletImages['魔法陣'] = window.bulletImages['mahoujin'];
+        window.bulletImages['魔法陣64'] = window.bulletImages['mahoujin64'];
+        window.bulletImages['魔法陣128'] = window.bulletImages['mahoujin128'];
 
         // 怨霊アニメーションフレームの管理 (4色 × 4コマ 32x32px)
         window.onryouFrames = { red: [], blue: [], green: [], yellow: [] };

@@ -7,7 +7,7 @@
  * 弾幕を作ったら、以下のフォーマットでコピペして配列内に追加してください。
  * 
 ,{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "スペル名",           // 弾幕名・スペルカード名
     desc: "説明文や作成者名",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
@@ -41,8 +41,8 @@ const sharedDanmakuListS2 = [
         emitterScript: `
 while (true) {
     aimAtTarget()
-    spawnRing("normal", "#33ccff", 180, angle, 6, 0, 0, 8, "star", "relative", 6)
-    spawnRing("normal", "#ff3388", 140, angle + 30, 6, 0, 0, 8, "star", "relative", 6)
+    spawnRing("normal", "#33ccff", 180, angle, 6, 0, 0, 8, "star", "relative", 3)
+    spawnRing("normal", "#ff3388", 140, angle + 30, 6, 0, 0, 8, "star", "relative", 3)
     wait(0.18)
 }
         `,
@@ -57,7 +57,7 @@ if(color!=#ffdd00) {
         `,
         magicCircleScript: ``
     },{
-    difficulty: "Hard",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "Hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "天秤「光魔のペンデュラム」",           // 弾幕名・スペルカード名
     desc: "ペンデュラムって天秤って意味なんだね...",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
@@ -138,7 +138,7 @@ if (color==#ffaa33) {
 
     `
 },{
-    difficulty: "easy",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "easy",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "天祝「アポロ11」",           // 弾幕名・スペルカード名
     desc: "やっぱZUNの弾幕パクっただけあってそこそこおもろい。",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
@@ -206,7 +206,7 @@ if (color!=#888888) {
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "「タケミナカタ再臨の儀」",           // 弾幕名・スペルカード名
     desc: "どうも東風谷早苗です",
     hp: 3000,                   // ボスHP（ショットで削って撃破可能）
@@ -324,7 +324,7 @@ if (frame == 65 - s) {
 }
     `
 },{
-    difficulty: "hard",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "「デストラクトオブアロー」",           // 弾幕名・スペルカード名
     desc: "そこそこ避けれそう。ちな俺は無理",
     hp: 1200,                   // ボスHP（ショットで削って撃破可能）
@@ -373,7 +373,7 @@ spriteAngle = angle
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "滅妖「妖怪圧殺陣」",           // 弾幕名・スペルカード名
     desc: "あまりにも最強すぎて妖怪であるあなたは一発触れただけで四肢がもげてしにます",
     hp: 1500,                   // ボスHP（ショットで削って撃破可能）
@@ -398,7 +398,7 @@ while (true) {
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "「緩急エンジン」",           // 弾幕名・スペルカード名
     desc: "乱数！",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
@@ -428,7 +428,7 @@ once {
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "土着神「ミシャグジさま改」",           // 弾幕名・スペルカード名
     desc: "うおｗこんなんでZUNさんの弾幕の改善を名乗るとかきちーｗって思うかもしんないすけどこれ改善じゃなくて改造なんで。",
     hp: 3000,                   // ボスHP（ショットで削って撃破可能）
@@ -480,7 +480,7 @@ spriteAngle = angle
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "lunatic",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "正体不明「三種の幻想飛行物体」",           // 弾幕名・スペルカード名
     desc: "てかマジで、あの、星蓮船exラスペ落ちほんとに悔しい。残0ボム1パワー1で突入した割には最終形態まで削ってそれも半分くらいまで削ったからマジで惜しい。悔しすぎる。焦ったな～...",
     hp: 8000,                   // ボスHP（ショットで削って撃破可能）
@@ -584,7 +584,7 @@ spriteAngle = angle
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "夢符「妖怪絶対殺害陣」",           // 弾幕名・スペルカード名
     desc: "たまには短めのスペルも作る",
     hp: 800,                   // ボスHP（ショットで削って撃破可能）
@@ -616,7 +616,7 @@ while (true) {
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "「おｗ」",           // 弾幕名・スペルカード名
     desc: "名前未定",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
@@ -659,7 +659,7 @@ if (color==#ffdd33) {
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "壁「ウォーターウォール」",           // 弾幕名・スペルカード名
     desc: "普通にやってておもろかったです、うん。ちなみに私は取得した",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
@@ -711,7 +711,7 @@ if (isDestroyed) {
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "兆候「フラワーストレート」",           // 弾幕名・スペルカード名
     desc: "https://x.com/cobrablitzz/status/2096907938376081639",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
@@ -725,7 +725,7 @@ while (true) {
     angle = random(0,360)
     spx = random(360,430)
     spy = random(50,800)
-    bullet({ "type": "normal", "image": "kunai2", "radius": 12, "hitRadius": 10, "isAbsolute": true, "x": spx * 1.8, "y": spy, "way": 6, "destroyResist": true })
+    bullet({ "type": "normal", "image": "kunai2", "radius": 12, "hitRadius": 6, "isAbsolute": true, "x": spx * 1.8, "y": spy, "way": 6, "destroyResist": true })
     wf(4)
 }
     `,
@@ -749,12 +749,247 @@ if (frame == 60..100) {
     magicCircleScript: `
 
     `
+},{
+    difficulty: "normal",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "換符「弾幕のカタリスト」",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 3500,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 0.1,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "onryou_red", "radius": 20, "hitRadius": 25, "way": 72 })
+    angle += 3
+    wf(30)
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    once {
+        advance(10)
+    }
+    if (dist < 150) {
+        once {
+            speed = 0
+            imageTo("rednormal")
+            tween("radius", 40, 10, "seconds", 0.4, "easeOut")
+            hitRadius = 10
+            wf(60)
+            tween("radius", 40, 0, "seconds", 0.4, "easeOut")
+            aimAtTarget()
+            bullet({ "type": "normal", "image": "redknife", "speed": 0, "radius": 20, "hitRadius": 10 })
+            y = -8000000
+        }
+    }
+}
+    `,
+    magicCircleScript: `
+if (frame == 30) {
+    tween("speed", 0, 200, "seconds", 1)
+}
+    `
+},{
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「四重モノリス」",           // 弾幕名・スペルカード名
+    desc: "腹痛なう😇",
+    hp: 3000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 80,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "radius": 0, "way": 18, "destroyResist": true })
+    angle = random(0,360)
+    wf(120)
+}
+    `,
+    bulletScript: `
+if (cardFrame == 30 * n) {
+    bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": 270, "radius": 40, "hitRadius": 0, "way": 4 })
+}
+    `,
+    magicCircleScript: `
+once {
+    tween("radius", 40, 10, "frames", 30)
+    wf(30)
+    imageTo("redgun")
+    speed = 110
+    hitRadius = 5
+}
+    `
+},{
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "模擬「無窮黒死蝶」",           // 弾幕名・スペルカード名
+    desc: "時間長め！でも飽きにくいとは思う。",
+    hp: 4000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 80,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 3,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    spd = 0
+    ey = 388
+    wf(60)
+    for (let i = 0; i < 3; i++) {
+        bullet({ "type": "normal", "image": "tyoudan", "speed": 3 + spd, "radius": 20, "hitRadius": 5, "way": 9, "destroyResist": true, "muki": 230 })
+        angle += 15
+        bullet({ "type": "normal", "image": "tyoudan", "speed": 3 + spd, "radius": 20, "hitRadius": 5, "color": "#3388ff", "way": 9, "destroyResist": true, "muki": -230 })
+        spd += random(20,100)
+        angle += 15
+    }
+}
+    `,
+    bulletScript: `
+once {
+    speed += random(0,100)
+    wf(120)
+    tween("angle", angle, angle + muki, "seconds", 8)
+}
+spriteAngle = angle
+if (cardFrame == 600 * n) {
+    tween("speed", speed, 200, "seconds", 2)
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "Easy",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "紅符「レッドカーテン」",           // 弾幕名・スペルカード名
+    desc: "意図的に簡単にした！",
+    hp: 2500,                   // ボスHP（ショットで削って撃破可能）
+    duration: 30,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    sd = 0
+    time = 600
+    for (let i = 0; i < 13; i++) {
+        spx = 0 + random(-80,-20)
+        sd += 70
+        for (let i = 0; i < 25; i++) {
+            spx += 70
+            bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": 90, "radius": 40, "hitRadius": 0, "isAbsolute": true, "x": spx })
+        }
+        wf(20)
+    }
+    wf(30)
+    sd = -900
+    time = 600
+    for (let i = 0; i < 13; i++) {
+        spx = 0 + random(-80,-20)
+        sd += 70
+        for (let i = 0; i < 25; i++) {
+            spx += 70
+            bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": -90, "radius": 40, "hitRadius": 0, "isAbsolute": true, "x": spx })
+        }
+        wf(20)
+    }
+    wf(30)
+}
+    `,
+    bulletScript: `
+once {
+    advance(sd - 40)
+    tween("radius", radius, 10, "seconds", 0.5)
+    wf(31)
+    radius = 20
+    imageTo("onryou_red")
+    hitRadius = 10
+    angle += random(-40,40)
+    spriteAngle = angle
+}
+if (frame==200) {
+    tween("speed", 0, 140, "seconds", 1)
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "抽出「狂気の射撃」",           // 弾幕名・スペルカード名
+    desc: "",
+    hp: 1000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 45,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    spd = 0
+    angle = random(0,360)
+    for (let i = 0; i < 40; i++) {
+        spd += 12
+        bullet({ "type": "normal", "image": "redsimple", "speed": 50 + spd, "radius": 25, "hitRadius": 15, "way": 12 })
+    }
+    wf(20)
+    idoux = 378 + random(-200,200)
+    idouy = 300 + random(-200,50)
+    tween("ex", ex, idoux, "seconds", 0.5, "easeOut")
+    tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
+    wf(40)
+    spd = 0
+    aimAtTarget()
+    for (let i = 0; i < 40; i++) {
+        spd += 12
+        bullet({ "type": "normal", "image": "redsimple", "speed": 50 + spd, "radius": 25, "hitRadius": 15, "way": 12 })
+    }
+    wf(20)
+    idoux = 378 + random(-200,200)
+    idouy = 300 + random(-200,50)
+    tween("ex", ex, idoux, "seconds", 0.5, "easeOut")
+    tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
+    wf(40)
+    spd = 0
+    angle = random(0,360)
+    for (let i = 0; i < 40; i++) {
+        spd += 12
+        bullet({ "type": "normal", "image": "redsimple", "speed": 50 + spd, "radius": 25, "hitRadius": 15, "way": 12 })
+    }
+    wf(20)
+    idoux = tx + random(-60,60)
+    idouy = 300 + random(-200,50)
+    tween("ex", ex, idoux, "seconds", 0.5, "easeOut")
+    tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
+    wf(40)
+    spd = 0
+    aimAtTarget()
+    for (let i = 0; i < 40; i++) {
+        spd += 12
+        bullet({ "type": "normal", "image": "redsimple", "speed": 50 + spd, "radius": 25, "hitRadius": 15, "way": 12 })
+    }
+    wf(20)
+    idoux = tx + random(-60,60)
+    idouy = 300 + random(-200,50)
+    tween("ex", ex, idoux, "seconds", 0.5, "easeOut")
+    tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
+    wf(40)
+}
+    `,
+    bulletScript: `
+
+    `,
+    magicCircleScript: `
+
+    `
 }
 ];
 
 /**
 ,{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL, HARD, LUNATIC, EXTRA
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "スペル名",           // 弾幕名・スペルカード名
     desc: "説明文や作成者名",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）

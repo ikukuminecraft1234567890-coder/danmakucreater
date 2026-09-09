@@ -195,6 +195,9 @@
                         <option value="'onryou_light_blue'">光式青怨霊(光弾)</option>
                         <option value="'onryou_light_green'">光式緑怨霊(光弾)</option>
                         <option value="'onryou_light_yellow'">光式黄怨霊(光弾)</option>
+                        <option value="'mahoujin'">魔法陣(32px)</option>
+                        <option value="'mahoujin64'">魔法陣64(64px)</option>
+                        <option value="'mahoujin128'">魔法陣128(128px)</option>
                     </datalist>
                     <div class="maker-header">
                         <h3 id="card-editor-title" style="margin: 0; font-size: 20px;">スペルカード編集</h3>
@@ -536,6 +539,7 @@ touchX, touchY // 接触した弾の位置</pre>
 "poihuru" (ポイフル), "star" (星), "uroko" (鱗), "virus" (ウイルス), "onmyoutama" (陰陽玉), "knife" (ナイフ), "ohuda" (お札),
 "onryou_red" (赤怨霊), "onryou_blue" (青怨霊), "onryou_green" (緑怨霊), "onryou_yellow" (黄怨霊) (通常怨霊: 加算合成+頭部白弾),
 "onryou_light_red" (光式赤怨霊), "onryou_light_blue" (光式青怨霊), "onryou_light_green" (光式緑怨霊), "onryou_light_yellow" (光式黄怨霊) (光式怨霊: 白弾が最前面に来る光弾挙動),
+"mahoujin" (魔法陣 32px), "mahoujin64" (魔法陣 64px), "mahoujin128" (魔法陣 128px),
 "pallets/色+形状" (パレット弾全165種: 例 "rednormal", "aquastar", "goldbig" 等。色相変色を受けず元の色のまま描画)
 
 // 【弾の種類 (bulletType)】
@@ -747,10 +751,10 @@ while (true) {
         document.write('<script src="js/bossdanmakucompiledata.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/compiler.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/bossdata.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/data.js?v=1.4.1&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/emitter.js?v=1.4.1&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/game.js?v=1.4.1&t=' + Date.now() + '"><\/script>');
-        document.write('<script src="js/editor.js?v=1.4.1&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/data.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/emitter.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/game.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/editor.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
     </script>
 
 </body>
