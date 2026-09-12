@@ -920,7 +920,7 @@ if (frame==200) {
     difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
     name: "抽出「狂気の射撃」",           // 弾幕名・スペルカード名
     desc: "",
-    hp: 1000,                   // ボスHP（ショットで削って撃破可能）
+    hp: 600,                   // ボスHP（ショットで削って撃破可能）
     duration: 45,               // 制限時間（秒）
     maxMisses: 2,               // 許容被弾回数（"inf"で無限）
     x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
@@ -929,18 +929,6 @@ if (frame==200) {
     emitterScript: `
 while (true) {
     spd = 0
-    angle = random(0,360)
-    for (let i = 0; i < 40; i++) {
-        spd += 12
-        bullet({ "type": "normal", "image": "redsimple", "speed": 50 + spd, "radius": 25, "hitRadius": 15, "way": 12 })
-    }
-    wf(20)
-    idoux = 378 + random(-200,200)
-    idouy = 300 + random(-200,50)
-    tween("ex", ex, idoux, "seconds", 0.5, "easeOut")
-    tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
-    wf(40)
-    spd = 0
     aimAtTarget()
     for (let i = 0; i < 40; i++) {
         spd += 12
@@ -948,18 +936,6 @@ while (true) {
     }
     wf(20)
     idoux = 378 + random(-200,200)
-    idouy = 300 + random(-200,50)
-    tween("ex", ex, idoux, "seconds", 0.5, "easeOut")
-    tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
-    wf(40)
-    spd = 0
-    angle = random(0,360)
-    for (let i = 0; i < 40; i++) {
-        spd += 12
-        bullet({ "type": "normal", "image": "redsimple", "speed": 50 + spd, "radius": 25, "hitRadius": 15, "way": 12 })
-    }
-    wf(20)
-    idoux = tx + random(-60,60)
     idouy = 300 + random(-200,50)
     tween("ex", ex, idoux, "seconds", 0.5, "easeOut")
     tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
@@ -977,6 +953,224 @@ while (true) {
     tween("ey", ey, idouy, "seconds", 0.5, "easeOut")
     wf(40)
 }
+    `,
+    bulletScript: `
+
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "禁術「圧爆殺」",           // 弾幕名・スペルカード名
+    desc: "どう見ても紅魔郷四面道中",
+    hp: 8000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 100,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    l = 0
+    motox = ex + random(-50,50)
+    motoy = ey + random(-50,50)
+    for (let i = 0; i < 1; i++) {
+        bullet({ "type": "life", "image": "mahoujin128", "speed": 0, "hitRadius": 64, "color": "#dfafef", "destroyResist": true, "health": 200, "type2": 1 })
+        ix = 384 + 250 + random(-100,100)
+        iy = 250 + random(-100,100) + l
+        tween("ex", ex, ix, "seconds", 0.8, "easeOut")
+        tween("ey", ey, iy, "seconds", 0.8, "easeOut")
+        wf(50)
+        bullet({ "type": "life", "image": "mahoujin128", "speed": 0, "hitRadius": 64, "color": "#dfafef", "destroyResist": true, "health": 200, "type2": 1 })
+        ix = 384 - 250 + random(-100,100)
+        iy = 250 + random(-100,100) + l
+        tween("ex", ex, ix, "seconds", 0.8, "easeOut")
+        tween("ey", ey, iy, "seconds", 0.8, "easeOut")
+        wf(50)
+        bullet({ "type": "life", "image": "mahoujin128", "speed": 0, "hitRadius": 64, "color": "#dfafef", "destroyResist": true, "health": 200, "type2": 1 })
+    }
+    tween("ex", ex, motox, "seconds", 0.8, "easeOut")
+    tween("ey", ey, motoy, "seconds", 0.8, "easeOut")
+    wf(240)
+    l = 0
+    motox = ex + random(-50,50)
+    motoy = ey + random(-50,50)
+    for (let i = 0; i < 1; i++) {
+        aimAtTarget()
+        bullet({ "type": "life", "image": "mahoujin128", "speed": 50, "hitRadius": 64, "color": "#B455A0", "destroyResist": true, "health": 200, "type2": 2 })
+        ix = 384 + 250 + random(-100,100)
+        iy = 250 + random(-100,100) + l
+        tween("ex", ex, ix, "seconds", 0.8, "easeOut")
+        tween("ey", ey, iy, "seconds", 0.8, "easeOut")
+        wf(50)
+        bullet({ "type": "life", "image": "mahoujin128", "speed": 50, "hitRadius": 64, "color": "#B455A0", "destroyResist": true, "health": 200, "type2": 2 })
+        ix = 384 - 250 + random(-100,100)
+        iy = 250 + random(-100,100) + l
+        tween("ex", ex, ix, "seconds", 0.8, "easeOut")
+        tween("ey", ey, iy, "seconds", 0.8, "easeOut")
+        wf(50)
+        bullet({ "type": "life", "image": "mahoujin128", "speed": 50, "hitRadius": 64, "color": "#B455A0", "destroyResist": true, "health": 200, "type2": 2 })
+    }
+    tween("ex", ex, motox, "seconds", 0.8, "easeOut")
+    tween("ey", ey, motoy, "seconds", 0.8, "easeOut")
+    wf(240)
+}
+    `,
+    bulletScript: `
+if (type2 == 1) {
+    once {
+        tween("radius", 0, 64, "seconds", 1, "easeOut")
+    }
+    y += 0.4
+    spriteAngle += 1.3
+    if (frame == 25 * n) {
+        angle += random(0,360)
+        bullet({ "type": "normal", "image": "rednormal", "radius": 9, "hitRadius": 3, "color": "#ffffff", "way": 8 })
+    }
+    if (frame == 600) {
+        tween("radius", 64, 0, "seconds", 1, "easeOut")
+        wf(60)
+        y = -800000
+    }
+}
+if (type2 == 2) {
+    once {
+        tween("radius", 0, 64, "seconds", 1, "easeOut")
+    }
+    spriteAngle += 1.3
+    if (frame == 25 * n) {
+        motoangle = angle
+        aimAtTarget()
+        angle += random(-10,10)
+        bullet({ "type": "normal", "image": "rednormal", "radius": 9, "hitRadius": 3, "color": "#ffffff", "way": 8 })
+        angle = motoangle
+    }
+    if (frame == 600) {
+        tween("radius", 64, 0, "seconds", 1, "easeOut")
+        wf(60)
+        y = -800000
+    }
+}
+if (isDestroyed) {
+    for (let i = 0; i < 10; i++) {
+        spd += 20
+        angle += random(0,30)
+        bullet({ "type": "normal", "image": "light", "speed": 0 + spd, "radius": 1, "hitRadius": 0, "way": 18, "destroyResist": true })
+        enemyHp += -30
+    }
+}
+    `,
+    magicCircleScript: `
+if (color==#ff3333) {
+    once {
+        tween("speed", speed, 0, "seconds", 2)
+        tween("radius", 0, 30, "seconds", 0.8, "easeOut")
+        wait(0.8)
+        tween("radius", 30, 0, "seconds", 0.8, "easeIn")
+        wait(0.8)
+        y = -8000
+    }
+}
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "呪砲「血みどろの星」",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 1000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 50,               // 制限時間（秒）
+    maxMisses: 0,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 348
+    bullet({ "type": "normal", "image": "yellowstar", "speed": 250, "angle": sangle, "way": 6, "muki": 1, "btype": 1 })
+    sangle += 178.2
+    wf(2)
+    bullet({ "type": "normal", "image": "yellowstar", "speed": 250, "angle": sangle, "way": 6, "muki": -1, "btype": 1 })
+    sangle += 178.2
+    wf(2)
+}
+while (true) {
+    ransuu = random(-8,8)
+    xr = random(-120,120)
+    yr = random(-120,120)
+    bullet({ "type": "normal", "image": "whitenormal", "speed": 1, "hitRadius": 0, "x": xr, "y": yr, "destroyResist": true, "btype": 2, "tien": 1 })
+    bullet({ "type": "normal", "image": "bluenormal", "speed": 1, "hitRadius": 0, "x": xr, "y": yr, "destroyResist": true, "btype": 2, "tien": 2 })
+    bullet({ "type": "normal", "image": "bluenormal", "speed": 1, "hitRadius": 0, "x": xr, "y": yr, "color": "#3388ff", "destroyResist": true, "btype": 2, "tien": 3 })
+    wf(30)
+}
+    `,
+    bulletScript: `
+if (btype == 1) {
+    if (color==#ff3333) {
+        spriteAngle += 6 * muki
+    }
+    once {
+        angle += random(-5,5)
+    }
+}
+if (btype == 2) {
+    once {
+        aimAtTarget()
+        angle += ransuu
+        spriteAngle = angle
+    }
+    if (tien == 1) {
+        once {
+            multf = 90
+            multlr = 0.2
+            wf(50)
+            y = -80000
+        }
+    }
+    if (tien == 2) {
+        once {
+            multf = 90
+            multlr = 0
+            wf(30)
+            tween("multlr", 0, 2.5, "seconds", 0.25)
+            tween("hitmultlr", 0, 1, "seconds", 0.25)
+            wf(20)
+            hitRadius = 4
+            hitmultf = 200
+            wf(25)
+            hitRadius = 0
+            wf(5)
+            tween("multlr", 2.5, 0, "seconds", 0.25)
+            tween("hitmultlr", 1, 0, "seconds", 0.25)
+        }
+    }
+    if (tien == 3) {
+        once {
+            radius = 0
+            wf(30)
+            tween("radius", 0, 15, "seconds", 0.25)
+            wf(20)
+            wf(25)
+            wf(5)
+            tween("radius", 15, 0, "seconds", 0.25)
+        }
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "スペル名",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 30,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+
     `,
     bulletScript: `
 

@@ -77,13 +77,13 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
         let t = block.type;
         if (t === 'wait') {
             js += ind + `if (!b || !b.isDestroyed) {\n`;
-            js += ind + `  state.waitTimer = Math.max(0.0167, ${window.DanmakuCompiler.getExpr(block, 'duration', '0.0167')});\n`;
+            js += ind + `  state.waitTimer = Math.max(1 / 60, ${window.DanmakuCompiler.getExpr(block, 'duration', '1 / 60')});\n`;
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'wait_frame' || t === 'wf') {
             let framesExpr = window.DanmakuCompiler.getExpr(block, 'frames', '1');
             js += ind + `if (!b || !b.isDestroyed) {\n`;
-            js += ind + `  state.waitTimer = Math.max(0.0167, (${framesExpr}) / 60);\n`;
+            js += ind + `  state.waitTimer = (${framesExpr}) / 60;\n`;
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
         } else if (t === 'bullet_image_set') {

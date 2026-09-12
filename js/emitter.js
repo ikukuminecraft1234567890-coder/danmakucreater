@@ -9,6 +9,14 @@ function applyEasing(t, easing) {
     return t; // linear
 }
 
+function hasDirectWaitInBlocks(blocks) {
+    if (!blocks) return false;
+    for (let b of blocks) {
+        if (b.type === 'wait' || b.type === 'wait_frame' || b.type === 'wf' || b.type === 'tween_var_wait') return true;
+    }
+    return false;
+}
+
 function syncAttackerFromEmitterVariables(state, attacker) {
     if (!state || !state.variables || !attacker) return;
     let isPlayerSide = state.isPlayerSide;
@@ -246,34 +254,34 @@ function stepEmitter(c, state, attacker, target, dt) {
                     window.DanmakuCompilerRuntime._computeBulletThreatWeight = computeBulletThreatWeight;
                     state.compiledGenerator = state.compiledFn(state, null, attacker, target, window.DanmakuCompilerRuntime);
                 }
-                let dtRemaining = dt;
-                let safetyCounter = 0;
-                while (dtRemaining > 0 && !state.finished && safetyCounter < 1000) {
-                    safetyCounter++;
-                    if (state.waitTimer > 0) {
-                        if (dtRemaining >= state.waitTimer) {
-                            dtRemaining -= state.waitTimer;
-                            state.waitTimer = 0;
-                        } else {
-                            state.waitTimer -= dtRemaining;
-                            dtRemaining = 0;
-                            break;
-                        }
-                    }
-                    if (state.waitingTweenName) {
-                        if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
-                            break;
-                        }
-                        state.waitingTweenName = null;
-                    }
-                    
-                    if (state.waitTimer <= 0 && !state.waitingTweenName) {
-                        const result = state.compiledGenerator.next();
+                if (state.waitTimer > 0) {
+                    if (dt >= state.waitTimer - 0.0001) {
+                        state.waitTimer = 0;
+                    } else {
+                        state.waitTimer -= dt;
                         syncAttackerFromEmitterVariables(state, attacker);
-                        if (result.done) { 
-                            state.finished = true;
-                            break;
-                        }
+                        return;
+                    }
+                }
+                if (state.waitingTweenName) {
+                    if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
+                        syncAttackerFromEmitterVariables(state, attacker);
+                        return;
+                    }
+                    state.waitingTweenName = null;
+                }
+                
+                let safetyCounter = 0;
+                while (!state.finished && safetyCounter < 1000) {
+                    safetyCounter++;
+                    const result = state.compiledGenerator.next();
+                    syncAttackerFromEmitterVariables(state, attacker);
+                    if (result.done) { 
+                        state.finished = true;
+                        break;
+                    }
+                    if (state.waitTimer > 0 || state.waitingTweenName) {
+                        break;
                     }
                 }
                 syncAttackerFromEmitterVariables(state, attacker);
@@ -302,28 +310,24 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             if (state.finished) return;
             
-            let dtRemaining = dt;
-            while (dtRemaining > 0 && !state.finished) {
-                if (state.waitTimer > 0) {
-                    if (dtRemaining >= state.waitTimer) {
-                        dtRemaining -= state.waitTimer;
-                        state.waitTimer = 0;
-                    } else {
-                        state.waitTimer -= dtRemaining;
-                        dtRemaining = 0;
-                        break;
-                    }
+            if (state.waitTimer > 0) {
+                if (dt >= state.waitTimer - 0.0001) {
+                    state.waitTimer = 0;
+                } else {
+                    state.waitTimer -= dt;
+                    return;
                 }
-                if (state.waitingTweenName) {
-                    if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
-                        break;
-                    }
-                    state.waitingTweenName = null;
+            }
+            if (state.waitingTweenName) {
+                if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
+                    return;
                 }
-                
-                let safetyCounter = 0;
-                let brokeToWait = false;
-                while (safetyCounter < 1000) {
+                state.waitingTweenName = null;
+            }
+            
+            let safetyCounter = 0;
+            let brokeToWait = false;
+            while (safetyCounter < 1000 && !brokeToWait && !state.finished) {
                 safetyCounter++;
                 
                 let currentBlocks = state.stack.length > 0 ? state.stack[state.stack.length - 1].blocks : state.blocks;
@@ -334,13 +338,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let loopState = state.stack[state.stack.length - 1];
                         if (loopState.forever) {
                             loopState.pc = 0;
-                            state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
-                            break;
+                            if (!hasDirectWaitInBlocks(loopState.blocks)) {
+                                state.waitTimer = Math.max(state.waitTimer || 0, dt || (1/60));
+                                break;
+                            }
+                            continue;
                         } else if (loopState.type === 'while') {
                             if (evalCondition(loopState.cond || 'false', state.variables)) {
                                 loopState.pc = 0;
-                                state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
-                                break;
+                                if (!hasDirectWaitInBlocks(loopState.blocks)) {
+                                    state.waitTimer = Math.max(state.waitTimer || 0, dt || (1/60));
+                                    break;
+                                }
+                                continue;
                             }
                             state.stack.pop();
                             if (state.stack.length > 0) {
@@ -392,7 +402,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     }
                     case 'wait': {
                         let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
-                        state.waitTimer = Math.max(0.0167, dur);
+                        state.waitTimer = Math.max(1 / 60, dur);
                         brokeToWait = true;
                         break;
                     }
@@ -400,7 +410,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     case 'wf': {
                         let framesVal = evalExpr(block.params.frames !== undefined ? block.params.frames : (block.params.duration !== undefined ? block.params.duration : '1'), state.variables, block, 'frames');
                         let fNum = Math.max(1, Number(framesVal) || 1);
-                        state.waitTimer = Math.max(0.0167, fNum / 60);
+                        state.waitTimer = fNum / 60;
                         brokeToWait = true;
                         break;
                     }
@@ -1636,17 +1646,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (state.waitTimer > 0 || state.waitingTweenName) {
                     break;
                 }
-            } // 内側ループ
-            
-            if (brokeToWait || state.waitingTweenName) {
-                state.waitTimer -= dtRemaining;
-                dtRemaining = 0;
-                break;
-            } else if (!state.finished) {
-                break;
             }
-        } // 外側ループ
-    }
+        }
 
         function initBulletState(script, initialSpeed, initialAngle, attacker, target, compiledFn) {
 
@@ -2253,64 +2254,60 @@ function stepEmitter(c, state, attacker, target, dt) {
                         window.DanmakuCompilerRuntime._computeBulletThreatWeight = computeBulletThreatWeight;
                         state.compiledGenerator = state.compiledFn(state, b, attacker, target, window.DanmakuCompilerRuntime);
                     }
-                    let dtRemaining = b.isDestroyed ? Math.max(dt, 0.016) : dt;
-                    let safetyCounter = 0;
-                    while (dtRemaining > 0 && !state.finished && safetyCounter < 1000) {
-                        safetyCounter++;
-                        if (state.waitTimer > 0) {
-                            if (dtRemaining >= state.waitTimer) {
-                                dtRemaining -= state.waitTimer;
-                                state.waitTimer = 0;
-                            } else {
-                                state.waitTimer -= dtRemaining;
-                                dtRemaining = 0;
-                                break;
-                            }
-                        }
-                        if (state.waitingTweenName) {
-                            if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
-                                break;
-                            }
-                            state.waitingTweenName = null;
-                        }
-                        
-                        if (state.waitTimer <= 0 && !state.waitingTweenName) {
-                            const result = state.compiledGenerator.next();
-                            if (result.done) { 
-                                state.finished = true;
-                                if (!b.isDestroyed && (!b.health || b.health <= 0) && (!state.tweens || state.tweens.length === 0)) {
-                                    b.update = null;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                let dtRemaining = b.isDestroyed ? Math.max(dt, 0.016) : dt;
-                while (dtRemaining > 0 && !state.finished) {
+                    let effectiveDt = b.isDestroyed ? Math.max(dt, 0.016) : dt;
                     if (state.waitTimer > 0) {
-                        if (dtRemaining >= state.waitTimer) {
-                            dtRemaining -= state.waitTimer;
+                        if (effectiveDt >= state.waitTimer - 0.0001) {
                             state.waitTimer = 0;
                         } else {
-                            state.waitTimer -= dtRemaining;
-                            dtRemaining = 0;
-                            break;
+                            state.waitTimer -= effectiveDt;
+                            return;
                         }
                     }
                     if (state.waitingTweenName) {
                         if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
-                            break;
+                            return;
                         }
                         state.waitingTweenName = null;
                     }
                     
                     let safetyCounter = 0;
-                    let brokeToWait = false;
-                    const stack = state.stack;
-                    const vars = state.variables;
-                    while (safetyCounter < 1000) {
+                    while (!state.finished && safetyCounter < 1000) {
                         safetyCounter++;
+                        const result = state.compiledGenerator.next();
+                        if (result.done) { 
+                            state.finished = true;
+                            if (!b.isDestroyed && (!b.health || b.health <= 0) && (!state.tweens || state.tweens.length === 0)) {
+                                b.update = null;
+                            }
+                            break;
+                        }
+                        if (state.waitTimer > 0 || state.waitingTweenName) {
+                            break;
+                        }
+                    }
+                } else {
+                let effectiveDt = b.isDestroyed ? Math.max(dt, 0.016) : dt;
+                if (state.waitTimer > 0) {
+                    if (effectiveDt >= state.waitTimer - 0.0001) {
+                        state.waitTimer = 0;
+                    } else {
+                        state.waitTimer -= effectiveDt;
+                        return;
+                    }
+                }
+                if (state.waitingTweenName) {
+                    if (state.tweens && state.tweens.some(t => t.name === state.waitingTweenName)) {
+                        return;
+                    }
+                    state.waitingTweenName = null;
+                }
+                
+                let safetyCounter = 0;
+                let brokeToWait = false;
+                const stack = state.stack;
+                const vars = state.variables;
+                while (safetyCounter < 1000 && !brokeToWait && !state.finished) {
+                    safetyCounter++;
                         const stackLen = stack.length;
                         const currentBlocks = stackLen > 0 ? stack[stackLen - 1].blocks : state.blocks;
                         const currentPC = stackLen > 0 ? stack[stackLen - 1].pc : state.pc;
@@ -2320,13 +2317,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let loopState = stack[stackLen - 1];
                                 if (loopState.forever) {
                                     loopState.pc = 0;
-                                    state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
-                                    break;
+                                    if (!hasDirectWaitInBlocks(loopState.blocks)) {
+                                        state.waitTimer = Math.max(state.waitTimer || 0, dt || (1/60));
+                                        break;
+                                    }
+                                    continue;
                                 } else if (loopState.type === 'while') {
                                     if (evalCondition(loopState.cond || 'false', vars)) {
                                         loopState.pc = 0;
-                                        state.waitTimer = Math.max(state.waitTimer || 0, dt || 0.0167);
-                                        break;
+                                        if (!hasDirectWaitInBlocks(loopState.blocks)) {
+                                            state.waitTimer = Math.max(state.waitTimer || 0, dt || (1/60));
+                                            break;
+                                        }
+                                        continue;
                                     }
                                     stack.pop();
                                     if (stack.length > 0) {
@@ -2392,7 +2395,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             case 'wait': {
                                 if (b && b.isDestroyed) break;
                                 let dur = evalExpr(block.params.duration, state.variables, block, 'duration');
-                                state.waitTimer = Math.max(0.0167, dur);
+                                state.waitTimer = Math.max(1 / 60, dur);
                                 brokeToWait = true;
                                 break;
                             }
@@ -2401,7 +2404,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 if (b && b.isDestroyed) break;
                                 let framesVal = evalExpr(block.params.frames !== undefined ? block.params.frames : (block.params.duration !== undefined ? block.params.duration : '1'), state.variables, block, 'frames');
                                 let fNum = Math.max(1, Number(framesVal) || 1);
-                                state.waitTimer = Math.max(0.0167, fNum / 60);
+                                state.waitTimer = fNum / 60;
                                 brokeToWait = true;
                                 break;
                             }
@@ -3638,20 +3641,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (state.waitTimer > 0 || state.waitingTweenName) {
                             break;
                         }
-                    } // 内側ループ
+                    } // ループ終了
                     
                     if (b && b.isDestroyed) {
                         state.finished = true;
-                        break;
                     }
-                    if (brokeToWait || state.waitingTweenName) {
-                        state.waitTimer -= dtRemaining;
-                        dtRemaining = 0;
-                        break;
-                    } else if (!state.finished) {
-                        break;
-                    }
-                } // 外側ループ
                 } // else (インタプリタフォールバック)
             }
             
