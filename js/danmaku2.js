@@ -1170,10 +1170,70 @@ if (btype == 2) {
     y_offset: 0,                // 出現位置の縦オフセット
     despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
     emitterScript: `
-
+while (true) {
+    wf(10)
+    tween("ex", ex, 384 + random(-200,200), "seconds", 0.5, "easeOut")
+    tween("ey", ey, 200 + random(-100,100), "seconds", 0.5, "easeOut")
+    wf(50)
+    while (true) {
+        for (let i = 0; i < 30; i++) {
+            if (!(cardFrame % 300 < 90)) {
+                bullet({ "type": "normal", "image": "redknife", "speed": 150, "radius": 20, "hitRadius": 7, "way": 3 })
+            }
+            angle += 19
+            wf(1)
+        }
+        angle += random(-50.50)
+        for (let i = 0; i < 30; i++) {
+            if (!(cardFrame % 300 < 90)) {
+                bullet({ "type": "normal", "image": "redknife", "speed": 150, "radius": 20, "hitRadius": 7, "way": 3 })
+            }
+            angle += 19
+            wf(1)
+        }
+        wf(0)
+        for (let i = 0; i < 30; i++) {
+            if (!(cardFrame % 300 < 90)) {
+                bullet({ "type": "normal", "image": "redknife", "speed": 150, "radius": 20, "hitRadius": 7, "way": 3 })
+            }
+            angle += 19
+            wf(1)
+        }
+        tween("ex", ex, tx + random(-80,80), "seconds", 0.5, "easeOut")
+        tween("ey", ey, 200 + random(-100,100), "seconds", 0.5, "easeOut")
+        angle += random(-50.50)
+        for (let i = 0; i < 30; i++) {
+            if (!(cardFrame % 300 < 90)) {
+                bullet({ "type": "normal", "image": "redknife", "speed": 150, "radius": 20, "hitRadius": 7, "way": 3 })
+            }
+            angle += 19
+            wf(1)
+        }
+        wf(0)
+    }
+}
     `,
     bulletScript: `
-
+if (cardFrame == 300 * n) {
+    imageTo("whiteknife")
+    speed = 0
+    kakudo = random(-150,150)
+    matu = random(0,90)
+    if (matu == 0..60) {
+        wf(matu)
+        angle += kakudo
+        spriteAngle = angle
+        wf(60 - matu)
+        wf(30)
+        imageTo("greenknife")
+        speed = 100
+    }
+    if (matu == 60..120) {
+        wf(90)
+        imageTo("redknife")
+        speed = 150
+    }
+}
     `,
     magicCircleScript: `
 
