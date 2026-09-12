@@ -1161,10 +1161,10 @@ if (btype == 2) {
     `
 },{
     difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
-    name: "スペル名",           // 弾幕名・スペルカード名
+    name: "時符「虐殺ドール」",           // 弾幕名・スペルカード名
     desc: "説明文や作成者名",
-    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
-    duration: 30,               // 制限時間（秒）
+    hp: 3000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 80,               // 制限時間（秒）
     maxMisses: 3,               // 許容被弾回数（"inf"で無限）
     x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
     y_offset: 0,                // 出現位置の縦オフセット
@@ -1233,6 +1233,41 @@ if (cardFrame == 300 * n) {
         imageTo("redknife")
         speed = 150
     }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "熈符「色即是空」",           // 弾幕名・スペルカード名
+    desc: "けっこう単純で難しい弾幕になったと思います",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "onryou_light_green", "radius": 20, "hitRadius": 10, "way": 21 })
+    bullet({ "type": "normal", "image": "onryou_light_blue", "angle": angle + 8.5714285715, "radius": 20, "hitRadius": 10, "way": 21 })
+    angle += 30
+    wf(12)
+}
+    `,
+    bulletScript: `
+once {
+    ram = random(-1,1)
+}
+if (frame == 60..120) {
+    if (ram == -1..0) {
+        angle += -1
+    }
+    if (ram == 0..1) {
+        angle += 1
+    }
+    spriteAngle = angle
 }
     `,
     magicCircleScript: `

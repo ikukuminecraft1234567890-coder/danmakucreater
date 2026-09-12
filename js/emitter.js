@@ -640,6 +640,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 bulletType: type,
                                 customDmg: 20,
                                 isCustom: true,
+                                transparency: Number(evalExpr(bp.transparency !== undefined ? bp.transparency : (bp.alpha !== undefined ? bp.alpha : (bp.opacity !== undefined ? bp.opacity : '0')), state.variables)) || 0,
                                 update: null
                             };
                             
@@ -694,6 +695,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.bulletImage = bImg;
                             newBullet.bulletState.variables.speed = speed;
                             newBullet.bulletState.variables.angle = curAngle;
+                            newBullet.bulletState.variables.transparency = newBullet.transparency;
+                            newBullet.bulletState.variables.alpha = newBullet.transparency;
                             if (isLife) {
                                 newBullet.bulletState.variables.health = newBullet.health;
                                 newBullet.bulletState.variables.maxHealth = newBullet.maxHealth;
@@ -702,7 +705,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cVars = (bp.customVars && typeof bp.customVars === 'object') ? bp.customVars : bp;
                             if (cVars && typeof cVars === 'object') {
                                 for (let cvKey in cVars) {
-                                    if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
+                                    if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'transparency', 'alpha', 'opacity', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
                                     let cvRaw = cVars[cvKey];
                                     if (cvRaw === undefined || cvRaw === null || typeof cvRaw === 'object') continue;
                                     let cvVal = evalExpr(cvRaw, state.variables);
@@ -2579,6 +2582,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         bulletType: type,
                                         customDmg: 20,
                                         isCustom: true,
+                                        transparency: Number(evalExpr(bp.transparency !== undefined ? bp.transparency : (bp.alpha !== undefined ? bp.alpha : (bp.opacity !== undefined ? bp.opacity : '0')), state.variables, block, 'transparency')) || 0,
                                         update: null
                                     };
                                     
@@ -2632,6 +2636,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     newBullet.bulletState.variables.bulletImage = bImg;
                                     newBullet.bulletState.variables.speed = speed;
                                     newBullet.bulletState.variables.angle = curAngle;
+                                    newBullet.bulletState.variables.transparency = newBullet.transparency;
+                                    newBullet.bulletState.variables.alpha = newBullet.transparency;
                                     if (isLife) {
                                         newBullet.bulletState.variables.health = newBullet.health;
                                         newBullet.bulletState.variables.maxHealth = newBullet.maxHealth;
@@ -2640,7 +2646,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let cVars = (bp.customVars && typeof bp.customVars === 'object') ? bp.customVars : bp;
                                     if (cVars && typeof cVars === 'object') {
                                         for (let cvKey in cVars) {
-                                            if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
+                                            if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'transparency', 'alpha', 'opacity', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
                                             let cvRaw = cVars[cvKey];
                                             if (cvRaw === undefined || cvRaw === null || typeof cvRaw === 'object') continue;
                                             let cvVal = evalExpr(cvRaw, state.variables, block, cvKey);
@@ -3837,6 +3843,18 @@ function stepEmitter(c, state, attacker, target, dt) {
                 }
             } else if (vHitmultlr === '' || vHitmultlr === null || vHitmultlr === 'none') {
                 b.hitmultlr = undefined;
+            }
+
+            let vTransparency = window.getBulletVar(state.variables, 'transparency');
+            if (vTransparency === undefined) vTransparency = window.getBulletVar(state.variables, 'alpha');
+            if (vTransparency !== undefined) {
+                let transNum = parseFloat(evalExpr(vTransparency, state.variables));
+                if (!isNaN(transNum)) {
+                    transNum = Math.max(0, Math.min(100, transNum));
+                    b.transparency = transNum;
+                    window.setBulletVar(state.variables, 'transparency', transNum);
+                    window.setBulletVar(state.variables, 'alpha', transNum);
+                }
             }
             
             // 設置レーザー（警告線付きビーム）の制御

@@ -121,6 +121,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.keepTime = '0.3';
                 block.params.shrinkTime = '0.5';
                 block.params.round = 'true';
+                block.params.transparency = '0';
                 block.params.customVars = {};
             } else if (type === 'spawn_bullet') {
                 block.params.bulletType = 'normal';
@@ -999,6 +1000,8 @@ function customCardMakerSwitchTab(tab) {
                                 </select>
                                 <span>色:</span>
                                 <input type="text" list="color-suggestions" style="width:76px;" value="${b.params.color || '#ff3333'}" onchange="customCardMakerUpdateParam(${idx}, 'color', this.value)">
+                                <span>透明度:</span>
+                                <input type="text" list="val-suggestions" style="width:30px;" value="${b.params.transparency !== undefined ? b.params.transparency : '0'}" onchange="customCardMakerUpdateParam(${idx}, 'transparency', this.value)">
                                 <span>速度:</span>
                                 <input type="text" list="val-suggestions" style="width:50px;" value="${b.params.speed !== undefined ? b.params.speed : '200'}" onchange="customCardMakerUpdateParam(${idx}, 'speed', this.value)">
                                 <span>角度:</span>
@@ -2255,6 +2258,9 @@ function customCardMakerSwitchMode(mode) {
                             if (bp.shrinkTime) parts.push(`"shrinkTime": ${bp.shrinkTime}`);
                             if (bp.round !== undefined) parts.push(`"round": ${bp.round}`);
                         }
+                        if (bp.transparency !== undefined && bp.transparency !== '' && String(bp.transparency) !== '0') {
+                            parts.push(`"transparency": ${bp.transparency}`);
+                        }
                         parts.push(...customArr);
                         line = `bullet({ ${parts.join(', ')} })`;
                         break;
@@ -2613,6 +2619,7 @@ function customCardMakerSwitchMode(mode) {
                 keepTime: '0.3',
                 shrinkTime: '0.5',
                 round: 'true',
+                transparency: '0',
                 customVars: {}
             };
 
@@ -2796,6 +2803,12 @@ function customCardMakerSwitchMode(mode) {
                         break;
                     case 'round':
                         result.round = v;
+                        break;
+                    case 'transparency':
+                    case 'alpha':
+                    case 'opacity':
+                    case 'toumeido':
+                        result.transparency = v;
                         break;
                     default:
                         result.customVars[k] = v;

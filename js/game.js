@@ -3313,6 +3313,7 @@ function applyAbilityEffect(cardId, owner) {
                     // 変数から光の範囲 (auraRange) と強さ (auraIntensity) を取得できるようにする（大文字小文字無視）
                     let auraRangeVal = 2.75;
                     let auraIntensityVal = 1.0;
+                    let auraTransVal = 0;
                     if (b.bulletState && b.bulletState.variables) {
                         let vRange = window.getBulletVar(b.bulletState.variables, 'auraRange');
                         if (vRange !== undefined && vRange !== null) {
@@ -3322,6 +3323,19 @@ function applyAbilityEffect(cardId, owner) {
                         if (vIntensity !== undefined && vIntensity !== null) {
                             auraIntensityVal = parseFloat(vIntensity) || 0;
                         }
+                        let vTrans = window.getBulletVar(b.bulletState.variables, 'transparency');
+                        if (vTrans === undefined) vTrans = window.getBulletVar(b.bulletState.variables, 'alpha');
+                        if (vTrans !== undefined && vTrans !== null) {
+                            auraTransVal = parseFloat(vTrans) || 0;
+                        }
+                    } else if (b.transparency !== undefined) {
+                        auraTransVal = parseFloat(b.transparency) || 0;
+                    }
+                    if (isNaN(auraTransVal)) auraTransVal = 0;
+                    auraTransVal = Math.max(0, Math.min(100, auraTransVal));
+                    if (auraTransVal >= 100) continue; // 完全透明ならオーラも描画スキップ
+                    if (auraTransVal > 0) {
+                        auraIntensityVal *= (1.0 - auraTransVal / 100);
                     }
                     
                     // オーラのサイズは auraRangeVal を基準にし、非常に微弱かつゆっくりとうねるように調整
@@ -3444,9 +3458,13 @@ function applyAbilityEffect(cardId, owner) {
                                                   (_bVars.aslr !== undefined && Number(_bVars.aslr) !== 1)));
                     const _hasDynImg = (b.bulletImage && b.bulletImage !== 'none') || 
                                        (_bVars && ((_bVars.bulletImage && _bVars.bulletImage !== 'none') || (_bVars.image && _bVars.image !== 'none')));
+                    const _bTrans = (_bVars && _bVars.transparency !== undefined) ? Number(_bVars.transparency) : 
+                                    ((_bVars && _bVars.alpha !== undefined) ? Number(_bVars.alpha) : 
+                                    (b.transparency !== undefined ? Number(b.transparency) : 0));
+                    const _hasTrans = !isNaN(_bTrans) && _bTrans > 0;
                     const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
                                        b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
-                                       b.isSweeper || _hasDynImg || b.isNormal || _hasAspect;
+                                       b.isSweeper || _hasDynImg || b.isNormal || _hasAspect || _hasTrans;
 
                     if (!_isSpecial) {
                         // 通常の円弾のカリング
@@ -3485,16 +3503,28 @@ function applyAbilityEffect(cardId, owner) {
 
             for (let _bsi = 0; _bsi < bullets_special.length; _bsi++) {
             const b = bullets_special[_bsi];
+            let _bVars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : {};
+            let curTrans = (_bVars.transparency !== undefined) ? Number(_bVars.transparency) : 
+                           ((_bVars.alpha !== undefined) ? Number(_bVars.alpha) : 
+                           (b.transparency !== undefined ? Number(b.transparency) : 0));
+            if (isNaN(curTrans)) curTrans = 0;
+            curTrans = Math.max(0, Math.min(100, curTrans));
+            if (curTrans >= 100 && !window.debugShowHitboxes) continue;
+
             // 画面外カリング（通常弾のみ）
             // 予告線・設置ビームは発射点が画面外でも線本体が画面内に伸びるためカリング除外
             if (!b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam && !b.isGungnir && !b.isStar && !b.isBombPiece && !b.isTrail) {
-                let _bVars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : {};
                 let maxAspect = Math.max(1, Number(b.multf) || 1, Number(b.multlr) || 1, Number(b.asba) || 1, Number(b.aslr) || 1, Number(_bVars.multf) || 1, Number(_bVars.multlr) || 1, Number(_bVars.asba) || 1, Number(_bVars.aslr) || 1);
                 let cullMargin = b.radius * maxAspect * 2 + 10;
                 if (b.x < -cullMargin || b.x > PLAY_WIDTH + cullMargin || b.y < -cullMargin || b.y > canvas.height + cullMargin) continue;
             }
             {
             /* ↑ 以降の描画コードは従来の forEach ブロックの中身と同一 */
+            let prevAlpha = ctx.globalAlpha;
+            let bulletBaseAlpha = (curTrans > 0) ? Math.max(0, 1.0 - curTrans / 100) : 1.0;
+            if (curTrans > 0) {
+                ctx.globalAlpha = Math.max(0, prevAlpha * bulletBaseAlpha);
+            }
 
                 if (b.isBombPiece) {
                     ctx.save();
@@ -3740,11 +3770,11 @@ function applyAbilityEffect(cardId, owner) {
                     let ringR = 3 + 5 * progress + pulse * 2;
                     ctx.strokeStyle = b.color || '#ff3333';
                     ctx.lineWidth = 1.5;
-                    ctx.globalAlpha = 0.5 + 0.5 * progress;
+                    ctx.globalAlpha = (0.5 + 0.5 * progress) * bulletBaseAlpha;
                     ctx.beginPath();
                     ctx.arc(b.x, b.y, ringR, 0, Math.PI * 2);
                     ctx.stroke();
-                    ctx.globalAlpha = 1.0;
+                    ctx.globalAlpha = 1.0 * bulletBaseAlpha;
                     ctx.restore();
                 } else if (b.isLaser) {
                     ctx.save();
@@ -3778,7 +3808,7 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.shadowColor = b.color || '#ff3333';
                         ctx.strokeStyle = b.color || '#ff3333';
                         ctx.lineWidth = Math.max(0.1, laserWidth * widthFactor);
-                        ctx.globalAlpha = 0.5;
+                        ctx.globalAlpha = 0.5 * bulletBaseAlpha;
                         ctx.lineCap = 'round';
                         ctx.beginPath();
                         ctx.moveTo(b.x, b.y);
@@ -3790,7 +3820,7 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.shadowColor = '#ffffff';
                         ctx.strokeStyle = '#ffffff';
                         ctx.lineWidth = Math.max(0.1, laserWidth * 0.42 * widthFactor);
-                        ctx.globalAlpha = 1.0;
+                        ctx.globalAlpha = 1.0 * bulletBaseAlpha;
                         ctx.lineCap = 'round';
                         ctx.beginPath();
                         ctx.moveTo(b.x, b.y);
@@ -3798,7 +3828,7 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.stroke();
                         
                         ctx.shadowBlur = 0;
-                        ctx.globalAlpha = 1.0;
+                        ctx.globalAlpha = 1.0 * bulletBaseAlpha;
                     } else {
                         // 通常の移動レーザーの描画
                         let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
@@ -4157,6 +4187,10 @@ function applyAbilityEffect(cardId, owner) {
                             ctx.setTransform(1, 0, 0, 1, 0, 0);
                         }
                     }
+                }
+
+                if (curTrans > 0) {
+                    ctx.globalAlpha = prevAlpha;
                 }
 
                 // デバッグ用当たり判定の描画（Dキー押下時）
