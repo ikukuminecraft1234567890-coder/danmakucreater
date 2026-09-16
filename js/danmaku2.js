@@ -803,21 +803,23 @@ if (frame == 30) {
     despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
     emitterScript: `
 while (true) {
-    bullet({ "type": "normal", "radius": 0, "way": 18, "destroyResist": true })
+    bullet({ "type": "normal", "radius": 0, "way": 18, "transparency":100, "destroyResist": true })
     angle = random(0,360)
     wf(120)
 }
     `,
     bulletScript: `
 if (cardFrame == 30 * n) {
-    bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": 270, "radius": 40, "hitRadius": 0, "way": 4 })
+    bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": 270, "radius": 40, "hitRadius": 0, "transparency": 100, "way": 4 })
 }
     `,
     magicCircleScript: `
 once {
     tween("radius", 40, 10, "frames", 30)
+    tween("transparency", 100, 50, "frames", 30)
     wf(30)
     imageTo("redgun")
+    transparency = 0
     speed = 110
     hitRadius = 5
 }
@@ -1268,6 +1270,405 @@ if (frame == 60..120) {
         angle += 1
     }
     spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「原生代の神霊界」",           // 弾幕名・スペルカード名
+    desc: "理不尽感はあんま無くて、結構避けるのも楽しい弾幕になったとおもいます！！",
+    hp: 1500,                   // ボスHP（ショットで削って撃破可能）
+    duration: 70,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 300
+    time = random(10,110)
+    time2 = time * 2
+    r = random(-2,2)
+    henkouspd = random(100,200)
+    sa = 0
+    bullet({ "type": "normal", "image": "onryou_light_blue", "radius": 40, "hitRadius": 45, "way": 4 })
+    sa = -0.25
+    bullet({ "type": "normal", "image": "onryou_light_red", "radius": 40, "hitRadius": 45, "way": 4 })
+    sa = 0.25
+    bullet({ "type": "normal", "image": "onryou_light_green", "radius": 40, "hitRadius": 45, "way": 4 })
+    sa = 0.5
+    bullet({ "type": "normal", "image": "onryou_light_yellow", "radius": 40, "hitRadius": 45, "way": 4 })
+    angle += random(0,180)
+    wf(20)
+}
+    `,
+    bulletScript: `
+if (frame == time..time2) {
+    angle += r * 0
+    spriteAngle = angle
+}
+once {
+    speed = 300
+}
+if (isBounced) {
+    once {
+        bounce()
+        angle += sa *50
+        spriteAngle = angle
+        tween("radius", radius, 20, "seconds", 1)
+        tween("speed", speed, henkouspd, "seconds", 1)
+        tween("hitRadius", hitRadius, 10, "seconds", 1)
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「燻蝶劣勢」",           // 弾幕名・スペルカード名
+    desc: "うおおおリベンジ！無理にでも打ち込みにいかないとずっと隙間を抜けないといけない地獄になる！",
+    hp: 3000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 448
+    wf(2)
+    while (true) {
+        angle = 0
+        for (let i = 0; i < 10; i++) {
+            bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": -angle +45, "radius": 10, "hitRadius": 7, "way": 4, "destroyResist": true, "muki": 1 })
+            angle -= 5.5
+            wf(10)
+        }
+        for (let i = 0; i < 4; i++) {
+            bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": -angle + l + 45 + 45, "radius": 10, "hitRadius": 7, "way": 10 + w, "distance": 3.5, "distanceType": "step", "destroyResist": true, "muki": -1 })
+            l += 90
+        }
+        w += 1
+        if (w==14..800) {
+            w = 14
+        }
+        for (let i = 0; i < 10; i++) {
+            bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": -angle, "radius": 10, "hitRadius": 7, "way": 4, "destroyResist": true, "muki": -1 })
+            angle += 5.5
+            wf(10)
+        }
+        for (let i = 0; i < 4; i++) {
+            bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": -angle + l + 90 + 45, "radius": 10, "hitRadius": 7, "way": 10 + w, "distance": 3.5, "distanceType": "step", "destroyResist": true, "muki": 1 })
+            l += 90
+        }
+        w += 1
+        if (w==14..800) {
+            w = 14
+        }
+    }
+}
+while (true) {
+    if (cardFrame == 80 * n) {
+        sd = 0
+        for (let i = 0; i < 5; i++) {
+            sd += 40
+            bullet({ "type": "normal", "image": "tyoudan", "angle": 180 + 20, "radius": 20, "hitRadius": 5, "color": "#3333ff", "way": 2 })
+            bullet({ "type": "normal", "image": "tyoudan", "angle": 180 - 20, "radius": 20, "hitRadius": 5, "color": "#3333ff", "way": 2 })
+        }
+    }
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    once {
+        advance(50)
+        g = 50
+    }
+    advance(-g)
+    angle += muki * 0.7
+    spriteAngle = angle
+    advance(g)
+    g += 1
+}
+if (color==#3333ff) {
+    if (frame==1) {
+        tween("speed", 0, 200, "seconds", 1)
+    }
+    if (frame==60) {
+        tween("speed", 200, 0, "seconds", 1)
+    }
+    if (frame==120) {
+        angle += random(-175,175)
+        spriteAngle = angle
+        tween("speed", 0, 100 + sd, "seconds", 1)
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「アグニシャイン：球」",           // 弾幕名・スペルカード名
+    desc: "どっちかっていうとニューワールドオーダーとか無意識の遺伝子（笑）",
+    hp: 3000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 100,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "onryou_light_red", "radius": 20, "hitRadius": 10, "way": 3, "muki": 1 })
+    bullet({ "type": "normal", "image": "onryou_light_red", "radius": 20, "hitRadius": 10, "way": 3, "muki": -1 })
+    angle += random(0,360)
+    wf(12)
+}
+while (true) {
+    tween("ex", ex, 384, "seconds", 5, "easeInOut")
+    tween("ey", ey, 350, "seconds", 5, "easeInOut")
+    wf(240)
+    bullet({ "type": "normal", "image": "onryou_light_red", "radius": 20, "hitRadius": 5, "color": "#ffffff", "way": 36 })
+    wf(60)
+    tween("ex", ex, tx + random(-60,60), "seconds", 5, "easeInOut")
+    tween("ey", ey, ty + random(-60,60), "seconds", 5, "easeInOut")
+    wf(300)
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    if (frame == 0..300) {
+        angle += muki * 1.5
+        spriteAngle = angle
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「プラネットガンフィクス」",           // 弾幕名・スペルカード名
+    desc: "安置はないです。当たりますよ！？！？",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 30,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    if (enemyHp = 2500..4000) {
+        r = -45
+        for (let i = 0; i < 45; i++) {
+            bullet({ "type": "normal", "image": "redsmall", "angle": -90 + r, "radius": 0, "hitRadius": 0, "isAbsolute": true, "x": 378, "y": 448 })
+            r += 2
+            wf(2)
+        }
+        for (let i = 0; i < 45; i++) {
+            bullet({ "type": "normal", "image": "redsmall", "angle": -90 + r, "radius": 0, "hitRadius": 0, "isAbsolute": true, "x": 378, "y": 448 })
+            r -= 2
+            wf(2)
+        }
+    }
+    if (enemyHp = 0..2500) {
+        r = -45
+        for (let i = 0; i < 90; i++) {
+            bullet({ "type": "normal", "image": "redsmall", "angle": -90 + r, "radius": 0, "hitRadius": 0, "isAbsolute": true, "x": 378, "y": 448 })
+            r += 1
+            wf(1)
+        }
+        for (let i = 0; i < 90; i++) {
+            bullet({ "type": "normal", "image": "redsmall", "angle": -90 + r, "radius": 0, "hitRadius": 00, "isAbsolute": true, "x": 378, "y": 448 })
+            r -= 1
+            wf(1)
+        }
+    }
+}
+    `,
+    bulletScript: `
+once {
+    speed = random(200,450)
+}
+if (y < 5) {
+    once {
+        radius = 10
+        imageTo("bluenormal")
+        angle = 90
+        motospd = speed
+        speed = 0
+        y = 10
+        tween("radius", 40, 4, "seconds", 0.3)
+        tween("transparency", 100, 0, "seconds", 0.2)
+        wf(20)
+        imageTo("bluegun")
+        radius = 10
+        angle = 90
+        spriteAngle = angle
+        speed = motospd
+        hitRadius = 5
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "Easy",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "虹符「弾虹貫日」",           // 弾幕名・スペルカード名
+    desc: "だいぶスマートに作れたと思ってる！ちなみに何故かラグい。",
+    hp: 2400,                   // ボスHP（ショットで削って撃破可能）
+    duration: 70,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    tamac = 7
+    while (true) {
+        matu = 5
+        if (cardSecond == 20..6000) {
+            matu = 3
+        }
+        wf(matu * 4)
+        aimAtTarget()
+        angle += 120
+        for (let i = 0; i < 20; i++) {
+            angle -= 10
+            spd = 0
+            tamac += 1
+            for (let i = 0; i < 10; i++) {
+                spd += 40
+                bullet({ "type": "normal", "image": "redbig", "speed": 100 + spd, "radius": 8, "hitRadius": 5 })
+            }
+            wf(matu)
+        }
+        wf(matu * 4)
+        aimAtTarget()
+        angle -= 120
+        for (let i = 0; i < 20; i++) {
+            angle += 10
+            spd = 0
+            tamac += 1
+            for (let i = 0; i < 10; i++) {
+                spd += 40
+                bullet({ "type": "normal", "image": "redbig", "speed": 100 + spd, "radius": 8, "hitRadius": 5 })
+            }
+            wf(matu)
+        }
+    }
+}
+    `,
+    bulletScript: `
+once {
+    angle += random(-2,2)
+    if (tamac == 1 + 7 * n) {
+        imageTo("redbig")
+    }
+    if (tamac == 2 + 7 * n) {
+        imageTo("orangebig")
+    }
+    if (tamac == 3 + 7 * n) {
+        imageTo("yellowbig")
+    }
+    if (tamac == 4 + 7 * n) {
+        imageTo("limebig")
+    }
+    if (tamac == 5 + 7 * n) {
+        imageTo("bluebig")
+    }
+    if (tamac == 6 + 7 * n) {
+        imageTo("purplebig")
+    }
+    if (tamac == 7 + 7 * n) {
+        imageTo("pinkbig")
+    }
+    wait(99999999999999999)
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "Hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "虹符「弾虹貫日・強」",           // 弾幕名・スペルカード名
+    desc: "むずくしたい欲を発散します（笑）",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 70,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 0.1,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    tamac = 7
+    while (true) {
+        matu = 2
+        wf(60)
+        aimAtTarget()
+        angle += 120
+        for (let i = 0; i < 40; i++) {
+            angle -= 10
+            spd = 0
+            tamac += 1
+            for (let i = 0; i < 10; i++) {
+                spd += 40
+                bullet({ "type": "normal", "image": "redbig", "speed": 100 + spd, "radius": 15, "hitRadius": 10 })
+            }
+            wf(matu)
+        }
+        aimAtTarget()
+        angle -= 120
+        for (let i = 0; i < 40; i++) {
+            angle += 10
+            spd = 0
+            tamac += 1
+            for (let i = 0; i < 10; i++) {
+                spd += 40
+                bullet({ "type": "normal", "image": "redbig", "speed": 100 + spd, "radius": 15, "hitRadius": 10 })
+            }
+            wf(matu)
+        }
+        aimAtTarget()
+        for (let i = 0; i < 10; i++) {
+            spd += 60
+            bullet({ "type": "normal", "image": "redknife", "speed": 20 + spd, "radius": 30, "hitRadius": 10, "way": 36, "anana": 1 })
+        }
+    }
+}
+    `,
+    bulletScript: `
+if(anana != 1) {
+    once {
+        angle += random(-4,4)
+        speed += random(-60,60)
+        if (tamac == 1 + 7 * n) {
+            imageTo("redbig")
+        }
+        if (tamac == 2 + 7 * n) {
+            imageTo("orangebig")
+        }
+        if (tamac == 3 + 7 * n) {
+            imageTo("yellowbig")
+        }
+        if (tamac == 4 + 7 * n) {
+            imageTo("limebig")
+        }
+        if (tamac == 5 + 7 * n) {
+            imageTo("bluebig")
+        }
+        if (tamac == 6 + 7 * n) {
+            imageTo("purplebig")
+        }
+        if (tamac == 7 + 7 * n) {
+            imageTo("pinkbig")
+        }
+        wait(99999999999999999)
+    }
 }
     `,
     magicCircleScript: `
