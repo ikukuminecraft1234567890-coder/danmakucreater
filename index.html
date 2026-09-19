@@ -126,6 +126,8 @@
                         <option value="speed + 50">速度 + 50 (speed + 50)</option>
                         <option value="speed * 0.5">speed * 0.5</option>
                         <option value="speed * 2">speed * 2</option>
+                        <option value="floor(speed)">速度の切り捨て floor(speed)</option>
+                        <option value="floor(angle)">角度の切り捨て floor(angle)</option>
                         <option value="'normal'">通常弾画像 ('normal')</option>
                         <option value="'rednormal'">パレット赤通常 ('rednormal')</option>
                         <option value="'aquastar'">パレットアクア星 ('aquastar')</option>
@@ -266,6 +268,7 @@
 
                             <button class="palette-btn color-vars" id="palette-btn-setvar" onclick="customCardMakerAddBlock('set_var')">set variable</button>
                             <button class="palette-btn color-vars" id="palette-btn-changevar" onclick="customCardMakerAddBlock('change_var')">変数を [値] 増やす</button>
+                            <button class="palette-btn color-vars" id="palette-btn-floorvar" onclick="customCardMakerAddBlock('floor_var')">変数を切り捨てる (floor)</button>
                             <button class="palette-btn color-vars" id="palette-btn-tweenvar" onclick="customCardMakerAddBlock('tween_var')">変数をスムーズに移行する</button>
                             <button class="palette-btn color-vars" id="palette-btn-tweenvarwait" onclick="customCardMakerAddBlock('tween_var_wait')">変数をスムーズに移行して待つ</button>
                             <button class="palette-btn color-vars" id="palette-btn-setlaser" onclick="customCardMakerAddBlock('set_laser')">設置レーザー設定</button>
@@ -290,6 +293,8 @@
                             <button class="palette-btn color-motion" id="palette-btn-fast" onclick="customCardMakerAddBlock('speed_scale_fast')">fast(e, f)</button>
                             <button class="palette-btn color-motion" id="palette-btn-bounce" onclick="customCardMakerAddBlock('bounce')">壁で反射する</button>
                             <button class="palette-btn color-motion" id="palette-btn-advance" onclick="customCardMakerAddBlock('advance')">進行方向に [D] px進める</button>
+                            <button class="palette-btn color-motion" id="palette-btn-to-front" onclick="customCardMakerAddBlock('to_front')">最前面に移動 (toFront)</button>
+                            <button class="palette-btn color-motion" id="palette-btn-to-back" onclick="customCardMakerAddBlock('to_back')">最背面に移動 (toBack)</button>
 
                             <!-- 旧式ブロック（折りたたみ） -->
                             <details class="palette-legacy-group" style="margin-top: 10px; border: 1px solid #444; border-radius: 4px; padding: 4px; background: rgba(0,0,0,0.25);">

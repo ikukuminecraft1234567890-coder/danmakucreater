@@ -3413,6 +3413,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${block.params.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${state.variables[varName]})`);
                                 break;
                             }
+                            case 'floor_var': {
+                                let varName = block.params.name || block.params.var || 'speed';
+                                if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
+                                if (!state.constVars.has(varName)) {
+                                    let curHp = (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') && (typeof cpu !== 'undefined' && cpu) ? cpu.hp : (Number(state.variables[varName]) || 0);
+                                    let newVal = Math.floor(curHp);
+                                    setScriptVariable(state, varName, newVal, false);
+                                }
+                                break;
+                            }
                             case 'aim_at_target': {
                                 let dx = target.x - b.x;
                                 let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
@@ -3487,6 +3497,18 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         b.vx = Math.cos(finalRad) * spd;
                                         b.vy = Math.sin(finalRad) * spd;
                                     }
+                                }
+                                break;
+                            }
+                            case 'to_front': {
+                                if (b && window.requestBulletLayerChange) {
+                                    window.requestBulletLayerChange(b, 'front');
+                                }
+                                break;
+                            }
+                            case 'to_back': {
+                                if (b && window.requestBulletLayerChange) {
+                                    window.requestBulletLayerChange(b, 'back');
                                 }
                                 break;
                             }
@@ -3948,6 +3970,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                 case 'aim_at_target':
                 case 'aim_at_coord':
                 case 'move_owner':
+                case 'to_front':
+                case 'to_back':
+                case 'floor_var':
                     return 0;
                 case 'spawn_bullet':
                 case 'spawn_bullet_resist':

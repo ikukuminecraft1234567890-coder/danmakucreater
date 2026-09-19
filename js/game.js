@@ -13,8 +13,11 @@ window.pow = Math.pow;
 window.log = Math.log;
 window.exp = Math.exp;
 window.floor = Math.floor;
+window.trunc = Math.trunc || Math.floor;
+window.int = Math.trunc || Math.floor;
 window.round = Math.round;
 window.ceil = Math.ceil;
+window.Math = Math;
 
 window.DanmakuCompilerRuntime = window.DanmakuCompilerRuntime || {};
 window.DanmakuCompilerRuntime.rand = (a, b) => {
@@ -83,6 +86,33 @@ window.DanmakuCompilerRuntime._getCurrentY = (b, attacker, state, canvasHeight) 
     }
     return attacker.y;
 };
+
+window._pendingLayerBullets = [];
+window.requestBulletLayerChange = function(b, action) {
+    if (!b) return;
+    b._layer = action; // 'front' または 'back'
+    window._pendingLayerBullets.push({ bullet: b, action: action });
+};
+
+function applyPendingBulletLayerChanges() {
+    if (!window._pendingLayerBullets || window._pendingLayerBullets.length === 0) return;
+    if (typeof bullets === 'undefined' || !Array.isArray(bullets)) return;
+    for (let k = 0; k < window._pendingLayerBullets.length; k++) {
+        const item = window._pendingLayerBullets[k];
+        const b = item.bullet;
+        if (!b || b._dead || b.isDestroyed) continue;
+        const idx = bullets.indexOf(b);
+        if (idx === -1) continue;
+        bullets.splice(idx, 1);
+        if (item.action === 'front') {
+            bullets.push(b);
+        } else if (item.action === 'back') {
+            bullets.unshift(b);
+        }
+    }
+    window._pendingLayerBullets.length = 0;
+}
+window.applyPendingBulletLayerChanges = applyPendingBulletLayerChanges;
 
 function applyAbilityEffect(cardId, owner) {
             let user = owner === 'PLAYER' ? player : cpu;
@@ -2814,6 +2844,7 @@ function applyAbilityEffect(cardId, owner) {
                     }
                     bullets.length = writeIdx;
                 }
+                applyPendingBulletLayerChanges();
                 const _bltTotalMs = performance.now() - tBulletStart;
                 window.perfBullet     = (window.perfBullet  || 0) + _bltTotalMs;
                 window.perfBltUpd     = (window.perfBltUpd  || 0) + _perfUpd;
@@ -3438,16 +3469,32 @@ function applyAbilityEffect(cardId, owner) {
             {
                 if (!window._globalCircleGroups) window._globalCircleGroups = new Map();
                 if (!window._globalSpecialBullets) window._globalSpecialBullets = [];
+                if (!window._globalBackBullets) window._globalBackBullets = [];
+                if (!window._globalFrontBullets) window._globalFrontBullets = [];
                 const _circleGroups = window._globalCircleGroups;
                 const _specialBullets = window._globalSpecialBullets;
+                const _backBullets = window._globalBackBullets;
+                const _frontBullets = window._globalFrontBullets;
 
                 // プールリセット
                 _circleGroups.forEach(g => { g.xs.length = 0; g.ys.length = 0; });
                 _specialBullets.length = 0;
+                _backBullets.length = 0;
+                _frontBullets.length = 0;
 
                 for (let _bi = 0; _bi < bullets.length; _bi++) {
                     const b = bullets[_bi];
                     if (b.radius <= 0) continue;
+
+                    // レイヤー振り分け (最背面・最前面)
+                    if (b._layer === 'back') {
+                        _backBullets.push(b);
+                        continue;
+                    }
+                    if (b._layer === 'front') {
+                        _frontBullets.push(b);
+                        continue;
+                    }
 
                     const _bVars = b.bulletState ? b.bulletState.variables : null;
                     const _hasAspect = (b.multf !== undefined && b.multf !== 1) || (b.multlr !== undefined && b.multlr !== 1) ||
@@ -3484,24 +3531,25 @@ function applyAbilityEffect(cardId, owner) {
                         _specialBullets.push(b);
                     }
                 }
-
-                // バッチ円弾描画: 同じ色・同じ半径の弾を1回のfill()でまとめて描画
-                for (const [, _g] of _circleGroups) {
-                    if (_g.xs.length === 0) continue;
-                    ctx.fillStyle = _g.color;
-                    ctx.beginPath();
-                    for (let _k = 0; _k < _g.xs.length; _k++) {
-                        ctx.moveTo(_g.xs[_k] + _g.radius, _g.ys[_k]);
-                        ctx.arc(_g.xs[_k], _g.ys[_k], _g.radius, 0, Math.PI * 2);
-                    }
-                    ctx.fill();
-                }
             }
 
-            // ── 特殊弾・画像弾の描画（バッチ化不可なものを個別描画） ─────────────
-            const bullets_special = window._globalSpecialBullets;
-
-            for (let _bsi = 0; _bsi < bullets_special.length; _bsi++) {
+            // ── 特殊弾・個別弾の描画（最背面 → 円弾バッチ → 通常特殊弾 → 最前面の順に描画） ─────────────
+            for (let _pass = 0; _pass < 3; _pass++) {
+                if (_pass === 1) {
+                    // バッチ円弾描画: 同じ色・同じ半径の弾を1回のfill()でまとめて描画
+                    for (const [, _g] of window._globalCircleGroups) {
+                        if (_g.xs.length === 0) continue;
+                        ctx.fillStyle = _g.color;
+                        ctx.beginPath();
+                        for (let _k = 0; _k < _g.xs.length; _k++) {
+                            ctx.moveTo(_g.xs[_k] + _g.radius, _g.ys[_k]);
+                            ctx.arc(_g.xs[_k], _g.ys[_k], _g.radius, 0, Math.PI * 2);
+                        }
+                        ctx.fill();
+                    }
+                }
+                const bullets_special = (_pass === 0) ? window._globalBackBullets : ((_pass === 1) ? window._globalSpecialBullets : window._globalFrontBullets);
+                for (let _bsi = 0; _bsi < bullets_special.length; _bsi++) {
             const b = bullets_special[_bsi];
             let _bVars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : {};
             let curTrans = (_bVars.transparency !== undefined) ? Number(_bVars.transparency) : 
@@ -4339,6 +4387,7 @@ function applyAbilityEffect(cardId, owner) {
                 }
             } // end of special bullet draw block
             } // end of for _bsi loop
+            } // end of for _pass loop
             window.perfDrawB = performance.now() - tDrawBStart;
 
             // 魔法陣（Magic Circles）の描画
@@ -7020,8 +7069,8 @@ function applyAbilityEffect(cardId, owner) {
         const RESERVED_WORDS = new Set([
             'true', 'false', 'null', 'undefined', 'NaN', 'Infinity',
             'sin', 'cos', 'tan', 'sqrt', 'abs', 'min', 'max', 'PI', 'PI2',
-            'atan2', 'pow', 'log', 'exp', 'floor', 'round', 'ceil', 'random', 'rand',
-            'const', 'let', 'var', 'function', 'return', 'n',
+            'atan2', 'pow', 'log', 'exp', 'floor', 'trunc', 'int', 'round', 'ceil', 'random', 'rand',
+            'Math', 'const', 'let', 'var', 'function', 'return', 'n',
             '__fuzzyEqual', '__fuzzyNotEqual', '__v', '__seedrandom'
         ]);
 

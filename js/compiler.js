@@ -91,6 +91,10 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `vars['bulletImage'] = ${img};\n`;
             js += ind + `vars['image'] = ${img};\n`;
             js += ind + `if (b) b.bulletImage = ${img};\n`;
+        } else if (t === 'to_front') {
+            js += ind + `if (b && typeof window !== 'undefined' && window.requestBulletLayerChange) window.requestBulletLayerChange(b, 'front');\n`;
+        } else if (t === 'to_back') {
+            js += ind + `if (b && typeof window !== 'undefined' && window.requestBulletLayerChange) window.requestBulletLayerChange(b, 'back');\n`;
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
             let varName = block.params.var || block.params.name;
             if (varName) {
@@ -125,6 +129,20 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                     js += ind + `}\n`;
                 } else {
                     js += ind + `vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${valExpr});\n`;
+                }
+            }
+        } else if (t === 'floor_var') {
+            let varName = block.params.var || block.params.name || 'speed';
+            if (varName) {
+                if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
+                    js += ind + `if (typeof cpu !== 'undefined' && cpu) {\n`;
+                    js += ind + `  cpu.hp = Math.max(0, Math.floor(cpu.hp));\n`;
+                    js += ind + `  vars['${varName}'] = cpu.hp;\n`;
+                    js += ind + `} else {\n`;
+                    js += ind + `  vars['${varName}'] = Math.floor(Number(vars['${varName}']) || 0);\n`;
+                    js += ind + `}\n`;
+                } else {
+                    js += ind + `vars['${varName}'] = Math.floor(Number(vars['${varName}']) || 0);\n`;
                 }
             }
         } else if (t === 'forever') {
@@ -243,6 +261,11 @@ window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     funcStr += `  const random = _util.rand;\n`;
     funcStr += `  const rand = _util.rand;\n`;
     funcStr += `  const seedrandom = _util.seedrandom;\n`;
+    funcStr += `  const floor = Math.floor;\n`;
+    funcStr += `  const trunc = Math.trunc || Math.floor;\n`;
+    funcStr += `  const int = Math.trunc || Math.floor;\n`;
+    funcStr += `  const round = Math.round;\n`;
+    funcStr += `  const ceil = Math.ceil;\n`;
     funcStr += `  if (typeof cpu !== 'undefined' && cpu) {\n`;
     funcStr += `    vars['enemyHp'] = cpu.hp;\n`;
     funcStr += `    vars['enemyMaxHp'] = cpu.maxHp;\n`;

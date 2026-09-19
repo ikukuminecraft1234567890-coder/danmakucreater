@@ -1674,6 +1674,201 @@ if(anana != 1) {
     magicCircleScript: `
 
     `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「氷結晶スプリット」",           // 弾幕名・スペルカード名
+    desc: "結晶ができてそれが炸裂するイメージ？",
+    hp: 3000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 80,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 260
+    wf(50)
+    for (let i = 0; i < 75; i++) {
+        angle += 4.8
+        iku = random(0,300)
+        iku += random(-100,100)
+        bullet({ "type": "normal", "image": "cyankunai2", "speed": 0, "radius": 20, "hitRadius": 6, "way": 4, "t": 1 })
+        bullet({ "type": "normal", "image": "cyankunai2", "speed": 0, "radius": 20, "hitRadius": 6, "way": 4, "t": 2 })
+        bullet({ "type": "normal", "image": "cyankunai2", "speed": 0, "radius": 20, "hitRadius": 6, "way": 4, "t": 3 })
+    }
+    wf(200)
+    for (let i = 0; i < 10; i++) {
+        wf(20)
+        aimAtTarget()
+        bullet({ "type": "normal", "image": "bluekunai2", "speed": 300, "angle": angle + 5, "radius": 20, "hitRadius": 10, "color": "#ffffff", "way": 24, "destroyResist": true })
+    }
+    wf(50)
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    once {
+        advance(iku)
+        if (t=1) {
+            angle += 180
+        }
+        if (t=2) {
+            angle += 120 + 180
+        }
+        if (t=3) {
+            angle += -120 - 180
+        }
+        tween("radius", 0, 20, "seconds", 0.5)
+    }
+    spriteAngle = angle
+    if (frame==60) {
+        tween("speed", speed, iku, "seconds", 2)
+    }
+    if (frame==120) {
+        if (t=1) {
+            speed = iku
+        }
+        tween("radius", 20, 15, "seconds", 1)
+        hitRadius = 3
+    }
+    if (frame==200) {
+        tween("speed", speed, 300, "seconds", 5)
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "幻符「ディストートバレル」",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "redkunai2", "radius": 12, "hitRadius": 3, "way": 3, "muki": 1 })
+    bullet({ "type": "normal", "image": "redkunai2", "angle": -angle, "radius": 12, "hitRadius": 3, "way": 3, "muki": 1 })
+    bullet({ "type": "normal", "image": "redkunai2", "radius": 12, "hitRadius": 3, "way": 3, "muki": -1 })
+    bullet({ "type": "normal", "image": "redkunai2", "angle": -angle, "radius": 12, "hitRadius": 3, "way": 3, "muki": -1 })
+    angle += 7
+    wf(2)
+}
+    `,
+    bulletScript: `
+if (frame == 60) {
+    angle += 50 * muki
+    spriteAngle = angle
+}
+if (frame == 180) {
+    angle -= 15 * muki
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "神薙「二重錦紗」",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    aimAtTarget()
+    angle += random(-50,50)
+    bullet({ "type": "normal", "image": "greendiamond", "radius": 10, "hitRadius": 3, "gensoku": 300 })
+    bullet({ "type": "normal", "image": "greendiamond", "angle": angle + 1.3, "radius": 10, "hitRadius": 3, "gensoku": 300 })
+    wf(1)
+    angle = 90
+    angle += random(-50,50)
+    bullet({ "type": "normal", "image": "greendiamond", "radius": 10, "hitRadius": 3, "gensoku": 200 })
+    bullet({ "type": "normal", "image": "greendiamond", "angle": angle + 1.3, "radius": 10, "hitRadius": 3, "gensoku": 200 })
+    wf(1)
+}
+    `,
+    bulletScript: `
+once {
+    tween("speed", 600, gensoku, "seconds", 1)
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "スペル名",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 30,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    aimAtTarget()
+    angle += random(-70,70)
+    r = random(-1,1)
+    r2 = random(-1,1)
+    if (r==-1..0) {
+        if (r2 == -1..0) {
+            spd = -100
+            for (let i = 0; i < 10; i++) {
+                bullet({ "type": "normal", "image": "oliveknife", "speed": 200 + spd, "radius": 20, "hitRadius": 8 })
+                angle += 4
+                spd += 20
+                wf(1)
+            }
+        }
+        if (r2 ==0..1) {
+            spd = 100
+            for (let i = 0; i < 10; i++) {
+                bullet({ "type": "normal", "image": "oliveknife", "speed": 200 + spd, "radius": 20, "hitRadius": 8 })
+                angle += 4
+                spd -= 10
+                wf(1)
+            }
+        }
+    }
+    if (r==0..1) {
+        if (r2 == -1..0) {
+            spd = -100
+            for (let i = 0; i < 10; i++) {
+                bullet({ "type": "normal", "image": "oliveknife", "speed": 200 + spd, "radius": 20, "hitRadius": 8 })
+                angle += 4
+                spd += 20
+                wf(1)
+            }
+        }
+        if (r2 ==0..1) {
+            spd = 100
+            for (let i = 0; i < 10; i++) {
+                bullet({ "type": "normal", "image": "oliveknife", "speed": 200 + spd, "radius": 20, "hitRadius": 8 })
+                angle += 4
+                spd -= 10
+                wf(1)
+            }
+        }
+    }
+    wf(1)
+}
+    `,
+    bulletScript: `
+
+    `,
+    magicCircleScript: `
+
+    `
 }
 ];
 

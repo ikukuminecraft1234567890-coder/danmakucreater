@@ -62,6 +62,8 @@ function customCardMakerSwitchTab(tab) {
                 block.params.name = 'angle';
                 block.params.value = '10';
                 block.params.op = '+';
+            } else if (type === 'floor_var') {
+                block.params.name = 'speed';
             } else if (type === 'speed_add') {
                 block.type = 'change_var';
                 block.params.name = 'speed';
@@ -289,6 +291,9 @@ function customCardMakerSwitchTab(tab) {
                 block.params.easing = 'linear';
             } else if (type === 'advance') {
                 block.params.distance = '50';
+            } else if (type === 'to_front' || type === 'to_back') {
+                block.type = type;
+                block.params = {};
             } else if (type === 'once') {
                 block.params = {};
             }
@@ -703,6 +708,8 @@ function customCardMakerSwitchTab(tab) {
             setDisplay('palette-btn-fast', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-bounce', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-advance', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-to-front', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-to-back', isBulletTab ? 'block' : 'none');
             
             let container = document.getElementById('workspace-blocks-container');
             container.innerHTML = '';
@@ -879,6 +886,15 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="-" ${b.params.op === '-' ? 'selected' : ''}>-=</option>
                                 </select>
                                 <input type="text" list="val-suggestions" style="width:70px;" value="${b.params.value}" onchange="customCardMakerUpdateParam(${idx}, 'value', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'floor_var':
+                            blockDiv.className = 'maker-block color-vars';
+                            html = `
+                                <span>[変数]</span>
+                                <input type="text" list="var-suggestions" style="width:75px;" value="${b.params.name || 'speed'}" onchange="customCardMakerUpdateParam(${idx}, 'name', this.value)">
+                                <span>の小数点以下を切り捨てる</span>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -1576,6 +1592,20 @@ function customCardMakerSwitchTab(tab) {
                                 ${renderBlockControls(idx)}
                             `;
                             break;
+                        case 'to_front':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] 弾を最前面に移動</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'to_back':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] 弾を最背面に移動</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
                         case 'advance':
                             blockDiv.className = 'maker-block color-motion';
                             html = `
@@ -2170,6 +2200,9 @@ function customCardMakerSwitchMode(mode) {
                     case 'change_var':
                         line = `${b.params.name || 'angle'} ${b.params.op === '-' ? '-=' : '+='} ${b.params.value || '10'}`;
                         break;
+                    case 'floor_var':
+                        line = `floor(${b.params.name || 'speed'})`;
+                        break;
                     case 'bullet_image_set': {
                         let img = b.params.bulletImage || b.params.value || 'none';
                         line = `imageTo("${img}")`;
@@ -2502,6 +2535,12 @@ function customCardMakerSwitchMode(mode) {
                     }
                     case 'bounce':
                         line = `bounce()`;
+                        break;
+                    case 'to_front':
+                        line = `toFront()`;
+                        break;
+                    case 'to_back':
+                        line = `toBack()`;
                         break;
                     case 'advance':
                         line = `advance(${b.params.distance || '50'})`;
@@ -2931,6 +2970,16 @@ function customCardMakerSwitchMode(mode) {
                     }
                     let mBounce = trimmed.match(/^bounce\(\)$/i);
                     if (mBounce) block = { type: 'bounce', params: {}, indent };
+                    let mToFront = trimmed.match(/^(?:toFront|bringToFront|setFront|layer\(['"]front['"]\))(?:\(\))?$/i);
+                    if (mToFront) block = { type: 'to_front', params: {}, indent };
+                    let mToBack = trimmed.match(/^(?:toBack|sendToBack|setBack|layer\(['"]back['"]\))(?:\(\))?$/i);
+                    if (mToBack) block = { type: 'to_back', params: {}, indent };
+                    let mFloor = trimmed.match(/^(?:floor|trunc|int)\(([^)]+)\)$/i);
+                    if (!mFloor) {
+                        let mFloorAssign = trimmed.match(/^([a-zA-Z0-9_]+)\s*=\s*(?:Math\.)?(?:floor|trunc|int)\(\s*\1\s*\)$/i);
+                        if (mFloorAssign) mFloor = [trimmed, mFloorAssign[1]];
+                    }
+                    if (mFloor) block = { type: 'floor_var', params: { name: mFloor[1].trim() }, indent };
                     let mAdvance = trimmed.match(/^advance\((.*?)\)$/i);
                     if (mAdvance) block = { type: 'advance', params: { distance: mAdvance[1].trim() }, indent };
                     let mOnce = trimmed.match(/^once(\(\))?$/i);
@@ -3501,6 +3550,22 @@ function customCardMakerSwitchMode(mode) {
                 let mBounce = trimmed.match(/^bounce\(\)$/i);
                 if (mBounce) {
                     block = { type: 'bounce', params: {}, indent: indent };
+                }
+                let mToFront = trimmed.match(/^(?:toFront|bringToFront|setFront|layer\(['"]front['"]\))(?:\(\))?$/i);
+                if (mToFront) {
+                    block = { type: 'to_front', params: {}, indent: indent };
+                }
+                let mToBack = trimmed.match(/^(?:toBack|sendToBack|setBack|layer\(['"]back['"]\))(?:\(\))?$/i);
+                if (mToBack) {
+                    block = { type: 'to_back', params: {}, indent: indent };
+                }
+                let mFloor = trimmed.match(/^(?:floor|trunc|int)\(([^)]+)\)$/i);
+                if (!mFloor) {
+                    let mFloorAssign = trimmed.match(/^([a-zA-Z0-9_]+)\s*=\s*(?:Math\.)?(?:floor|trunc|int)\(\s*\1\s*\)$/i);
+                    if (mFloorAssign) mFloor = [trimmed, mFloorAssign[1]];
+                }
+                if (mFloor) {
+                    block = { type: 'floor_var', params: { name: mFloor[1].trim() }, indent: indent };
                 }
                 let mAdvance = trimmed.match(/^advance\((.*?)\)$/i);
                 if (mAdvance) {

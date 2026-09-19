@@ -1468,6 +1468,34 @@ window.compiledDanmakuListS2 = [
     "emitterScript": "\nwhile (true) {\n    bullet({ \"type\": \"normal\", \"image\": \"redkunai2\", \"radius\": 12, \"hitRadius\": 3, \"way\": 3, \"muki\": 1 })\n    bullet({ \"type\": \"normal\", \"image\": \"redkunai2\", \"angle\": -angle, \"radius\": 12, \"hitRadius\": 3, \"way\": 3, \"muki\": 1 })\n    bullet({ \"type\": \"normal\", \"image\": \"redkunai2\", \"radius\": 12, \"hitRadius\": 3, \"way\": 3, \"muki\": -1 })\n    bullet({ \"type\": \"normal\", \"image\": \"redkunai2\", \"angle\": -angle, \"radius\": 12, \"hitRadius\": 3, \"way\": 3, \"muki\": -1 })\n    angle += 7\n    wf(2)\n}\n    ",
     "bulletScript": "\nif (frame == 60) {\n    angle += 50 * muki\n    spriteAngle = angle\n}\nif (frame == 180) {\n    angle -= 15 * muki\n    spriteAngle = angle\n}\n    ",
     "magicCircleScript": "\n\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "神薙「二重錦紗」",
+    "desc": "説明文や作成者名",
+    "hp": 2000,
+    "duration": 60,
+    "maxMisses": 3,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    angle += random(-50,50)\n    bullet({ \"type\": \"normal\", \"image\": \"greendiamond\", \"radius\": 10, \"hitRadius\": 3, \"gensoku\": 300 })\n    bullet({ \"type\": \"normal\", \"image\": \"greendiamond\", \"angle\": angle + 1.3, \"radius\": 10, \"hitRadius\": 3, \"gensoku\": 300 })\n    wf(1)\n    angle = 90\n    angle += random(-50,50)\n    bullet({ \"type\": \"normal\", \"image\": \"greendiamond\", \"radius\": 10, \"hitRadius\": 3, \"gensoku\": 200 })\n    bullet({ \"type\": \"normal\", \"image\": \"greendiamond\", \"angle\": angle + 1.3, \"radius\": 10, \"hitRadius\": 3, \"gensoku\": 200 })\n    wf(1)\n}\n    ",
+    "bulletScript": "\nonce {\n    tween(\"speed\", 600, gensoku, \"seconds\", 1)\n}\n    ",
+    "magicCircleScript": "\n\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "スペル名",
+    "desc": "説明文や作成者名",
+    "hp": 2000,
+    "duration": 30,
+    "maxMisses": 3,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    aimAtTarget()\n    angle += random(-70,70)\n    r = random(-1,1)\n    r2 = random(-1,1)\n    if (r==-1..0) {\n        if (r2 == -1..0) {\n            spd = -100\n            for (let i = 0; i < 10; i++) {\n                bullet({ \"type\": \"normal\", \"image\": \"oliveknife\", \"speed\": 200 + spd, \"radius\": 20, \"hitRadius\": 8 })\n                angle += 4\n                spd += 20\n                wf(1)\n            }\n        }\n        if (r2 ==0..1) {\n            spd = 100\n            for (let i = 0; i < 10; i++) {\n                bullet({ \"type\": \"normal\", \"image\": \"oliveknife\", \"speed\": 200 + spd, \"radius\": 20, \"hitRadius\": 8 })\n                angle += 4\n                spd -= 10\n                wf(1)\n            }\n        }\n    }\n    if (r==0..1) {\n        if (r2 == -1..0) {\n            spd = -100\n            for (let i = 0; i < 10; i++) {\n                bullet({ \"type\": \"normal\", \"image\": \"oliveknife\", \"speed\": 200 + spd, \"radius\": 20, \"hitRadius\": 8 })\n                angle += 4\n                spd += 20\n                wf(1)\n            }\n        }\n        if (r2 ==0..1) {\n            spd = 100\n            for (let i = 0; i < 10; i++) {\n                bullet({ \"type\": \"normal\", \"image\": \"oliveknife\", \"speed\": 200 + spd, \"radius\": 20, \"hitRadius\": 8 })\n                angle += 4\n                spd -= 10\n                wf(1)\n            }\n        }\n    }\n    wf(1)\n}\n    ",
+    "bulletScript": "\n\n    ",
+    "magicCircleScript": "\n\n    "
   }
 ];
 window.sharedDanmakuListS2 = window.compiledDanmakuListS2;
@@ -3775,6 +3803,16 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                 if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${p.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${state.variables[varName]})`);
                                 break;
                             }
+                            case 'floor_var': {
+                                let varName = p.name || p.var || 'speed';
+                                if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
+                                if (!state.constVars.has(varName)) {
+                                    let curHp = (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') && (typeof cpu !== 'undefined' && cpu) ? cpu.hp : (Number(state.variables[varName]) || 0);
+                                    let newVal = Math.floor(curHp);
+                                    window.setScriptVariable(state, varName, newVal, false);
+                                }
+                                break;
+                            }
                             case 'aim_at_target': {
                                 let dx = target.x - b.x;
                                 let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
@@ -3849,6 +3887,18 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                                         b.vx = Math.cos(finalRad) * spd;
                                         b.vy = Math.sin(finalRad) * spd;
                                     }
+                                }
+                                break;
+                            }
+                            case 'to_front': {
+                                if (b && window.requestBulletLayerChange) {
+                                    window.requestBulletLayerChange(b, 'front');
+                                }
+                                break;
+                            }
+                            case 'to_back': {
+                                if (b && window.requestBulletLayerChange) {
+                                    window.requestBulletLayerChange(b, 'back');
                                 }
                                 break;
                             }
@@ -4086,6 +4136,11 @@ window.compiledDanmaku['danmaku_0'] = function*(state, b, attacker, target, _uti
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4110,6 +4165,11 @@ window.compiledDanmaku['danmaku_0_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4139,6 +4199,11 @@ window.compiledDanmaku['danmaku_0_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4151,6 +4216,11 @@ window.compiledDanmaku['danmaku_1'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4181,6 +4251,11 @@ window.compiledDanmaku['danmaku_1'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4222,6 +4297,11 @@ window.compiledDanmaku['danmaku_1'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4246,6 +4326,11 @@ window.compiledDanmaku['danmaku_1_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4297,8 +4382,8 @@ window.compiledDanmaku['danmaku_1_bullet'] = function*(state, b, attacker, targe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lhdh24euf']) {
-        state.onceMap['lhdh24euf'] = true;
+      if (!state.onceMap['8kztep2su']) {
+        state.onceMap['8kztep2su'] = true;
         vars['x'] = 384;
         vars['y'] = 448;
       }
@@ -4313,6 +4398,11 @@ window.compiledDanmaku['danmaku_1_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4324,6 +4414,11 @@ window.compiledDanmaku['danmaku_2'] = function*(state, b, attacker, target, _uti
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4403,6 +4498,11 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4413,8 +4513,8 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['9uevzrj20']) {
-      state.onceMap['9uevzrj20'] = true;
+    if (!state.onceMap['i93uvqzg8']) {
+      state.onceMap['i93uvqzg8'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -4454,6 +4554,11 @@ window.compiledDanmaku['danmaku_2_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4475,6 +4580,11 @@ window.compiledDanmaku['danmaku_3'] = function*(state, b, attacker, target, _uti
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4554,6 +4664,11 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4564,8 +4679,8 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['bn42xtdrg']) {
-      state.onceMap['bn42xtdrg'] = true;
+    if (!state.onceMap['z2pjlcbsm']) {
+      state.onceMap['z2pjlcbsm'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -4605,6 +4720,11 @@ window.compiledDanmaku['danmaku_3_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4626,6 +4746,11 @@ window.compiledDanmaku['danmaku_4'] = function*(state, b, attacker, target, _uti
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4689,6 +4814,11 @@ window.compiledDanmaku['danmaku_4_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4734,6 +4864,11 @@ window.compiledDanmaku['danmaku_4_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4746,6 +4881,11 @@ window.compiledDanmaku['danmaku_5'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4770,6 +4910,11 @@ window.compiledDanmaku['danmaku_5'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4790,6 +4935,11 @@ window.compiledDanmaku['danmaku_5_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4815,6 +4965,11 @@ window.compiledDanmaku['danmaku_5_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4826,6 +4981,11 @@ window.compiledDanmaku['danmaku_6'] = function*(state, b, attacker, target, _uti
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4849,6 +5009,11 @@ window.compiledDanmaku['danmaku_6_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4859,8 +5024,8 @@ window.compiledDanmaku['danmaku_6_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['vyq9nbant']) {
-      state.onceMap['vyq9nbant'] = true;
+    if (!state.onceMap['u09j6tky2']) {
+      state.onceMap['u09j6tky2'] = true;
       vars['shotTimer'] = 0;
     }
     vars['speed'] = (vars['speed'] || 0) + (2);
@@ -4902,6 +5067,11 @@ window.compiledDanmaku['danmaku_6_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4923,6 +5093,11 @@ window.compiledDanmaku['danmaku_7'] = function*(state, b, attacker, target, _uti
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4967,6 +5142,11 @@ window.compiledDanmaku['danmaku_7_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -4999,6 +5179,11 @@ window.compiledDanmaku['danmaku_7_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5011,6 +5196,11 @@ window.compiledDanmaku['danmaku_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5039,6 +5229,11 @@ window.compiledDanmaku['danmaku_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5067,6 +5262,11 @@ window.compiledDanmaku['danmaku_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5095,6 +5295,11 @@ window.compiledDanmaku['danmaku_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5116,6 +5321,11 @@ window.compiledDanmaku['danmaku_8_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5126,8 +5336,8 @@ window.compiledDanmaku['danmaku_8_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['8noob4ath']) {
-      state.onceMap['8noob4ath'] = true;
+    if (!state.onceMap['2uyjcc2tq']) {
+      state.onceMap['2uyjcc2tq'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         vars['x'] = (vars.spawn !== undefined ? vars.spawn : 0);
       }
@@ -5161,6 +5371,11 @@ window.compiledDanmaku['danmaku_8_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5173,6 +5388,11 @@ window.compiledDanmaku['danmaku_9'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5374,6 +5594,11 @@ window.compiledDanmaku['danmaku_9'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5396,6 +5621,11 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5407,8 +5637,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['s2221ri3j']) {
-        state.onceMap['s2221ri3j'] = true;
+      if (!state.onceMap['d5fac9hww']) {
+        state.onceMap['d5fac9hww'] = true;
         vars['x'] = (vars.tx !== undefined ? vars.tx : 0);
         vars['angle'] = 90;
       }
@@ -5421,8 +5651,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
       vars['angle'] = (vars['angle'] || 0) + (random(0,0));
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['2jkgfg66t']) {
-      state.onceMap['2jkgfg66t'] = true;
+    if (!state.onceMap['lyqbsusil']) {
+      state.onceMap['lyqbsusil'] = true;
       vars['speed'] = (vars['speed'] || 0) + (40);
     }
     if (b && b.isDestroyed) break;
@@ -5435,6 +5665,11 @@ window.compiledDanmaku['danmaku_9_magic'] = function*(state, b, attacker, target
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5447,6 +5682,11 @@ window.compiledDanmaku['danmaku_10'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5473,6 +5713,11 @@ window.compiledDanmaku['danmaku_10'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5499,6 +5744,11 @@ window.compiledDanmaku['danmaku_10'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5525,6 +5775,11 @@ window.compiledDanmaku['danmaku_10'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5551,6 +5806,11 @@ window.compiledDanmaku['danmaku_10'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5577,6 +5837,11 @@ window.compiledDanmaku['danmaku_10'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5667,6 +5932,11 @@ window.compiledDanmaku['danmaku_10'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5696,6 +5966,11 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5712,8 +5987,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (1.4) && ((vars.timer !== undefined ? vars.timer : 0)) <= (2)))) {
         vars['speed'] = 300;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['1qf5eujgl']) {
-          state.onceMap['1qf5eujgl'] = true;
+        if (!state.onceMap['oq60o2v67']) {
+          state.onceMap['oq60o2v67'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -5727,8 +6002,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 150;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['z1u3ubs3f']) {
-        state.onceMap['z1u3ubs3f'] = true;
+      if (!state.onceMap['ry3mfr2p0']) {
+        state.onceMap['ry3mfr2p0'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -5738,8 +6013,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 100;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['8309xmb9d']) {
-        state.onceMap['8309xmb9d'] = true;
+      if (!state.onceMap['gig7ch2e9']) {
+        state.onceMap['gig7ch2e9'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -5771,6 +6046,11 @@ window.compiledDanmaku['danmaku_10_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5782,6 +6062,11 @@ window.compiledDanmaku['danmaku_11'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5824,6 +6109,11 @@ window.compiledDanmaku['danmaku_11_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5834,8 +6124,8 @@ window.compiledDanmaku['danmaku_11_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['zr1zruw0i']) {
-      state.onceMap['zr1zruw0i'] = true;
+    if (!state.onceMap['q7i55jm1l']) {
+      state.onceMap['q7i55jm1l'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-2,2));
       vars['speed'] = (vars['speed'] || 0) + (random(0,0));
     }
@@ -5852,6 +6142,11 @@ window.compiledDanmaku['danmaku_11_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5863,6 +6158,11 @@ window.compiledDanmaku['danmaku_12'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5905,6 +6205,11 @@ window.compiledDanmaku['danmaku_12_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5935,6 +6240,11 @@ window.compiledDanmaku['danmaku_12_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -5946,6 +6256,11 @@ window.compiledDanmaku['danmaku_13'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6015,6 +6330,11 @@ window.compiledDanmaku['danmaku_13_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6026,15 +6346,15 @@ window.compiledDanmaku['danmaku_13_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['53qljxkcq']) {
-        state.onceMap['53qljxkcq'] = true;
+      if (!state.onceMap['3dsnlmnfu']) {
+        state.onceMap['3dsnlmnfu'] = true;
         vars['x'] = 379 + (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3332").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['noxwuwu3a']) {
-        state.onceMap['noxwuwu3a'] = true;
+      if (!state.onceMap['w6ajyqwl4']) {
+        state.onceMap['w6ajyqwl4'] = true;
         vars['x'] = 379 - (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
@@ -6056,6 +6376,11 @@ window.compiledDanmaku['danmaku_13_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6067,6 +6392,11 @@ window.compiledDanmaku['danmaku_14'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6121,6 +6451,11 @@ window.compiledDanmaku['danmaku_14_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6141,6 +6476,11 @@ window.compiledDanmaku['danmaku_14_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6153,6 +6493,11 @@ window.compiledDanmaku['danmaku_15'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6176,6 +6521,11 @@ window.compiledDanmaku['danmaku_15'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6202,6 +6552,11 @@ window.compiledDanmaku['danmaku_15_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6212,8 +6567,8 @@ window.compiledDanmaku['danmaku_15_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['5kwwtdnck']) {
-      state.onceMap['5kwwtdnck'] = true;
+    if (!state.onceMap['hrhhuuhkp']) {
+      state.onceMap['hrhhuuhkp'] = true;
       vars['yp'] = -40;
     }
     vars['y'] = (vars['y'] || 0) + ((vars.yp !== undefined ? vars.yp : 0) / 10);
@@ -6238,6 +6593,11 @@ window.compiledDanmaku['danmaku_15_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6249,6 +6609,11 @@ window.compiledDanmaku['danmaku_16'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6275,6 +6640,11 @@ window.compiledDanmaku['danmaku_16_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6302,6 +6672,11 @@ window.compiledDanmaku['danmaku_16_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6314,6 +6689,11 @@ window.compiledDanmaku['danmaku_17'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6485,6 +6865,11 @@ window.compiledDanmaku['danmaku_17'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6520,6 +6905,11 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6531,8 +6921,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
     }
     if (!!(_util.fuzzyEqual((vars.e_t !== undefined ? vars.e_t : 0),1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['bix29ryln']) {
-        state.onceMap['bix29ryln'] = true;
+      if (!state.onceMap['kt5agfx1m']) {
+        state.onceMap['kt5agfx1m'] = true;
         vars['flag'] = 1;
       }
     }
@@ -6542,8 +6932,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['u85epehe1']) {
-          state.onceMap['u85epehe1'] = true;
+        if (!state.onceMap['8cwrm7f8k']) {
+          state.onceMap['8cwrm7f8k'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -6551,8 +6941,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['cc9nd1j10']) {
-          state.onceMap['cc9nd1j10'] = true;
+        if (!state.onceMap['tpyqht980']) {
+          state.onceMap['tpyqht980'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -6560,16 +6950,16 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['41j91zsge']) {
-          state.onceMap['41j91zsge'] = true;
+        if (!state.onceMap['q3taez1ip']) {
+          state.onceMap['q3taez1ip'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
       }
       if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['fn3qqegnn']) {
-          state.onceMap['fn3qqegnn'] = true;
+        if (!state.onceMap['filkq2hfd']) {
+          state.onceMap['filkq2hfd'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
@@ -6586,6 +6976,11 @@ window.compiledDanmaku['danmaku_17_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6598,6 +6993,11 @@ window.compiledDanmaku['danmaku_18'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6619,6 +7019,11 @@ window.compiledDanmaku['danmaku_18'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6661,6 +7066,11 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6682,8 +7092,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['oc6dwnu5e']) {
-          state.onceMap['oc6dwnu5e'] = true;
+        if (!state.onceMap['70v5eegqb']) {
+          state.onceMap['70v5eegqb'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -6695,8 +7105,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['xv31t6g6c']) {
-          state.onceMap['xv31t6g6c'] = true;
+        if (!state.onceMap['77h0rhy8h']) {
+          state.onceMap['77h0rhy8h'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -6720,6 +7130,11 @@ window.compiledDanmaku['danmaku_18_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6731,6 +7146,11 @@ window.compiledDanmaku['danmaku_19'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6828,6 +7248,11 @@ window.compiledDanmaku['danmaku_19_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6871,6 +7296,11 @@ window.compiledDanmaku['danmaku_19_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6907,6 +7337,11 @@ window.compiledDanmaku['danmaku_20'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6940,6 +7375,11 @@ window.compiledDanmaku['danmaku_20_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6977,6 +7417,11 @@ window.compiledDanmaku['danmaku_20_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -6988,6 +7433,11 @@ window.compiledDanmaku['danmaku_21'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7016,6 +7466,11 @@ window.compiledDanmaku['danmaku_21_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7059,6 +7514,11 @@ window.compiledDanmaku['danmaku_21_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7090,6 +7550,11 @@ window.compiledDanmaku['danmaku_22'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7132,6 +7597,11 @@ window.compiledDanmaku['danmaku_22'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7166,6 +7636,11 @@ window.compiledDanmaku['danmaku_22_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7210,6 +7685,11 @@ window.compiledDanmaku['danmaku_22_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7234,6 +7714,11 @@ window.compiledDanmaku['danmaku_23'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7268,6 +7753,11 @@ window.compiledDanmaku['danmaku_23'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7281,6 +7771,11 @@ window.compiledDanmaku['danmaku_23_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7291,8 +7786,8 @@ window.compiledDanmaku['danmaku_23_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['pj2pmbjfc']) {
-      state.onceMap['pj2pmbjfc'] = true;
+    if (!state.onceMap['xcekgaw24']) {
+      state.onceMap['xcekgaw24'] = true;
       if (!b || !b.isDestroyed) {
         state.waitTimer = Math.max(1 / 60, 0.02);
         yield;
@@ -7312,6 +7807,11 @@ window.compiledDanmaku['danmaku_23_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7323,6 +7823,11 @@ window.compiledDanmaku['danmaku_24'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7524,6 +8029,11 @@ window.compiledDanmaku['danmaku_24_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7541,8 +8051,8 @@ window.compiledDanmaku['danmaku_24_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9E76B4").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['xhjmwwgb7']) {
-        state.onceMap['xhjmwwgb7'] = true;
+      if (!state.onceMap['192ynyxhv']) {
+        state.onceMap['192ynyxhv'] = true;
         vars['xsp'] = random(-200,968);
         vars['x'] = (vars.xsp !== undefined ? vars.xsp : 0);
         vars['y'] = 0;
@@ -7562,6 +8072,11 @@ window.compiledDanmaku['danmaku_24_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7574,6 +8089,11 @@ window.compiledDanmaku['danmaku_25'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7641,13 +8161,18 @@ window.compiledDanmaku['danmaku_25'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
   }
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['uvoyozg2d']) {
-    state.onceMap['uvoyozg2d'] = true;
+  if (!state.onceMap['enq2asoxe']) {
+    state.onceMap['enq2asoxe'] = true;
     vars['w'] = 0.6;
   }
 },
@@ -7656,6 +8181,11 @@ window.compiledDanmaku['danmaku_25'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7683,6 +8213,11 @@ window.compiledDanmaku['danmaku_25_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7708,6 +8243,11 @@ window.compiledDanmaku['danmaku_25_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7719,6 +8259,11 @@ window.compiledDanmaku['danmaku_26'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7748,6 +8293,11 @@ window.compiledDanmaku['danmaku_26_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7758,6 +8308,11 @@ window.compiledDanmaku['danmaku_26_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7770,6 +8325,11 @@ window.compiledDanmaku['danmaku_27'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7804,6 +8364,11 @@ window.compiledDanmaku['danmaku_27'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7817,6 +8382,11 @@ window.compiledDanmaku['danmaku_27_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7884,6 +8454,11 @@ window.compiledDanmaku['danmaku_27_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7896,6 +8471,11 @@ window.compiledDanmaku['danmaku_28'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7924,6 +8504,11 @@ window.compiledDanmaku['danmaku_28'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7950,6 +8535,11 @@ window.compiledDanmaku['danmaku_28_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7960,6 +8550,11 @@ window.compiledDanmaku['danmaku_28_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -7972,6 +8567,11 @@ window.compiledDanmaku['danmaku_29'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8034,6 +8634,11 @@ window.compiledDanmaku['danmaku_29'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8061,6 +8666,11 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8074,8 +8684,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (3)))) {
         vars['speed'] = 320;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['xn08xmcps']) {
-          state.onceMap['xn08xmcps'] = true;
+        if (!state.onceMap['hmaedpz8f']) {
+          state.onceMap['hmaedpz8f'] = true;
           vars['angle'] = (vars['angle'] || 0) + (180);
         }
       }
@@ -8087,8 +8697,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffff99").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['wc2lbjlgt']) {
-        state.onceMap['wc2lbjlgt'] = true;
+      if (!state.onceMap['esj2ie4ja']) {
+        state.onceMap['esj2ie4ja'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "angle", from: "angle", to: "ag", mode: "seconds", duration: "0.6", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8107,6 +8717,11 @@ window.compiledDanmaku['danmaku_29_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8118,6 +8733,11 @@ window.compiledDanmaku['danmaku_30'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8166,6 +8786,11 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8178,8 +8803,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,(vars.henkat !== undefined ? vars.henkat : 0)))) {
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['zviq8s3cv']) {
-          state.onceMap['zviq8s3cv'] = true;
+        if (!state.onceMap['p3kmphpv6']) {
+          state.onceMap['p3kmphpv6'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -8199,8 +8824,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ff88").trim().toLowerCase())) {
       if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['1zdvk91fo']) {
-          state.onceMap['1zdvk91fo'] = true;
+        if (!state.onceMap['ogikkfsqo']) {
+          state.onceMap['ogikkfsqo'] = true;
           if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -8222,6 +8847,11 @@ window.compiledDanmaku['danmaku_30_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8234,6 +8864,11 @@ window.compiledDanmaku['danmaku_31'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8258,6 +8893,11 @@ window.compiledDanmaku['danmaku_31'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8276,6 +8916,11 @@ window.compiledDanmaku['danmaku_31_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8296,6 +8941,11 @@ window.compiledDanmaku['danmaku_31_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8308,13 +8958,18 @@ window.compiledDanmaku['danmaku_32'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
   }
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['vzhokxza8']) {
-    state.onceMap['vzhokxza8'] = true;
+  if (!state.onceMap['sg64fbips']) {
+    state.onceMap['sg64fbips'] = true;
     vars['t'] = 1.5;
   }
 },
@@ -8323,6 +8978,11 @@ window.compiledDanmaku['danmaku_32'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8352,6 +9012,11 @@ window.compiledDanmaku['danmaku_32_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8382,6 +9047,11 @@ window.compiledDanmaku['danmaku_32_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8393,6 +9063,11 @@ window.compiledDanmaku['danmaku_33'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8425,6 +9100,11 @@ window.compiledDanmaku['danmaku_33_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8463,6 +9143,11 @@ window.compiledDanmaku['danmaku_33_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8474,6 +9159,11 @@ window.compiledDanmaku['danmaku_34'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8508,6 +9198,11 @@ window.compiledDanmaku['danmaku_34_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8539,6 +9234,11 @@ window.compiledDanmaku['danmaku_34_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8564,6 +9264,11 @@ window.compiledDanmaku['danmaku_35'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8594,6 +9299,11 @@ window.compiledDanmaku['danmaku_35'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8709,6 +9419,11 @@ window.compiledDanmaku['danmaku_35'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8729,6 +9444,11 @@ window.compiledDanmaku['danmaku_35'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8757,6 +9477,11 @@ window.compiledDanmaku['danmaku_35'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8786,6 +9511,11 @@ window.compiledDanmaku['danmaku_35_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8816,6 +9546,11 @@ window.compiledDanmaku['danmaku_35_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8827,6 +9562,11 @@ window.compiledDanmaku['danmaku_36'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8893,6 +9633,11 @@ window.compiledDanmaku['danmaku_36_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8921,6 +9666,11 @@ window.compiledDanmaku['danmaku_36_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8932,6 +9682,11 @@ window.compiledDanmaku['danmaku_37'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8983,6 +9738,11 @@ window.compiledDanmaku['danmaku_37_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -8993,6 +9753,11 @@ window.compiledDanmaku['danmaku_37_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9005,6 +9770,11 @@ window.compiledDanmaku['danmaku_38'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9127,6 +9897,11 @@ window.compiledDanmaku['danmaku_38'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9139,6 +9914,11 @@ window.compiledDanmaku['danmaku_38'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9161,6 +9941,11 @@ window.compiledDanmaku['danmaku_38_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9188,6 +9973,11 @@ window.compiledDanmaku['danmaku_38_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9199,6 +9989,11 @@ window.compiledDanmaku['danmaku_39'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9220,6 +10015,11 @@ window.compiledDanmaku['danmaku_39_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9273,6 +10073,11 @@ window.compiledDanmaku['danmaku_39_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9305,6 +10110,11 @@ window.compiledDanmaku['danmaku_40'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9362,6 +10172,11 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9373,8 +10188,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (4)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['23n4cgpzc']) {
-        state.onceMap['23n4cgpzc'] = true;
+      if (!state.onceMap['0hi89ns8r']) {
+        state.onceMap['0hi89ns8r'] = true;
         vars['speed'] = 80;
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
@@ -9383,8 +10198,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
     }
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,7.5))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['67kfy31qd']) {
-        state.onceMap['67kfy31qd'] = true;
+      if (!state.onceMap['6wza4uz66']) {
+        state.onceMap['6wza4uz66'] = true;
         vars['speed'] = 30;
         vars['color'] = "#dddddd";
       }
@@ -9399,6 +10214,11 @@ window.compiledDanmaku['danmaku_40_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9411,6 +10231,11 @@ window.compiledDanmaku['danmaku_41'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9449,6 +10274,11 @@ window.compiledDanmaku['danmaku_41'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9564,6 +10394,11 @@ window.compiledDanmaku['danmaku_41'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9585,6 +10420,11 @@ window.compiledDanmaku['danmaku_41_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9688,6 +10528,11 @@ window.compiledDanmaku['danmaku_41_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9699,6 +10544,11 @@ window.compiledDanmaku['danmaku_42'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9786,6 +10636,11 @@ window.compiledDanmaku['danmaku_42_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9829,6 +10684,11 @@ window.compiledDanmaku['danmaku_42_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9840,6 +10700,11 @@ window.compiledDanmaku['danmaku_43'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9912,6 +10777,11 @@ window.compiledDanmaku['danmaku_43_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9922,8 +10792,8 @@ window.compiledDanmaku['danmaku_43_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['kfkhxy3h9']) {
-      state.onceMap['kfkhxy3h9'] = true;
+    if (!state.onceMap['crf20yi1h']) {
+      state.onceMap['crf20yi1h'] = true;
       vars['hitRadius'] = 0;
       if (_util.executeBlock({ type: 'advance', distance: "sp / 4", }, state, b, attacker, target, _util)) {
         yield;
@@ -9948,6 +10818,11 @@ window.compiledDanmaku['danmaku_43_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9959,6 +10834,11 @@ window.compiledDanmaku['danmaku_44'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -9984,6 +10864,11 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10005,8 +10890,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lbrwifnvo']) {
-        state.onceMap['lbrwifnvo'] = true;
+      if (!state.onceMap['jmv7tmioe']) {
+        state.onceMap['jmv7tmioe'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -10014,8 +10899,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['roaw9x6mg']) {
-        state.onceMap['roaw9x6mg'] = true;
+      if (!state.onceMap['yra3gmrqp']) {
+        state.onceMap['yra3gmrqp'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -10023,8 +10908,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['8s1jnjr2b']) {
-        state.onceMap['8s1jnjr2b'] = true;
+      if (!state.onceMap['gy9f1fn3u']) {
+        state.onceMap['gy9f1fn3u'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -10032,8 +10917,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['f396064q5']) {
-        state.onceMap['f396064q5'] = true;
+      if (!state.onceMap['fws18ujnq']) {
+        state.onceMap['fws18ujnq'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
       }
     }
@@ -10047,6 +10932,11 @@ window.compiledDanmaku['danmaku_44_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10058,6 +10948,11 @@ window.compiledDanmaku['danmaku_45'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10086,6 +10981,11 @@ window.compiledDanmaku['danmaku_45_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10114,6 +11014,11 @@ window.compiledDanmaku['danmaku_45_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10137,6 +11042,11 @@ window.compiledDanmaku['danmaku_46'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10172,6 +11082,11 @@ window.compiledDanmaku['danmaku_46_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10204,6 +11119,11 @@ window.compiledDanmaku['danmaku_46_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10215,6 +11135,11 @@ window.compiledDanmaku['danmaku_47'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10241,6 +11166,11 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10253,8 +11183,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (7);
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ij1be6u6x']) {
-        state.onceMap['ij1be6u6x'] = true;
+      if (!state.onceMap['zphimfin5']) {
+        state.onceMap['zphimfin5'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -10262,8 +11192,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['cwqy9y69f']) {
-        state.onceMap['cwqy9y69f'] = true;
+      if (!state.onceMap['lm0v2r3g1']) {
+        state.onceMap['lm0v2r3g1'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -10271,16 +11201,16 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['inxpv07e1']) {
-        state.onceMap['inxpv07e1'] = true;
+      if (!state.onceMap['t5ec2h4rk']) {
+        state.onceMap['t5ec2h4rk'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['fgnp0t877']) {
-        state.onceMap['fgnp0t877'] = true;
+      if (!state.onceMap['ep3i1mmcs']) {
+        state.onceMap['ep3i1mmcs'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
@@ -10298,6 +11228,11 @@ window.compiledDanmaku['danmaku_47_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10309,6 +11244,11 @@ window.compiledDanmaku['danmaku_48'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10452,6 +11392,11 @@ window.compiledDanmaku['danmaku_48_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10484,6 +11429,11 @@ window.compiledDanmaku['danmaku_48_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10507,6 +11457,11 @@ window.compiledDanmaku['danmaku_49'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10555,6 +11510,11 @@ window.compiledDanmaku['danmaku_49_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10605,6 +11565,11 @@ window.compiledDanmaku['danmaku_49_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10616,6 +11581,11 @@ window.compiledDanmaku['danmaku_50'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10650,6 +11620,11 @@ window.compiledDanmaku['danmaku_50_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10700,6 +11675,11 @@ window.compiledDanmaku['danmaku_50_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10711,6 +11691,11 @@ window.compiledDanmaku['danmaku_51'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10731,6 +11716,11 @@ window.compiledDanmaku['danmaku_51_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10762,6 +11752,11 @@ window.compiledDanmaku['danmaku_51_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10789,6 +11784,11 @@ window.compiledDanmaku['danmaku_52'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10883,6 +11883,11 @@ window.compiledDanmaku['danmaku_52_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10900,8 +11905,8 @@ window.compiledDanmaku['danmaku_52_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hohba137n']) {
-        state.onceMap['hohba137n'] = true;
+      if (!state.onceMap['fw2ns8op1']) {
+        state.onceMap['fw2ns8op1'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -10936,6 +11941,11 @@ window.compiledDanmaku['danmaku_52_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -10947,6 +11957,11 @@ window.compiledDanmaku['danmaku_53'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11041,6 +12056,11 @@ window.compiledDanmaku['danmaku_53_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11058,8 +12078,8 @@ window.compiledDanmaku['danmaku_53_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['7cnnvvbk2']) {
-        state.onceMap['7cnnvvbk2'] = true;
+      if (!state.onceMap['nctblbdau']) {
+        state.onceMap['nctblbdau'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -11094,6 +12114,11 @@ window.compiledDanmaku['danmaku_53_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11105,6 +12130,11 @@ window.compiledDanmaku['danmaku_54'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11141,6 +12171,11 @@ window.compiledDanmaku['danmaku_54_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11168,6 +12203,11 @@ window.compiledDanmaku['danmaku_54_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11179,6 +12219,11 @@ window.compiledDanmaku['danmaku_55'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11224,6 +12269,11 @@ window.compiledDanmaku['danmaku_55_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11271,6 +12321,11 @@ window.compiledDanmaku['danmaku_55_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11301,6 +12356,11 @@ window.compiledDanmaku['danmaku_56'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11342,6 +12402,11 @@ window.compiledDanmaku['danmaku_56'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11367,6 +12432,11 @@ window.compiledDanmaku['danmaku_56'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11380,6 +12450,11 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11391,8 +12466,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9457eb").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['f3zu00lo8']) {
-        state.onceMap['f3zu00lo8'] = true;
+      if (!state.onceMap['gnh1zs75o']) {
+        state.onceMap['gnh1zs75o'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -11408,8 +12483,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['wrtdwvph7']) {
-        state.onceMap['wrtdwvph7'] = true;
+      if (!state.onceMap['5b8uca4mt']) {
+        state.onceMap['5b8uca4mt'] = true;
         vars['warningTime'] = 0.0;
         vars['activeTime'] = 70;
         vars['laserWidth'] = 30;
@@ -11440,6 +12515,11 @@ window.compiledDanmaku['danmaku_56_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11451,6 +12531,11 @@ window.compiledDanmaku['danmaku_57'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11496,6 +12581,11 @@ window.compiledDanmaku['danmaku_57_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11521,6 +12611,11 @@ window.compiledDanmaku['danmaku_57_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11532,6 +12627,11 @@ window.compiledDanmaku['danmaku_58'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11773,6 +12873,11 @@ window.compiledDanmaku['danmaku_58_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11784,8 +12889,8 @@ window.compiledDanmaku['danmaku_58_bullet'] = function*(state, b, attacker, targ
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['qs3pwjpqz']) {
-      state.onceMap['qs3pwjpqz'] = true;
+    if (!state.onceMap['w53rikexj']) {
+      state.onceMap['w53rikexj'] = true;
       if (!!(_util.fuzzyEqual((vars.speed !== undefined ? vars.speed : 0) ,140))) {
         vars['curve'] = -1.6;
       }
@@ -11813,6 +12918,11 @@ window.compiledDanmaku['danmaku_58_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11825,6 +12935,11 @@ window.compiledDanmaku['danmaku_59'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11846,6 +12961,11 @@ window.compiledDanmaku['danmaku_59'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11873,6 +12993,11 @@ window.compiledDanmaku['danmaku_59_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11883,8 +13008,8 @@ window.compiledDanmaku['danmaku_59_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['2sac1nseb']) {
-      state.onceMap['2sac1nseb'] = true;
+    if (!state.onceMap['9bfmtdsyx']) {
+      state.onceMap['9bfmtdsyx'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() !== String("#33ffff").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
           yield;
@@ -11914,6 +13039,11 @@ window.compiledDanmaku['danmaku_59_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -11925,6 +13055,11 @@ window.compiledDanmaku['danmaku_60'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12117,6 +13252,11 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12143,8 +13283,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['7mbv47fom']) {
-        state.onceMap['7mbv47fom'] = true;
+      if (!state.onceMap['r72yfldjn']) {
+        state.onceMap['r72yfldjn'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -12152,8 +13292,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['uacxsrbli']) {
-        state.onceMap['uacxsrbli'] = true;
+      if (!state.onceMap['qfe64fyjl']) {
+        state.onceMap['qfe64fyjl'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -12169,6 +13309,11 @@ window.compiledDanmaku['danmaku_60_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12180,6 +13325,11 @@ window.compiledDanmaku['danmaku_61'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12372,6 +13522,11 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12398,8 +13553,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['1qsz6t1eg']) {
-        state.onceMap['1qsz6t1eg'] = true;
+      if (!state.onceMap['f2ajhy4la']) {
+        state.onceMap['f2ajhy4la'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -12407,8 +13562,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['w5tho0d36']) {
-        state.onceMap['w5tho0d36'] = true;
+      if (!state.onceMap['rfw18psel']) {
+        state.onceMap['rfw18psel'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -12424,6 +13579,11 @@ window.compiledDanmaku['danmaku_61_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12435,6 +13595,11 @@ window.compiledDanmaku['danmaku_62'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12499,6 +13664,11 @@ window.compiledDanmaku['danmaku_62_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12527,6 +13697,11 @@ window.compiledDanmaku['danmaku_62_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12538,6 +13713,11 @@ window.compiledDanmaku['danmaku_63'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12604,6 +13784,11 @@ window.compiledDanmaku['danmaku_63_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12616,8 +13801,8 @@ window.compiledDanmaku['danmaku_63_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1 + (vars.kasoku !== undefined ? vars.kasoku : 0));
     vars['kasoku'] = (vars['kasoku'] || 0) + (0.02);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['9tc3m77o2']) {
-      state.onceMap['9tc3m77o2'] = true;
+    if (!state.onceMap['bsg6trstz']) {
+      state.onceMap['bsg6trstz'] = true;
       vars['angle'] = (vars['angle'] || 0) + (45 + (vars.ofangle !== undefined ? vars.ofangle : 0));
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -12631,6 +13816,11 @@ window.compiledDanmaku['danmaku_63_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12643,6 +13833,11 @@ window.compiledDanmaku['danmaku_64'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12725,6 +13920,11 @@ window.compiledDanmaku['danmaku_64'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12753,6 +13953,11 @@ window.compiledDanmaku['danmaku_64_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12766,8 +13971,8 @@ window.compiledDanmaku['danmaku_64_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + (0.4 * (vars.kakudo !== undefined ? vars.kakudo : 0) - (vars.l !== undefined ? vars.l : 0) * (vars.kakudo !== undefined ? vars.kakudo : 0));
       vars['l'] = (vars['l'] || 0) + (0.000);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ubox90oig']) {
-        state.onceMap['ubox90oig'] = true;
+      if (!state.onceMap['09z7wczjg']) {
+        state.onceMap['09z7wczjg'] = true;
         vars['speed'] = 100;
       }
       vars['speed'] = (vars['speed'] || 0) + (0.5);
@@ -12799,6 +14004,11 @@ window.compiledDanmaku['danmaku_64_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12810,6 +14020,11 @@ window.compiledDanmaku['danmaku_65'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12840,6 +14055,11 @@ window.compiledDanmaku['danmaku_65_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12860,6 +14080,11 @@ window.compiledDanmaku['danmaku_65_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12871,6 +14096,11 @@ window.compiledDanmaku['danmaku_66'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12896,6 +14126,11 @@ window.compiledDanmaku['danmaku_66_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12906,8 +14141,8 @@ window.compiledDanmaku['danmaku_66_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['ylav69gnf']) {
-      state.onceMap['ylav69gnf'] = true;
+    if (!state.onceMap['0kxf242n0']) {
+      state.onceMap['0kxf242n0'] = true;
       vars['x'] = random(-300,1000);
       vars['y'] = 0;
       vars['angle'] = 90 + 10 * (vars.kakudo !== undefined ? vars.kakudo : 0);
@@ -12924,6 +14159,11 @@ window.compiledDanmaku['danmaku_66_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12935,6 +14175,11 @@ window.compiledDanmaku['danmaku_67'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -12991,6 +14236,11 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13002,8 +14252,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['j6hu1sgr2']) {
-        state.onceMap['j6hu1sgr2'] = true;
+      if (!state.onceMap['smwcusjys']) {
+        state.onceMap['smwcusjys'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "120 + seedrandom[5](-0,50)", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -13020,8 +14270,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['44y7stxbe']) {
-        state.onceMap['44y7stxbe'] = true;
+      if (!state.onceMap['3x53h5mmb']) {
+        state.onceMap['3x53h5mmb'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -13034,8 +14284,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['wuc5cq61a']) {
-        state.onceMap['wuc5cq61a'] = true;
+      if (!state.onceMap['rfxii2f6c']) {
+        state.onceMap['rfxii2f6c'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -13057,6 +14307,11 @@ window.compiledDanmaku['danmaku_67_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13068,6 +14323,11 @@ window.compiledDanmaku['danmaku_68'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13110,6 +14370,11 @@ window.compiledDanmaku['danmaku_68_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13120,8 +14385,8 @@ window.compiledDanmaku['danmaku_68_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['m1h1iv9rr']) {
-      state.onceMap['m1h1iv9rr'] = true;
+    if (!state.onceMap['k5w3iw7hl']) {
+      state.onceMap['k5w3iw7hl'] = true;
       vars['count'] = 0;
       vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
     }
@@ -13182,6 +14447,11 @@ window.compiledDanmaku['danmaku_68_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13193,6 +14463,11 @@ window.compiledDanmaku['danmaku_69'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13251,6 +14526,11 @@ window.compiledDanmaku['danmaku_69_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13275,6 +14555,11 @@ window.compiledDanmaku['danmaku_69_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13286,6 +14571,11 @@ window.compiledDanmaku['danmaku_70'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13315,6 +14605,11 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13325,8 +14620,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['rmetwcsp1']) {
-      state.onceMap['rmetwcsp1'] = true;
+    if (!state.onceMap['m17i0ntf6']) {
+      state.onceMap['m17i0ntf6'] = true;
       vars['y'] = (vars['y'] || 0) - (100);
       vars['speed'] = 400;
       vars['x'] = (vars['x'] || 0) + (random(-200,200));
@@ -13337,8 +14632,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!!(abs((vars.y !== undefined ? vars.y : 0)  - (vars.ty !== undefined ? vars.ty : 0)) <= 20)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['9219e6kwt']) {
-        state.onceMap['9219e6kwt'] = true;
+      if (!state.onceMap['pq6c5aef1']) {
+        state.onceMap['pq6c5aef1'] = true;
         vars['speed'] = 0;
         vars['angle'] = 90;
         if (!!((vars.x !== undefined ? vars.x : 0) < (vars.tx !== undefined ? vars.tx : 0))) {
@@ -13363,6 +14658,11 @@ window.compiledDanmaku['danmaku_70_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13374,8 +14674,8 @@ window.compiledDanmaku['danmaku_70_magic'] = function*(state, b, attacker, targe
     }
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['gi8wtez9q']) {
-      state.onceMap['gi8wtez9q'] = true;
+    if (!state.onceMap['znbku34j4']) {
+      state.onceMap['znbku34j4'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-6,6));
     }
     if (b && b.isDestroyed) break;
@@ -13389,6 +14689,11 @@ window.compiledDanmaku['danmaku_71'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13422,6 +14727,11 @@ window.compiledDanmaku['danmaku_71_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13432,8 +14742,8 @@ window.compiledDanmaku['danmaku_71_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['3zc4cnon3']) {
-      state.onceMap['3zc4cnon3'] = true;
+    if (!state.onceMap['kngqihki7']) {
+      state.onceMap['kngqihki7'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "200", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -13450,6 +14760,11 @@ window.compiledDanmaku['danmaku_71_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13461,6 +14776,11 @@ window.compiledDanmaku['danmaku_72'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13494,6 +14814,11 @@ window.compiledDanmaku['danmaku_72_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13504,6 +14829,11 @@ window.compiledDanmaku['danmaku_72_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13515,6 +14845,11 @@ window.compiledDanmaku['danmaku_73'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13560,6 +14895,11 @@ window.compiledDanmaku['danmaku_73_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13570,8 +14910,8 @@ window.compiledDanmaku['danmaku_73_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['36e6pns4g']) {
-      state.onceMap['36e6pns4g'] = true;
+    if (!state.onceMap['w4wg6muhh']) {
+      state.onceMap['w4wg6muhh'] = true;
       vars['motospd'] = (vars.speed !== undefined ? vars.speed : 0);
       vars['motocolor'] = (vars.color !== undefined ? vars.color : 0);
     }
@@ -13599,6 +14939,11 @@ window.compiledDanmaku['danmaku_73_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13611,6 +14956,11 @@ window.compiledDanmaku['danmaku_74'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13636,6 +14986,11 @@ window.compiledDanmaku['danmaku_74'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13663,6 +15018,11 @@ window.compiledDanmaku['danmaku_74'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13726,6 +15086,11 @@ window.compiledDanmaku['danmaku_74_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13736,8 +15101,8 @@ window.compiledDanmaku['danmaku_74_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['ngi05wvv7']) {
-      state.onceMap['ngi05wvv7'] = true;
+    if (!state.onceMap['uwu1libkp']) {
+      state.onceMap['uwu1libkp'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "syutugen", }, state, b, attacker, target, _util)) {
           yield;
@@ -13760,6 +15125,11 @@ window.compiledDanmaku['danmaku_74_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13771,6 +15141,11 @@ window.compiledDanmaku['danmaku_75'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13814,6 +15189,11 @@ window.compiledDanmaku['danmaku_75_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13843,6 +15223,11 @@ window.compiledDanmaku['danmaku_75_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13854,6 +15239,11 @@ window.compiledDanmaku['danmaku_76'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13882,6 +15272,11 @@ window.compiledDanmaku['danmaku_76_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13892,8 +15287,8 @@ window.compiledDanmaku['danmaku_76_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['223tgzunh']) {
-      state.onceMap['223tgzunh'] = true;
+    if (!state.onceMap['ivo88pkwo']) {
+      state.onceMap['ivo88pkwo'] = true;
       vars['ransuu'] = _util.seedrandom(5 + (vars.kaisuu !== undefined ? vars.kaisuu : 0), 0, 1, vars);
       if (!!((((vars.ransuu !== undefined ? vars.ransuu : 0)) >= (0.5) && ((vars.ransuu !== undefined ? vars.ransuu : 0)) <= (1)))) {
         vars['speed'] = 150;
@@ -13909,6 +15304,11 @@ window.compiledDanmaku['danmaku_76_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13920,6 +15320,11 @@ window.compiledDanmaku['danmaku_77'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13948,6 +15353,11 @@ window.compiledDanmaku['danmaku_77_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13958,8 +15368,8 @@ window.compiledDanmaku['danmaku_77_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['8cl4llbcw']) {
-      state.onceMap['8cl4llbcw'] = true;
+    if (!state.onceMap['dw59a77b1']) {
+      state.onceMap['dw59a77b1'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -13988,6 +15398,11 @@ window.compiledDanmaku['danmaku_77_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -13999,6 +15414,11 @@ window.compiledDanmaku['danmaku_78'] = function*(state, b, attacker, target, _ut
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14079,6 +15499,11 @@ window.compiledDanmaku['danmaku_78_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14090,8 +15515,8 @@ window.compiledDanmaku['danmaku_78_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['3wh1qxso9']) {
-        state.onceMap['3wh1qxso9'] = true;
+      if (!state.onceMap['jytrvqhp7']) {
+        state.onceMap['jytrvqhp7'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "-100", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14138,8 +15563,8 @@ window.compiledDanmaku['danmaku_78_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#fffffe").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['axbht7ofb']) {
-        state.onceMap['axbht7ofb'] = true;
+      if (!state.onceMap['e95rt4pmh']) {
+        state.onceMap['e95rt4pmh'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "-100", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14162,6 +15587,11 @@ window.compiledDanmaku['danmaku_78_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14174,6 +15604,11 @@ window.compiledDanmaku['danmaku_79'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14203,6 +15638,11 @@ window.compiledDanmaku['danmaku_79'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14231,6 +15671,11 @@ window.compiledDanmaku['danmaku_79_bullet'] = function*(state, b, attacker, targ
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14241,8 +15686,8 @@ window.compiledDanmaku['danmaku_79_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['l7vgq6a1c']) {
-      state.onceMap['l7vgq6a1c'] = true;
+    if (!state.onceMap['nmnshhezz']) {
+      state.onceMap['nmnshhezz'] = true;
       vars['yjiku'] = -1 + random(-0.4,0.4);
       vars['speed'] = (vars['speed'] || 0) + (random(-40,40));
       vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
@@ -14265,6 +15710,11 @@ window.compiledDanmaku['danmaku_79_magic'] = function*(state, b, attacker, targe
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14276,6 +15726,11 @@ window.compiledDanmaku['danmaku_s2_0'] = function*(state, b, attacker, target, _
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14302,6 +15757,11 @@ window.compiledDanmaku['danmaku_s2_0_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14330,6 +15790,11 @@ window.compiledDanmaku['danmaku_s2_0_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14342,6 +15807,11 @@ window.compiledDanmaku['danmaku_s2_1'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14349,8 +15819,8 @@ window.compiledDanmaku['danmaku_s2_1'] = [
   while (true) {
     if (b && b.isDestroyed) break;
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['7rtfsvdvh']) {
-      state.onceMap['7rtfsvdvh'] = true;
+    if (!state.onceMap['g6fhawydc']) {
+      state.onceMap['g6fhawydc'] = true;
       if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#888888", speed: "0", angle: "0", count: "9", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "greenscale", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -14370,6 +15840,11 @@ window.compiledDanmaku['danmaku_s2_1'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14400,6 +15875,11 @@ window.compiledDanmaku['danmaku_s2_1'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14442,6 +15922,11 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14453,8 +15938,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#888888").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['18m8r2274']) {
-        state.onceMap['18m8r2274'] = true;
+      if (!state.onceMap['mn4gzh9q2']) {
+        state.onceMap['mn4gzh9q2'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "multf", from: "0", to: "7", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14479,8 +15964,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#000000").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['0xigfikou']) {
-        state.onceMap['0xigfikou'] = true;
+      if (!state.onceMap['zn4smnlx5']) {
+        state.onceMap['zn4smnlx5'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "multf", from: "0", to: "3", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14505,8 +15990,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['3oxex51y9']) {
-        state.onceMap['3oxex51y9'] = true;
+      if (!state.onceMap['anuhp59va']) {
+        state.onceMap['anuhp59va'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "180", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14516,8 +16001,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa33").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['k8mbcxqfu']) {
-        state.onceMap['k8mbcxqfu'] = true;
+      if (!state.onceMap['f90vp1htp']) {
+        state.onceMap['f90vp1htp'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "90", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14535,6 +16020,11 @@ window.compiledDanmaku['danmaku_s2_1_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14546,6 +16036,11 @@ window.compiledDanmaku['danmaku_s2_2'] = function*(state, b, attacker, target, _
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14606,6 +16101,11 @@ window.compiledDanmaku['danmaku_s2_2_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14617,8 +16117,8 @@ window.compiledDanmaku['danmaku_s2_2_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() !== String("#888888").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['vnoh6z0rd']) {
-        state.onceMap['vnoh6z0rd'] = true;
+      if (!state.onceMap['47sdbgrvw']) {
+        state.onceMap['47sdbgrvw'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "50", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14676,6 +16176,11 @@ window.compiledDanmaku['danmaku_s2_2_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14687,6 +16192,11 @@ window.compiledDanmaku['danmaku_s2_3'] = function*(state, b, attacker, target, _
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14733,6 +16243,11 @@ window.compiledDanmaku['danmaku_s2_3_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14863,6 +16378,11 @@ window.compiledDanmaku['danmaku_s2_3_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14873,8 +16393,8 @@ window.compiledDanmaku['danmaku_s2_3_magic'] = function*(state, b, attacker, tar
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['fumvxrtg4']) {
-      state.onceMap['fumvxrtg4'] = true;
+    if (!state.onceMap['99ktfsi8t']) {
+      state.onceMap['99ktfsi8t'] = true;
       vars['motoangle'] = (vars.angle !== undefined ? vars.angle : 0);
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3332").trim().toLowerCase())) {
         vars['angle'] = (vars.s2angle !== undefined ? vars.s2angle : 0);
@@ -14926,6 +16446,11 @@ window.compiledDanmaku['danmaku_s2_4'] = function*(state, b, attacker, target, _
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14973,6 +16498,11 @@ window.compiledDanmaku['danmaku_s2_4_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -14983,8 +16513,8 @@ window.compiledDanmaku['danmaku_s2_4_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['d8d09tz0k']) {
-      state.onceMap['d8d09tz0k'] = true;
+    if (!state.onceMap['4it0h3pgg']) {
+      state.onceMap['4it0h3pgg'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "speed", to: "0", mode: "seconds", duration: "1", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -15019,6 +16549,11 @@ window.compiledDanmaku['danmaku_s2_4_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15030,6 +16565,11 @@ window.compiledDanmaku['danmaku_s2_5'] = function*(state, b, attacker, target, _
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15057,6 +16597,11 @@ window.compiledDanmaku['danmaku_s2_5_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15067,6 +16612,11 @@ window.compiledDanmaku['danmaku_s2_5_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15078,6 +16628,11 @@ window.compiledDanmaku['danmaku_s2_6'] = function*(state, b, attacker, target, _
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15107,6 +16662,11 @@ window.compiledDanmaku['danmaku_s2_6_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15117,8 +16677,8 @@ window.compiledDanmaku['danmaku_s2_6_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['ry0837med']) {
-      state.onceMap['ry0837med'] = true;
+    if (!state.onceMap['9319gnelt']) {
+      state.onceMap['9319gnelt'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-(vars.cardSecond !== undefined ? vars.cardSecond : 0),(vars.cardSecond !== undefined ? vars.cardSecond : 0)));
       vars['speed'] = (vars['speed'] || 0) + (random(-(vars.cardSecond !== undefined ? vars.cardSecond : 0),(vars.cardSecond !== undefined ? vars.cardSecond : 0) * 2));
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -15133,6 +16693,11 @@ window.compiledDanmaku['danmaku_s2_6_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15145,6 +16710,11 @@ window.compiledDanmaku['danmaku_s2_7'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15172,6 +16742,11 @@ window.compiledDanmaku['danmaku_s2_7'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15211,6 +16786,11 @@ window.compiledDanmaku['danmaku_s2_7_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15221,8 +16801,8 @@ window.compiledDanmaku['danmaku_s2_7_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['0be96fsqp']) {
-      state.onceMap['0be96fsqp'] = true;
+    if (!state.onceMap['lr740mkn4']) {
+      state.onceMap['lr740mkn4'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -15259,6 +16839,11 @@ window.compiledDanmaku['danmaku_s2_7_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15271,6 +16856,11 @@ window.compiledDanmaku['danmaku_s2_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15317,6 +16907,11 @@ window.compiledDanmaku['danmaku_s2_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15368,6 +16963,11 @@ window.compiledDanmaku['danmaku_s2_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15414,6 +17014,11 @@ window.compiledDanmaku['danmaku_s2_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15471,6 +17076,11 @@ window.compiledDanmaku['danmaku_s2_8'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15497,6 +17107,11 @@ window.compiledDanmaku['danmaku_s2_8_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15507,8 +17122,8 @@ window.compiledDanmaku['danmaku_s2_8_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['3tso71sr8']) {
-      state.onceMap['3tso71sr8'] = true;
+    if (!state.onceMap['naj3eir09']) {
+      state.onceMap['naj3eir09'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-5,5));
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -15522,6 +17137,11 @@ window.compiledDanmaku['danmaku_s2_8_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15533,6 +17153,11 @@ window.compiledDanmaku['danmaku_s2_9'] = function*(state, b, attacker, target, _
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15576,6 +17201,11 @@ window.compiledDanmaku['danmaku_s2_9_bullet'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15586,6 +17216,11 @@ window.compiledDanmaku['danmaku_s2_9_magic'] = function*(state, b, attacker, tar
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15597,6 +17232,11 @@ window.compiledDanmaku['danmaku_s2_10'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15627,6 +17267,11 @@ window.compiledDanmaku['danmaku_s2_10_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15638,8 +17283,8 @@ window.compiledDanmaku['danmaku_s2_10_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffdd33").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['6sf942th0']) {
-        state.onceMap['6sf942th0'] = true;
+      if (!state.onceMap['gcg50ddva']) {
+        state.onceMap['gcg50ddva'] = true;
         if (_util.executeBlock({ type: 'tween_angle', from: "angle", to: "angle + 180", mode: "seconds", duration: "1", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -15677,6 +17322,11 @@ window.compiledDanmaku['danmaku_s2_10_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15688,6 +17338,11 @@ window.compiledDanmaku['danmaku_s2_11'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15743,6 +17398,11 @@ window.compiledDanmaku['danmaku_s2_11_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15754,8 +17414,8 @@ window.compiledDanmaku['danmaku_s2_11_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#6688ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['i5j8tmutp']) {
-        state.onceMap['i5j8tmutp'] = true;
+      if (!state.onceMap['afm0ri1d1']) {
+        state.onceMap['afm0ri1d1'] = true;
         vars['hensuu'] = random(50,200);
         if (_util.executeBlock({ type: 'advance', distance: "hensuu", }, state, b, attacker, target, _util)) {
           yield;
@@ -15800,6 +17460,11 @@ window.compiledDanmaku['danmaku_s2_11_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15811,6 +17476,11 @@ window.compiledDanmaku['danmaku_s2_12'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15834,6 +17504,11 @@ window.compiledDanmaku['danmaku_s2_12_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15844,8 +17519,8 @@ window.compiledDanmaku['danmaku_s2_12_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['xfb6dvteo']) {
-      state.onceMap['xfb6dvteo'] = true;
+    if (!state.onceMap['a72189gyc']) {
+      state.onceMap['a72189gyc'] = true;
       vars['syoyou'] = random(0.5,2);
       vars['syoyou2'] = random(2,7);
       vars['kakudo'] = random(-0.5,0.5);
@@ -15855,8 +17530,8 @@ window.compiledDanmaku['danmaku_s2_12_bullet'] = function*(state, b, attacker, t
     }
     if (!!((vars.x !== undefined ? vars.x : 0) < 400)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['538swrxdr']) {
-        state.onceMap['538swrxdr'] = true;
+      if (!state.onceMap['s81pxz31x']) {
+        state.onceMap['s81pxz31x'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "300", to: "0", mode: "seconds", duration: "syoyou2", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -15876,6 +17551,11 @@ window.compiledDanmaku['danmaku_s2_12_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15887,6 +17567,11 @@ window.compiledDanmaku['danmaku_s2_13'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15908,6 +17593,11 @@ window.compiledDanmaku['danmaku_s2_13_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15919,16 +17609,16 @@ window.compiledDanmaku['danmaku_s2_13_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['2ejsvqy7s']) {
-        state.onceMap['2ejsvqy7s'] = true;
+      if (!state.onceMap['qq3b5ysbo']) {
+        state.onceMap['qq3b5ysbo'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
       }
       if (!!((vars.dist !== undefined ? vars.dist : 0) < 150)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['kb74jibzx']) {
-          state.onceMap['kb74jibzx'] = true;
+        if (!state.onceMap['stwzp5dl2']) {
+          state.onceMap['stwzp5dl2'] = true;
           vars['speed'] = 0;
           vars['bulletImage'] = "rednormal";
           vars['image'] = "rednormal";
@@ -15964,6 +17654,11 @@ window.compiledDanmaku['danmaku_s2_13_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -15989,6 +17684,11 @@ window.compiledDanmaku['danmaku_s2_14'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16010,6 +17710,11 @@ window.compiledDanmaku['danmaku_s2_14_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16034,6 +17739,11 @@ window.compiledDanmaku['danmaku_s2_14_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16044,8 +17754,8 @@ window.compiledDanmaku['danmaku_s2_14_magic'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['q6xok8dvm']) {
-      state.onceMap['q6xok8dvm'] = true;
+    if (!state.onceMap['o4mmv9mp1']) {
+      state.onceMap['o4mmv9mp1'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "radius", from: "40", to: "10", mode: "frames", duration: "30", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -16074,6 +17784,11 @@ window.compiledDanmaku['danmaku_s2_15'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16107,6 +17822,11 @@ window.compiledDanmaku['danmaku_s2_15_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16117,8 +17837,8 @@ window.compiledDanmaku['danmaku_s2_15_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['muve4ealr']) {
-      state.onceMap['muve4ealr'] = true;
+    if (!state.onceMap['yr0v65qbu']) {
+      state.onceMap['yr0v65qbu'] = true;
       vars['speed'] = (vars['speed'] || 0) + (random(0,100));
       if (!b || !b.isDestroyed) {
         state.waitTimer = (120) / 60;
@@ -16144,6 +17864,11 @@ window.compiledDanmaku['danmaku_s2_15_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16155,6 +17880,11 @@ window.compiledDanmaku['danmaku_s2_16'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16220,6 +17950,11 @@ window.compiledDanmaku['danmaku_s2_16_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16230,8 +17965,8 @@ window.compiledDanmaku['danmaku_s2_16_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['w7cg8w68c']) {
-      state.onceMap['w7cg8w68c'] = true;
+    if (!state.onceMap['2e4bjlvnx']) {
+      state.onceMap['2e4bjlvnx'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "sd - 40", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -16265,6 +18000,11 @@ window.compiledDanmaku['danmaku_s2_16_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16276,6 +18016,11 @@ window.compiledDanmaku['danmaku_s2_17'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16347,6 +18092,11 @@ window.compiledDanmaku['danmaku_s2_17_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16357,6 +18107,11 @@ window.compiledDanmaku['danmaku_s2_17_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16368,6 +18123,11 @@ window.compiledDanmaku['danmaku_s2_18'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16486,6 +18246,11 @@ window.compiledDanmaku['danmaku_s2_18_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16497,8 +18262,8 @@ window.compiledDanmaku['danmaku_s2_18_bullet'] = function*(state, b, attacker, t
     }
     if (!!(_util.fuzzyEqual((vars.type2 !== undefined ? vars.type2 : 0) ,1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['2ugz91fy2']) {
-        state.onceMap['2ugz91fy2'] = true;
+      if (!state.onceMap['7qql045kd']) {
+        state.onceMap['7qql045kd'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "radius", from: "0", to: "64", mode: "seconds", duration: "1", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16524,8 +18289,8 @@ window.compiledDanmaku['danmaku_s2_18_bullet'] = function*(state, b, attacker, t
     }
     if (!!(_util.fuzzyEqual((vars.type2 !== undefined ? vars.type2 : 0) ,2))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['7rbrgd485']) {
-        state.onceMap['7rbrgd485'] = true;
+      if (!state.onceMap['pto4fsxbg']) {
+        state.onceMap['pto4fsxbg'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "radius", from: "0", to: "64", mode: "seconds", duration: "1", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16582,6 +18347,11 @@ window.compiledDanmaku['danmaku_s2_18_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16593,8 +18363,8 @@ window.compiledDanmaku['danmaku_s2_18_magic'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['789jne74q']) {
-        state.onceMap['789jne74q'] = true;
+      if (!state.onceMap['v3ukse7wj']) {
+        state.onceMap['v3ukse7wj'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "speed", to: "0", mode: "seconds", duration: "2", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16627,6 +18397,11 @@ window.compiledDanmaku['danmaku_s2_19'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16657,6 +18432,11 @@ window.compiledDanmaku['danmaku_s2_19'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16687,6 +18467,11 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16701,15 +18486,15 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
         vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (6 * (vars.muki !== undefined ? vars.muki : 0));
       }
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['z8eb1uu71']) {
-        state.onceMap['z8eb1uu71'] = true;
+      if (!state.onceMap['sxysehmsn']) {
+        state.onceMap['sxysehmsn'] = true;
         vars['angle'] = (vars['angle'] || 0) + (random(-5,5));
       }
     }
     if (!!(_util.fuzzyEqual((vars.btype !== undefined ? vars.btype : 0) ,2))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['1eo77zuaz']) {
-        state.onceMap['1eo77zuaz'] = true;
+      if (!state.onceMap['bunki8z3k']) {
+        state.onceMap['bunki8z3k'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16718,8 +18503,8 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
       }
       if (!!(_util.fuzzyEqual((vars.tien !== undefined ? vars.tien : 0) ,1))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['cskdk023q']) {
-          state.onceMap['cskdk023q'] = true;
+        if (!state.onceMap['umfwpya8h']) {
+          state.onceMap['umfwpya8h'] = true;
           vars['multf'] = 90;
           vars['multlr'] = 0.2;
           if (!b || !b.isDestroyed) {
@@ -16731,8 +18516,8 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
       }
       if (!!(_util.fuzzyEqual((vars.tien !== undefined ? vars.tien : 0) ,2))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['ax7kl84qy']) {
-          state.onceMap['ax7kl84qy'] = true;
+        if (!state.onceMap['oa0q7f2ik']) {
+          state.onceMap['oa0q7f2ik'] = true;
           vars['multf'] = 90;
           vars['multlr'] = 0;
           if (!b || !b.isDestroyed) {
@@ -16770,8 +18555,8 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
       }
       if (!!(_util.fuzzyEqual((vars.tien !== undefined ? vars.tien : 0) ,3))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['6jzfznom1']) {
-          state.onceMap['6jzfznom1'] = true;
+        if (!state.onceMap['0jec1ppqh']) {
+          state.onceMap['0jec1ppqh'] = true;
           vars['radius'] = 0;
           if (!b || !b.isDestroyed) {
             state.waitTimer = (30) / 60;
@@ -16808,6 +18593,11 @@ window.compiledDanmaku['danmaku_s2_19_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16819,6 +18609,11 @@ window.compiledDanmaku['danmaku_s2_20'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16925,6 +18720,11 @@ window.compiledDanmaku['danmaku_s2_20_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16982,6 +18782,11 @@ window.compiledDanmaku['danmaku_s2_20_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -16993,6 +18798,11 @@ window.compiledDanmaku['danmaku_s2_21'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17017,6 +18827,11 @@ window.compiledDanmaku['danmaku_s2_21_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17027,8 +18842,8 @@ window.compiledDanmaku['danmaku_s2_21_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['9nx775idt']) {
-      state.onceMap['9nx775idt'] = true;
+    if (!state.onceMap['1f1qcilfl']) {
+      state.onceMap['1f1qcilfl'] = true;
       vars['ram'] = random(-1,1);
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (60) && ((vars.frame !== undefined ? vars.frame : 0)) <= (120)))) {
@@ -17050,6 +18865,11 @@ window.compiledDanmaku['danmaku_s2_21_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17061,6 +18881,11 @@ window.compiledDanmaku['danmaku_s2_22'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17100,6 +18925,11 @@ window.compiledDanmaku['danmaku_s2_22_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17114,14 +18944,14 @@ window.compiledDanmaku['danmaku_s2_22_bullet'] = function*(state, b, attacker, t
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['pujcke343']) {
-      state.onceMap['pujcke343'] = true;
+    if (!state.onceMap['7s8la52lo']) {
+      state.onceMap['7s8la52lo'] = true;
       vars['speed'] = 300;
     }
     if (!!((vars.isBounced !== undefined ? vars.isBounced : 0))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['8rd7c9tro']) {
-        state.onceMap['8rd7c9tro'] = true;
+      if (!state.onceMap['n85ajeevb']) {
+        state.onceMap['n85ajeevb'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -17148,6 +18978,11 @@ window.compiledDanmaku['danmaku_s2_22_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17160,6 +18995,11 @@ window.compiledDanmaku['danmaku_s2_23'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17237,6 +19077,11 @@ window.compiledDanmaku['danmaku_s2_23'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17269,6 +19114,11 @@ window.compiledDanmaku['danmaku_s2_23_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17280,8 +19130,8 @@ window.compiledDanmaku['danmaku_s2_23_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['7xhc19vbc']) {
-        state.onceMap['7xhc19vbc'] = true;
+      if (!state.onceMap['ru8591a6q']) {
+        state.onceMap['ru8591a6q'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "50", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -17326,6 +19176,11 @@ window.compiledDanmaku['danmaku_s2_23_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17338,6 +19193,11 @@ window.compiledDanmaku['danmaku_s2_24'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17362,6 +19222,11 @@ window.compiledDanmaku['danmaku_s2_24'] = [
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17403,6 +19268,11 @@ window.compiledDanmaku['danmaku_s2_24_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17428,6 +19298,11 @@ window.compiledDanmaku['danmaku_s2_24_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17439,6 +19314,11 @@ window.compiledDanmaku['danmaku_s2_25'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17513,6 +19393,11 @@ window.compiledDanmaku['danmaku_s2_25_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17523,14 +19408,14 @@ window.compiledDanmaku['danmaku_s2_25_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['z6xxbmfcm']) {
-      state.onceMap['z6xxbmfcm'] = true;
+    if (!state.onceMap['yiv4navhf']) {
+      state.onceMap['yiv4navhf'] = true;
       vars['speed'] = random(200,450);
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 5)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['tdbpjc72j']) {
-        state.onceMap['tdbpjc72j'] = true;
+      if (!state.onceMap['iix5zxpxi']) {
+        state.onceMap['iix5zxpxi'] = true;
         vars['radius'] = 10;
         vars['bulletImage'] = "bluenormal";
         vars['image'] = "bluenormal";
@@ -17569,6 +19454,11 @@ window.compiledDanmaku['danmaku_s2_25_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17580,6 +19470,11 @@ window.compiledDanmaku['danmaku_s2_26'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17662,6 +19557,11 @@ window.compiledDanmaku['danmaku_s2_26_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17672,8 +19572,8 @@ window.compiledDanmaku['danmaku_s2_26_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['m890hmpqf']) {
-      state.onceMap['m890hmpqf'] = true;
+    if (!state.onceMap['ck923th9j']) {
+      state.onceMap['ck923th9j'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-2,2));
       if (!!(((function(){ if (vars.n !== undefined) { const n = vars.n; return (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)); } else { for (let n = 1; n <= 100000; n++) { if (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)) return true; } return false; } })()))) {
         vars['bulletImage'] = "redbig";
@@ -17725,6 +19625,11 @@ window.compiledDanmaku['danmaku_s2_26_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17736,6 +19641,11 @@ window.compiledDanmaku['danmaku_s2_27'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17823,6 +19733,11 @@ window.compiledDanmaku['danmaku_s2_27_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17834,8 +19749,8 @@ window.compiledDanmaku['danmaku_s2_27_bullet'] = function*(state, b, attacker, t
     }
     if (!!(_util.fuzzyNotEqual((vars.anana !== undefined ? vars.anana : 0) ,1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['8aw8lgica']) {
-        state.onceMap['8aw8lgica'] = true;
+      if (!state.onceMap['s7d1sr0s3']) {
+        state.onceMap['s7d1sr0s3'] = true;
         vars['angle'] = (vars['angle'] || 0) + (random(-4,4));
         vars['speed'] = (vars['speed'] || 0) + (random(-60,60));
         if (!!(((function(){ if (vars.n !== undefined) { const n = vars.n; return (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)); } else { for (let n = 1; n <= 100000; n++) { if (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)) return true; } return false; } })()))) {
@@ -17889,6 +19804,11 @@ window.compiledDanmaku['danmaku_s2_27_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17900,6 +19820,11 @@ window.compiledDanmaku['danmaku_s2_28'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17958,6 +19883,11 @@ window.compiledDanmaku['danmaku_s2_28_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -17969,8 +19899,8 @@ window.compiledDanmaku['danmaku_s2_28_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ysn6w1hbe']) {
-        state.onceMap['ysn6w1hbe'] = true;
+      if (!state.onceMap['6xc6zo7o9']) {
+        state.onceMap['6xc6zo7o9'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "iku", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -18018,6 +19948,11 @@ window.compiledDanmaku['danmaku_s2_28_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -18029,6 +19964,11 @@ window.compiledDanmaku['danmaku_s2_29'] = function*(state, b, attacker, target, 
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -18059,6 +19999,11 @@ window.compiledDanmaku['danmaku_s2_29_bullet'] = function*(state, b, attacker, t
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;
@@ -18086,6 +20031,233 @@ window.compiledDanmaku['danmaku_s2_29_magic'] = function*(state, b, attacker, ta
   const random = _util.rand;
   const rand = _util.rand;
   const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+};
+
+window.compiledDanmaku['danmaku_s2_30'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+  while (true) {
+    if (b && b.isDestroyed) break;
+    if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    vars['angle'] = (vars['angle'] || 0) + (random(-50,50));
+    if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "greendiamond", speed: "200", angle: "angle", radius: "10", hitRadius: "3", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {"gensoku":"300"}, }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "greendiamond", speed: "200", angle: "angle + 1.3", radius: "10", hitRadius: "3", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {"gensoku":"300"}, }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (!b || !b.isDestroyed) {
+      state.waitTimer = (1) / 60;
+      yield;
+    }
+    vars['angle'] = 90;
+    vars['angle'] = (vars['angle'] || 0) + (random(-50,50));
+    if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "greendiamond", speed: "200", angle: "angle", radius: "10", hitRadius: "3", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {"gensoku":"200"}, }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "greendiamond", speed: "200", angle: "angle + 1.3", radius: "10", hitRadius: "3", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {"gensoku":"200"}, }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    if (!b || !b.isDestroyed) {
+      state.waitTimer = (1) / 60;
+      yield;
+    }
+  }
+};
+window.compiledDanmaku['danmaku_s2_30_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+  while (true) {
+    if (typeof cpu !== 'undefined' && cpu) {
+      vars['enemyHp'] = cpu.hp;
+      vars['enemyMaxHp'] = cpu.maxHp;
+    }
+    if (!state.onceMap) state.onceMap = {};
+    if (!state.onceMap['bf0cpswep']) {
+      state.onceMap['bf0cpswep'] = true;
+      if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "600", to: "gensoku", mode: "seconds", duration: "1", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+    }
+    if (b && b.isDestroyed) break;
+    state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);
+    yield;
+  }
+};
+window.compiledDanmaku['danmaku_s2_30_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+};
+
+window.compiledDanmaku['danmaku_s2_31'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+  while (true) {
+    if (b && b.isDestroyed) break;
+    if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
+      yield;
+    }
+    vars['angle'] = (vars['angle'] || 0) + (random(-70,70));
+    vars['r'] = random(-1,1);
+    vars['r2'] = random(-1,1);
+    if (!!((((vars.r !== undefined ? vars.r : 0)) >= (-1) && ((vars.r !== undefined ? vars.r : 0)) <= (0)))) {
+      if (!!((((vars.r2 !== undefined ? vars.r2 : 0)) >= (-1) && ((vars.r2 !== undefined ? vars.r2 : 0)) <= (0)))) {
+        vars['spd'] = -100;
+        let _prev_i_215 = vars['i'];
+        for (let _loopIdx_215 = 0, _limit_215 = Math.round(10); _loopIdx_215 < _limit_215; _loopIdx_215++) {
+          vars['i'] = _loopIdx_215;
+          if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "oliveknife", speed: "200 + spd", angle: "angle", radius: "20", hitRadius: "8", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {}, }, state, b, attacker, target, _util)) {
+            yield;
+          }
+          vars['angle'] = (vars['angle'] || 0) + (4);
+          vars['spd'] = (vars['spd'] || 0) + (20);
+          if (!b || !b.isDestroyed) {
+            state.waitTimer = (1) / 60;
+            yield;
+          }
+        }
+        vars['i'] = _prev_i_215;
+      }
+      if (!!((((vars.r2 !== undefined ? vars.r2 : 0)) >= (0) && ((vars.r2 !== undefined ? vars.r2 : 0)) <= (1)))) {
+        vars['spd'] = 100;
+        let _prev_i_216 = vars['i'];
+        for (let _loopIdx_216 = 0, _limit_216 = Math.round(10); _loopIdx_216 < _limit_216; _loopIdx_216++) {
+          vars['i'] = _loopIdx_216;
+          if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "oliveknife", speed: "200 + spd", angle: "angle", radius: "20", hitRadius: "8", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {}, }, state, b, attacker, target, _util)) {
+            yield;
+          }
+          vars['angle'] = (vars['angle'] || 0) + (4);
+          vars['spd'] = (vars['spd'] || 0) - (10);
+          if (!b || !b.isDestroyed) {
+            state.waitTimer = (1) / 60;
+            yield;
+          }
+        }
+        vars['i'] = _prev_i_216;
+      }
+    }
+    if (!!((((vars.r !== undefined ? vars.r : 0)) >= (0) && ((vars.r !== undefined ? vars.r : 0)) <= (1)))) {
+      if (!!((((vars.r2 !== undefined ? vars.r2 : 0)) >= (-1) && ((vars.r2 !== undefined ? vars.r2 : 0)) <= (0)))) {
+        vars['spd'] = -100;
+        let _prev_i_217 = vars['i'];
+        for (let _loopIdx_217 = 0, _limit_217 = Math.round(10); _loopIdx_217 < _limit_217; _loopIdx_217++) {
+          vars['i'] = _loopIdx_217;
+          if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "oliveknife", speed: "200 + spd", angle: "angle", radius: "20", hitRadius: "8", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {}, }, state, b, attacker, target, _util)) {
+            yield;
+          }
+          vars['angle'] = (vars['angle'] || 0) + (4);
+          vars['spd'] = (vars['spd'] || 0) + (20);
+          if (!b || !b.isDestroyed) {
+            state.waitTimer = (1) / 60;
+            yield;
+          }
+        }
+        vars['i'] = _prev_i_217;
+      }
+      if (!!((((vars.r2 !== undefined ? vars.r2 : 0)) >= (0) && ((vars.r2 !== undefined ? vars.r2 : 0)) <= (1)))) {
+        vars['spd'] = 100;
+        let _prev_i_218 = vars['i'];
+        for (let _loopIdx_218 = 0, _limit_218 = Math.round(10); _loopIdx_218 < _limit_218; _loopIdx_218++) {
+          vars['i'] = _loopIdx_218;
+          if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "oliveknife", speed: "200 + spd", angle: "angle", radius: "20", hitRadius: "8", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "1", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {}, }, state, b, attacker, target, _util)) {
+            yield;
+          }
+          vars['angle'] = (vars['angle'] || 0) + (4);
+          vars['spd'] = (vars['spd'] || 0) - (10);
+          if (!b || !b.isDestroyed) {
+            state.waitTimer = (1) / 60;
+            yield;
+          }
+        }
+        vars['i'] = _prev_i_218;
+      }
+    }
+    if (!b || !b.isDestroyed) {
+      state.waitTimer = (1) / 60;
+      yield;
+    }
+  }
+};
+window.compiledDanmaku['danmaku_s2_31_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+};
+window.compiledDanmaku['danmaku_s2_31_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
   if (typeof cpu !== 'undefined' && cpu) {
     vars['enemyHp'] = cpu.hp;
     vars['enemyMaxHp'] = cpu.maxHp;

@@ -47,6 +47,11 @@ global.requestAnimationFrame = () => {};
 global.cancelAnimationFrame = () => {};
 global.localStorage = { getItem: () => null, setItem: () => {} };
 global.navigator = { userAgent: '' };
+global.floor = Math.floor;
+global.trunc = Math.trunc || Math.floor;
+global.int = Math.trunc || Math.floor;
+global.round = Math.round;
+global.ceil = Math.ceil;
 
 const jsDir = path.join(__dirname, '..', 'js');
 
