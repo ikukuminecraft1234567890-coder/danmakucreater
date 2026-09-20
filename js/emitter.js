@@ -397,7 +397,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     case 'play_sound': {
                         let name = block.params.soundName || 'shot';
                         if (typeof playSound === 'function') {
-                            playSound(name);
+                            playSound(name, true);
                         }
                         break;
                     }
@@ -2399,7 +2399,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             case 'play_sound': {
                                 let name = block.params.soundName || 'shot';
                                 if (typeof playSound === 'function') {
-                                    playSound(name);
+                                    playSound(name, true);
                                 }
                                 break;
                             }

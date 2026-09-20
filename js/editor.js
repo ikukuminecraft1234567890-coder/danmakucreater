@@ -963,7 +963,7 @@ function customCardMakerSwitchTab(tab) {
                                     <option value="boon00" ${b.params.soundName === 'boon00' ? 'selected' : ''}>アビリティ音 (se_boon00)</option>
                                     <option value="boon01" ${b.params.soundName === 'boon01' ? 'selected' : ''}>回復/警告音 (se_boon01)</option>
                                 </select>
-                                <button class="menu-btn" style="min-width:32px; height:24px; padding:0 6px; margin:0 0 0 6px; line-height:22px; vertical-align:middle; background:linear-gradient(135deg, #005544 0%, #002211 100%); border-color:#00ffcc; color:#00ffcc; font-weight:bold; cursor:pointer;" onclick="playSound('${b.params.soundName || 'shot'}')">試聴 ▶</button>
+                                <button class="menu-btn" style="min-width:32px; height:24px; padding:0 6px; margin:0 0 0 6px; line-height:22px; vertical-align:middle; background:linear-gradient(135deg, #005544 0%, #002211 100%); border-color:#00ffcc; color:#00ffcc; font-weight:bold; cursor:pointer;" onclick="playSound('${b.params.soundName || 'shot'}', true)">試聴 ▶</button>
                                 <span>を鳴らす</span>
                                 ${renderBlockControls(idx)}
                             `;
@@ -1735,6 +1735,12 @@ function customCardMakerSwitchTab(tab) {
             window.spellTransitionTimer = 0;
             window.lastTimeoutSecond = 11;
             window.spellDeclarationTimer = 2.8;
+            if (window.soundManager) {
+                window.soundManager.stopPreviousCancelableSound();
+                if (window.soundManager.ctx && window.soundManager.ctx.state === 'suspended') {
+                    window.soundManager.ctx.resume();
+                }
+            }
             if (window.isBossMode && window.playSound) window.playSound('se_cat00');
             player.respawnTimer = 0;
             window.playerMissCount = 0;
@@ -4641,6 +4647,12 @@ function customCardMakerSwitchMode(mode) {
             window.lastTimeoutSecond = 11;
             window.spellDeclarationTimer = 2.8;
             window.totalScore = 0; // スコア初期化
+            if (window.soundManager) {
+                window.soundManager.stopPreviousCancelableSound();
+                if (window.soundManager.ctx && window.soundManager.ctx.state === 'suspended') {
+                    window.soundManager.ctx.resume();
+                }
+            }
             if (window.isBossMode && window.playSound) window.playSound('se_cat00');
             player.respawnTimer = 0;
             window.playerMissCount = 0;
@@ -5133,6 +5145,12 @@ function customCardMakerSwitchMode(mode) {
             window.bossPhaseEntryMoveTimer = isNextSpell ? 0.5 : 0;
             window.lastTimeoutSecond = 11;
             window.spellDeclarationTimer = hasSpellName ? 2.8 : 0;
+            if (window.soundManager) {
+                window.soundManager.stopPreviousCancelableSound();
+                if (window.soundManager.ctx && window.soundManager.ctx.state === 'suspended') {
+                    window.soundManager.ctx.resume();
+                }
+            }
             if (hasSpellName && window.playSound) {
                 window.playSound('se_cat00');
             }

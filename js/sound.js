@@ -86,6 +86,30 @@ class SoundManager {
             'damage01': 0.7
         };
         this.useHtml5Audio = (window.location.protocol === 'file:');
+        
+        // HTML5 Audio キャッシュ
+        this.html5Audios = {};
+        
+        // 未ロード時に要求された再生リクエストのキュー: { [key]: [{ time, cancelPrevious }] }
+        this.pendingPlays = {};
+        
+        // 「直前の音をキャンセル」管理用ノード（音の種類ごとに独立して管理）
+        this.lastCancelableSource = {}; // { [key]: AudioBufferSourceNode }
+        this.lastCancelableGain = {};   // { [key]: GainNode }
+        this.lastCancelableAudio = {};  // { [key]: Audio }
+
+        // 同一フレーム内の重複再生制限用（音の種類ごとに独立して管理）
+        this.lastPlayFrame = {}; // { [key]: number }
+        this.lastPlayTime = {};  // { [key]: number }
+
+        this.frameId = 0;
+        if (typeof requestAnimationFrame !== 'undefined') {
+            const step = () => {
+                this.frameId++;
+                requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        }
     }
 
     init() {
@@ -93,7 +117,7 @@ class SoundManager {
         this.initialized = true;
 
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
+        if (AudioContextClass && !this.useHtml5Audio) {
             try {
                 this.ctx = new AudioContextClass();
                 // 音割れ（クリッピング）防止用のダイナミクス・コンプレッサーの作成
@@ -109,7 +133,18 @@ class SoundManager {
             }
         }
 
-        // http/https の場合は音声ファイルを事前ロードしてデコード
+        // ユーザーの操作で AudioContext を即座にアンロック（ブラウザの自動再生ポリシー対応）
+        const resumeCtx = () => {
+            if (this.ctx && this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        };
+        window.addEventListener('click', resumeCtx, { passive: true });
+        window.addEventListener('keydown', resumeCtx, { passive: true });
+        window.addEventListener('touchstart', resumeCtx, { passive: true });
+        window.addEventListener('pointerdown', resumeCtx, { passive: true });
+
+        // http/https の場合は全音声ファイルを事前ロードしてデコード
         if (!this.useHtml5Audio && this.ctx) {
             Object.entries(this.files).forEach(([key, path]) => {
                 fetch(path)
@@ -125,34 +160,118 @@ class SoundManager {
                     })
                     .then(buffer => {
                         this.buffers[key] = buffer;
+                        // ロード待ちキューの処理（1秒以内のリクエストなら即座に再生）
+                        if (this.pendingPlays[key] && this.pendingPlays[key].length > 0) {
+                            const requests = this.pendingPlays[key];
+                            delete this.pendingPlays[key];
+                            const now = performance.now();
+                            for (let req of requests) {
+                                if (now - req.time <= 1000) {
+                                    this.playBuffer(key, buffer, req.cancelPrevious);
+                                }
+                            }
+                        }
                     })
                     .catch(err => console.error('Failed to load/decode sound:', path, err));
             });
+        } else if (this.useHtml5Audio) {
+            // HTML5 Audio 用に全ファイルを事前ロード
+            Object.entries(this.files).forEach(([key, path]) => {
+                try {
+                    let audio = new Audio(path);
+                    audio.preload = 'auto';
+                    audio.load();
+                    this.html5Audios[key] = audio;
+                } catch (e) {}
+            });
         }
-
-        // ユーザーの最初の操作で AudioContext を再開（ブラウザの自動再生ポリシー対応）
-        const resumeCtx = () => {
-            if (this.ctx && this.ctx.state === 'suspended') {
-                this.ctx.resume();
-            }
-        };
-        window.addEventListener('click', resumeCtx, { passive: true });
-        window.addEventListener('keydown', resumeCtx, { passive: true });
-        window.addEventListener('touchstart', resumeCtx, { passive: true });
     }
 
     setVolume(vol) {
         this.volume = Math.max(0, Math.min(1, vol));
     }
 
-    playHtml5(name) {
+    // 同一フレーム内で既にこのキーの音が鳴っているか判定（同一フレーム重複防止）
+    canPlayInCurrentFrame(key) {
+        const now = performance.now();
+        const curFrame = (typeof window !== 'undefined' && typeof window.currentCardFrame === 'number')
+            ? window.currentCardFrame
+            : this.frameId;
+
+        const lastFrame = this.lastPlayFrame[key];
+        const lastTime = this.lastPlayTime[key];
+
+        // 同一フレーム番号、または前回再生から12ms未満（同一フレーム内）の場合はスキップ
+        if (lastFrame !== undefined && lastFrame === curFrame) {
+            return false;
+        }
+        if (lastTime !== undefined && (now - lastTime) < 12) {
+            return false;
+        }
+
+        this.lastPlayFrame[key] = curFrame;
+        this.lastPlayTime[key] = now;
+        return true;
+    }
+
+    // 直前のキャンセル可能サウンドを停止する (targetKey指定時はその種類のみ、null時は全種類)
+    stopPreviousCancelableSound(targetKey = null) {
+        if (!this.useHtml5Audio && this.ctx) {
+            const keysToStop = targetKey ? (this.lastCancelableSource[targetKey] ? [targetKey] : []) : Object.keys(this.lastCancelableSource);
+            for (let k of keysToStop) {
+                const oldGain = this.lastCancelableGain[k];
+                const oldSrc = this.lastCancelableSource[k];
+                if (oldGain && oldSrc) {
+                    try {
+                        const now = this.ctx.currentTime;
+                        // クリックノイズ（プチ音）防止：3msで音量をゼロへフェードアウト
+                        oldGain.gain.cancelScheduledValues(now);
+                        oldGain.gain.setValueAtTime(oldGain.gain.value, now);
+                        oldGain.gain.linearRampToValueAtTime(0.0001, now + 0.003);
+                        // AudioContextのタイムライン上で3ms後に即時ハード停止（遅延ゼロ）
+                        oldSrc.stop(now + 0.003);
+                    } catch (e) {}
+                }
+                delete this.lastCancelableSource[k];
+                delete this.lastCancelableGain[k];
+            }
+        } else if (this.useHtml5Audio) {
+            const keysToStop = targetKey ? (this.lastCancelableAudio[targetKey] ? [targetKey] : []) : Object.keys(this.lastCancelableAudio);
+            for (let k of keysToStop) {
+                const oldAudio = this.lastCancelableAudio[k];
+                if (oldAudio) {
+                    try {
+                        oldAudio.pause();
+                        oldAudio.currentTime = 0;
+                    } catch (e) {}
+                }
+                delete this.lastCancelableAudio[k];
+            }
+        }
+    }
+
+    playHtml5(name, cancelPrevious = false) {
         let key = this.aliases[name] || name;
         let path = this.files[key];
         if (!path) return;
         try {
+            if (cancelPrevious) {
+                this.stopPreviousCancelableSound(key);
+            }
+
             let audio = new Audio(path);
             let balance = this.balances[key] !== undefined ? this.balances[key] : 1.0;
             audio.volume = this.volume * balance;
+
+            if (cancelPrevious) {
+                this.lastCancelableAudio[key] = audio;
+                audio.onended = () => {
+                    if (this.lastCancelableAudio[key] === audio) {
+                        delete this.lastCancelableAudio[key];
+                    }
+                };
+            }
+
             audio.play().catch(e => {
                 // 自動再生ポリシーなどの一時的なエラーは無視
             });
@@ -161,23 +280,51 @@ class SoundManager {
         }
     }
 
-    play(name) {
+    play(name, cancelPrevious = false) {
         if (!this.initialized) {
             this.init();
-        }
-        if (this.useHtml5Audio) {
-            this.playHtml5(name);
-            return;
         }
         if (this.ctx && this.ctx.state === 'suspended') {
             this.ctx.resume();
         }
 
         let key = this.aliases[name] || name;
-        const buffer = this.buffers[key];
-        if (!buffer) return;
 
+        // 同一フレーム内の音は必ず一回までしか鳴らさない（キーごとに判定）
+        if (!this.canPlayInCurrentFrame(key)) {
+            return;
+        }
+
+        if (this.useHtml5Audio) {
+            this.playHtml5(name, cancelPrevious);
+            return;
+        }
+
+        const buffer = this.buffers[key];
+        if (!buffer) {
+            // バッファデコード待ちの場合はキューに積んで完了時に即座に再生
+            if (!this.pendingPlays[key]) {
+                this.pendingPlays[key] = [];
+            }
+            if (cancelPrevious) {
+                this.pendingPlays[key] = [{ time: performance.now(), cancelPrevious: true }];
+            } else {
+                this.pendingPlays[key].push({ time: performance.now(), cancelPrevious: false });
+            }
+            return;
+        }
+
+        this.playBuffer(key, buffer, cancelPrevious);
+    }
+
+    playBuffer(key, buffer, cancelPrevious = false) {
+        if (!this.ctx) return;
         try {
+            if (cancelPrevious) {
+                // 該当キー（同じ種類の音）の直前の音のみをキャンセル！
+                this.stopPreviousCancelableSound(key);
+            }
+
             const source = this.ctx.createBufferSource();
             source.buffer = buffer;
 
@@ -186,17 +333,28 @@ class SoundManager {
             gainNode.gain.value = this.volume * balance;
 
             source.connect(gainNode);
-            
+
             // コンプレッサーノードが作成できていれば接続し、そうでなければ直接スピーカーへ
             if (this.compressor) {
                 gainNode.connect(this.compressor);
             } else {
                 gainNode.connect(this.ctx.destination);
             }
-            
+
+            if (cancelPrevious) {
+                this.lastCancelableSource[key] = source;
+                this.lastCancelableGain[key] = gainNode;
+                source.onended = () => {
+                    if (this.lastCancelableSource[key] === source) {
+                        delete this.lastCancelableSource[key];
+                        delete this.lastCancelableGain[key];
+                    }
+                };
+            }
+
             source.start(0);
         } catch (e) {
-            console.error('Error playing sound:', name, e);
+            console.error('Error playing sound buffer:', key, e);
         }
     }
 
@@ -243,12 +401,22 @@ class SoundManager {
 // グローバルインスタンスの作成
 window.soundManager = new SoundManager();
 
+// 読み込み直後に即時初期化とプリロードを開始
+window.soundManager.init();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.soundManager.init();
+        });
+    }
+}
+
 // グローバルな playSound 関数の定義
-window.playSound = function(name) {
+window.playSound = function(name, cancelPrevious = false) {
     if (name === 'piko' || name === 'se_piko') {
         window.soundManager.playPiko();
         return;
     }
-    window.soundManager.play(name);
+    window.soundManager.play(name, cancelPrevious);
 };
 

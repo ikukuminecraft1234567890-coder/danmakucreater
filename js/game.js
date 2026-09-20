@@ -6089,6 +6089,12 @@ function applyAbilityEffect(cardId, owner) {
             window.spellDeclarationTimer = 2.8;
             window.totalScore = 0; // スコアリセット
             window.isS2Danmaku = (tempCustomCard.season === 2) || (typeof window.currentDanmakuSeason !== 'undefined' && window.currentDanmakuSeason === 2);
+            if (window.soundManager) {
+                window.soundManager.stopPreviousCancelableSound();
+                if (window.soundManager.ctx && window.soundManager.ctx.state === 'suspended') {
+                    window.soundManager.ctx.resume();
+                }
+            }
             if (window.isBossMode && window.playSound) window.playSound('se_cat00');
 
             customCardTestEmitterDone = false;

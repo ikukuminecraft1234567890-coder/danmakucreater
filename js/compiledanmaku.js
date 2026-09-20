@@ -1586,7 +1586,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                     case 'play_sound': {
                         let name = p.soundName || 'shot';
                         if (typeof playSound === 'function') {
-                            playSound(name);
+                            playSound(name, true);
                         }
                         break;
                     }
@@ -2831,7 +2831,7 @@ window.DanmakuCompilerRuntime.executeBlock = function(p, state, b, attacker, tar
                             case 'play_sound': {
                                 let name = p.soundName || 'shot';
                                 if (typeof playSound === 'function') {
-                                    playSound(name);
+                                    playSound(name, true);
                                 }
                                 break;
                             }

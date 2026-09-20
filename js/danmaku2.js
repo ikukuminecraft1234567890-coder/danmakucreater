@@ -1805,12 +1805,12 @@ once {
 
     `
 },{
-    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
-    name: "スペル名",           // 弾幕名・スペルカード名
-    desc: "説明文や作成者名",
+    difficulty: "easy",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "狡符「詰みの三十手」",           // 弾幕名・スペルカード名
+    desc: "ちなみにいうて詰まない（笑）",
     hp: 2000,                   // ボスHP（ショットで削って撃破可能）
-    duration: 30,               // 制限時間（秒）
-    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    duration: 70,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
     x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
     y_offset: 0,                // 出現位置の縦オフセット
     despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
@@ -1865,6 +1865,182 @@ while (true) {
     `,
     bulletScript: `
 
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "本能「イドの埋火」",           // 弾幕名・スペルカード名
+    desc: "適当につくった",
+    hp: 2500,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 0.1,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ra = 120
+    bullet({ "type": "normal", "image": "redheart", "speed": 300, "radius": 20, "hitRadius": 10, "way": 8, "destroyResist": true })
+    ra = -120
+    bullet({ "type": "normal", "image": "redheart", "speed": 300, "radius": 20, "hitRadius": 10, "way": 8, "destroyResist": true })
+    angle += 15
+    wf(40)
+}
+    `,
+    bulletScript: `
+if (frame ==40) {
+    tween("angle", angle, angle + ra, "seconds", 3, "seconds")
+}
+if (frame ==70) {
+    tween("speed", speed, 200, "seconds", 1, "seconds")
+}
+spriteAngle = angle
+if (frame == 10 * n) {
+    dx = random(-20,20)
+    dy = random(-20,20)
+    dangle += random(-15,15)
+    bullet({ "type": "normal", "image": "light", "speed": 50, "angle": angle + dangle, "hitRadius": 3, "x": dx, "y": dy })
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "神海「弾幕の海」",           // 弾幕名・スペルカード名
+    desc: "桜色の弾幕を泳いで～",
+    hp: 1500,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 200
+    for (let i = 0; i < 4; i++) {
+        spd = random(100,900)
+        bullet({ "type": "normal", "image": "redsmall", "speed": spd, "angle": angle + 0.5, "hitRadius": 2, "x": -spx })
+        angle += 1
+    }
+    wf(1)
+}
+while (true) {
+    syageki = 0
+    wf(200)
+    syageki = 1
+    for (let i = 0; i < 5; i++) {
+        bullet({ "type": "normal", "image": "mahoujin64", "speed": 300, "angle": 0, "radius": 30, "color": "#ffffff", "destroyResist": true })
+        wf(40)
+    }
+    syageki = 0
+    wf(400)
+    syageki = 1
+    for (let i = 0; i < 2; i++) {
+        bullet({ "type": "normal", "image": "mahoujin64", "speed": 300, "angle": 180, "radius": 30, "color": "#fffffe", "destroyResist": true })
+        wf(40)
+    }
+    syageki = 0
+    wf(200)
+}
+while (true) {
+    if (syageki==1) {
+        motoangle = angle
+        aimAtTarget()
+        bullet({ "type": "normal", "image": "redscale", "speed": 400, "radius": 9, "hitRadius": 4, "way": 4, "distance": 1, "distanceType": "step", "IsNormal": 1 })
+        angle = motoangle
+        wf(60)
+    }
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    once {
+        if (IsNormal != 1) {
+            tween("speed", speed, 180, "seconds", 1, "easeOut")
+        }
+    }
+}
+if (color==#ffffff) {
+    spriteAngle -= 3
+    if (frame == 50) {
+        tween("angle", angle, 180, "seconds", 0.5)
+    }
+    if (frame == 180) {
+        tween("angle", angle, 0, "seconds", 0.5)
+    }
+    if (frame == 350) {
+        y = -9000
+    }
+    if (frame == 60 * n) {
+        motoangle = angle
+        aimAtTarget()
+        bullet({ "type": "normal", "image": "redscale", "speed": 400, "radius": 9, "hitRadius": 2, "way": 4, "distance": 1, "distanceType": "step" })
+        angle = motoangle
+    }
+}
+if (color==#fffffe) {
+    spriteAngle += 3
+    if (frame == 50) {
+        tween("angle", angle, 0, "seconds", 0.5)
+    }
+    if (frame == 180) {
+        tween("angle", angle, 180, "seconds", 0.5)
+    }
+    if (frame == 350) {
+        y = -9000
+    }
+    if (frame == 60 * n) {
+        motoangle = angle
+        aimAtTarget()
+        bullet({ "type": "normal", "image": "redscale", "speed": 400, "radius": 9, "hitRadius": 2, "way": 4, "distance": 1, "distanceType": "step" })
+        angle = motoangle
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「虹輪」",           // 弾幕名・スペルカード名
+    desc: "うおっｗ",
+    hp: 2500,                   // ボスHP（ショットで削って撃破可能）
+    duration: 70,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 300
+    bullet({ "type": "normal", "image": "redbig", "angle": angle + 51.4285714286 * 1, "radius": 12, "hitRadius": 0, "transparency": 100 })
+    bullet({ "type": "normal", "image": "orangebig", "angle": angle + 51.4285714286 * 2, "radius": 12, "hitRadius": 0, "transparency": 100 })
+    bullet({ "type": "normal", "image": "yellowbig", "angle": angle + 51.4285714286 * 3, "radius": 12, "hitRadius": 0, "transparency": 100 })
+    bullet({ "type": "normal", "image": "limebig", "angle": angle + 51.4285714286 * 4, "radius": 12, "hitRadius": 0, "transparency": 100 })
+    bullet({ "type": "normal", "image": "cobaltbig", "angle": angle + 51.4285714286 * 5, "radius": 12, "hitRadius": 0, "transparency": 100 })
+    bullet({ "type": "normal", "image": "purplebig", "angle": angle + 51.4285714286 * 6, "radius": 12, "hitRadius": 0, "transparency": 100 })
+    bullet({ "type": "normal", "image": "pinkbig", "angle": angle + 51.4285714286 * 7, "radius": 12, "hitRadius": 0, "transparency": 100 })
+    angle += 5
+    wf(3)
+}
+    `,
+    bulletScript: `
+once {
+    advance(20)
+    tween("transparency", 100, 0, "frame", 5)
+    tween("radius", 40, 12, "frame", 5)
+    wf(5)
+    hitRadius = 6
+    radius = 12
+    tween("speed", 600, 0, "seconds", 0.8)
+    wf(60)
+    angle = angle + cardFrame * 10
+    tween("speed", 0, 1000, "seconds", 20)
+    spriteAngle = angle
+}
     `,
     magicCircleScript: `
 
