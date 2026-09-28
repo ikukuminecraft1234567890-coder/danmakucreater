@@ -1622,6 +1622,20 @@ window.compiledDanmakuListS2 = [
     "emitterScript": "\nwhile (true) {\n    ey = 300\n    wf(2)\n    bullet({ \"type\": \"normal\", \"image\": \"rednormal\", \"angle\": ang, \"radius\": 60, \"hitRadius\": 2, \"way\": 4, \"transparency\": 100, \"muki\": 1 })\n    bullet({ \"type\": \"normal\", \"image\": \"rednormal\", \"angle\": -ang, \"radius\": 60, \"hitRadius\": 2, \"way\": 4, \"transparency\": 100, \"muki\": -1 })\n    if (cardSecond == 3..5000) {\n        ang += 12.15\n    }\n    if (cardSecond == 1..3) {\n        ang -= 88.9\n    }\n    playSound(\"shot\")\n}\nwhile (true) {\n    wf(60)\n    while (true) {\n        wf(120)\n        aimAtTarget()\n        bullet({ \"type\": \"normal\", \"image\": \"onryou_red\", \"speed\": 300, \"radius\": 20, \"hitRadius\": 10, \"color\": \"#ffffff\", \"way\": 9, \"distance\": 8, \"distanceType\": \"step\" })\n        playSound(\"don00\")\n    }\n}\n    ",
     "bulletScript": "\nif (color==#ff3333) {\n    once {\n        tween(\"speed\", 1200, 170, \"frames\", 20)\n        tween(\"radius\", radius, 10, \"frames\", 6)\n        tween(\"transparency\", 100, 0, \"frames\", 6)\n        wf(5)\n        imageTo(\"reddiamond\")\n        wf(30)\n        angle -= muki * 165\n    }\n    spriteAngle = angle\n}\nif (color==#ffffff) {\n    once {\n        tween(\"speed\", 1200, 300, \"frames\", 20)\n    }\n}\n    ",
     "magicCircleScript": "\n\n    "
+  },
+  {
+    "difficulty": "NORMAL",
+    "name": "爆符「超新星の残光」",
+    "desc": "若干運ゲー？",
+    "hp": 2000,
+    "duration": 50,
+    "maxMisses": 3,
+    "x_offset": 0,
+    "y_offset": 0,
+    "despawnTime": 1.5,
+    "emitterScript": "\nwhile (true) {\n    for (let i = 0; i < 100; i++) {\n        bullet({ \"type\": \"normal\", \"image\": \"light\", \"speed\": 0, \"radius\": 0, \"hitRadius\": 5, \"way\": 3 })\n        bullet({ \"type\": \"normal\", \"image\": \"light\", \"speed\": 0, \"radius\": 0, \"hitRadius\": 5, \"color\": \"#ffaa33\", \"way\": 3 })\n        angle += frame + random(0,90)\n    }\n    wf(100)\n    wf(200 - g)\n    g += 25\n}\n    ",
+    "bulletScript": "\nonce {\n    tween(\"radius\", 0, 15, \"frames\", 30)\n    tween(\"auraRange\", 2.75, 6, \"frames\", 30)\n    wf(30)\n    speed = random(10,350)\n    tween(\"auraRange\", 6, 2.5, \"seconds\", 6)\n}\n    ",
+    "magicCircleScript": "\n\n    "
   }
 ];
 window.sharedDanmakuListS2 = window.compiledDanmakuListS2;
@@ -4508,8 +4522,8 @@ window.compiledDanmaku['danmaku_1_bullet'] = function*(state, b, attacker, targe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['j2r9yur0z']) {
-        state.onceMap['j2r9yur0z'] = true;
+      if (!state.onceMap['15fcik841']) {
+        state.onceMap['15fcik841'] = true;
         vars['x'] = 384;
         vars['y'] = 448;
       }
@@ -4639,8 +4653,8 @@ window.compiledDanmaku['danmaku_2_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['4sbdp7tyd']) {
-      state.onceMap['4sbdp7tyd'] = true;
+    if (!state.onceMap['3d4i1ar8i']) {
+      state.onceMap['3d4i1ar8i'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -4805,8 +4819,8 @@ window.compiledDanmaku['danmaku_3_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['fomtwe2jc']) {
-      state.onceMap['fomtwe2jc'] = true;
+    if (!state.onceMap['s2rmfpis8']) {
+      state.onceMap['s2rmfpis8'] = true;
       vars['m'] = 1;
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
@@ -5150,8 +5164,8 @@ window.compiledDanmaku['danmaku_6_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['lfqn1ho70']) {
-      state.onceMap['lfqn1ho70'] = true;
+    if (!state.onceMap['igu3vi21s']) {
+      state.onceMap['igu3vi21s'] = true;
       vars['shotTimer'] = 0;
     }
     vars['speed'] = (vars['speed'] || 0) + (2);
@@ -5462,8 +5476,8 @@ window.compiledDanmaku['danmaku_8_bullet'] = function*(state, b, attacker, targe
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['qcavmbnr0']) {
-      state.onceMap['qcavmbnr0'] = true;
+    if (!state.onceMap['zaj9q4tsf']) {
+      state.onceMap['zaj9q4tsf'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         vars['x'] = (vars.spawn !== undefined ? vars.spawn : 0);
       }
@@ -5763,8 +5777,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['cfved3ked']) {
-        state.onceMap['cfved3ked'] = true;
+      if (!state.onceMap['eknoqb9w2']) {
+        state.onceMap['eknoqb9w2'] = true;
         vars['x'] = (vars.tx !== undefined ? vars.tx : 0);
         vars['angle'] = 90;
       }
@@ -5777,8 +5791,8 @@ window.compiledDanmaku['danmaku_9_bullet'] = function*(state, b, attacker, targe
       vars['angle'] = (vars['angle'] || 0) + (random(0,0));
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['ilbd8kyll']) {
-      state.onceMap['ilbd8kyll'] = true;
+    if (!state.onceMap['sn0fbs1ez']) {
+      state.onceMap['sn0fbs1ez'] = true;
       vars['speed'] = (vars['speed'] || 0) + (40);
     }
     if (b && b.isDestroyed) break;
@@ -6113,8 +6127,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.timer !== undefined ? vars.timer : 0)) >= (1.4) && ((vars.timer !== undefined ? vars.timer : 0)) <= (2)))) {
         vars['speed'] = 300;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['7esajthv4']) {
-          state.onceMap['7esajthv4'] = true;
+        if (!state.onceMap['ph5an0wkp']) {
+          state.onceMap['ph5an0wkp'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -6128,8 +6142,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 150;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['jcwl4phtd']) {
-        state.onceMap['jcwl4phtd'] = true;
+      if (!state.onceMap['d8vnoz0sn']) {
+        state.onceMap['d8vnoz0sn'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -6139,8 +6153,8 @@ window.compiledDanmaku['danmaku_10_bullet'] = function*(state, b, attacker, targ
       vars['speed'] = 100;
       vars['m'] = (vars['m'] || 0) + (5);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['cp9qdvxz0']) {
-        state.onceMap['cp9qdvxz0'] = true;
+      if (!state.onceMap['7gebp53lp']) {
+        state.onceMap['7gebp53lp'] = true;
         vars['y'] = 0;
         vars['xs'] = random(-600,600);
         vars['x'] = (vars['x'] || 0) + ((vars.xs !== undefined ? vars.xs : 0));
@@ -6250,8 +6264,8 @@ window.compiledDanmaku['danmaku_11_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['upjv82e0n']) {
-      state.onceMap['upjv82e0n'] = true;
+    if (!state.onceMap['vgp0fle13']) {
+      state.onceMap['vgp0fle13'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-2,2));
       vars['speed'] = (vars['speed'] || 0) + (random(0,0));
     }
@@ -6472,15 +6486,15 @@ window.compiledDanmaku['danmaku_13_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hj7b1lvag']) {
-        state.onceMap['hj7b1lvag'] = true;
+      if (!state.onceMap['ofv0koh93']) {
+        state.onceMap['ofv0koh93'] = true;
         vars['x'] = 379 + (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3332").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['5pfbzklhe']) {
-        state.onceMap['5pfbzklhe'] = true;
+      if (!state.onceMap['lf1afemok']) {
+        state.onceMap['lf1afemok'] = true;
         vars['x'] = 379 - (vars.spawnp !== undefined ? vars.spawnp : 0) * 60;
       }
     }
@@ -6693,8 +6707,8 @@ window.compiledDanmaku['danmaku_15_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['mdyafx7ni']) {
-      state.onceMap['mdyafx7ni'] = true;
+    if (!state.onceMap['z47ohuxvx']) {
+      state.onceMap['z47ohuxvx'] = true;
       vars['yp'] = -40;
     }
     vars['y'] = (vars['y'] || 0) + ((vars.yp !== undefined ? vars.yp : 0) / 10);
@@ -7047,8 +7061,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
     }
     if (!!(_util.fuzzyEqual((vars.e_t !== undefined ? vars.e_t : 0),1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['wdk9llws4']) {
-        state.onceMap['wdk9llws4'] = true;
+      if (!state.onceMap['dvz413q6i']) {
+        state.onceMap['dvz413q6i'] = true;
         vars['flag'] = 1;
       }
     }
@@ -7058,8 +7072,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['npvnwjap4']) {
-          state.onceMap['npvnwjap4'] = true;
+        if (!state.onceMap['vkai1nkq4']) {
+          state.onceMap['vkai1nkq4'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -7067,8 +7081,8 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['z0uo5zvr6']) {
-          state.onceMap['z0uo5zvr6'] = true;
+        if (!state.onceMap['ck2ozdav8']) {
+          state.onceMap['ck2ozdav8'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
           vars['angle'] = (vars.angle !== undefined ? vars.angle : 0) - 180;
@@ -7076,16 +7090,16 @@ window.compiledDanmaku['danmaku_17_bullet'] = function*(state, b, attacker, targ
       }
       if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['wa7sl308b']) {
-          state.onceMap['wa7sl308b'] = true;
+        if (!state.onceMap['pvnkfdejt']) {
+          state.onceMap['pvnkfdejt'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
       }
       if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['kfjfvc8de']) {
-          state.onceMap['kfjfvc8de'] = true;
+        if (!state.onceMap['e2kmkqvat']) {
+          state.onceMap['e2kmkqvat'] = true;
           vars['speed'] = 0;
           vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         }
@@ -7218,8 +7232,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['hrja19yvi']) {
-          state.onceMap['hrja19yvi'] = true;
+        if (!state.onceMap['pwfgfq19m']) {
+          state.onceMap['pwfgfq19m'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -7231,8 +7245,8 @@ window.compiledDanmaku['danmaku_18_bullet'] = function*(state, b, attacker, targ
         vars['hitRadius'] = (vars['hitRadius'] || 0) + (0.2);
         vars['speed'] = (vars['speed'] || 0) + (2);
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['7d2pu886k']) {
-          state.onceMap['7d2pu886k'] = true;
+        if (!state.onceMap['b7bu9tboj']) {
+          state.onceMap['b7bu9tboj'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -7912,8 +7926,8 @@ window.compiledDanmaku['danmaku_23_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['b67qj73g3']) {
-      state.onceMap['b67qj73g3'] = true;
+    if (!state.onceMap['baxx64mg2']) {
+      state.onceMap['baxx64mg2'] = true;
       if (!b || !b.isDestroyed) {
         state.waitTimer = Math.max(1 / 60, 0.02);
         yield;
@@ -8177,8 +8191,8 @@ window.compiledDanmaku['danmaku_24_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9E76B4").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['0ijesk9yn']) {
-        state.onceMap['0ijesk9yn'] = true;
+      if (!state.onceMap['hs0sex7ap']) {
+        state.onceMap['hs0sex7ap'] = true;
         vars['xsp'] = random(-200,968);
         vars['x'] = (vars.xsp !== undefined ? vars.xsp : 0);
         vars['y'] = 0;
@@ -8297,8 +8311,8 @@ window.compiledDanmaku['danmaku_25'] = [
     vars['enemyMaxHp'] = cpu.maxHp;
   }
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['82l5g9ubu']) {
-    state.onceMap['82l5g9ubu'] = true;
+  if (!state.onceMap['yjyi3mvic']) {
+    state.onceMap['yjyi3mvic'] = true;
     vars['w'] = 0.6;
   }
 },
@@ -8810,8 +8824,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
       if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (3)))) {
         vars['speed'] = 320;
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['rbouhcp2q']) {
-          state.onceMap['rbouhcp2q'] = true;
+        if (!state.onceMap['d1hs1gve1']) {
+          state.onceMap['d1hs1gve1'] = true;
           vars['angle'] = (vars['angle'] || 0) + (180);
         }
       }
@@ -8823,8 +8837,8 @@ window.compiledDanmaku['danmaku_29_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffff99").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['aglp11yy2']) {
-        state.onceMap['aglp11yy2'] = true;
+      if (!state.onceMap['e809rwzop']) {
+        state.onceMap['e809rwzop'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "angle", from: "angle", to: "ag", mode: "seconds", duration: "0.6", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -8929,8 +8943,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,(vars.henkat !== undefined ? vars.henkat : 0)))) {
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['xc89osuli']) {
-          state.onceMap['xc89osuli'] = true;
+        if (!state.onceMap['03uc27z3e']) {
+          state.onceMap['03uc27z3e'] = true;
           if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -8950,8 +8964,8 @@ window.compiledDanmaku['danmaku_30_bullet'] = function*(state, b, attacker, targ
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ff88").trim().toLowerCase())) {
       if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['mg2v8jr40']) {
-          state.onceMap['mg2v8jr40'] = true;
+        if (!state.onceMap['dilkoi60y']) {
+          state.onceMap['dilkoi60y'] = true;
           if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
             yield;
           }
@@ -9094,8 +9108,8 @@ window.compiledDanmaku['danmaku_32'] = [
     vars['enemyMaxHp'] = cpu.maxHp;
   }
   if (!state.onceMap) state.onceMap = {};
-  if (!state.onceMap['xotbbsvcp']) {
-    state.onceMap['xotbbsvcp'] = true;
+  if (!state.onceMap['obn2wq32i']) {
+    state.onceMap['obn2wq32i'] = true;
     vars['t'] = 1.5;
   }
 },
@@ -10314,8 +10328,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (2) && ((vars.frame !== undefined ? vars.frame : 0)) <= (4)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['zxgj74ukd']) {
-        state.onceMap['zxgj74ukd'] = true;
+      if (!state.onceMap['phw37ayq3']) {
+        state.onceMap['phw37ayq3'] = true;
         vars['speed'] = 80;
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
@@ -10324,8 +10338,8 @@ window.compiledDanmaku['danmaku_40_bullet'] = function*(state, b, attacker, targ
     }
     if (!!(_util.fuzzyEqual((vars.timer !== undefined ? vars.timer : 0) ,7.5))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['qi0p92vo4']) {
-        state.onceMap['qi0p92vo4'] = true;
+      if (!state.onceMap['oidfqexqi']) {
+        state.onceMap['oidfqexqi'] = true;
         vars['speed'] = 30;
         vars['color'] = "#dddddd";
       }
@@ -10918,8 +10932,8 @@ window.compiledDanmaku['danmaku_43_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['vpbn151e0']) {
-      state.onceMap['vpbn151e0'] = true;
+    if (!state.onceMap['gdunaf8ee']) {
+      state.onceMap['gdunaf8ee'] = true;
       vars['hitRadius'] = 0;
       if (_util.executeBlock({ type: 'advance', distance: "sp / 4", }, state, b, attacker, target, _util)) {
         yield;
@@ -11016,8 +11030,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['atloi8o96']) {
-        state.onceMap['atloi8o96'] = true;
+      if (!state.onceMap['5j91ul1so']) {
+        state.onceMap['5j91ul1so'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -11025,8 +11039,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['g3wdfgkm3']) {
-        state.onceMap['g3wdfgkm3'] = true;
+      if (!state.onceMap['hsgger29b']) {
+        state.onceMap['hsgger29b'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -11034,8 +11048,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['14h0ekm97']) {
-        state.onceMap['14h0ekm97'] = true;
+      if (!state.onceMap['ccm74b40u']) {
+        state.onceMap['ccm74b40u'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -11043,8 +11057,8 @@ window.compiledDanmaku['danmaku_44_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['uisq2u65q']) {
-        state.onceMap['uisq2u65q'] = true;
+      if (!state.onceMap['j5pbvvkm9']) {
+        state.onceMap['j5pbvvkm9'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
       }
     }
@@ -11309,8 +11323,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (7);
     if (!!((vars.x !== undefined ? vars.x : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['26l3fnqw4']) {
-        state.onceMap['26l3fnqw4'] = true;
+      if (!state.onceMap['bsopvw652']) {
+        state.onceMap['bsopvw652'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -11318,8 +11332,8 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.x !== undefined ? vars.x : 0) > 758)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['zz39awjjk']) {
-        state.onceMap['zz39awjjk'] = true;
+      if (!state.onceMap['3wwxbu9ss']) {
+        state.onceMap['3wwxbu9ss'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['angle'] = (vars['angle'] || 0) + (180);
         vars['speed'] = 0;
@@ -11327,16 +11341,16 @@ window.compiledDanmaku['danmaku_47_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 10)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['qwj7e7g36']) {
-        state.onceMap['qwj7e7g36'] = true;
+      if (!state.onceMap['g665f6dnp']) {
+        state.onceMap['g665f6dnp'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
     }
     if (!!((vars.y !== undefined ? vars.y : 0) > 886)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['c4ncogow1']) {
-        state.onceMap['c4ncogow1'] = true;
+      if (!state.onceMap['p3b8ro2hr']) {
+        state.onceMap['p3b8ro2hr'] = true;
         vars['angle'] = -(vars.angle !== undefined ? vars.angle : 0);
         vars['speed'] = 0;
       }
@@ -12031,8 +12045,8 @@ window.compiledDanmaku['danmaku_52_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['b8x47ohxc']) {
-        state.onceMap['b8x47ohxc'] = true;
+      if (!state.onceMap['cdjozkfjw']) {
+        state.onceMap['cdjozkfjw'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -12204,8 +12218,8 @@ window.compiledDanmaku['danmaku_53_bullet'] = function*(state, b, attacker, targ
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (260) && ((vars.frame !== undefined ? vars.frame : 0)) <= (305)))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['r2ljrni00']) {
-        state.onceMap['r2ljrni00'] = true;
+      if (!state.onceMap['z4solrrgy']) {
+        state.onceMap['z4solrrgy'] = true;
         vars['angle'] = (vars['angle'] || 0) - (90);
         vars['angle'] = (vars['angle'] || 0) + ((vars.ikouangle !== undefined ? vars.ikouangle : 0) * 3);
         vars['speed'] = 0;
@@ -12592,8 +12606,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#9457eb").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['k7a9hs4mw']) {
-        state.onceMap['k7a9hs4mw'] = true;
+      if (!state.onceMap['fq69ycgsr']) {
+        state.onceMap['fq69ycgsr'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -12609,8 +12623,8 @@ window.compiledDanmaku['danmaku_56_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['v37cab628']) {
-        state.onceMap['v37cab628'] = true;
+      if (!state.onceMap['rz9pm90zb']) {
+        state.onceMap['rz9pm90zb'] = true;
         vars['warningTime'] = 0.0;
         vars['activeTime'] = 70;
         vars['laserWidth'] = 30;
@@ -13015,8 +13029,8 @@ window.compiledDanmaku['danmaku_58_bullet'] = function*(state, b, attacker, targ
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['36v7yheta']) {
-      state.onceMap['36v7yheta'] = true;
+    if (!state.onceMap['l7tcc8muh']) {
+      state.onceMap['l7tcc8muh'] = true;
       if (!!(_util.fuzzyEqual((vars.speed !== undefined ? vars.speed : 0) ,140))) {
         vars['curve'] = -1.6;
       }
@@ -13134,8 +13148,8 @@ window.compiledDanmaku['danmaku_59_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['iw46em0b9']) {
-      state.onceMap['iw46em0b9'] = true;
+    if (!state.onceMap['pqcdfyiz8']) {
+      state.onceMap['pqcdfyiz8'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() !== String("#33ffff").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
           yield;
@@ -13409,8 +13423,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['sl229uzq8']) {
-        state.onceMap['sl229uzq8'] = true;
+      if (!state.onceMap['uv7la97af']) {
+        state.onceMap['uv7la97af'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -13418,8 +13432,8 @@ window.compiledDanmaku['danmaku_60_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['da6t74god']) {
-        state.onceMap['da6t74god'] = true;
+      if (!state.onceMap['t1gm3w4sx']) {
+        state.onceMap['t1gm3w4sx'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -13679,8 +13693,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa32").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['3lzbi8yum']) {
-        state.onceMap['3lzbi8yum'] = true;
+      if (!state.onceMap['td0ufo5xr']) {
+        state.onceMap['td0ufo5xr'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -13688,8 +13702,8 @@ window.compiledDanmaku['danmaku_61_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3387ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['o4exyz8gs']) {
-        state.onceMap['o4exyz8gs'] = true;
+      if (!state.onceMap['0yxia11oy']) {
+        state.onceMap['0yxia11oy'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -13927,8 +13941,8 @@ window.compiledDanmaku['danmaku_63_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1 + (vars.kasoku !== undefined ? vars.kasoku : 0));
     vars['kasoku'] = (vars['kasoku'] || 0) + (0.02);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['oqqi1crcm']) {
-      state.onceMap['oqqi1crcm'] = true;
+    if (!state.onceMap['187y0g80d']) {
+      state.onceMap['187y0g80d'] = true;
       vars['angle'] = (vars['angle'] || 0) + (45 + (vars.ofangle !== undefined ? vars.ofangle : 0));
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -14097,8 +14111,8 @@ window.compiledDanmaku['danmaku_64_bullet'] = function*(state, b, attacker, targ
       vars['angle'] = (vars['angle'] || 0) + (0.4 * (vars.kakudo !== undefined ? vars.kakudo : 0) - (vars.l !== undefined ? vars.l : 0) * (vars.kakudo !== undefined ? vars.kakudo : 0));
       vars['l'] = (vars['l'] || 0) + (0.000);
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['oucu1po7m']) {
-        state.onceMap['oucu1po7m'] = true;
+      if (!state.onceMap['2uduvnxyw']) {
+        state.onceMap['2uduvnxyw'] = true;
         vars['speed'] = 100;
       }
       vars['speed'] = (vars['speed'] || 0) + (0.5);
@@ -14267,8 +14281,8 @@ window.compiledDanmaku['danmaku_66_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['3qj8nnxj2']) {
-      state.onceMap['3qj8nnxj2'] = true;
+    if (!state.onceMap['p1kgs8xp2']) {
+      state.onceMap['p1kgs8xp2'] = true;
       vars['x'] = random(-300,1000);
       vars['y'] = 0;
       vars['angle'] = 90 + 10 * (vars.kakudo !== undefined ? vars.kakudo : 0);
@@ -14378,8 +14392,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['jite5hnjl']) {
-        state.onceMap['jite5hnjl'] = true;
+      if (!state.onceMap['09ig8hmwb']) {
+        state.onceMap['09ig8hmwb'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "120 + seedrandom[5](-0,50)", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14396,8 +14410,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['l8vqnkvrq']) {
-        state.onceMap['l8vqnkvrq'] = true;
+      if (!state.onceMap['vh5t23vgh']) {
+        state.onceMap['vh5t23vgh'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14410,8 +14424,8 @@ window.compiledDanmaku['danmaku_67_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#33ffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['1c8bbe1av']) {
-        state.onceMap['1c8bbe1av'] = true;
+      if (!state.onceMap['p50zzmwvh']) {
+        state.onceMap['p50zzmwvh'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -14511,8 +14525,8 @@ window.compiledDanmaku['danmaku_68_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['v1h9pbrfk']) {
-      state.onceMap['v1h9pbrfk'] = true;
+    if (!state.onceMap['l495vqz33']) {
+      state.onceMap['l495vqz33'] = true;
       vars['count'] = 0;
       vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
     }
@@ -14746,8 +14760,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['0mfnr9lui']) {
-      state.onceMap['0mfnr9lui'] = true;
+    if (!state.onceMap['ax3mhld65']) {
+      state.onceMap['ax3mhld65'] = true;
       vars['y'] = (vars['y'] || 0) - (100);
       vars['speed'] = 400;
       vars['x'] = (vars['x'] || 0) + (random(-200,200));
@@ -14758,8 +14772,8 @@ window.compiledDanmaku['danmaku_70_bullet'] = function*(state, b, attacker, targ
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!!(abs((vars.y !== undefined ? vars.y : 0)  - (vars.ty !== undefined ? vars.ty : 0)) <= 20)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['c5o8o5n4f']) {
-        state.onceMap['c5o8o5n4f'] = true;
+      if (!state.onceMap['w54zo6iiy']) {
+        state.onceMap['w54zo6iiy'] = true;
         vars['speed'] = 0;
         vars['angle'] = 90;
         if (!!((vars.x !== undefined ? vars.x : 0) < (vars.tx !== undefined ? vars.tx : 0))) {
@@ -14800,8 +14814,8 @@ window.compiledDanmaku['danmaku_70_magic'] = function*(state, b, attacker, targe
     }
     vars['speed'] = (vars['speed'] || 0) + (1);
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['0cl629qi0']) {
-      state.onceMap['0cl629qi0'] = true;
+    if (!state.onceMap['wmt6pdw6x']) {
+      state.onceMap['wmt6pdw6x'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-6,6));
     }
     if (b && b.isDestroyed) break;
@@ -14868,8 +14882,8 @@ window.compiledDanmaku['danmaku_71_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['rd4536flb']) {
-      state.onceMap['rd4536flb'] = true;
+    if (!state.onceMap['75trbkeeq']) {
+      state.onceMap['75trbkeeq'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "200", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -15036,8 +15050,8 @@ window.compiledDanmaku['danmaku_73_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['s746131lw']) {
-      state.onceMap['s746131lw'] = true;
+    if (!state.onceMap['9m27ddj0y']) {
+      state.onceMap['9m27ddj0y'] = true;
       vars['motospd'] = (vars.speed !== undefined ? vars.speed : 0);
       vars['motocolor'] = (vars.color !== undefined ? vars.color : 0);
     }
@@ -15227,8 +15241,8 @@ window.compiledDanmaku['danmaku_74_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['058v9zjdf']) {
-      state.onceMap['058v9zjdf'] = true;
+    if (!state.onceMap['bs8h59l7x']) {
+      state.onceMap['bs8h59l7x'] = true;
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
         if (_util.executeBlock({ type: 'advance', distance: "syutugen", }, state, b, attacker, target, _util)) {
           yield;
@@ -15413,8 +15427,8 @@ window.compiledDanmaku['danmaku_76_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['k53zdbkao']) {
-      state.onceMap['k53zdbkao'] = true;
+    if (!state.onceMap['0n9qtw4ag']) {
+      state.onceMap['0n9qtw4ag'] = true;
       vars['ransuu'] = _util.seedrandom(5 + (vars.kaisuu !== undefined ? vars.kaisuu : 0), 0, 1, vars);
       if (!!((((vars.ransuu !== undefined ? vars.ransuu : 0)) >= (0.5) && ((vars.ransuu !== undefined ? vars.ransuu : 0)) <= (1)))) {
         vars['speed'] = 150;
@@ -15494,8 +15508,8 @@ window.compiledDanmaku['danmaku_77_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['164upqrsy']) {
-      state.onceMap['164upqrsy'] = true;
+    if (!state.onceMap['lfwbcrf64']) {
+      state.onceMap['lfwbcrf64'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -15641,8 +15655,8 @@ window.compiledDanmaku['danmaku_78_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ff65zhhki']) {
-        state.onceMap['ff65zhhki'] = true;
+      if (!state.onceMap['zgmqwf2hn']) {
+        state.onceMap['zgmqwf2hn'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "-100", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -15689,8 +15703,8 @@ window.compiledDanmaku['danmaku_78_bullet'] = function*(state, b, attacker, targ
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#fffffe").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['gco5394ro']) {
-        state.onceMap['gco5394ro'] = true;
+      if (!state.onceMap['60c8ahwjv']) {
+        state.onceMap['60c8ahwjv'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "-100", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -15812,8 +15826,8 @@ window.compiledDanmaku['danmaku_79_bullet'] = function*(state, b, attacker, targ
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['2719que9f']) {
-      state.onceMap['2719que9f'] = true;
+    if (!state.onceMap['y5eiojzel']) {
+      state.onceMap['y5eiojzel'] = true;
       vars['yjiku'] = -1 + random(-0.4,0.4);
       vars['speed'] = (vars['speed'] || 0) + (random(-40,40));
       vars['angle'] = (vars['angle'] || 0) + (random(-10,10));
@@ -15945,8 +15959,8 @@ window.compiledDanmaku['danmaku_s2_1'] = [
   while (true) {
     if (b && b.isDestroyed) break;
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['dw2ksduwa']) {
-      state.onceMap['dw2ksduwa'] = true;
+    if (!state.onceMap['i5zhf39ab']) {
+      state.onceMap['i5zhf39ab'] = true;
       if (_util.executeBlock({ type: 'spawn_ring_resist', bulletType: "normal", color: "#888888", speed: "0", angle: "0", count: "9", offsetX: "0", offsetY: "0", radius: "20", bulletImage: "greenscale", coordMode: "relative", hitRadius: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -16064,8 +16078,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#888888").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lzcxqo1fy']) {
-        state.onceMap['lzcxqo1fy'] = true;
+      if (!state.onceMap['v0uc22p8k']) {
+        state.onceMap['v0uc22p8k'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "multf", from: "0", to: "7", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16090,8 +16104,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#000000").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['hhufd4ym6']) {
-        state.onceMap['hhufd4ym6'] = true;
+      if (!state.onceMap['mlza0k9p5']) {
+        state.onceMap['mlza0k9p5'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "multf", from: "0", to: "3", mode: "seconds", duration: "0.6", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16116,8 +16130,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['afumbo8s2']) {
-        state.onceMap['afumbo8s2'] = true;
+      if (!state.onceMap['mn1lcg1o7']) {
+        state.onceMap['mn1lcg1o7'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "180", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16127,8 +16141,8 @@ window.compiledDanmaku['danmaku_s2_1_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffaa33").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['8m8jw3pa9']) {
-        state.onceMap['8m8jw3pa9'] = true;
+      if (!state.onceMap['wgs9fczz4']) {
+        state.onceMap['wgs9fczz4'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "90", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16243,8 +16257,8 @@ window.compiledDanmaku['danmaku_s2_2_bullet'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() !== String("#888888").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lt8hdw6el']) {
-        state.onceMap['lt8hdw6el'] = true;
+      if (!state.onceMap['003zm7cp4']) {
+        state.onceMap['003zm7cp4'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "50", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -16519,8 +16533,8 @@ window.compiledDanmaku['danmaku_s2_3_magic'] = function*(state, b, attacker, tar
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['nnkbrmmgz']) {
-      state.onceMap['nnkbrmmgz'] = true;
+    if (!state.onceMap['yb5dgw6sf']) {
+      state.onceMap['yb5dgw6sf'] = true;
       vars['motoangle'] = (vars.angle !== undefined ? vars.angle : 0);
       if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3332").trim().toLowerCase())) {
         vars['angle'] = (vars.s2angle !== undefined ? vars.s2angle : 0);
@@ -16639,8 +16653,8 @@ window.compiledDanmaku['danmaku_s2_4_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['p8agrvt7r']) {
-      state.onceMap['p8agrvt7r'] = true;
+    if (!state.onceMap['iuotcnni0']) {
+      state.onceMap['iuotcnni0'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "speed", to: "0", mode: "seconds", duration: "1", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -16803,8 +16817,8 @@ window.compiledDanmaku['danmaku_s2_6_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['v5awe7saj']) {
-      state.onceMap['v5awe7saj'] = true;
+    if (!state.onceMap['n86un9l7x']) {
+      state.onceMap['n86un9l7x'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-(vars.cardSecond !== undefined ? vars.cardSecond : 0),(vars.cardSecond !== undefined ? vars.cardSecond : 0)));
       vars['speed'] = (vars['speed'] || 0) + (random(-(vars.cardSecond !== undefined ? vars.cardSecond : 0),(vars.cardSecond !== undefined ? vars.cardSecond : 0) * 2));
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -16927,8 +16941,8 @@ window.compiledDanmaku['danmaku_s2_7_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['bhy1q53r2']) {
-      state.onceMap['bhy1q53r2'] = true;
+    if (!state.onceMap['4n19d27wy']) {
+      state.onceMap['4n19d27wy'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -17248,8 +17262,8 @@ window.compiledDanmaku['danmaku_s2_8_bullet'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['pj9lk9eok']) {
-      state.onceMap['pj9lk9eok'] = true;
+    if (!state.onceMap['o7aufs824']) {
+      state.onceMap['o7aufs824'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-5,5));
     }
     vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
@@ -17409,8 +17423,8 @@ window.compiledDanmaku['danmaku_s2_10_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffdd33").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['ri2g1hqr4']) {
-        state.onceMap['ri2g1hqr4'] = true;
+      if (!state.onceMap['scuu2hjsa']) {
+        state.onceMap['scuu2hjsa'] = true;
         if (_util.executeBlock({ type: 'tween_angle', from: "angle", to: "angle + 180", mode: "seconds", duration: "1", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -17540,8 +17554,8 @@ window.compiledDanmaku['danmaku_s2_11_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#6688ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['cqnr2jurb']) {
-        state.onceMap['cqnr2jurb'] = true;
+      if (!state.onceMap['5aa5l9rl3']) {
+        state.onceMap['5aa5l9rl3'] = true;
         vars['hensuu'] = random(50,200);
         if (_util.executeBlock({ type: 'advance', distance: "hensuu", }, state, b, attacker, target, _util)) {
           yield;
@@ -17645,8 +17659,8 @@ window.compiledDanmaku['danmaku_s2_12_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['qken8in2c']) {
-      state.onceMap['qken8in2c'] = true;
+    if (!state.onceMap['6145bh6c6']) {
+      state.onceMap['6145bh6c6'] = true;
       vars['syoyou'] = random(0.5,2);
       vars['syoyou2'] = random(2,7);
       vars['kakudo'] = random(-0.5,0.5);
@@ -17656,8 +17670,8 @@ window.compiledDanmaku['danmaku_s2_12_bullet'] = function*(state, b, attacker, t
     }
     if (!!((vars.x !== undefined ? vars.x : 0) < 400)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['y6l5sv7pw']) {
-        state.onceMap['y6l5sv7pw'] = true;
+      if (!state.onceMap['iigevyahl']) {
+        state.onceMap['iigevyahl'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "300", to: "0", mode: "seconds", duration: "syoyou2", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -17735,16 +17749,16 @@ window.compiledDanmaku['danmaku_s2_13_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['rg3rumr4y']) {
-        state.onceMap['rg3rumr4y'] = true;
+      if (!state.onceMap['7m61a7154']) {
+        state.onceMap['7m61a7154'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "10", }, state, b, attacker, target, _util)) {
           yield;
         }
       }
       if (!!((vars.dist !== undefined ? vars.dist : 0) < 150)) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['kxs8ygnb5']) {
-          state.onceMap['kxs8ygnb5'] = true;
+        if (!state.onceMap['cgyhn1g0a']) {
+          state.onceMap['cgyhn1g0a'] = true;
           vars['speed'] = 0;
           vars['bulletImage'] = "rednormal";
           vars['image'] = "rednormal";
@@ -17880,8 +17894,8 @@ window.compiledDanmaku['danmaku_s2_14_magic'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['1cqcpfy88']) {
-      state.onceMap['1cqcpfy88'] = true;
+    if (!state.onceMap['d6ifnbjzl']) {
+      state.onceMap['d6ifnbjzl'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "radius", from: "40", to: "10", mode: "frames", duration: "30", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -17963,8 +17977,8 @@ window.compiledDanmaku['danmaku_s2_15_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['c1c1koce8']) {
-      state.onceMap['c1c1koce8'] = true;
+    if (!state.onceMap['l136kjh84']) {
+      state.onceMap['l136kjh84'] = true;
       vars['speed'] = (vars['speed'] || 0) + (random(0,100));
       if (!b || !b.isDestroyed) {
         state.waitTimer = (120) / 60;
@@ -18091,8 +18105,8 @@ window.compiledDanmaku['danmaku_s2_16_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['nvy402dfy']) {
-      state.onceMap['nvy402dfy'] = true;
+    if (!state.onceMap['cs818hw6s']) {
+      state.onceMap['cs818hw6s'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "sd - 40", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -18388,8 +18402,8 @@ window.compiledDanmaku['danmaku_s2_18_bullet'] = function*(state, b, attacker, t
     }
     if (!!(_util.fuzzyEqual((vars.type2 !== undefined ? vars.type2 : 0) ,1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['b6ucdy2cp']) {
-        state.onceMap['b6ucdy2cp'] = true;
+      if (!state.onceMap['fin0wlag7']) {
+        state.onceMap['fin0wlag7'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "radius", from: "0", to: "64", mode: "seconds", duration: "1", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -18415,8 +18429,8 @@ window.compiledDanmaku['danmaku_s2_18_bullet'] = function*(state, b, attacker, t
     }
     if (!!(_util.fuzzyEqual((vars.type2 !== undefined ? vars.type2 : 0) ,2))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['dxj5eod1i']) {
-        state.onceMap['dxj5eod1i'] = true;
+      if (!state.onceMap['d77xq4elx']) {
+        state.onceMap['d77xq4elx'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "radius", from: "0", to: "64", mode: "seconds", duration: "1", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -18489,8 +18503,8 @@ window.compiledDanmaku['danmaku_s2_18_magic'] = function*(state, b, attacker, ta
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['u5cvhsced']) {
-        state.onceMap['u5cvhsced'] = true;
+      if (!state.onceMap['xtzcwtct5']) {
+        state.onceMap['xtzcwtct5'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "speed", to: "0", mode: "seconds", duration: "2", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -18612,15 +18626,15 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
         vars['spriteAngle'] = (vars['spriteAngle'] || 0) + (6 * (vars.muki !== undefined ? vars.muki : 0));
       }
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['4s2w1tonm']) {
-        state.onceMap['4s2w1tonm'] = true;
+      if (!state.onceMap['l0zskbgbj']) {
+        state.onceMap['l0zskbgbj'] = true;
         vars['angle'] = (vars['angle'] || 0) + (random(-5,5));
       }
     }
     if (!!(_util.fuzzyEqual((vars.btype !== undefined ? vars.btype : 0) ,2))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['wsezgzn5g']) {
-        state.onceMap['wsezgzn5g'] = true;
+      if (!state.onceMap['hlx8ucblz']) {
+        state.onceMap['hlx8ucblz'] = true;
         if (_util.executeBlock({ type: 'aim_at_target', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -18629,8 +18643,8 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
       }
       if (!!(_util.fuzzyEqual((vars.tien !== undefined ? vars.tien : 0) ,1))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['8vc9zeilq']) {
-          state.onceMap['8vc9zeilq'] = true;
+        if (!state.onceMap['arz68tvcu']) {
+          state.onceMap['arz68tvcu'] = true;
           vars['multf'] = 90;
           vars['multlr'] = 0.2;
           if (!b || !b.isDestroyed) {
@@ -18642,8 +18656,8 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
       }
       if (!!(_util.fuzzyEqual((vars.tien !== undefined ? vars.tien : 0) ,2))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['chx7ry5vl']) {
-          state.onceMap['chx7ry5vl'] = true;
+        if (!state.onceMap['v8mvaqz4b']) {
+          state.onceMap['v8mvaqz4b'] = true;
           vars['multf'] = 90;
           vars['multlr'] = 0;
           if (!b || !b.isDestroyed) {
@@ -18681,8 +18695,8 @@ window.compiledDanmaku['danmaku_s2_19_bullet'] = function*(state, b, attacker, t
       }
       if (!!(_util.fuzzyEqual((vars.tien !== undefined ? vars.tien : 0) ,3))) {
         if (!state.onceMap) state.onceMap = {};
-        if (!state.onceMap['8mptnl3uy']) {
-          state.onceMap['8mptnl3uy'] = true;
+        if (!state.onceMap['oh2j4s4a5']) {
+          state.onceMap['oh2j4s4a5'] = true;
           vars['radius'] = 0;
           if (!b || !b.isDestroyed) {
             state.waitTimer = (30) / 60;
@@ -18968,8 +18982,8 @@ window.compiledDanmaku['danmaku_s2_21_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['rdoz5an4t']) {
-      state.onceMap['rdoz5an4t'] = true;
+    if (!state.onceMap['1vrurj191']) {
+      state.onceMap['1vrurj191'] = true;
       vars['ram'] = random(-1,1);
     }
     if (!!((((vars.frame !== undefined ? vars.frame : 0)) >= (60) && ((vars.frame !== undefined ? vars.frame : 0)) <= (120)))) {
@@ -19070,14 +19084,14 @@ window.compiledDanmaku['danmaku_s2_22_bullet'] = function*(state, b, attacker, t
       vars['spriteAngle'] = (vars.angle !== undefined ? vars.angle : 0);
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['dvcku3rag']) {
-      state.onceMap['dvcku3rag'] = true;
+    if (!state.onceMap['81afl0fpb']) {
+      state.onceMap['81afl0fpb'] = true;
       vars['speed'] = 300;
     }
     if (!!((vars.isBounced !== undefined ? vars.isBounced : 0))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['6ikvlpven']) {
-        state.onceMap['6ikvlpven'] = true;
+      if (!state.onceMap['ftp7su897']) {
+        state.onceMap['ftp7su897'] = true;
         if (_util.executeBlock({ type: 'bounce', }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -19256,8 +19270,8 @@ window.compiledDanmaku['danmaku_s2_23_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['s6665a7gr']) {
-        state.onceMap['s6665a7gr'] = true;
+      if (!state.onceMap['ayni2txrg']) {
+        state.onceMap['ayni2txrg'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "50", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -19534,14 +19548,14 @@ window.compiledDanmaku['danmaku_s2_25_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['vrjr5wavo']) {
-      state.onceMap['vrjr5wavo'] = true;
+    if (!state.onceMap['xhg0lj8yy']) {
+      state.onceMap['xhg0lj8yy'] = true;
       vars['speed'] = random(200,450);
     }
     if (!!((vars.y !== undefined ? vars.y : 0) < 5)) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lw4157p1l']) {
-        state.onceMap['lw4157p1l'] = true;
+      if (!state.onceMap['sb188ftpf']) {
+        state.onceMap['sb188ftpf'] = true;
         vars['radius'] = 10;
         vars['bulletImage'] = "bluenormal";
         vars['image'] = "bluenormal";
@@ -19698,8 +19712,8 @@ window.compiledDanmaku['danmaku_s2_26_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['g21gqtl1o']) {
-      state.onceMap['g21gqtl1o'] = true;
+    if (!state.onceMap['6rn3r8cy2']) {
+      state.onceMap['6rn3r8cy2'] = true;
       vars['angle'] = (vars['angle'] || 0) + (random(-2,2));
       if (!!(((function(){ if (vars.n !== undefined) { const n = vars.n; return (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)); } else { for (let n = 1; n <= 100000; n++) { if (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)) return true; } return false; } })()))) {
         vars['bulletImage'] = "redbig";
@@ -19875,8 +19889,8 @@ window.compiledDanmaku['danmaku_s2_27_bullet'] = function*(state, b, attacker, t
     }
     if (!!(_util.fuzzyNotEqual((vars.anana !== undefined ? vars.anana : 0) ,1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['mefwhp4cr']) {
-        state.onceMap['mefwhp4cr'] = true;
+      if (!state.onceMap['xubth0ltc']) {
+        state.onceMap['xubth0ltc'] = true;
         vars['angle'] = (vars['angle'] || 0) + (random(-4,4));
         vars['speed'] = (vars['speed'] || 0) + (random(-60,60));
         if (!!(((function(){ if (vars.n !== undefined) { const n = vars.n; return (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)); } else { for (let n = 1; n <= 100000; n++) { if (_util.fuzzyEqual((vars.tamac !== undefined ? vars.tamac : 0) ,1 + 7 * n)) return true; } return false; } })()))) {
@@ -20025,8 +20039,8 @@ window.compiledDanmaku['danmaku_s2_28_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['863qguq5e']) {
-        state.onceMap['863qguq5e'] = true;
+      if (!state.onceMap['w45heqq7u']) {
+        state.onceMap['w45heqq7u'] = true;
         if (_util.executeBlock({ type: 'advance', distance: "iku", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -20232,8 +20246,8 @@ window.compiledDanmaku['danmaku_s2_30_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['pm8cgu54p']) {
-      state.onceMap['pm8cgu54p'] = true;
+    if (!state.onceMap['ya7f1yntf']) {
+      state.onceMap['ya7f1yntf'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "600", to: "gensoku", mode: "seconds", duration: "1", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -20630,8 +20644,8 @@ window.compiledDanmaku['danmaku_s2_33_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['k9hcbqptk']) {
-        state.onceMap['k9hcbqptk'] = true;
+      if (!state.onceMap['ahy6by6ou']) {
+        state.onceMap['ahy6by6ou'] = true;
         if (!!(_util.fuzzyNotEqual((vars.IsNormal !== undefined ? vars.IsNormal : 0) ,1))) {
           if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "speed", to: "180", mode: "seconds", duration: "1", stepVal: "5", easing: "easeOut", }, state, b, attacker, target, _util)) {
             yield;
@@ -20777,8 +20791,8 @@ window.compiledDanmaku['danmaku_s2_34_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['760ccthiy']) {
-      state.onceMap['760ccthiy'] = true;
+    if (!state.onceMap['l2a18d94m']) {
+      state.onceMap['l2a18d94m'] = true;
       if (_util.executeBlock({ type: 'advance', distance: "20", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -20995,8 +21009,8 @@ window.compiledDanmaku['danmaku_s2_35_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['22rgf0px2']) {
-      state.onceMap['22rgf0px2'] = true;
+    if (!state.onceMap['0wz7dhyxd']) {
+      state.onceMap['0wz7dhyxd'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "2000", to: "500", mode: "frames", duration: "2", stepVal: "5", easing: "easeIn", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -21059,8 +21073,8 @@ window.compiledDanmaku['danmaku_s2_35_magic'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['2zioe8fgj']) {
-      state.onceMap['2zioe8fgj'] = true;
+    if (!state.onceMap['7y82bdgzb']) {
+      state.onceMap['7y82bdgzb'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "transparency", from: "100", to: "0", mode: "frames", duration: "20", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -21166,8 +21180,8 @@ window.compiledDanmaku['danmaku_s2_36_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['lwfcyrr95']) {
-        state.onceMap['lwfcyrr95'] = true;
+      if (!state.onceMap['8monqmlto']) {
+        state.onceMap['8monqmlto'] = true;
         vars['ran'] = random(95,180);
         vars['ran'] = Math.floor(Number(vars['ran']) || 0);
         if (_util.executeBlock({ type: 'tween_var', name: "transparency", from: "100", to: "0", mode: "seconds", duration: "0.5", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
@@ -21225,8 +21239,8 @@ window.compiledDanmaku['danmaku_s2_36_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#3388ff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['64jypwwgg']) {
-        state.onceMap['64jypwwgg'] = true;
+      if (!state.onceMap['3gcozqfyw']) {
+        state.onceMap['3gcozqfyw'] = true;
         vars['ran'] = random(95,180);
         vars['ran'] = Math.floor(Number(vars['ran']) || 0);
         if (_util.executeBlock({ type: 'tween_var', name: "transparency", from: "100", to: "0", mode: "seconds", duration: "0.5", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
@@ -21422,8 +21436,8 @@ window.compiledDanmaku['danmaku_s2_37_bullet'] = function*(state, b, attacker, t
     }
     if (!!(_util.fuzzyNotEqual((vars.kawaranu !== undefined ? vars.kawaranu : 0),1))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['qeae2mjny']) {
-        state.onceMap['qeae2mjny'] = true;
+      if (!state.onceMap['u2h0o2o2y']) {
+        state.onceMap['u2h0o2o2y'] = true;
         if (!b || !b.isDestroyed) {
           state.waitTimer = (40) / 60;
           yield;
@@ -21522,8 +21536,8 @@ window.compiledDanmaku['danmaku_s2_38_bullet'] = function*(state, b, attacker, t
     }
     if (!!((vars.isTouchEdge !== undefined ? vars.isTouchEdge : 0))) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['1jxmhc3ol']) {
-        state.onceMap['1jxmhc3ol'] = true;
+      if (!state.onceMap['2nei0zuye']) {
+        state.onceMap['2nei0zuye'] = true;
         vars['speed'] = 0;
         vars['bulletImage'] = "light";
         vars['image'] = "light";
@@ -21614,8 +21628,8 @@ window.compiledDanmaku['danmaku_s2_38_magic'] = function*(state, b, attacker, ta
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['mjes9wue0']) {
-      state.onceMap['mjes9wue0'] = true;
+    if (!state.onceMap['0lmo63kjg']) {
+      state.onceMap['0lmo63kjg'] = true;
       if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "speed", to: "speed / 5", mode: "seconds", duration: "0.4", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
         yield;
       }
@@ -21698,8 +21712,8 @@ window.compiledDanmaku['danmaku_s2_39_bullet'] = function*(state, b, attacker, t
       vars['enemyMaxHp'] = cpu.maxHp;
     }
     if (!state.onceMap) state.onceMap = {};
-    if (!state.onceMap['90gkgfrcj']) {
-      state.onceMap['90gkgfrcj'] = true;
+    if (!state.onceMap['fp0fsef2u']) {
+      state.onceMap['fp0fsef2u'] = true;
       if (!!((vars.dist !== undefined ? vars.dist : 0) < 60)) {
         vars['y'] = -80000;
       }
@@ -21846,8 +21860,8 @@ window.compiledDanmaku['danmaku_s2_40_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ff3333").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['qo7zuv4mn']) {
-        state.onceMap['qo7zuv4mn'] = true;
+      if (!state.onceMap['fbk0mpfmc']) {
+        state.onceMap['fbk0mpfmc'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "1200", to: "170", mode: "frames", duration: "20", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -21874,8 +21888,8 @@ window.compiledDanmaku['danmaku_s2_40_bullet'] = function*(state, b, attacker, t
     }
     if ((String((vars.color !== undefined ? vars.color : "")).trim().toLowerCase() === String("#ffffff").trim().toLowerCase())) {
       if (!state.onceMap) state.onceMap = {};
-      if (!state.onceMap['gjn7rzghf']) {
-        state.onceMap['gjn7rzghf'] = true;
+      if (!state.onceMap['rr3258vi9']) {
+        state.onceMap['rr3258vi9'] = true;
         if (_util.executeBlock({ type: 'tween_var', name: "speed", from: "1200", to: "300", mode: "frames", duration: "20", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
           yield;
         }
@@ -21887,6 +21901,103 @@ window.compiledDanmaku['danmaku_s2_40_bullet'] = function*(state, b, attacker, t
   }
 };
 window.compiledDanmaku['danmaku_s2_40_magic'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+};
+
+window.compiledDanmaku['danmaku_s2_41'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+  while (true) {
+    if (b && b.isDestroyed) break;
+    let _prev_i_232 = vars['i'];
+    for (let _loopIdx_232 = 0, _limit_232 = Math.round(100); _loopIdx_232 < _limit_232; _loopIdx_232++) {
+      vars['i'] = _loopIdx_232;
+      if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "light", speed: "0", angle: "angle", radius: "0", hitRadius: "5", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ff3333", health: "200", destroyResist: "false", way: "3", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {}, }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      if (_util.executeBlock({ type: 'bullet', bulletType: "normal", bulletImage: "light", speed: "0", angle: "angle", radius: "0", hitRadius: "5", coordMode: "relative", isAbsolute: "false", offsetX: "0", offsetY: "0", color: "#ffaa33", health: "200", destroyResist: "false", way: "3", distance: "", distanceType: "total", growTime: "0.2", keepTime: "0.3", shrinkTime: "0.5", round: "true", transparency: "0", customVars: {}, }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      vars['angle'] = (vars['angle'] || 0) + ((vars.frame !== undefined ? vars.frame : 0) + random(0,90));
+    }
+    vars['i'] = _prev_i_232;
+    if (!b || !b.isDestroyed) {
+      state.waitTimer = (100) / 60;
+      yield;
+    }
+    if (!b || !b.isDestroyed) {
+      state.waitTimer = (200 - (vars.g !== undefined ? vars.g : 0)) / 60;
+      yield;
+    }
+    vars['g'] = (vars['g'] || 0) + (25);
+  }
+};
+window.compiledDanmaku['danmaku_s2_41_bullet'] = function*(state, b, attacker, target, _util) {
+  let vars = state.variables;
+  const random = _util.rand;
+  const rand = _util.rand;
+  const seedrandom = _util.seedrandom;
+  const floor = Math.floor;
+  const trunc = Math.trunc || Math.floor;
+  const int = Math.trunc || Math.floor;
+  const round = Math.round;
+  const ceil = Math.ceil;
+  if (typeof cpu !== 'undefined' && cpu) {
+    vars['enemyHp'] = cpu.hp;
+    vars['enemyMaxHp'] = cpu.maxHp;
+  }
+  while (true) {
+    if (typeof cpu !== 'undefined' && cpu) {
+      vars['enemyHp'] = cpu.hp;
+      vars['enemyMaxHp'] = cpu.maxHp;
+    }
+    if (!state.onceMap) state.onceMap = {};
+    if (!state.onceMap['wqfbe080j']) {
+      state.onceMap['wqfbe080j'] = true;
+      if (_util.executeBlock({ type: 'tween_var', name: "radius", from: "0", to: "15", mode: "frames", duration: "30", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      if (_util.executeBlock({ type: 'tween_var', name: "auraRange", from: "2.75", to: "6", mode: "frames", duration: "30", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+      if (!b || !b.isDestroyed) {
+        state.waitTimer = (30) / 60;
+        yield;
+      }
+      vars['speed'] = random(10,350);
+      if (_util.executeBlock({ type: 'tween_var', name: "auraRange", from: "6", to: "2.5", mode: "seconds", duration: "6", stepVal: "5", easing: "linear", }, state, b, attacker, target, _util)) {
+        yield;
+      }
+    }
+    if (b && b.isDestroyed) break;
+    state.waitTimer = Math.max(state.waitTimer || 0, state.dt || 0.0167);
+    yield;
+  }
+};
+window.compiledDanmaku['danmaku_s2_41_magic'] = function*(state, b, attacker, target, _util) {
   let vars = state.variables;
   const random = _util.rand;
   const rand = _util.rand;
