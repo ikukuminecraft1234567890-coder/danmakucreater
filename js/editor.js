@@ -1970,6 +1970,189 @@ function customCardMakerSwitchTab(tab) {
             alert('\u30ab\u30fc\u30c9\u3092\u4fdd\u5b58\u3057\u307e\u3057\u305f\u3002');
         }
 
+        function formatCardToDanmaku2(card) {
+            let difficulty = (card.difficulty || 'NORMAL').toUpperCase();
+            let name = (card.name || 'カスタムスペル').replace(/^【A】/, '').trim();
+            let desc = (card.desc || '').replace(/^【自作カード】/, '').trim();
+            let hp = (card.hp !== undefined && !isNaN(Number(card.hp))) ? Number(card.hp) : 1000;
+            let duration = (card.duration !== undefined && !isNaN(Number(card.duration))) ? Number(card.duration) : 15;
+            
+            let maxMisses = '2';
+            if (card.maxMisses === Infinity || String(card.maxMisses).toLowerCase() === 'inf' || String(card.maxMisses).toLowerCase() === 'infinity') {
+                maxMisses = '"inf"';
+            } else if (card.maxMisses !== undefined && !isNaN(Number(card.maxMisses))) {
+                maxMisses = String(Number(card.maxMisses));
+            }
+            
+            let x_offset = (card.x_offset !== undefined && !isNaN(Number(card.x_offset))) ? Number(card.x_offset) : 0;
+            let y_offset = (card.y_offset !== undefined && !isNaN(Number(card.y_offset))) ? Number(card.y_offset) : 0;
+            let despawnTime = (card.despawnTime !== undefined && !isNaN(Number(card.despawnTime))) ? Number(card.despawnTime) : 1.5;
+
+            let emitterCode = (typeof card.emitterScript === 'string' ? card.emitterScript : (typeof blocksToCode === 'function' ? blocksToCode(card.emitterScript || []) : '')).trim();
+            let bulletCode = (typeof card.bulletScript === 'string' ? card.bulletScript : (typeof blocksToCode === 'function' ? blocksToCode(card.bulletScript || []) : '')).trim();
+            let magicCircleCode = (typeof card.magicCircleScript === 'string' ? card.magicCircleScript : (typeof blocksToCode === 'function' ? blocksToCode(card.magicCircleScript || []) : '')).trim();
+
+            emitterCode = emitterCode.replace(/`/g, '\\`').replace(/\${/g, '\\${');
+            bulletCode = bulletCode.replace(/`/g, '\\`').replace(/\${/g, '\\${');
+            magicCircleCode = magicCircleCode.replace(/`/g, '\\`').replace(/\${/g, '\\${');
+
+            return `,{
+    difficulty: "${difficulty}",
+    name: ${JSON.stringify(name)},
+    desc: ${JSON.stringify(desc)},
+    hp: ${hp},
+    duration: ${duration},
+    maxMisses: ${maxMisses},
+    x_offset: ${x_offset},
+    y_offset: ${y_offset},
+    despawnTime: ${despawnTime},
+    emitterScript: \`
+${emitterCode}
+    \`,
+    bulletScript: \`
+${bulletCode}
+    \`,
+    magicCircleScript: ${magicCircleCode ? `\`\n${magicCircleCode}\n    \`` : '``'}
+}`;
+        }
+
+        function copyDanmakuCodeToClipboard(text, cardName) {
+            function showSuccess() {
+                alert(`スペルカード「${cardName}」の弾幕データをクリップボードにコピーしました！\n\njs/danmaku2.js の末尾に貼り付けて保存し、compile.bat を実行すればゲーム内に反映されます。`);
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(showSuccess).catch(() => {
+                    promptFallback(text);
+                });
+            } else {
+                try {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    textArea.style.top = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    const successful = document.execCommand('copy');
+                    textArea.remove();
+                    if (successful) {
+                        showSuccess();
+                    } else {
+                        promptFallback(text);
+                    }
+                } catch (e) {
+                    promptFallback(text);
+                }
+            }
+
+            function promptFallback(copyStr) {
+                prompt("クリップボードへのアクセスが制限されているため、以下のコードをコピーしてください：", copyStr);
+            }
+        }
+
+        function copyCurrentCardToDanmaku2Format() {
+            let nameInput = document.getElementById('custom-card-name') ? document.getElementById('custom-card-name').value.trim().replace(/^【A】/, '') : '';
+            let name = nameInput || 'カスタムスペル';
+            let descInput = document.getElementById('custom-card-desc') ? document.getElementById('custom-card-desc').value.trim().replace(/^【自作カード】/, '') : '';
+            let desc = descInput;
+            let hp = document.getElementById('custom-card-hp') ? (parseInt(document.getElementById('custom-card-hp').value, 10) || 1000) : 1000;
+            let duration = document.getElementById('custom-card-duration') ? (parseFloat(document.getElementById('custom-card-duration').value) || 15) : 15;
+            let maxMissesRaw = document.getElementById('custom-card-max-misses') ? document.getElementById('custom-card-max-misses').value.trim() : '2';
+            let maxMisses = 2;
+            if (maxMissesRaw.toLowerCase() === 'inf' || maxMissesRaw.toLowerCase() === 'infinity') {
+                maxMisses = 'inf';
+            } else {
+                let parsed = parseInt(maxMissesRaw, 10);
+                maxMisses = isNaN(parsed) ? 2 : parsed;
+            }
+            let x_offset = document.getElementById('custom-card-x-offset') ? (Number(document.getElementById('custom-card-x-offset').value) || 0) : 0;
+            let y_offset = document.getElementById('custom-card-y-offset') ? (Number(document.getElementById('custom-card-y-offset').value) || 0) : 0;
+            let despawnTime = document.getElementById('custom-card-despawn-time') ? (parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5) : 1.5;
+            let difficulty = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value.toUpperCase() : 'NORMAL';
+
+            // コードモードの場合は現在編集中のタブを最新化
+            if (customCardMakerMode === 'code') {
+                let codeArea = document.getElementById('workspace-code-textarea');
+                let currentCode = codeArea ? codeArea.value : '';
+                let parsed = (typeof codeToBlocks === 'function') ? codeToBlocks(currentCode) : [];
+                if (customCardMaker.activeTab === 'emitter') {
+                    customCardMaker.emitterScript = parsed;
+                } else if (customCardMaker.activeTab === 'bullet') {
+                    customCardMaker.bulletScript = parsed;
+                } else if (customCardMaker.activeTab === 'magicCircle') {
+                    customCardMaker.magicCircleScript = parsed;
+                }
+            }
+
+            function getScript(tabName) {
+                if (customCardMakerMode === 'code' && customCardMaker.activeTab === tabName) {
+                    let codeArea = document.getElementById('workspace-code-textarea');
+                    if (codeArea) return codeArea.value;
+                }
+                let s = (tabName === 'emitter') ? customCardMaker.emitterScript
+                      : (tabName === 'bullet') ? customCardMaker.bulletScript
+                      : (customCardMaker.magicCircleScript || []);
+                if (typeof s === 'string') return s;
+                if (Array.isArray(s) && typeof blocksToCode === 'function') return blocksToCode(s);
+                return '';
+            }
+
+            let emitterScript = getScript('emitter');
+            let bulletScript = getScript('bullet');
+            let magicCircleScript = getScript('magicCircle');
+
+            let cardData = {
+                name,
+                desc,
+                hp,
+                duration,
+                maxMisses,
+                x_offset,
+                y_offset,
+                despawnTime,
+                difficulty,
+                emitterScript,
+                bulletScript,
+                magicCircleScript
+            };
+
+            let formattedText = formatCardToDanmaku2(cardData);
+
+            // ボタンのフィードバック表示
+            let copyBtn = document.getElementById('custom-card-copy-btn');
+            if (copyBtn) {
+                let origText = copyBtn.textContent;
+                copyBtn.textContent = 'コピー完了！ ✔';
+                copyBtn.style.borderColor = '#00ffcc';
+                copyBtn.style.color = '#00ffcc';
+                setTimeout(() => {
+                    copyBtn.textContent = origText;
+                    copyBtn.style.borderColor = '#33aaff';
+                    copyBtn.style.color = '#33ccff';
+                }, 2000);
+            }
+
+            copyDanmakuCodeToClipboard(formattedText, name);
+        }
+
+        function copySavedCardToDanmaku2Format(cardId) {
+            let card = customCards.find(c => c.id === cardId);
+            if (!card) {
+                alert("指定されたカードが見つかりません。");
+                return;
+            }
+            let formattedText = formatCardToDanmaku2(card);
+            let cardName = (card.name || 'カスタムスペル').replace(/^【A】/, '').trim();
+            copyDanmakuCodeToClipboard(formattedText, cardName);
+        }
+
+        window.formatCardToDanmaku2 = formatCardToDanmaku2;
+        window.copyDanmakuCodeToClipboard = copyDanmakuCodeToClipboard;
+        window.copyCurrentCardToDanmaku2Format = copyCurrentCardToDanmaku2Format;
+        window.copySavedCardToDanmaku2Format = copySavedCardToDanmaku2Format;
+
         let customCardMakerMode = 'block';
 
         function toggleCustomCodeGuide(show) {

@@ -2045,6 +2045,470 @@ once {
     magicCircleScript: `
 
     `
+},{
+    difficulty: "Hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "模札「土着信仰」",           // 弾幕名・スペルカード名
+    desc: "弾源安置あると思った？残念ｗありませんｗ",
+    hp: 4000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 120,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 0.1,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 300
+    matu = 30
+    wf(10)
+    floor(angle)
+    bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 36, "muki": 66 })
+    bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 36, "muki": 40 })
+    angle = random(0,360)
+    bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 36, "muki": -40 })
+    angle = random(0,360)
+    playSound("shot")
+    if (enemyHp = 2000..4000) {
+        if (cardSecond == 0..90) {
+            wf(matu)
+            playSound("change")
+            wf(80-matu)
+        }
+        if (cardSecond == 90..300) {
+            bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 50, "muki": 120 })
+            wf(matu)
+            playSound("change")
+            wf(40-matu)
+        }
+    }
+    if (enemyHp = 0..2000) {
+        bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 50, "muki": 120 })
+        wf(matu)
+        playSound("change")
+        wf(40-matu)
+    }
+    bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 36, "muki": 40 })
+    angle = random(0,360)
+    bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 36, "muki": -66 })
+    bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 36, "muki": -40 })
+    angle = random(0,360)
+    playSound("shot")
+    if (enemyHp = 2000..4000) {
+        if (cardSecond == 0..90) {
+            wf(matu)
+            playSound("change")
+            wf(70-matu)
+        }
+        if (cardSecond == 90..300) {
+            bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 50, "muki": -120 })
+            wf(matu)
+            playSound("change")
+            wf(30-matu)
+        }
+    }
+    if (enemyHp = 0..2000) {
+        bullet({ "type": "normal", "image": "redamulet", "radius": 12, "hitRadius": 5, "way": 50, "muki": -120 })
+        wf(matu)
+        playSound("change")
+        wf(30-matu)
+    }
+}
+    `,
+    bulletScript: `
+once {
+    tween("speed", 2000, 500, "frames", 2, "easeIn")
+    wf(2)
+    muki = muki * 2
+    tween("speed", 500, 0, "frames", 30, "easeIn")
+    wf(30)
+    bullet({ "type": "normal", "image": "limenormal", "speed": 0, "radius": 60, "hitRadius": 0, "transparency": 100 })
+    wf(10)
+    imageTo("greenscale")
+    wf(10)
+    tween("angle", angle, angle + muki, "seconds", 3, "easeOut")
+    tween("speed", 0, 150, "frames", 40)
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: `
+once {
+    tween("transparency", 100, 0, "frames", 20)
+    tween("radius", 60, 0, "frames", 20)
+    wf(20)
+    y = -80000
+}
+    `
+},{
+    difficulty: "Lunatic",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "時符「バレッドライカラーの純統弾幕」",           // 弾幕名・スペルカード名
+    desc: "また咲夜風ですよ...最近多くない？",
+    hp: 3000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 80,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    wf(60)
+    l = 384 + seedrandom[cardSecond](-340,340)
+    l2 = 448 + seedrandom[cardSecond](-440,440)
+    for (let i = 0; i < 10; i++) {
+        sx = 384 + random(-300,300)
+        sy = 250 + random(-200,100)
+        muki = -50
+        for (let i = 0; i < 10; i++) {
+            bullet({ "type": "normal", "image": "rednormal", "radius": 40, "hitRadius": 0, "isAbsolute": true, "x": sx, "y": sy, "distance": 0, "distanceType": "step", "transparency": 100 })
+            muki += 25 / 2
+        }
+    }
+    wf(30)
+    for (let i = 0; i < 20; i++) {
+        sx = 384 + random(-300,300)
+        sy = 250 + random(-200,100)
+        muki = -120
+        for (let i = 0; i < 10; i++) {
+            bullet({ "type": "normal", "image": "bluenormal", "radius": 40, "hitRadius": 0, "isAbsolute": true, "x": sx, "y": sy, "color": "#3388ff", "distance": 0, "distanceType": "step", "transparency": 100 })
+            muki += 60 / 2
+        }
+    }
+    wf(180)
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    once {
+        ran = random(95,180)
+        floor(ran)
+        tween("transparency", 100, 0, "seconds", 0.5)
+        tween("radius", 40, 5, "seconds", 0.5)
+        aimAt(l, l2)
+        angle += muki
+        spriteAngle = angle
+        tween("speed", 0, 350, "seconds", 0.1)
+    }
+    if (frame==30..95) {
+        imageTo("redknife")
+        radius = 20
+        hitRadius = 7
+        bounce()
+        spriteAngle = angle
+    }
+    if (frame==95) {
+        imageTo("whiteknife")
+        speed = 0
+    }
+    if (ran == 0..130) {
+        if (frame==ran) {
+            angle += random(-120,120)
+            spriteAngle = angle
+        }
+        if (frame==170) {
+            imageTo("greenknife")
+            speed = 250
+        }
+    }
+    if (ran == 130..99999) {
+        if (frame==170) {
+            imageTo("redknife")
+            speed = 250
+        }
+    }
+}
+if (color==#3388ff) {
+    once {
+        ran = random(95,180)
+        floor(ran)
+        tween("transparency", 100, 0, "seconds", 0.5)
+        tween("radius", 40, 5, "seconds", 0.5)
+        aimAt(l, l2)
+        angle += muki
+        spriteAngle = angle
+        tween("speed", 0, 350, "seconds", 0.1)
+    }
+    if (frame==30..65) {
+        imageTo("blueknife")
+        radius = 20
+        hitRadius = 7
+        bounce()
+        spriteAngle = angle
+    }
+    if (frame==65) {
+        imageTo("whiteknife")
+        speed = 0
+    }
+    if (ran == 0..110) {
+        if (frame==ran) {
+            angle += random(-120,120)
+            spriteAngle = angle
+        }
+        if (frame==140) {
+            imageTo("greenknife")
+            speed = 250
+        }
+    }
+    if (ran == 110..99999) {
+        if (frame==140) {
+            imageTo("blueknife")
+            speed = 250
+        }
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "Hard",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "「紅き針と囲む怨霊」",           // 弾幕名・スペルカード名
+    desc: "ッ",
+    hp: 1000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 400
+    spd = 0
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "redknife", "speed": 100 + spd, "radius": 20, "hitRadius": 6 })
+        spd += 12
+        angle += 4
+    }
+    angle = random(0,360)
+    playSound("shot")
+    wf(12)
+    spd = 0
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "redknife", "speed": 100 + spd, "radius": 20, "hitRadius": 6 })
+        spd += 12
+        angle -= 4
+    }
+    angle = random(0,360)
+    playSound("shot")
+    wf(12)
+}
+while (true) {
+    if (cardFrame == 600..5000000000) {
+        wf(90)
+        bullet({ "type": "normal", "image": "onryou_light_red", "speed": 100, "angle": 0, "radius": 20, "hitRadius": 8, "way": 18, "kawaranu": 1 })
+        bullet({ "type": "normal", "image": "onryou_light_blue", "angle": 0, "radius": 20, "hitRadius": 8, "way": 18, "kawaranu": 1 })
+        bullet({ "type": "normal", "image": "onryou_light_green", "speed": 300, "angle": 0, "radius": 20, "hitRadius": 8, "way": 18, "kawaranu": 1 })
+        playSound("don00")
+    }
+}
+    `,
+    bulletScript: `
+if (kawaranu!=1) {
+    once {
+        wf(40)
+        aimAtTarget()
+    }
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "火矢「ブレイズモメンタム」",           // 弾幕名・スペルカード名
+    desc: "割とむずーいけどノーマルくらい",
+    hp: 1500,                   // ボスHP（ショットで削って撃破可能）
+    duration: 60,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 4,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    tween("ey", ey, 448, "seconds", 2, "easeInOut")
+    for (let i = 0; i < 6; i++) {
+        aimAtTarget()
+        aimAtTarget()
+        bullet({ "type": "normal", "image": "redarrow", "speed": 300, "radius": 30, "hitRadius": 10, "destroyResist": true })
+        playSound("shot")
+        wf(10)
+    }
+    wf(250)
+}
+    `,
+    bulletScript: `
+if (isTouchEdge) {
+    once {
+        speed = 0
+        imageTo("light")
+        tween("radius", 0, 100, "frames", 15, "easeInOut")
+        wf(15)
+        tween("radius", 100, 10, "frames", 15, "easeInOut")
+        wf(30)
+        tween("radius", 10, 100, "frames", 15, "easeInOut")
+        wf(15)
+        tween("radius", 100, 10, "frames", 15, "easeInOut")
+        wf(30)
+        tween("radius", 10, 400, "frames", 45, "easeInOut")
+        tween("hitRadius", 10, 300, "frames", 45, "easeInOut")
+        wf(5)
+        playSound("don00")
+        tween("transparency", 0, 100, "frames", 40, "easeInOut")
+        for (let i = 0; i < 3; i++) {
+            angle = random(0,360)
+            bullet({ "type": "normal", "image": "light", "speed": 800 + spd, "radius": 50, "hitRadius": 50, "color": "#ffaa33", "way": 30 })
+            spd -= 200
+        }
+        wf(40)
+        y = -90000
+    }
+}
+    `,
+    magicCircleScript: `
+once {
+    tween("speed", speed, speed / 5, "seconds", 0.4)
+    for (let i = 0; i < 8; i++) {
+        tween("radius", radius, radius - 5, "seconds", 0.1)
+        hitRadius -= 5
+        wf(15)
+    }
+    hitRadius = 5
+}
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "調律「リサージュのシンフォニ」",           // 弾幕名・スペルカード名
+    desc: "説明文や作成者名",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 50,               // 制限時間（秒）
+    maxMisses: 2,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+ey = 350
+t = 0
+Rx = 400
+Ry = 300
+while (true) {
+    wf(1)
+    for (let i = 0; i < 2; i++) {
+        dx = Rx * sin(t * 1)
+        dy = Ry * sin(t * 1.1)
+        aimAngle = t * 0.8
+        bullet({ "type": "normal", "image": "rednormal", "speed": 0, "angle": aimAngle, "radius": 50, "hitRadius": 0, "isAbsolute": true, "x": ex + dx, "y": ey + dy, "color": "#ffcc00", "transparency": 100 })
+        t += 11 / 2
+    }
+}
+    `,
+    bulletScript: `
+once {
+    if (dist < 60) {
+        y = -80000
+    }
+    tween("speed", 0, 200, "seconds", 0.5, "easeOut")
+    aimAt(x, ty)
+    angle += random(-cardSecond / 6,cardSecond / 6)
+    spriteAngle = angle
+    tween("radius", 60, 10, "frames", 30)
+    tween("transparency", 100, 0, "frames", 30)
+    wf(30)
+    imageTo("reddiamond")
+    hitRadius = 3
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "真紅「カレイドスコープ」",           // 弾幕名・スペルカード名
+    desc: "初見殺ししつつ、それなりに良い難易度だと思うんですよ！",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 50,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    ey = 300
+    wf(2)
+    bullet({ "type": "normal", "image": "rednormal", "angle": ang, "radius": 60, "hitRadius": 2, "way": 4, "transparency": 100, "muki": 1 })
+    bullet({ "type": "normal", "image": "rednormal", "angle": -ang, "radius": 60, "hitRadius": 2, "way": 4, "transparency": 100, "muki": -1 })
+    if (cardSecond == 3..5000) {
+        ang += 12.15
+    }
+    if (cardSecond == 1..3) {
+        ang -= 88.9
+    }
+    playSound("shot")
+}
+while (true) {
+    wf(60)
+    while (true) {
+        wf(120)
+        aimAtTarget()
+        bullet({ "type": "normal", "image": "onryou_red", "speed": 300, "radius": 20, "hitRadius": 10, "color": "#ffffff", "way": 9, "distance": 8, "distanceType": "step" })
+        playSound("don00")
+    }
+}
+    `,
+    bulletScript: `
+if (color==#ff3333) {
+    once {
+        tween("speed", 1200, 170, "frames", 20)
+        tween("radius", radius, 10, "frames", 6)
+        tween("transparency", 100, 0, "frames", 6)
+        wf(5)
+        imageTo("reddiamond")
+        wf(30)
+        angle -= muki * 165
+    }
+    spriteAngle = angle
+}
+if (color==#ffffff) {
+    once {
+        tween("speed", 1200, 300, "frames", 20)
+    }
+}
+    `,
+    magicCircleScript: `
+
+    `
+},{
+    difficulty: "NORMAL",       // 難易度: EASY, NORMAL(NN OK), HARD(NM xor NB), LUNATIC(Not NM/NB)
+    name: "爆符「超新星の残光」",           // 弾幕名・スペルカード名
+    desc: "若干運ゲー？",
+    hp: 2000,                   // ボスHP（ショットで削って撃破可能）
+    duration: 50,               // 制限時間（秒）
+    maxMisses: 3,               // 許容被弾回数（"inf"で無限）
+    x_offset: 0,                // 出現位置の横オフセット (画面中央=0)
+    y_offset: 0,                // 出現位置の縦オフセット
+    despawnTime: 1.5,           // 画面外に出てから弾が消滅するまでの秒数
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 100; i++) {
+        bullet({ "type": "normal", "image": "light", "speed": 0, "radius": 0, "hitRadius": 5, "way": 3 })
+        bullet({ "type": "normal", "image": "light", "speed": 0, "radius": 0, "hitRadius": 5, "color": "#ffaa33", "way": 3 })
+        angle += frame + random(0,90)
+    }
+    playSound("don00")
+    wf(100)
+    wf(200 - g)
+    g += 25
+}
+    `,
+    bulletScript: `
+once {
+    tween("radius", 0, 15, "frames", 30)
+    tween("auraRange", 2.75, 6, "frames", 30)
+    wf(30)
+    speed = random(10,350)
+    tween("auraRange", 6, 2.5, "seconds", 6)
+}
+    `,
+    magicCircleScript: `
+
+    `
 }
 ];
 

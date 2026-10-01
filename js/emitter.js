@@ -4713,6 +4713,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                     <span class="custom-card-cost-badge">制限時間: ${getCustomCardDuration(card.duration)}s</span>
                     <div class="custom-card-actions">
                         <button class="custom-card-act-btn btn-edit" onclick="customCardMakerOpenEditor('${card.id}')">編集</button>
+                        <button class="custom-card-act-btn btn-edit" style="border-color:#33aaff !important; color:#33aaff !important; background:rgba(51,170,255,0.05) !important;" onclick="copySavedCardToDanmaku2Format('${card.id}')" title="danmaku2.js貼り付け用コードをコピー">コピー</button>
                         <button class="custom-card-act-btn btn-edit" style="border-color:#ffaa33 !important; color:#ffaa33 !important; background:rgba(255,170,51,0.05) !important;" onclick="shareCustomCard('${card.id}')">共有</button>
                         <button class="custom-card-act-btn btn-delete" onclick="customCardMakerDeleteCard('${card.id}')">削除</button>
                     </div>
