@@ -2509,6 +2509,140 @@ once {
     magicCircleScript: `
 
     `
+},{
+    difficulty: "Hard",
+    name: "蠕動「三槍の弓」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 1600,
+    duration: 30,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 0.4,
+    emitterScript: `
+while (true) {
+    ey = 250
+    ag = random(0,360)
+    g = ex
+    for (let i = 0; i < 35; i++) {
+        bullet({ "type": "normal", "image": "redknife", "speed": 450, "angle": ag + frame * 3, "radius": 20, "hitRadius": 5, "isAbsolute": true, "x": g, "y": ey, "way": 3, "muki": 1, "kasoku": 1 })
+        bullet({ "type": "normal", "image": "redknife", "speed": 450, "angle": -ag - frame * 3, "radius": 20, "hitRadius": 5, "isAbsolute": true, "x": g, "y": ey, "way": 3, "muki": -1, "kasoku": 1 })
+        bullet({ "type": "normal", "image": "redknife", "speed": 450, "angle": ag + frame * 3, "radius": 20, "hitRadius": 5, "isAbsolute": true, "x": g, "y": ey, "way": 3, "muki": 1, "kasoku": 1.5 })
+        bullet({ "type": "normal", "image": "redknife", "speed": 450, "angle": -ag - frame * 3, "radius": 20, "hitRadius": 5, "isAbsolute": true, "x": g, "y": ey, "way": 3, "muki": -1, "kasoku": 1.5 })
+        bullet({ "type": "normal", "image": "redknife", "speed": 450, "angle": ag + frame * 3, "radius": 20, "hitRadius": 5, "isAbsolute": true, "x": g, "y": ey, "way": 3, "muki": 1, "kasoku": 2 })
+        bullet({ "type": "normal", "image": "redknife", "speed": 450, "angle": -ag - frame * 3, "radius": 20, "hitRadius": 5, "isAbsolute": true, "x": g, "y": ey, "way": 3, "muki": -1, "kasoku": 2 })
+        playSound("shot")
+        wf(3)
+    }
+    wf(125)
+}
+    `,
+    bulletScript: `
+if (frame == 0..60) {
+    angle += 4 * muki
+    spriteAngle = angle
+}
+if (frame == 40..60) {
+    speed -= 12
+}
+if (frame == 120) {
+    angle += random(-5,5)
+    spriteAngle = angle
+    speed = speed * kasoku
+    imageTo("redgun")
+    radius = 12
+    playSound("change")
+}
+if (frame == 180) {
+    tween("speed", speed, speed / 1.5, "seconds", 0.3, "easeIn")
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "HARD",
+    name: "鉄箱「アイアンベール」",
+    desc: "こうしたらよくね？を永遠に繰り返した結果こうなってしまいました...",
+    hp: 2500,
+    duration: 50,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 7,
+    emitterScript: `
+while (true) {
+    dx = random(-50,50)
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "reddiamond", "angle": 90 - 20, "radius": 10, "hitRadius": 20, "isAbsolute": true, "x": -400 + dx })
+        dx += 70
+    }
+    wf(6)
+    dx -= 1400
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "reddiamond", "angle": 90 - 20, "radius": 10, "hitRadius": 20, "isAbsolute": true, "x": -400 + dx })
+        dx += 70
+    }
+    wf(6)
+    dx -= 1400
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "reddiamond", "angle": 90 - 20, "radius": 10, "hitRadius": 20, "isAbsolute": true, "x": -400 + dx })
+        dx += 70
+    }
+    dx -= 1400
+    for (let j = 0; j < 15; j++) {
+        for (let i = 0; i < 5; i++) {
+            bullet({ "type": "normal", "image": "reddiamond", "angle": 90 - 20, "radius": 10, "hitRadius": 3, "isAbsolute": true, "x": -400 + dx })
+            dx += 14
+        }
+        dx += 70
+    }
+    wf(15)
+    kirikae = 1
+    kirikae = 2
+    kirikae = 3
+    dx = random(-50,50) + 768
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "reddiamond", "angle": 90 + 20, "radius": 10, "hitRadius": 20, "isAbsolute": true, "x": 400 + dx })
+        dx -= 70
+    }
+    wf(6)
+    dx += 1400
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "reddiamond", "angle": 90 + 20, "radius": 10, "hitRadius": 20, "isAbsolute": true, "x": 400 + dx })
+        dx -= 70
+    }
+    wf(6)
+    dx += 1400
+    for (let i = 0; i < 20; i++) {
+        bullet({ "type": "normal", "image": "reddiamond", "angle": 90 + 20, "radius": 10, "hitRadius": 20, "isAbsolute": true, "x": 400 + dx })
+        dx -= 70
+    }
+    dx += 1400
+    for (let j = 0; j < 15; j++) {
+        for (let i = 0; i < 5; i++) {
+            bullet({ "type": "normal", "image": "reddiamond", "angle": 90 + 20, "radius": 10, "hitRadius": 3, "isAbsolute": true, "x": 400 + dx })
+            dx -= 14
+        }
+        dx -= 70
+    }
+    wf(15)
+}
+    `,
+    bulletScript: `
+once {
+    playSound("shot")
+    y = 0
+    imageTo("redeye")
+    tween("speed", 3000, 0, "seconds", 0.3, "easeOut")
+    wf(20)
+    hitRadius = 3
+    imageTo("whitekunai2")
+    tween("speed", 30, 200, "seconds", 1, "easeIn")
+}
+if (y > 876) {
+    y = -9999999
+}
+    `,
+    magicCircleScript: ``
 }
 ];
 
