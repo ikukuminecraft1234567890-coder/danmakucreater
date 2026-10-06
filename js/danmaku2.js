@@ -2595,7 +2595,7 @@ while (true) {
         }
         dx += 70
     }
-    wf(15)
+    wf(10)
     kirikae = 1
     kirikae = 2
     kirikae = 3
@@ -2624,7 +2624,7 @@ while (true) {
         }
         dx -= 70
     }
-    wf(15)
+    wf(10)
 }
     `,
     bulletScript: `
@@ -2640,6 +2640,252 @@ once {
 }
 if (y > 876) {
     y = -9999999
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "HARD",
+    name: "星符「スカーレットネブラ」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 1500,
+    duration: 80,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    ey = 350
+    if (cardFrame == 3 * n) {
+        bullet({ "type": "normal", "image": "onryou_blue", "angle": random(0,360), "radius": 25, "hitRadius": 15 })
+    }
+    bullet({ "type": "normal", "image": "onryou_red", "angle": cardFrame * 7, "radius": 25, "hitRadius": 15 })
+    bullet({ "type": "normal", "image": "onryou_red", "angle": 180 + cardFrame * 7, "radius": 25, "hitRadius": 15 })
+    playSound("shot")
+    wf(1)
+}
+    `,
+    bulletScript: `
+once {
+    tween("speed", 500, 200, "frames", 40, "easeOut")
+}
+if (frame == 40) {
+    tweenAngle(angle, angle + cardFrame * -9.75, "frames", 40)
+}
+if (frame == 40) {
+    tween("speed", 200, 300 + random(-0,0), "frames", 80, "easeOut")
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "LUNATIC",
+    name: "「極彩、木の葉時雨」",
+    desc: "発狂系！",
+    hp: 3000,
+    duration: 50,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 3; i++) {
+        bullet({ "type": "normal", "image": "bluekunai2", "speed": 300, "angle": 90, "radius": 12, "hitRadius": 3, "x": random(-600,600), "y": random(-50,60), "way": 6 })
+        if (enemyHp == 0..2000) {
+            bullet({ "type": "normal", "image": "greenkunai2", "speed": 300, "angle": 120, "radius": 12, "hitRadius": 3, "x": random(-600,600), "y": random(-50,60), "way": 6 })
+        }
+        wf(4)
+    }
+    if (enemyHp == 0..1000) {
+        bullet({ "type": "normal", "image": "purplekunai2", "speed": 300, "angle": 90, "radius": 12, "hitRadius": 3, "isAbsolute": true, "x": tx + random(-60,60), "y": ey + random(-50,60), "way": 6 })
+    }
+}
+    `,
+    bulletScript: `
+once {
+    tween("speed", 900, 300 + random(-200,150), "frames", 20)
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "HARD",
+    name: "「穢れを纏いて籠め籠め」",
+    desc: "名前はたまたま思い出したのでこれ",
+    hp: 3000,
+    duration: 50,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1,
+    emitterScript: `
+while (true) {
+    spx = 0
+    spy = 0
+    taiki = 2
+    if (enemyHp = 0..1000) {
+        taiki = 1
+    }
+    if (cardSecond == 35..600) {
+        taiki = 1
+    }
+    for (let i = 0; i < 52; i++) {
+        bullet({ "type": "normal", "image": "pinkbig", "speed": 300, "angle": 90, "radius": 60, "hitRadius": 0, "isAbsolute": true, "x": spx, "y": spy, "transparency": 100 })
+        wf(taiki)
+        spx += 15
+    }
+    if (enemyHp = 0..1000) {
+        taiki = 1
+    }
+    if (cardSecond == 35..600) {
+        taiki = 1
+    }
+    spx = 768
+    spy = 0
+    for (let i = 0; i < 60; i++) {
+        bullet({ "type": "normal", "image": "pinkbig", "speed": 300, "angle": 180, "radius": 60, "hitRadius": 0, "isAbsolute": true, "x": spx, "y": spy, "transparency": 100 })
+        wf(taiki)
+        spy += 15
+    }
+    if (enemyHp = 0..1000) {
+        taiki = 1
+    }
+    if (cardSecond == 35..600) {
+        taiki = 1
+    }
+    spx = 768
+    spy = 896
+    for (let i = 0; i < 54; i++) {
+        bullet({ "type": "normal", "image": "pinkbig", "speed": 300, "angle": -90, "radius": 60, "hitRadius": 0, "isAbsolute": true, "x": spx, "y": spy, "transparency": 100 })
+        wf(taiki)
+        spx -= 15
+    }
+    if (enemyHp = 0..1000) {
+        taiki = 1
+    }
+    if (cardSecond == 35..600) {
+        taiki = 1
+    }
+    spx = 0
+    spy = 896
+    for (let i = 0; i < 60; i++) {
+        bullet({ "type": "normal", "image": "pinkbig", "speed": 300, "angle": 0, "radius": 60, "hitRadius": 0, "isAbsolute": true, "x": spx, "y": spy, "transparency": 100 })
+        wf(taiki)
+        spy -= 15
+    }
+}
+    `,
+    bulletScript: `
+once {
+    imageTo("pinknormal")
+    speed = 80
+    tween("transparency", 100, 0, "frames", 30)
+    tween("radius", 60, 10, "frames", 30)
+    wf(30)
+    imageTo("pinkbig")
+    hitRadius = 4
+    speed = 300
+    speed += seedrandom[10 + cardFrame](-160,-60)
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "LUNATIC",
+    name: "源魔「創世の大魔法」",
+    desc: "難しそうに見えて難しいけど意外とそこまでかもしれん。でもちょうどいい難易度なのか？ノーノーはきついかも",
+    hp: 4000,
+    duration: 999.99,
+    maxMisses: 4,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 0.1,
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "redkunai", "speed": 300, "angle": 90 + random(-70,70), "radius": 12, "hitRadius": 3, "x": random(-30,30), "y": random(-30,30) })
+    wf(3)
+}
+while (true) {
+    if (enemyHp = 0..2000) {
+        bullet({ "type": "normal", "image": "redsimple", "speed": 300, "angle": frame * 1.985, "radius": 25, "hitRadius": 15, "x": , "y": , "way": 3 })
+        wf(5)
+    }
+}
+while (true) {
+    if (enemyHp = 0..1000) {
+        bullet({ "type": "normal", "image": "goldnormal", "speed": 300, "angle": random(0,360), "radius": 20, "hitRadius": 10, "x": , "y": , "way": 36, "c": 1 })
+        wf(60)
+        bullet({ "type": "normal", "image": "goldnormal", "speed": 300, "angle": random(0,360), "radius": 20, "hitRadius": 10, "x": , "y": , "way": 36, "c": -1 })
+        wf(60)
+    }
+}
+while (true) {
+    angleg = 8* sin(frame * 5)
+    bullet({ "type": "normal", "image": "purplescale", "speed": 2000, "angle": 90 + 35 + angleg, "radius": 12, "hitRadius": 10, "x": 300, "y": 100, "way": 4, "distance": 35, "distanceType": "step" })
+    bullet({ "type": "normal", "image": "purplescale", "speed": 2000, "angle": 90 - 35 - angleg, "radius": 12, "hitRadius": 10, "x": -300, "y": 100, "way": 4, "distance": 35, "distanceType": "step" })
+    bullet({ "type": "normal", "image": "purplescale", "speed": 2000, "angle": 90 + 20 - angleg, "radius": 12, "hitRadius": 10, "x": 200, "y": -50, "way": 4, "distance": 35, "distanceType": "step" })
+    bullet({ "type": "normal", "image": "purplescale", "speed": 2000, "angle": 90 - 20 + angleg, "radius": 12, "hitRadius": 10, "x": -200, "y": -50, "way": 4, "distance": 35, "distanceType": "step" })
+}
+while (true) {
+    wf(50)
+    if (enemyHp = 0..3000) {
+        aimAtTarget()
+        playSound("don00")
+        bullet({ "type": "normal", "image": "greenbig2", "speed": 400, "radius": 40, "hitRadius": 25, "x": , "y": , "way": 3, "distance": 15, "distanceType": "step" })
+    }
+    wf(50)
+}
+while (true) {
+    bullet({ "type": "normal", "image": "light", "speed": 600, "angle": 90, "radius": 12, "hitRadius": 8, "x": 400 - g, "y": -150, "color": "#ffffff" })
+    bullet({ "type": "normal", "image": "light", "speed": 600, "angle": 90, "radius": 12, "hitRadius": 8, "x": -400 + g, "y": -150, "color": "#ffffff" })
+    bullet({ "type": "normal", "image": "light", "speed": 600, "angle": 90 + 80, "radius": 12, "hitRadius": 8, "x": 400 - g, "y": -150, "color": "#ffffff" })
+    bullet({ "type": "normal", "image": "light", "speed": 600, "angle": 90 - 80, "radius": 12, "hitRadius": 8, "x": -400 + g, "y": -150, "color": "#ffffff" })
+    bullet({ "type": "normal", "image": "light", "speed": 600, "angle": 90 + 35, "radius": 12, "hitRadius": 8, "x": 400 - g, "y": -150, "color": "#ffffff" })
+    bullet({ "type": "normal", "image": "light", "speed": 600, "angle": 90 - 35, "radius": 12, "hitRadius": 8, "x": -400 + g, "y": -150, "color": "#ffffff" })
+    wf(2)
+    playSound("shot")
+}
+while (true) {
+    tween("g", g, 350, "frames", 150)
+    wf(150)
+    playSound("boon00")
+    tween("g", g, 0, "frames", 150)
+    wf(150)
+    playSound("boon00")
+}
+    `,
+    bulletScript: `
+once {
+    advance(-minus)
+}
+if (frame == 0..90) {
+    angle += c
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "HARD",
+    name: "流星「スターシュート」",
+    desc: "ｇ",
+    hp: 1000,
+    duration: 50,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 0.1,
+    emitterScript: `
+while (true) {
+    aimAtTarget()
+    bullet({ "type": "normal", "image": "redstar", "speed": 50, "angle": angle + random(-10,10), "radius": 10, "hitRadius": 3, "x": random(-160,160), "y": random(-160,160), "way": 3, "transparency": 100, "muki": 2 })
+    bullet({ "type": "normal", "image": "redstar", "speed": 50, "angle": angle + random(-10,10), "radius": 10, "hitRadius": 3, "x": random(-160,160), "y": random(-160,160), "way": 3, "transparency": 100, "muki": -2 })
+    wf(2)
+}
+    `,
+    bulletScript: `
+spriteAngle += muki
+once {
+    tween("radius", 50, 10, "seconds", 0.4)
+    tween("transparency", 100, 0, "seconds", 0.4)
+    tween("speed", 50, 600 + random(-100,100), "seconds", 2)
 }
     `,
     magicCircleScript: ``

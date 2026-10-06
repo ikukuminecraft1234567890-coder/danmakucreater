@@ -3325,40 +3325,34 @@ function applyAbilityEffect(cardId, owner) {
             const _drawNow = tDrawBStart; // performance.now() をループ外で1回だけキャッシュ
 
             // ── 光弾・光式怨霊のオーラ（グロー）を先行して描画（加算合成＋揺らぎエフェクト） ──
-            // 光弾または光式怨霊が1つも無ければこのパスを完全スキップ（毎フレーム全弾ループしない）
-            const _hasLightBullet = bullets.some(b => (b.bulletImage === 'light' || (isOnryouBulletKey(b.bulletImage) && isLightOnryouBulletKey(b.bulletImage))) && b.radius > 0);
-            if (_hasLightBullet) {
-                ctx.save();
-                ctx.globalCompositeOperation = 'lighter'; // 加算合成で光っぽく繋げる
-                for (let _li = 0; _li < bullets.length; _li++) {
-                    const b = bullets[_li];
-                    if (b.radius <= 0) continue;
-                    // 画面外カリング（オーラ分を考慮して通常より広い範囲でカリング判定）
-                    if (b.x < -b.radius - 35 || b.x > PLAY_WIDTH + b.radius + 35 || b.y < -b.radius - 35 || b.y > canvas.height + b.radius + 35) continue;
+            // 最適化: 事前の bullets.some() 全走査を排除し、最初の対象弾が見つかった時点で lighter モードを開始
+            let _auraPassStarted = false;
+            for (let _li = 0; _li < bullets.length; _li++) {
+                const b = bullets[_li];
+                if (b.radius <= 0) continue;
+                const isLightB = (b.bulletImage === 'light');
+                const isOnryouB = !isLightB && (isOnryouBulletKey(b.bulletImage) && isLightOnryouBulletKey(b.bulletImage));
+                if (!isLightB && !isOnryouB) continue;
 
-                    if (b.bulletImage === 'light') {
-                    
-                    // 弾ごとに異なる揺らぎを作るためのシード値
-                    let seed = b.x * 0.05 + b.y * 0.05;
+                if (!_auraPassStarted) {
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'lighter'; // 加算合成で光っぽく繋げる
+                    _auraPassStarted = true;
+                }
 
-                    // 変数から光の範囲 (auraRange) と強さ (auraIntensity) を取得できるようにする（大文字小文字無視）
+                if (isLightB) {
+                    // 変数から光の範囲 (auraRange) と強さ (auraIntensity) を高速取得（空振り走査を完全排除）
                     let auraRangeVal = 2.75;
                     let auraIntensityVal = 1.0;
                     let auraTransVal = 0;
-                    if (b.bulletState && b.bulletState.variables) {
-                        let vRange = window.getBulletVar(b.bulletState.variables, 'auraRange');
-                        if (vRange !== undefined && vRange !== null) {
-                            auraRangeVal = parseFloat(vRange) || 0;
-                        }
-                        let vIntensity = window.getBulletVar(b.bulletState.variables, 'auraIntensity');
-                        if (vIntensity !== undefined && vIntensity !== null) {
-                            auraIntensityVal = parseFloat(vIntensity) || 0;
-                        }
-                        let vTrans = window.getBulletVar(b.bulletState.variables, 'transparency');
-                        if (vTrans === undefined) vTrans = window.getBulletVar(b.bulletState.variables, 'alpha');
-                        if (vTrans !== undefined && vTrans !== null) {
-                            auraTransVal = parseFloat(vTrans) || 0;
-                        }
+                    const bVars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+                    if (bVars) {
+                        const vr = bVars.auraRange !== undefined ? bVars.auraRange : bVars.aurarange;
+                        if (vr !== undefined && vr !== null) auraRangeVal = parseFloat(vr) || 0;
+                        const vi = bVars.auraIntensity !== undefined ? bVars.auraIntensity : bVars.auraintensity;
+                        if (vi !== undefined && vi !== null) auraIntensityVal = parseFloat(vi) || 0;
+                        const vt = bVars.transparency !== undefined ? bVars.transparency : bVars.alpha;
+                        if (vt !== undefined && vt !== null) auraTransVal = parseFloat(vt) || 0;
                     } else if (b.transparency !== undefined) {
                         auraTransVal = parseFloat(b.transparency) || 0;
                     }
@@ -3369,80 +3363,36 @@ function applyAbilityEffect(cardId, owner) {
                         auraIntensityVal *= (1.0 - auraTransVal / 100);
                     }
                     
-                    // オーラのサイズは auraRangeVal を基準にし、非常に微弱かつゆっくりとうねるように調整
-                    let auraRadius = b.radius * (auraRangeVal + 0.08 * Math.sin(_drawNow * 0.002 + seed));
-                    let auraColor = b.color || '#ff3333';
-                    
-                    // 位置の揺れもごくわずかに抑え、ゆっくりと浮遊する程度にする (最大0.3px)
-                    let waveX = b.x + Math.sin(_drawNow * 0.003 + seed) * 0.3;
-                    let waveY = b.y + Math.cos(_drawNow * 0.0025 + seed) * 0.3;
+                    // オーラのサイズは auraRangeVal を基準にし、微弱な揺らぎ（sinは1回のみ高速計算）
+                    const seed = (b.x + b.y) * 0.05;
+                    const auraRadius = b.radius * (auraRangeVal + 0.08 * Math.sin(_drawNow * 0.002 + seed));
+                    if (auraRadius <= 0) continue;
 
-                    // キャッシュからテクスチャを取得して描画
-                    let tex = window.getLightBulletTexture(auraColor, b.radius);
-                    if (tex && tex.canvas && tex.canvas.width > 0 && tex.canvas.height > 0) {
-                        let scale = auraRadius / tex.baseAuraRadius;
-                        let drawSize = tex.size * scale;
+                    // 正確なオーラ半径での画面外カリング
+                    if (b.x < -auraRadius || b.x > PLAY_WIDTH + auraRadius || b.y < -auraRadius || b.y > canvas.height + auraRadius) continue;
 
-                        if (drawSize > 0) {
-                            ctx.globalAlpha = Math.max(0, Math.min(1.0, auraIntensityVal));
-                            let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
-                            let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
-                            if (isNaN(multf) || multf < 0) multf = 1;
-                            let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
-                            if (isNaN(multlr) || multlr < 0) multlr = 1;
-
-                            if (multf === 1 && multlr === 1) {
-                                ctx.drawImage(
-                                    tex.canvas,
-                                    waveX - drawSize / 2,
-                                    waveY - drawSize / 2,
-                                    drawSize,
-                                    drawSize
-                                );
-                            } else {
-                                let angle;
-                                if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
-                                    let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
-                                    if (b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
-                                    angle = spriteAngleRad + Math.PI / 2;
-                                } else {
-                                    angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
-                                }
-                                const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
-                                ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, waveX, waveY);
-                                ctx.drawImage(
-                                    tex.canvas,
-                                    -drawSize * multlr / 2,
-                                    drawSize * (1 - 2 * multf) / 2,
-                                    drawSize * multlr,
-                                    drawSize * multf
-                                );
-                                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                            }
-                        }
-                    }
-                    } else if (isOnryouBulletKey(b.bulletImage) && isLightOnryouBulletKey(b.bulletImage)) {
-                        // 光式怨霊のオーラ（怨霊スプライト画像）を加算合成で先行描画
-                        let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
-                        if (b.animOffset === undefined) {
-                            b.animOffset = (vars && vars.animOffset !== undefined) ? Number(vars.animOffset) : (Math.random() * 10000);
-                        }
-                        let spriteScale = (vars && vars.spriteScale !== undefined) ? Number(vars.spriteScale) : 1.6;
-                        let spriteRadius = b.radius * spriteScale;
-                        let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.22);
-
-                        let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
+                    const auraColor = b.color || '#ff3333';
+                    const tex = window.getLightBulletTexture(auraColor, b.radius);
+                    if (tex && tex.canvas) {
+                        const drawSize = auraRadius * 2;
+                        ctx.globalAlpha = Math.max(0, Math.min(1.0, auraIntensityVal));
+                        let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (bVars ? (bVars.multf !== undefined ? Number(bVars.multf) : (bVars.asba !== undefined ? Number(bVars.asba) : 1)) : 1));
                         if (isNaN(multf) || multf < 0) multf = 1;
-                        let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
+                        let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (bVars ? (bVars.multlr !== undefined ? Number(bVars.multlr) : (bVars.aslr !== undefined ? Number(bVars.aslr) : 1)) : 1));
                         if (isNaN(multlr) || multlr < 0) multlr = 1;
 
-                        let animInterval = (vars && vars.animInterval !== undefined) ? Number(vars.animInterval) :
-                                           ((vars && vars.animSpeed !== undefined) ? Number(vars.animSpeed) : (window.ONRYOU_ANIM_INTERVAL || 125));
-                        let texture = getOnryouAnimatedTexture(b.bulletImage, b.color, animInterval, b.animOffset);
-                        if (texture && (texture.complete === undefined || texture.complete)) {
+                        if (multf === 1 && multlr === 1) {
+                            ctx.drawImage(
+                                tex.canvas,
+                                b.x - auraRadius,
+                                b.y - auraRadius,
+                                drawSize,
+                                drawSize
+                            );
+                        } else {
                             let angle;
-                            if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
-                                let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                            if (bVars && bVars.spriteAngle !== undefined && bVars.spriteAngle !== null) {
+                                let spriteAngleRad = (Number(bVars.spriteAngle) || 0) * Math.PI / 180;
                                 if (b.bulletState && b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
                                 angle = spriteAngleRad + Math.PI / 2;
                             } else {
@@ -3450,15 +3400,55 @@ function applyAbilityEffect(cardId, owner) {
                             }
                             const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
                             ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
-                            if (multf === 1 && multlr === 1) {
-                                ctx.drawImage(texture, -spriteRadius, spriteOffsetY - spriteRadius, spriteRadius * 2, spriteRadius * 2);
-                            } else {
-                                ctx.drawImage(texture, -spriteRadius * multlr, spriteOffsetY + spriteRadius * (1 - 2 * multf), spriteRadius * 2 * multlr, spriteRadius * 2 * multf);
-                            }
+                            ctx.drawImage(
+                                tex.canvas,
+                                -auraRadius * multlr,
+                                auraRadius * (1 - 2 * multf),
+                                drawSize * multlr,
+                                drawSize * multf
+                            );
                             ctx.setTransform(1, 0, 0, 1, 0, 0);
                         }
                     }
+                } else if (isOnryouB) {
+                    // 光式怨霊のオーラ（怨霊スプライト画像）を加算合成で先行描画
+                    let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
+                    if (b.animOffset === undefined) {
+                        b.animOffset = (vars && vars.animOffset !== undefined) ? Number(vars.animOffset) : (Math.random() * 10000);
+                    }
+                    let spriteScale = (vars && vars.spriteScale !== undefined) ? Number(vars.spriteScale) : 1.6;
+                    let spriteRadius = b.radius * spriteScale;
+                    let spriteOffsetY = (vars && vars.spriteOffsetY !== undefined) ? Number(vars.spriteOffsetY) : (spriteRadius * 0.22);
+
+                    let multf = (b.multf !== undefined) ? b.multf : ((b.asba !== undefined) ? b.asba : (vars ? (vars.multf !== undefined ? Number(vars.multf) : (vars.asba !== undefined ? Number(vars.asba) : 1)) : 1));
+                    if (isNaN(multf) || multf < 0) multf = 1;
+                    let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
+                    if (isNaN(multlr) || multlr < 0) multlr = 1;
+
+                    let animInterval = (vars && vars.animInterval !== undefined) ? Number(vars.animInterval) :
+                                       ((vars && vars.animSpeed !== undefined) ? Number(vars.animSpeed) : (window.ONRYOU_ANIM_INTERVAL || 125));
+                    let texture = getOnryouAnimatedTexture(b.bulletImage, b.color, animInterval, b.animOffset);
+                    if (texture && (texture.complete === undefined || texture.complete)) {
+                        let angle;
+                        if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+                            let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+                            if (b.bulletState && b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
+                            angle = spriteAngleRad + Math.PI / 2;
+                        } else {
+                            angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+                        }
+                        const _cosA = Math.cos(angle), _sinA = Math.sin(angle);
+                        ctx.setTransform(_cosA, _sinA, -_sinA, _cosA, b.x, b.y);
+                        if (multf === 1 && multlr === 1) {
+                            ctx.drawImage(texture, -spriteRadius, spriteOffsetY - spriteRadius, spriteRadius * 2, spriteRadius * 2);
+                        } else {
+                            ctx.drawImage(texture, -spriteRadius * multlr, spriteOffsetY + spriteRadius * (1 - 2 * multf), spriteRadius * 2 * multlr, spriteRadius * 2 * multf);
+                        }
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    }
                 }
+            }
+            if (_auraPassStarted) {
                 ctx.globalAlpha = 1.0;
                 ctx.restore();
             }
@@ -3471,16 +3461,25 @@ function applyAbilityEffect(cardId, owner) {
                 if (!window._globalSpecialBullets) window._globalSpecialBullets = [];
                 if (!window._globalBackBullets) window._globalBackBullets = [];
                 if (!window._globalFrontBullets) window._globalFrontBullets = [];
+                if (!window._globalLightCoreXs) window._globalLightCoreXs = [];
+                if (!window._globalLightCoreYs) window._globalLightCoreYs = [];
+                if (!window._globalLightCoreRs) window._globalLightCoreRs = [];
                 const _circleGroups = window._globalCircleGroups;
                 const _specialBullets = window._globalSpecialBullets;
                 const _backBullets = window._globalBackBullets;
                 const _frontBullets = window._globalFrontBullets;
+                const _lightCoreXs = window._globalLightCoreXs;
+                const _lightCoreYs = window._globalLightCoreYs;
+                const _lightCoreRs = window._globalLightCoreRs;
 
                 // プールリセット
                 _circleGroups.forEach(g => { g.xs.length = 0; g.ys.length = 0; });
                 _specialBullets.length = 0;
                 _backBullets.length = 0;
                 _frontBullets.length = 0;
+                _lightCoreXs.length = 0;
+                _lightCoreYs.length = 0;
+                _lightCoreRs.length = 0;
 
                 for (let _bi = 0; _bi < bullets.length; _bi++) {
                     const b = bullets[_bi];
@@ -3513,7 +3512,18 @@ function applyAbilityEffect(cardId, owner) {
                                        b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
                                        b.isSweeper || _hasDynImg || b.isNormal || _hasAspect || _hasTrans;
 
-                    if (!_isSpecial) {
+                    // 光弾かつ変形なし・透明度なしの場合、光弾コア専用バッチで1回のfill()に集約して超高速化
+                    const _isSimpleLight = (b.bulletImage === 'light') && !_hasAspect && !_hasTrans &&
+                                           !b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam &&
+                                           !b.isGungnir && !b.isStar && !b.isBombPiece && !b.isTrail && !b.isSweeper;
+
+                    if (_isSimpleLight) {
+                        const _drawR = b.radius * 1.2;
+                        if (b.x < -_drawR - 4 || b.x > PLAY_WIDTH + _drawR + 4 || b.y < -_drawR - 4 || b.y > canvas.height + _drawR + 4) continue;
+                        _lightCoreXs.push(b.x);
+                        _lightCoreYs.push(b.y);
+                        _lightCoreRs.push(_drawR);
+                    } else if (!_isSpecial) {
                         // 通常の円弾のカリング
                         if (b.x < -b.radius - 4 || b.x > PLAY_WIDTH + b.radius + 4 || b.y < -b.radius - 4 || b.y > canvas.height + b.radius + 4) continue;
                         // バッチ用グループに追加
@@ -3544,6 +3554,20 @@ function applyAbilityEffect(cardId, owner) {
                         for (let _k = 0; _k < _g.xs.length; _k++) {
                             ctx.moveTo(_g.xs[_k] + _g.radius, _g.ys[_k]);
                             ctx.arc(_g.xs[_k], _g.ys[_k], _g.radius, 0, Math.PI * 2);
+                        }
+                        ctx.fill();
+                    }
+
+                    // バッチ光弾コア描画: 全ての光弾コア（白色円）をたった1回のfill()で超高速一括描画！
+                    if (window._globalLightCoreXs && window._globalLightCoreXs.length > 0) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.beginPath();
+                        const _lxs = window._globalLightCoreXs;
+                        const _lys = window._globalLightCoreYs;
+                        const _lrs = window._globalLightCoreRs;
+                        for (let _k = 0; _k < _lxs.length; _k++) {
+                            ctx.moveTo(_lxs[_k] + _lrs[_k], _lys[_k]);
+                            ctx.arc(_lxs[_k], _lys[_k], _lrs[_k], 0, Math.PI * 2);
                         }
                         ctx.fill();
                     }
@@ -4009,7 +4033,6 @@ function applyAbilityEffect(cardId, owner) {
                     let multlr = (b.multlr !== undefined) ? b.multlr : ((b.aslr !== undefined) ? b.aslr : (vars ? (vars.multlr !== undefined ? Number(vars.multlr) : (vars.aslr !== undefined ? Number(vars.aslr) : 1)) : 1));
                     if (isNaN(multlr) || multlr < 0) multlr = 1;
 
-                    ctx.save();
                     ctx.fillStyle = '#ffffff'; // 中央は白固定
                     if (multf === 1 && multlr === 1) {
                         ctx.beginPath();
@@ -4031,7 +4054,6 @@ function applyAbilityEffect(cardId, owner) {
                         ctx.fill();
                         ctx.setTransform(1, 0, 0, 1, 0, 0);
                     }
-                    ctx.restore();
                 } else {
                     let drawRadius = b.radius * 1.5;
                     let vars = (b.bulletState && b.bulletState.variables) ? b.bulletState.variables : null;
@@ -7284,27 +7306,23 @@ function applyAbilityEffect(cardId, owner) {
         window.getLightBulletTexture = function(color, radius) {
             if (!window.lightBulletTextureCache) window.lightBulletTextureCache = {};
             
-            let rVal = parseFloat(radius);
-            if (isNaN(rVal) || rVal <= 0) {
-                rVal = 1;
-            }
-
-            const cacheKey = `${color}_${rVal}`;
-            let cached = window.lightBulletTextureCache[cacheKey];
+            const cKey = color || '#ff3333';
+            let cached = window.lightBulletTextureCache[cKey];
             if (cached) return cached;
 
-            const size = Math.max(1, Math.ceil(rVal * 8));
+            // 固定サイズ 128x128 で色ごとに1度だけ作成（可変radiusや小数radiusでのキャッシュ爆発＆GCを完全防止）
+            const size = 128;
+            const center = 64;
+            const baseAuraRadius = 64; // キャンバス端まで目一杯使って透明余白ピクセルの無駄描画を完全排除
+            const coreRadius = 64 * (1.2 / 3.5); // 約 21.94
+
             const canvas = document.createElement('canvas');
             canvas.width = size;
             canvas.height = size;
             const ctx = canvas.getContext('2d');
 
-            const center = size / 2;
-            const baseAuraRadius = rVal * 3.5;
-            const coreRadius = rVal * 1.2;
-
             let grad = ctx.createRadialGradient(center, center, coreRadius * 0.5, center, center, baseAuraRadius);
-            let [r, g, bVal] = parseColorToRgb(color);
+            let [r, g, bVal] = parseColorToRgb(cKey);
 
             grad.addColorStop(0, `rgba(${r}, ${g}, ${bVal}, 1.0)`);
             grad.addColorStop(0.2, `rgba(${r}, ${g}, ${bVal}, 0.9)`);
@@ -7316,13 +7334,14 @@ function applyAbilityEffect(cardId, owner) {
             ctx.arc(center, center, baseAuraRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            window.lightBulletTextureCache[cacheKey] = {
+            cached = {
                 canvas: canvas,
                 size: size,
                 center: center,
                 baseAuraRadius: baseAuraRadius
             };
-            return window.lightBulletTextureCache[cacheKey];
+            window.lightBulletTextureCache[cKey] = cached;
+            return cached;
         };
 
         function evalExpr(expr, variables, block, key) {
