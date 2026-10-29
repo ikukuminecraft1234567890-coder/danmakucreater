@@ -498,6 +498,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                         syncAttackerFromEmitterVariables(state, attacker);
                         break;
                     }
+                                        case 'blend_set': {
+                        let mode = block.params.blend || 'lighter';
+                        state.variables.blend = mode;
+                        state.variables.additive = (mode === 'lighter');
+                        if (typeof b !== 'undefined' && b) {
+                            b.blend = mode;
+                            b.additive = (mode === 'lighter');
+                        }
+                        break;
+                    }
                     case 'bullet_image_set': {
                         let img = block.params.bulletImage || block.params.value || 'none';
                         if (typeof resolveBulletImageParam === 'function') {
@@ -641,6 +651,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 bulletType: type,
                                 customDmg: 20,
                                 isCustom: true,
+                                blend: (bp.blend === 'lighter' || bp.blend === 'true' || bp.blend === true || bp.additive === 'true' || bp.additive === true || bp.blendMode === 'lighter' || (state && state.variables && (state.variables.blend === 'lighter' || state.variables.additive === true || state.variables.additive === 'true'))) ? 'lighter' : 'source-over',
                                 transparency: Number(evalExpr(bp.transparency !== undefined ? bp.transparency : (bp.alpha !== undefined ? bp.alpha : (bp.opacity !== undefined ? bp.opacity : '0')), state.variables)) || 0,
                                 update: null
                             };
@@ -665,6 +676,9 @@ function stepEmitter(c, state, attacker, target, dt) {
                             }
                             if (bp.destroyResist === 'true' || bp.destroyResist === true || bp.resist === 'true' || bp.resist === true) {
                                 newBullet.destroyResist = true;
+                            }
+                            if (newBullet.blend === 'lighter') {
+                                newBullet.additive = true;
                             }
 
                             newBullet.threatWeight = computeBulletThreatWeight(
@@ -698,6 +712,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                             newBullet.bulletState.variables.angle = curAngle;
                             newBullet.bulletState.variables.transparency = newBullet.transparency;
                             newBullet.bulletState.variables.alpha = newBullet.transparency;
+                            newBullet.bulletState.variables.blend = newBullet.blend;
+                            newBullet.bulletState.variables.additive = (newBullet.blend === 'lighter');
                             if (isLife) {
                                 newBullet.bulletState.variables.health = newBullet.health;
                                 newBullet.bulletState.variables.maxHealth = newBullet.maxHealth;
@@ -706,7 +722,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let cVars = (bp.customVars && typeof bp.customVars === 'object') ? bp.customVars : bp;
                             if (cVars && typeof cVars === 'object') {
                                 for (let cvKey in cVars) {
-                                    if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'transparency', 'alpha', 'opacity', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
+                                    if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'transparency', 'alpha', 'opacity', 'blend', 'blendMode', 'blendmode', 'additive', 'isAdditive', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
                                     let cvRaw = cVars[cvKey];
                                     if (cvRaw === undefined || cvRaw === null || typeof cvRaw === 'object') continue;
                                     let cvVal = evalExpr(cvRaw, state.variables);
@@ -2495,6 +2511,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 break;
                             }
+                            case 'blend_set': {
+                                let mode = block.params.blend || 'lighter';
+                                state.variables.blend = mode;
+                                state.variables.additive = (mode === 'lighter');
+                                if (b) {
+                                    b.blend = mode;
+                                    b.additive = (mode === 'lighter');
+                                }
+                                break;
+                            }
                             case 'bullet_image_set': {
                                 let img = block.params.bulletImage || block.params.value || 'none';
                                 if (typeof resolveBulletImageParam === 'function') {
@@ -2590,6 +2616,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         bulletType: type,
                                         customDmg: 20,
                                         isCustom: true,
+                                        blend: (bp.blend === 'lighter' || bp.blend === 'true' || bp.blend === true || bp.additive === 'true' || bp.additive === true || bp.blendMode === 'lighter' || (state && state.variables && (state.variables.blend === 'lighter' || state.variables.additive === true || state.variables.additive === 'true'))) ? 'lighter' : 'source-over',
                                         transparency: Number(evalExpr(bp.transparency !== undefined ? bp.transparency : (bp.alpha !== undefined ? bp.alpha : (bp.opacity !== undefined ? bp.opacity : '0')), state.variables, block, 'transparency')) || 0,
                                         update: null
                                     };
@@ -2654,7 +2681,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let cVars = (bp.customVars && typeof bp.customVars === 'object') ? bp.customVars : bp;
                                     if (cVars && typeof cVars === 'object') {
                                         for (let cvKey in cVars) {
-                                            if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'transparency', 'alpha', 'opacity', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
+                                            if (['type', 'bulletType', 'image', 'bulletImage', 'speed', 'angle', 'radius', 'hitRadius', 'coordMode', 'isAbsolute', 'x', 'offsetX', 'y', 'offsetY', 'color', 'health', 'hp', 'life', 'way', 'count', 'distance', 'spread', 'distanceType', 'distancetype', 'distance_type', 'growTime', 'keepTime', 'shrinkTime', 'round', 'transparency', 'alpha', 'opacity', 'blend', 'blendMode', 'blendmode', 'additive', 'isAdditive', 'customVars', 'id', 'children', 'compiledFn', 'params', 'indent'].includes(cvKey)) continue;
                                             let cvRaw = cVars[cvKey];
                                             if (cvRaw === undefined || cvRaw === null || typeof cvRaw === 'object') continue;
                                             let cvVal = evalExpr(cvRaw, state.variables, block, cvKey);
@@ -3809,6 +3836,19 @@ function stepEmitter(c, state, attacker, target, dt) {
             let vColor = window.getBulletVar(state.variables, 'color');
             if (vColor !== undefined) {
                 b.color = vColor;
+            }
+            let vBlend = window.getBulletVar(state.variables, 'blend');
+            if (vBlend === undefined) vBlend = window.getBulletVar(state.variables, 'blendMode');
+            if (vBlend !== undefined) {
+                let blendStr = String(vBlend).trim().replace(/^['"]|['"]$/g, '');
+                b.blend = blendStr;
+            }
+            let vAdditive = window.getBulletVar(state.variables, 'additive');
+            if (vAdditive === undefined) vAdditive = window.getBulletVar(state.variables, 'isAdditive');
+            if (vAdditive !== undefined) {
+                let isAdd = (vAdditive === true || vAdditive === 'true' || vAdditive === 1 || vAdditive === '1');
+                b.blend = isAdd ? 'lighter' : 'source-over';
+                b.additive = isAdd;
             }
             let vRadius = window.getBulletVar(state.variables, 'radius');
             if (vRadius !== undefined) {

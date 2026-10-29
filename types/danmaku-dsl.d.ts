@@ -6,6 +6,7 @@
 declare type BulletType = 'normal' | 'trail' | 'laser';
 declare type BulletImage = 'ohuda' | 'kome' | 'star' | 'b_star' | 'onmyoutama' | 'marutama' | 'ootama' | 'poihuru' | 'uroko' | 'sword' | 'knife' | 'kunai1' | 'kunai2' | 'virus' | 'dangan' | 'tyoudan' | 'butterfly' | 'onryou_red' | 'onryou_blue' | 'onryou_green' | 'onryou_yellow' | 'onryou' | 'onryou_light_red' | 'onryou_light_blue' | 'onryou_light_green' | 'onryou_light_yellow' | 'onryou_light' | 'mahoujin' | 'mahoujin64' | 'mahoujin128' | 'none';
 declare type CoordMode = 'relative' | 'absolute';
+declare type BlendMode = 'lighter' | 'source-over';
 declare type EasingType = 'linear' | 'easeIn' | 'easeOut' | 'easeInOut';
 declare type TweenMode = 'seconds' | 'frames' | 'step' | 'vecstep';
 declare type SoundName = 'shot' | 'tan00' | 'kira00' | 'cat00' | 'damage00' | 'damage01' | 'cardget' | 'fault' | 'pldead00' | 'timeout';
@@ -24,6 +25,45 @@ declare type SoundName = 'shot' | 'tan00' | 'kira00' | 'cat00' | 'damage00' | 'd
  * @param coordMode 座標空間 ('relative' | 'absolute')
  * @param hitRadius 当たり判定半径 (例: 6)
  */
+
+export interface BulletOptions {
+    type?: BulletType | 'life';
+    bulletType?: BulletType | 'life';
+    color?: string;
+    speed?: number | string;
+    angle?: number | string;
+    radius?: number | string;
+    hitRadius?: number | string;
+    image?: BulletImage | string;
+    bulletImage?: BulletImage | string;
+    coordMode?: CoordMode;
+    isAbsolute?: boolean | string;
+    x?: number | string;
+    y?: number | string;
+    offsetX?: number | string;
+    offsetY?: number | string;
+    way?: number | string;
+    count?: number | string;
+    distance?: number | string;
+    distanceType?: 'total' | 'step';
+    destroyResist?: boolean | string;
+    resist?: boolean | string;
+    health?: number | string;
+    blend?: BlendMode | string;
+    additive?: boolean | string;
+    growTime?: number | string;
+    keepTime?: number | string;
+    shrinkTime?: number | string;
+    round?: boolean | string;
+    transparency?: number | string;
+    [key: string]: any;
+}
+
+/**
+ * 統合版 汎用弾を発射します。
+ */
+declare function bullet(options: BulletOptions): void;
+
 declare function spawnRing(
     bulletType: BulletType,
     color: string,
@@ -264,3 +304,8 @@ declare let second: number;
 declare let frame: number;
 /** 弾画像の回転角度 */
 declare let spriteAngle: number;
+
+/** 弾の合成モード ('lighter' または 'source-over') */
+declare let blend: BlendMode | string;
+/** 加算合成フラグ */
+declare let additive: boolean;

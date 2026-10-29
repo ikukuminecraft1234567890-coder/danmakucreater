@@ -1758,6 +1758,24 @@
             }
 
             keyboardState[e.key] = true;
+            if (e.code) keyboardState[e.code] = true;
+
+            // F+J 同時押しによるオートよけモード切り替え
+            const isF = keyboardState['f'] || keyboardState['F'] || keyboardState['KeyF'];
+            const isJ = keyboardState['j'] || keyboardState['J'] || keyboardState['KeyJ'];
+            if (isF && isJ) {
+                if (!window._autoDodgeKeyTriggered) {
+                    window._autoDodgeKeyTriggered = true;
+                    if (typeof window.toggleAutoDodge === 'function') {
+                        window.toggleAutoDodge();
+                    } else {
+                        window.autoDodgeMode = !window.autoDodgeMode;
+                        if (typeof window.playSound === 'function') {
+                            window.playSound(window.autoDodgeMode ? 'se_cardget' : 'change');
+                        }
+                    }
+                }
+            }
 
             // 1. タイトル画面表示中（メニュー操作時）のキーボード・仮想フォーカス処理
             const titleScreen = document.getElementById('titleScreen');
@@ -1830,16 +1848,24 @@
 
         window.addEventListener('keyup', e => {
             keyboardState[e.key] = false;
+            if (e.code) keyboardState[e.code] = false;
+            const isF = keyboardState['f'] || keyboardState['F'] || keyboardState['KeyF'];
+            const isJ = keyboardState['j'] || keyboardState['J'] || keyboardState['KeyJ'];
+            if (!isF || !isJ) {
+                window._autoDodgeKeyTriggered = false;
+            }
         });
 
         // ウィンドウのフォーカスが外れた瞬間に全キーをリセット
         // （被弾エフェクト等の演出でフォーカスが移動し keyup が届かない "スタック" バグの防止）
         window.addEventListener('blur', () => {
             for (let k in keyboardState) keyboardState[k] = false;
+            window._autoDodgeKeyTriggered = false;
         });
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 for (let k in keyboardState) keyboardState[k] = false;
+                window._autoDodgeKeyTriggered = false;
             }
         });
 

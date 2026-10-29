@@ -86,6 +86,9 @@ function customCardMakerSwitchTab(tab) {
                 block.type = 'set_var';
                 block.params.name = 'color';
                 block.params.value = '#33ffff';
+            } else if (type === 'blend_set') {
+                block.type = 'blend_set';
+                block.params.blend = 'lighter';
             } else if (type === 'bullet_image_set') {
                 block.type = 'bullet_image_set';
                 block.params.bulletImage = 'redeye';
@@ -119,6 +122,7 @@ function customCardMakerSwitchTab(tab) {
                 block.params.distance = '';
                 block.params.distanceType = 'total';
                 block.params.destroyResist = 'false';
+                block.params.blend = 'source-over';
                 block.params.growTime = '0.2';
                 block.params.keepTime = '0.3';
                 block.params.shrinkTime = '0.5';
@@ -704,6 +708,7 @@ function customCardMakerSwitchTab(tab) {
             setDisplay('palette-btn-angle-set', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-color-set', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-bullet-image-set', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-blend-set', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-slow', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-fast', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-bounce', isBulletTab ? 'block' : 'none');
@@ -1048,6 +1053,7 @@ function customCardMakerSwitchTab(tab) {
                                     <label style="margin-left:4px; font-size:11px; cursor:pointer;"><input type="checkbox" ${b.params.round === 'true' || b.params.round === true || b.params.round === undefined ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'round', this.checked ? 'true' : 'false')">丸</label>
                                 ` : ''}
                                 <label style="margin-left:4px; font-size:11px; cursor:pointer;" title="ボム等の弾消し耐性（HP破壊やボムダメージは有効）"><input type="checkbox" ${(b.params.destroyResist === 'true' || b.params.destroyResist === true) ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'destroyResist', this.checked ? 'true' : 'false')">耐性</label>
+                                <label style="margin-left:4px; font-size:11px; cursor:pointer; color:#ffee77;" title="弾を加算合成（lighter）で描画して光らせます"><input type="checkbox" ${(b.params.blend === 'lighter' || b.params.blend === 'true' || b.params.blend === true || b.params.additive === 'true' || b.params.additive === true) ? 'checked' : ''} onchange="customCardMakerUpdateParam(${idx}, 'blend', this.checked ? 'lighter' : 'source-over')">加算合成</label>
                                 <button type="button" class="menu-btn" style="min-width:24px; height:22px; padding:0 5px; font-size:11px; margin-left:4px;" onclick="customCardMakerAddBulletCustomVar(${idx})" title="この弾専用の変数を追加">+変数</button>
                                 ${renderBlockControls(idx)}
                                 ${customVarsHtml}
@@ -1585,6 +1591,17 @@ function customCardMakerSwitchTab(tab) {
                             `;
                             break;
                         }
+                        case 'blend_set':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] 合成モード:</span>
+                                <select onchange="customCardMakerUpdateParam(${idx}, 'blend', this.value)">
+                                    <option value="lighter" ${b.params.blend !== 'source-over' ? 'selected' : ''}>加算合成 (lighter)</option>
+                                    <option value="source-over" ${b.params.blend === 'source-over' ? 'selected' : ''}>通常合成 (source-over)</option>
+                                </select>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
                         case 'bounce':
                             blockDiv.className = 'maker-block color-motion';
                             html = `
@@ -2471,6 +2488,9 @@ function customCardMakerSwitchMode(mode) {
                         if (bp.destroyResist === 'true' || bp.destroyResist === true || bp.resist === 'true' || bp.resist === true) {
                             parts.push(`"destroyResist": true`);
                         }
+                        if (bp.blend === 'lighter' || bp.blend === 'true' || bp.blend === true || bp.additive === 'true' || bp.additive === true || bp.blendMode === 'lighter') {
+                            parts.push(`"blend": "lighter"`);
+                        }
                         if (bp.bulletType === 'life') {
                             parts.push(`"health": ${bp.health !== undefined ? bp.health : '200'}`);
                         }
@@ -2722,6 +2742,11 @@ function customCardMakerSwitchMode(mode) {
                         line = `${fnName}(${b.params.from}, ${b.params.to}, "${b.params.mode}", ${b.params.duration}${easingStr})`;
                         break;
                     }
+                    case 'blend_set': {
+                        let mode = b.params.blend || 'lighter';
+                        line = `blend = "${mode}"`;
+                        break;
+                    }
                     case 'bounce':
                         line = `bounce()`;
                         break;
@@ -2840,6 +2865,7 @@ function customCardMakerSwitchMode(mode) {
                 color: '#ff3333',
                 health: '200',
                 destroyResist: 'false',
+                blend: 'source-over',
                 way: '1',
                 distance: '',
                 distanceType: 'total',
@@ -3001,6 +3027,16 @@ function customCardMakerSwitchMode(mode) {
                         result.health = v;
                         break;
                     case 'destroyresist':
+                    case 'blend':
+                    case 'blendmode':
+                    case 'blendMode':
+                    case 'additive':
+                    case 'isadditive':
+                    case 'isAdditive':
+                    case 'lighter':
+                        result.blend = (vUnquoted === 'lighter' || vUnquoted === 'true' || v === 'true' || v === true) ? 'lighter' : 'source-over';
+                        result.additive = (result.blend === 'lighter') ? 'true' : 'false';
+                        break;
                     case 'destroyResist':
                     case 'resist':
                     case 'isresist':
@@ -3512,12 +3548,26 @@ function customCardMakerSwitchMode(mode) {
                         };
                     }
                     if (!block) {
-                        let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
-                        if (mChange) block = { type: 'change_var', params: { name: mChange[1], op: mChange[2], value: mChange[3] }, indent };
-                        else {
-                            let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
-                            if (mConst) block = { type: 'const_var', params: { name: mConst[2], value: mConst[3] }, indent };
-                            else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) block = { type: 'set_var', params: { name: mSet[1], value: mSet[2] }, indent }; }
+                        let mBlend = trimmed.match(/^blend\s*=\s*(.+)$/i);
+                        if (mBlend) {
+                            let rawVal = mBlend[1].trim().replace(/^['"]|['"]$/g, '').toLowerCase();
+                            let mode = (rawVal === 'lighter' || rawVal === 'true' || rawVal === '1') ? 'lighter' : 'source-over';
+                            block = { type: 'blend_set', params: { blend: mode }, indent };
+                        } else {
+                            let mAdditive = trimmed.match(/^additive\s*=\s*(.+)$/i);
+                            if (mAdditive) {
+                                let rawVal = mAdditive[1].trim().replace(/^['"]|['"]$/g, '').toLowerCase();
+                                let mode = (rawVal === 'true' || rawVal === '1' || rawVal === 'lighter') ? 'lighter' : 'source-over';
+                                block = { type: 'blend_set', params: { blend: mode }, indent };
+                            } else {
+                                let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
+                                if (mChange) block = { type: 'change_var', params: { name: mChange[1], op: mChange[2], value: mChange[3] }, indent };
+                                else {
+                                    let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                    if (mConst) block = { type: 'const_var', params: { name: mConst[2], value: mConst[3] }, indent };
+                                    else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) block = { type: 'set_var', params: { name: mSet[1], value: mSet[2] }, indent }; }
+                                }
+                            }
                         }
                     }
                     return block;
@@ -4231,17 +4281,31 @@ function customCardMakerSwitchMode(mode) {
                 }
                 
                 if (!block) {
-                    let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
-                    if (mChange) {
-                        block = {
-                            type: 'change_var',
-                            params: { name: mChange[1].trim(), op: mChange[2], value: mChange[3].trim() },
-                            indent: indent
-                        };
+                    let mBlendLegacy = trimmed.match(/^blend\s*=\s*(.+)$/i);
+                    if (mBlendLegacy) {
+                        let rawVal = mBlendLegacy[1].trim().replace(/^['"]|['"]$/g, '').toLowerCase();
+                        let mode = (rawVal === 'lighter' || rawVal === 'true' || rawVal === '1') ? 'lighter' : 'source-over';
+                        block = { type: 'blend_set', params: { blend: mode }, indent: indent };
                     } else {
-                        let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
-                            if (mConst) { block = { type: 'const_var', params: { name: mConst[2].trim(), value: mConst[3].trim() }, indent: indent }; }
-                            else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) { block = { type: 'set_var', params: { name: mSet[1].trim(), value: mSet[2].trim() }, indent: indent }; } }
+                        let mAdditiveLegacy = trimmed.match(/^additive\s*=\s*(.+)$/i);
+                        if (mAdditiveLegacy) {
+                            let rawVal = mAdditiveLegacy[1].trim().replace(/^['"]|['"]$/g, '').toLowerCase();
+                            let mode = (rawVal === 'true' || rawVal === '1' || rawVal === 'lighter') ? 'lighter' : 'source-over';
+                            block = { type: 'blend_set', params: { blend: mode }, indent: indent };
+                        } else {
+                            let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
+                            if (mChange) {
+                                block = {
+                                    type: 'change_var',
+                                    params: { name: mChange[1].trim(), op: mChange[2], value: mChange[3].trim() },
+                                    indent: indent
+                                };
+                            } else {
+                                let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                if (mConst) { block = { type: 'const_var', params: { name: mConst[2].trim(), value: mConst[3].trim() }, indent: indent }; }
+                                else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) { block = { type: 'set_var', params: { name: mSet[1].trim(), value: mSet[2].trim() }, indent: indent }; } }
+                            }
+                        }
                     }
                 }
                 

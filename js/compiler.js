@@ -86,6 +86,10 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `  state.waitTimer = (${framesExpr}) / 60;\n`;
             js += ind + `  yield;\n`;
             js += ind + `}\n`;
+        } else if (t === 'blend_set') {
+            let mode = JSON.stringify(block.params.blend || 'lighter');
+            js += ind + `vars['blend'] = ${mode};\n`;
+            js += ind + `if (b) b.blend = ${mode};\n`;
         } else if (t === 'bullet_image_set') {
             let img = JSON.stringify(block.params.bulletImage || block.params.value || 'none');
             js += ind + `vars['bulletImage'] = ${img};\n`;
@@ -111,6 +115,10 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                     js += ind + `vars['${varName}'] = ${valExpr};\n`;
                     if (varName === 'image' || varName === 'bulletImage') {
                         js += ind + `if (b) b.bulletImage = String(${valExpr}).replace(/^['"]|['"]$/g, '');\n`;
+                    } else if (varName === 'blend' || varName === 'blendMode') {
+                        js += ind + `if (b) b.blend = String(${valExpr}).replace(/^['"]|['"]$/g, '');\n`;
+                    } else if (varName === 'additive') {
+                        js += ind + `if (b) b.blend = (${valExpr}) ? 'lighter' : 'source-over';\n`;
                     }
                 }
             }

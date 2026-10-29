@@ -87,6 +87,22 @@ window.DanmakuCompilerRuntime._getCurrentY = (b, attacker, state, canvasHeight) 
     return attacker.y;
 };
 
+
+function isBulletAdditive(b) {
+    if (!b) return false;
+    if (b.blend === 'lighter' || b.blend === true || b.blend === 'true' || b.blendMode === 'lighter' || b.additive === true || b.additive === 'true' || b.isAdditive === true || b.isAdditive === 'true') return true;
+    const vars = b.bulletState ? b.bulletState.variables : null;
+    if (vars) {
+        if (vars.blend === 'lighter' || vars.blend === true || vars.blend === 'true' || vars.blend === 1 || vars.blend === '1') return true;
+        if (vars.blendMode === 'lighter' || vars.blendmode === 'lighter') return true;
+        if (vars.additive === true || vars.additive === 'true' || vars.additive === 1 || vars.additive === '1') return true;
+        if (vars.isAdditive === true || vars.isAdditive === 'true' || vars.isAdditive === 1 || vars.isAdditive === '1') return true;
+        if (vars['加算合成'] === true || vars['加算合成'] === 'true' || vars['加算合成'] === 1 || vars['加算合成'] === '1') return true;
+    }
+    return false;
+}
+window.isBulletAdditive = isBulletAdditive;
+
 window._pendingLayerBullets = [];
 window.requestBulletLayerChange = function(b, action) {
     if (!b) return;
@@ -1672,6 +1688,550 @@ function applyAbilityEffect(cardId, owner) {
         }
         window.handleBossDefeat = handleBossDefeat;
 
+// ========================================================
+// 【オートよけ機能】9方向スコアリング自機自動回避AI
+// ========================================================
+window.autoDodgeMode = false;
+window.toggleAutoDodge = function() {
+    window.autoDodgeMode = !window.autoDodgeMode;
+    if (typeof window.playSound === 'function') {
+        window.playSound(window.autoDodgeMode ? 'se_cardget' : 'change');
+    }
+    console.log(`[AutoDodge] ${window.autoDodgeMode ? 'ON 🛡️' : 'OFF'}`);
+};
+
+function calculateAutoDodge(player, bullets, canvas, dt) {
+    const playW = (typeof PLAY_WIDTH !== 'undefined') ? PLAY_WIDTH : (canvas ? canvas.width : 560);
+    const cH = canvas ? canvas.height : 896;
+    const playBottom = cH - 24;
+    const stepDt = (dt && dt > 0 && dt < 0.1) ? dt : (1 / 60);
+
+    // 画面端の移動制限境界（tickSimulationのクランプと完全一致）
+    const boundMargin = player.grazeRadius || 30;
+    const minX = boundMargin;
+    const maxX = playW - boundMargin;
+    const minY = boundMargin;
+    const maxY = playBottom - boundMargin;
+
+    // 実際の当たり判定(2.25px)に安全マージン(+4.5px)を加えた回避判定半径
+    const rawHitR = player.hitboxRadius || 2.25;
+    const safePlayerR = rawHitR + 4.5;
+
+    // 敵（ボス）の目標X座標を特定（描画およびエネミーマーカーと同一の cpu.x を参照）
+    let targetX = playW / 2;
+    if (typeof cpu !== 'undefined' && cpu && typeof cpu.x === 'number' && !isNaN(cpu.x)) {
+        targetX = cpu.x;
+    }
+    targetX = Math.max(minX + 4, Math.min(maxX - 4, targetX));
+
+    // 敵弾の抽出＆実効速度ベクトルの事前計算（スクリプト直接座標操作・tween弾にも対応）
+    const enemyBullets = [];
+    for (let i = 0; i < bullets.length; i++) {
+        const b = bullets[i];
+        if (!b || b._dead || b.isDestroyed || b.team === 'PLAYER' || b.isBombPiece) continue;
+        if (b.hitRadius === 0 || b.isResting) continue;
+
+        let bVx = b.vx || 0;
+        let bVy = b.vy || 0;
+        if (bVx === 0 && bVy === 0 && b._autoPrevX !== undefined && b._autoPrevY !== undefined) {
+            const estVx = (b.x - b._autoPrevX) / stepDt;
+            const estVy = (b.y - b._autoPrevY) / stepDt;
+            if (Math.abs(estVx) < 2500 && Math.abs(estVy) < 2500) {
+                bVx = estVx;
+                bVy = estVy;
+            }
+        }
+        b._autoPrevX = b.x;
+        b._autoPrevY = b.y;
+        b._effVx = bVx;
+        b._effVy = bVy;
+
+        const isLongRange = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam || b.isGungnir || b.isTrail;
+        if (!isLongRange) {
+            const dx = b.x - player.x;
+            const dy = b.y - player.y;
+            if (dx * dx + dy * dy > 320 * 320) continue;
+        }
+        enemyBullets.push(b);
+    }
+
+    // 9方向の基本ベクトル
+    const rawDirs = [
+        { x: 0, y: 0 },
+        { x: -1, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 1 },
+        { x: 1, y: 1 },
+        { x: 0, y: -1 },
+        { x: -1, y: -1 },
+        { x: 1, y: -1 }
+    ];
+
+    // 静止(1) + 8方向×(通常移動・低速移動) = 17候補
+    const candidates = [];
+    for (let i = 0; i < rawDirs.length; i++) {
+        const d = rawDirs[i];
+        let nx = d.x;
+        let ny = d.y;
+        if (nx !== 0 && ny !== 0) {
+            nx *= 0.70710678;
+            ny *= 0.70710678;
+        }
+        if (d.x === 0 && d.y === 0) {
+            candidates.push({ dx: 0, dy: 0, rawX: 0, rawY: 0, isSlow: false });
+        } else {
+            candidates.push({ dx: nx, dy: ny, rawX: d.x, rawY: d.y, isSlow: false });
+            candidates.push({ dx: nx, dy: ny, rawX: d.x, rawY: d.y, isSlow: true });
+        }
+    }
+
+    // 2段階連続予測ホライズン:
+    // Phase A (0 〜 T_STEP=0.045s): 直近ステップ移動中の連続スイープ判定（すり抜け完全防止）
+    // Phase B (T_STEP 〜 T_HORIZON=0.18s): ステップ後に「停止(Hold)」または「継続移動(Continue)」の安全な方の未来リスクを採用
+    // → これにより上方の落下弾の下を駆け抜ける動き（切り返し・ボス真下への潜り込み）が阻害されない
+    const T_STEP = 0.045;
+    const T_HORIZON = 0.18;
+    const TAU_MAX = T_HORIZON - T_STEP;
+    const LINE_SAMPLES = [0.0, stepDt, 0.03, T_STEP, 0.09, 0.13, T_HORIZON];
+
+    const curDistX = Math.abs(player.x - targetX);
+    const homeY = cH * 0.82;
+    const maxStepDist = (player.speed || 405) * stepDt;
+
+    let bestScore = -Infinity;
+    let bestCand = candidates[0];
+
+    for (let c = 0; c < candidates.length; c++) {
+        const cand = candidates[c];
+        const spd = cand.isSlow ? (player.slowSpeed || 135) : (player.speed || 405);
+        const cmdVx = cand.dx * spd;
+        const cmdVy = cand.dy * spd;
+
+        const unclampedNextX = player.x + cmdVx * stepDt;
+        const unclampedNextY = player.y + cmdVy * stepDt;
+        const nextPx = Math.max(minX, Math.min(maxX, unclampedNextX));
+        const nextPy = Math.max(minY, Math.min(maxY, unclampedNextY));
+
+        const unclampedStepX = player.x + cmdVx * T_STEP;
+        const unclampedStepY = player.y + cmdVy * T_STEP;
+        const pStepX = Math.max(minX, Math.min(maxX, unclampedStepX));
+        const pStepY = Math.max(minY, Math.min(maxY, unclampedStepY));
+
+        const effVpx = (pStepX - player.x) / T_STEP;
+        const effVpy = (pStepY - player.y) / T_STEP;
+
+        const pContEndX = Math.max(minX, Math.min(maxX, player.x + cmdVx * T_HORIZON));
+        const pContEndY = Math.max(minY, Math.min(maxY, player.y + cmdVy * T_HORIZON));
+        const contVpx = (pContEndX - pStepX) / TAU_MAX;
+        const contVpy = (pContEndY - pStepY) / TAU_MAX;
+
+        let hitPenaltyA = 0;
+        let proxPenaltyA = 0;
+        let futurePenaltyHold = 0;
+        let futurePenaltyCont = 0;
+        let minClearanceA = Infinity;
+
+        // 壁への押し付けペナルティ
+        if (unclampedStepX < minX || unclampedStepX > maxX) {
+            hitPenaltyA += 3500;
+        }
+        if (unclampedStepY < minY || unclampedStepY > maxY) {
+            hitPenaltyA += 3500;
+        }
+
+        // 全敵弾を走査（途中でbreakせず全弾の危険度を合算）
+        for (let bIdx = 0; bIdx < enemyBullets.length; bIdx++) {
+            const b = enemyBullets[bIdx];
+            const bVx = b._effVx;
+            const bVy = b._effVy;
+            const bHitR = (typeof getBulletHitRadius === 'function') ? getBulletHitRadius(b) : (b.hitRadius || b.radius || 8);
+
+            let clA = Infinity;
+            let tA = T_STEP;
+            let clBHold = Infinity;
+            let tBHold = T_HORIZON;
+            let clBCont = Infinity;
+            let tBCont = T_HORIZON;
+
+            if (b.isBeam) {
+                const isWarn = !!b.isWarning;
+                const cycleTime = (b.lifeTimer || 0) % 7.0;
+                const beamHalfW = isWarn ? ((b.warningWidth || 180) * 0.5) : (b.radius || 90);
+                const totalR = beamHalfW + safePlayerR;
+                const ang = (b.angle !== undefined) ? b.angle : (Math.PI / 2);
+                const cosA = Math.cos(ang);
+                const sinA = Math.sin(ang);
+                const beamLen = b.laserLength || 1200;
+
+                for (let s = 0; s < LINE_SAMPLES.length; s++) {
+                    const t = LINE_SAMPLES[s];
+                    const mt = Math.min(t, T_STEP);
+                    const px = player.x + effVpx * mt;
+                    const py = player.y + effVpy * mt;
+                    const rx = px - b.x;
+                    const ry = py - b.y;
+                    const along = rx * cosA + ry * sinA;
+                    const perp = Math.abs(-rx * sinA + ry * cosA);
+                    if (along > -safePlayerR && along < beamLen) {
+                        const cl = (isWarn && cycleTime < 0.45) ? Math.max(2, perp - totalR) : (perp - totalR);
+                        if (t <= T_STEP) {
+                            if (cl < clA) { clA = cl; tA = t; }
+                        } else {
+                            if (cl < clBHold) { clBHold = cl; tBHold = t; }
+                            if (cl < clBCont) { clBCont = cl; tBCont = t; }
+                        }
+                    }
+                }
+            } else if (b.isWarningLaser && b.bulletState) {
+                const vars = b.bulletState.variables || {};
+                let rad = (Number(vars.angle) || 0) * Math.PI / 180;
+                if (b.bulletState.isPlayerSide) rad = -rad;
+                const x1 = b.x, y1 = b.y;
+                const x2 = x1 + Math.cos(rad) * 1200;
+                const y2 = y1 + Math.sin(rad) * 1200;
+                const C = x2 - x1, D = y2 - y1;
+                const lenSq = C * C + D * D || 1;
+                const lHalfW = (typeof getLaserWidth === 'function' ? getLaserWidth(b) : 12) * 0.5;
+                const totalR = lHalfW + safePlayerR + 4;
+
+                const warnT = parseFloat(vars.warningTime) || 1.0;
+                const laserStart = vars.laserStartTime || 0;
+                const remWarn = warnT - Math.max(0, (vars.timer || 0) - laserStart);
+
+                const A = pStepX - x1, B = pStepY - y1;
+                const param = Math.max(0, Math.min(1, (A * C + B * D) / lenSq));
+                const dist = Math.hypot(pStepX - (x1 + param * C), pStepY - (y1 + param * D));
+                const rawCl = dist - totalR;
+                if (remWarn < 0.30) {
+                    clA = rawCl; tA = Math.max(0.01, remWarn * 0.2);
+                    clBHold = rawCl; clBCont = rawCl;
+                } else {
+                    clA = Math.max(8, rawCl);
+                    clBHold = clA; clBCont = clA;
+                }
+            } else if (b.isLaser) {
+                const lHalfW = (typeof getLaserWidth === 'function' ? getLaserWidth(b) : 12) * 0.5;
+                const totalR = lHalfW + safePlayerR;
+
+                if (b.isCustomBeam && b.bulletState) {
+                    const vars = b.bulletState.variables || {};
+                    let rad = (Number(vars.angle) || 0) * Math.PI / 180;
+                    if (b.bulletState.isPlayerSide) rad = -rad;
+                    const x1 = b.x, y1 = b.y;
+                    const x2 = x1 + Math.cos(rad) * 1200;
+                    const y2 = y1 + Math.sin(rad) * 1200;
+                    const C = x2 - x1, D = y2 - y1;
+                    const lenSq = C * C + D * D || 1;
+
+                    for (let s = 0; s < 4; s++) {
+                        const t = LINE_SAMPLES[s];
+                        const px = player.x + effVpx * t;
+                        const py = player.y + effVpy * t;
+                        const param = Math.max(0, Math.min(1, ((px - x1) * C + (py - y1) * D) / lenSq));
+                        const dist = Math.hypot(px - (x1 + param * C), py - (y1 + param * D));
+                        const cl = dist - totalR;
+                        if (cl < clA) { clA = cl; tA = t; }
+                    }
+                    clBHold = clA; clBCont = clA;
+                } else {
+                    const speed = Math.hypot(bVx, bVy) || 1;
+                    const dirX = bVx / speed;
+                    const dirY = bVy / speed;
+                    const len = b.laserLength || 80;
+                    const C = -dirX * len;
+                    const D = -dirY * len;
+                    const lenSq = C * C + D * D || 1;
+
+                    for (let s = 0; s < LINE_SAMPLES.length; s++) {
+                        const t = LINE_SAMPLES[s];
+                        const mt = Math.min(t, T_STEP);
+                        const px = player.x + effVpx * mt;
+                        const py = player.y + effVpy * mt;
+                        const x1 = b.x + bVx * t;
+                        const y1 = b.y + bVy * t;
+                        const param = Math.max(0, Math.min(1, ((px - x1) * C + (py - y1) * D) / lenSq));
+                        const dist = Math.hypot(px - (x1 + param * C), py - (y1 + param * D));
+                        const cl = dist - totalR;
+                        if (t <= T_STEP) {
+                            if (cl < clA) { clA = cl; tA = t; }
+                        } else {
+                            if (cl < clBHold) { clBHold = cl; tBHold = t; }
+                            if (cl < clBCont) { clBCont = cl; tBCont = t; }
+                        }
+                    }
+                }
+            } else if (b.isTrail) {
+                const hitR = b.hitRadius !== undefined ? Number(b.hitRadius) : ((b.radius || 8) * 0.60);
+                const totalR = hitR + safePlayerR;
+                if (!b.isHeadDead) {
+                    const R0x = player.x - b.x, R0y = player.y - b.y;
+                    const VrelX = effVpx - bVx, VrelY = effVpy - bVy;
+                    const vRelSq = VrelX * VrelX + VrelY * VrelY;
+                    const tClose = vRelSq > 0.0001 ? Math.max(0, Math.min(T_STEP, -(R0x * VrelX + R0y * VrelY) / vRelSq)) : 0;
+                    clA = Math.hypot(R0x + VrelX * tClose, R0y + VrelY * tClose) - totalR;
+                    tA = tClose;
+                }
+                const history = b.trailHistory || [];
+                const step = history.length > 20 ? 2 : 1;
+                for (let k = 0; k < history.length - 1; k += step) {
+                    const p1 = history[k];
+                    const p2 = history[Math.min(history.length - 1, k + step)];
+                    const C = p2.x - p1.x, D = p2.y - p1.y;
+                    const lenSq = C * C + D * D;
+                    const param = lenSq > 0 ? Math.max(0, Math.min(1, ((pStepX - p1.x) * C + (pStepY - p1.y) * D) / lenSq)) : 0;
+                    const d = Math.hypot(pStepX - (p1.x + param * C), pStepY - (p1.y + param * D)) - totalR;
+                    if (d < clA) { clA = d; tA = stepDt; }
+                }
+            } else if (b.bulletImage === 'sword') {
+                const speed = Math.hypot(bVx, bVy) || 1;
+                const dirX = bVx / speed;
+                const dirY = bVy / speed;
+                const step = bHitR * 1.3;
+                const totalR = bHitR + safePlayerR;
+                const VrelX = effVpx - bVx;
+                const VrelY = effVpy - bVy;
+                const vRelSq = VrelX * VrelX + VrelY * VrelY;
+                const bSpdSq = bVx * bVx + bVy * bVy;
+                const VrelContX = contVpx - bVx;
+                const VrelContY = contVpy - bVy;
+                const vRelContSq = VrelContX * VrelContX + VrelContY * VrelContY;
+
+                for (let k = 0; k <= 4; k++) {
+                    const cx0 = b.x + dirX * (k * step);
+                    const cy0 = b.y + dirY * (k * step);
+                    const R0x = player.x - cx0;
+                    const R0y = player.y - cy0;
+
+                    const tkA = vRelSq > 0.0001 ? Math.max(0, Math.min(T_STEP, -(R0x * VrelX + R0y * VrelY) / vRelSq)) : 0;
+                    const dkA = Math.hypot(R0x + VrelX * tkA, R0y + VrelY * tkA) - totalR;
+                    if (dkA < clA) { clA = dkA; tA = tkA; }
+
+                    const cStepX = cx0 + bVx * T_STEP;
+                    const cStepY = cy0 + bVy * T_STEP;
+                    const RBx = pStepX - cStepX;
+                    const RBy = pStepY - cStepY;
+
+                    const tauHold = bSpdSq > 0.0001 ? Math.max(0, Math.min(TAU_MAX, (RBx * bVx + RBy * bVy) / bSpdSq)) : 0;
+                    const dkHold = Math.hypot(RBx - bVx * tauHold, RBy - bVy * tauHold) - totalR;
+                    if (dkHold < clBHold) { clBHold = dkHold; tBHold = T_STEP + tauHold; }
+
+                    const tauCont = vRelContSq > 0.0001 ? Math.max(0, Math.min(TAU_MAX, -(RBx * VrelContX + RBy * VrelContY) / vRelContSq)) : 0;
+                    const dkCont = Math.hypot(RBx + VrelContX * tauCont, RBy + VrelContY * tauCont) - totalR;
+                    if (dkCont < clBCont) { clBCont = dkCont; tBCont = T_STEP + tauCont; }
+                }
+            } else {
+                const aspectData = (typeof getAspectBulletHitData === 'function') ? getAspectBulletHitData(b, bHitR) : null;
+                if (aspectData && aspectData.isAspect) {
+                    const effRx = Math.max(1, aspectData.rx + safePlayerR);
+                    const effRy = Math.max(1, aspectData.ry + safePlayerR);
+                    const scaleR = Math.min(effRx, effRy);
+                    const dirX = aspectData.dirX;
+                    const dirY = aspectData.dirY;
+
+                    const dx0 = player.x - aspectData.centerX;
+                    const dy0 = player.y - aspectData.centerY;
+                    const nx0 = (-dx0 * dirY + dy0 * dirX) / effRx;
+                    const ny0 = (dx0 * dirX + dy0 * dirY) / effRy;
+
+                    const VrelX = effVpx - bVx;
+                    const VrelY = effVpy - bVy;
+                    const vnx = (-VrelX * dirY + VrelY * dirX) / effRx;
+                    const vny = (VrelX * dirX + VrelY * dirY) / effRy;
+                    const vnSq = vnx * vnx + vny * vny;
+
+                    tA = vnSq > 0.000001 ? Math.max(0, Math.min(T_STEP, -(nx0 * vnx + ny0 * vny) / vnSq)) : 0;
+                    const uA = Math.hypot(nx0 + vnx * tA, ny0 + vny * tA);
+                    clA = (uA - 1.0) * scaleR;
+
+                    const cStepX = aspectData.centerX + bVx * T_STEP;
+                    const cStepY = aspectData.centerY + bVy * T_STEP;
+                    const dxB = pStepX - cStepX;
+                    const dyB = pStepY - cStepY;
+                    const nxB = (-dxB * dirY + dyB * dirX) / effRx;
+                    const nyB = (dxB * dirX + dyB * dirY) / effRy;
+
+                    // Hold
+                    const bnx = (-bVx * dirY + bVy * dirX) / effRx;
+                    const bny = (bVx * dirX + bVy * dirY) / effRy;
+                    const bnSq = bnx * bnx + bny * bny;
+                    const tauHold = bnSq > 0.000001 ? Math.max(0, Math.min(TAU_MAX, (nxB * bnx + nyB * bny) / bnSq)) : 0;
+                    clBHold = (Math.hypot(nxB - bnx * tauHold, nyB - bny * tauHold) - 1.0) * scaleR;
+                    tBHold = T_STEP + tauHold;
+
+                    // Continue
+                    const VrelContX = contVpx - bVx;
+                    const VrelContY = contVpy - bVy;
+                    const vcnx = (-VrelContX * dirY + VrelContY * dirX) / effRx;
+                    const vcny = (VrelContX * dirX + VrelContY * dirY) / effRy;
+                    const vcnSq = vcnx * vcnx + vcny * vcny;
+                    const tauCont = vcnSq > 0.000001 ? Math.max(0, Math.min(TAU_MAX, -(nxB * vcnx + nyB * vcny) / vcnSq)) : 0;
+                    clBCont = (Math.hypot(nxB + vcnx * tauCont, nyB + vcny * tauCont) - 1.0) * scaleR;
+                    tBCont = T_STEP + tauCont;
+                } else {
+                    const extraR = b.isGungnir ? 12 : 0;
+                    const totalR = bHitR + safePlayerR + extraR;
+                    const R0x = player.x - b.x;
+                    const R0y = player.y - b.y;
+                    const VrelX = effVpx - bVx;
+                    const VrelY = effVpy - bVy;
+                    const vRelSq = VrelX * VrelX + VrelY * VrelY;
+
+                    tA = vRelSq > 0.0001 ? Math.max(0, Math.min(T_STEP, -(R0x * VrelX + R0y * VrelY) / vRelSq)) : 0;
+                    const distA = Math.hypot(R0x + VrelX * tA, R0y + VrelY * tA);
+                    const dist1F = Math.hypot(R0x + VrelX * stepDt, R0y + VrelY * stepDt);
+                    if (dist1F < distA) {
+                        clA = dist1F - totalR;
+                        tA = stepDt;
+                    } else {
+                        clA = distA - totalR;
+                    }
+
+                    const bStepX = b.x + bVx * T_STEP;
+                    const bStepY = b.y + bVy * T_STEP;
+                    const RBx = pStepX - bStepX;
+                    const RBy = pStepY - bStepY;
+
+                    // Hold
+                    const bSpdSq = bVx * bVx + bVy * bVy;
+                    const tauHold = bSpdSq > 0.0001 ? Math.max(0, Math.min(TAU_MAX, (RBx * bVx + RBy * bVy) / bSpdSq)) : 0;
+                    clBHold = Math.hypot(RBx - bVx * tauHold, RBy - bVy * tauHold) - totalR;
+                    tBHold = T_STEP + tauHold;
+
+                    // Continue
+                    const VrelContX = contVpx - bVx;
+                    const VrelContY = contVpy - bVy;
+                    const vRelContSq = VrelContX * VrelContX + VrelContY * VrelContY;
+                    const tauCont = vRelContSq > 0.0001 ? Math.max(0, Math.min(TAU_MAX, -(RBx * VrelContX + RBy * VrelContY) / vRelContSq)) : 0;
+                    clBCont = Math.hypot(RBx + VrelContX * tauCont, RBy + VrelContY * tauCont) - totalR;
+                    tBCont = T_STEP + tauCont;
+                }
+            }
+
+            if (clA < minClearanceA) minClearanceA = clA;
+
+            // (1) 直近ステップ(Phase A: 0〜0.045s)での衝突・近接減点
+            if (clA <= 0) {
+                hitPenaltyA += 600000 + (T_STEP - tA) * 6000000 + (-clA) * 50000;
+            } else if (clA < 24) {
+                const d = 24 - clA;
+                proxPenaltyA += d * d * 2.2;
+            } else if (clA < 42) {
+                const d = 42 - clA;
+                proxPenaltyA += d * d * 0.07;
+            }
+
+            // (2) 先読みホライズン(Phase B: Hold vs Continue)
+            if (clBHold <= 0) {
+                const u = (T_HORIZON + 0.03 - tBHold) / (TAU_MAX + 0.03);
+                futurePenaltyHold += (18000 + (-clBHold) * 1800) * u * u;
+            } else if (clBHold < 20) {
+                const u = (T_HORIZON + 0.03 - tBHold) / (TAU_MAX + 0.03);
+                const d = 20 - clBHold;
+                futurePenaltyHold += d * d * 0.6 * u;
+            }
+
+            if (clBCont <= 0) {
+                const u = (T_HORIZON + 0.03 - tBCont) / (TAU_MAX + 0.03);
+                futurePenaltyCont += (18000 + (-clBCont) * 1800) * u * u;
+            } else if (clBCont < 20) {
+                const u = (T_HORIZON + 0.03 - tBCont) / (TAU_MAX + 0.03);
+                const d = 20 - clBCont;
+                futurePenaltyCont += d * d * 0.6 * u;
+            }
+        }
+
+        // 敵の霊撃（ボム）圏外への退避
+        if (typeof activeReigekis !== 'undefined' && Array.isArray(activeReigekis)) {
+            for (let rIdx = 0; rIdx < activeReigekis.length; rIdx++) {
+                const r = activeReigekis[rIdx];
+                if (r && r.team === 'CPU') {
+                    const d = Math.hypot(pStepX - r.x, pStepY - r.y) - (r.radius + safePlayerR + 25);
+                    if (d <= 0) hitPenaltyA += 500000 + (-d) * 20000;
+                    else if (d < 60) proxPenaltyA += (60 - d) * 30;
+                }
+            }
+        }
+
+        // 最接近弾とのクリアランス減点（32px以内の時のみ）
+        if (minClearanceA < 32 && minClearanceA > 0) {
+            proxPenaltyA += (32 - minClearanceA) * 5.0;
+        }
+
+        // ステップ後に「そのまま進む(Continue)」か「止まる(Hold)」のより安全な方の未来ペナルティを採用
+        const futurePenalty = Math.min(futurePenaltyHold, futurePenaltyCont);
+
+        let score = -hitPenaltyA - proxPenaltyA - futurePenalty;
+
+        // ──────── 敵の真下にじりじり寄っていくポジショニング ────────
+        const nextDistX = Math.abs(nextPx - targetX);
+        const progressX = curDistX - nextDistX;
+
+        if (curDistX <= 3.0) {
+            if (cand.rawX === 0) {
+                score += 90;
+            } else {
+                score -= 40;
+            }
+        } else {
+            score += (progressX / maxStepDist) * 110.0;
+            if (progressX > 0.1) {
+                score += 45.0;
+            } else if (progressX < -0.1) {
+                score -= 45.0;
+            }
+            if (curDistX < 10.0 && cand.isSlow && progressX > 0) {
+                score += 30.0;
+            }
+        }
+
+        // ──────── 上方向にはうっすらと点数が減点される ────────
+        if (cand.rawY < 0) {
+            score -= 18.0 * Math.abs(cand.dy);
+        }
+        const curDistHomeY = Math.abs(player.y - homeY);
+        const nextDistHomeY = Math.abs(nextPy - homeY);
+        if (nextPy < homeY) {
+            score += (curDistHomeY - nextDistHomeY) * 5.0;
+            if (nextPy < cH * 0.62) {
+                score += (player.y - nextPy) * -8.0;
+            }
+        } else if (nextPy > maxY - 28 && minClearanceA > 32) {
+            score += (curDistHomeY - nextDistHomeY) * 4.5;
+        }
+
+        if (nextPx < minX + 24) {
+            score -= (minX + 24 - nextPx) * 1.2;
+        } else if (nextPx > maxX - 24) {
+            score -= (nextPx - (maxX - 24)) * 1.2;
+        }
+
+        // ──────── 精密回避（低速移動）とチャタリング防止 ────────
+        if (minClearanceA < 28) {
+            if (cand.isSlow) score += 18.0;
+        } else if (minClearanceA > 42 && curDistX > 12) {
+            if (!cand.isSlow && cand.rawX !== 0) score += 12.0;
+        }
+
+        if (player._lastAutoCand) {
+            if (player._lastAutoCand.rawX === cand.rawX && player._lastAutoCand.rawY === cand.rawY) {
+                score += 6.0;
+                if (player._lastAutoCand.isSlow === cand.isSlow) {
+                    score += 3.0;
+                }
+            }
+        }
+
+        if (score > bestScore) {
+            bestScore = score;
+            bestCand = cand;
+        }
+    }
+
+    player._lastAutoCand = bestCand;
+    return bestCand;
+}
+
         function tickSimulation(dt) {
             // エディタ表示中、またはゲーム中(BATTLE)でない場合はシミュレーションを進めない (裏でのエミッターや弾の暴走を完全にブロック)
             if (!isGameRunning || gameState !== 'BATTLE') {
@@ -1968,17 +2528,32 @@ function applyAbilityEffect(cardId, owner) {
                     // 自機・敵機の移動処理（統合入力マネージャ inputState を参照 - 斜め移動の正規化処理を追加）
                     let dx = 0;
                     let dy = 0;
-                    if (inputState.up) dy -= 1;
-                    if (inputState.down) dy += 1;
-                    if (inputState.left) dx -= 1;
-                    if (inputState.right) dx += 1;
+                    let useSlow = (inputState.slow || mobileSlowActive);
 
-                    if (dx !== 0 && dy !== 0) {
-                        dx *= 0.70710678;
-                        dy *= 0.70710678;
+                    if (window.autoDodgeMode) {
+                        const dodgeResult = calculateAutoDodge(player, bullets, canvas, dt);
+                        dx = dodgeResult.dx;
+                        dy = dodgeResult.dy;
+                        if (dodgeResult.isSlow !== undefined) {
+                            useSlow = dodgeResult.isSlow;
+                        }
+                        player.autoDodgeDx = dx;
+                        player.autoDodgeDy = dy;
+                    } else {
+                        player.autoDodgeDx = undefined;
+                        player.autoDodgeDy = undefined;
+                        if (inputState.up) dy -= 1;
+                        if (inputState.down) dy += 1;
+                        if (inputState.left) dx -= 1;
+                        if (inputState.right) dx += 1;
+
+                        if (dx !== 0 && dy !== 0) {
+                            dx *= 0.70710678;
+                            dy *= 0.70710678;
+                        }
                     }
 
-                    const currentSpeed = (inputState.slow || mobileSlowActive) ? player.slowSpeed : player.speed;
+                    const currentSpeed = useSlow ? player.slowSpeed : player.speed;
                     player.x += dx * currentSpeed * dt;
                     player.y += dy * currentSpeed * dt;
 
@@ -3508,12 +4083,13 @@ function applyAbilityEffect(cardId, owner) {
                                     ((_bVars && _bVars.alpha !== undefined) ? Number(_bVars.alpha) : 
                                     (b.transparency !== undefined ? Number(b.transparency) : 0));
                     const _hasTrans = !isNaN(_bTrans) && _bTrans > 0;
+                    const _isAdditive = isBulletAdditive(b);
                     const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
                                        b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
-                                       b.isSweeper || _hasDynImg || b.isNormal || _hasAspect || _hasTrans;
+                                       b.isSweeper || _hasDynImg || b.isNormal || _hasAspect || _hasTrans || _isAdditive;
 
                     // 光弾かつ変形なし・透明度なしの場合、光弾コア専用バッチで1回のfill()に集約して超高速化
-                    const _isSimpleLight = (b.bulletImage === 'light') && !_hasAspect && !_hasTrans &&
+                    const _isSimpleLight = (b.bulletImage === 'light') && !_hasAspect && !_hasTrans && !_isAdditive &&
                                            !b.isBeam && !b.isLaser && !b.isWarningLaser && !b.isCustomBeam &&
                                            !b.isGungnir && !b.isStar && !b.isBombPiece && !b.isTrail && !b.isSweeper;
 
@@ -3596,6 +4172,11 @@ function applyAbilityEffect(cardId, owner) {
             let bulletBaseAlpha = (curTrans > 0) ? Math.max(0, 1.0 - curTrans / 100) : 1.0;
             if (curTrans > 0) {
                 ctx.globalAlpha = Math.max(0, prevAlpha * bulletBaseAlpha);
+            }
+            let isAdd = isBulletAdditive(b);
+            let prevComposite = ctx.globalCompositeOperation;
+            if (isAdd) {
+                ctx.globalCompositeOperation = 'lighter';
             }
 
                 if (b.isBombPiece) {
@@ -4179,7 +4760,7 @@ function applyAbilityEffect(cardId, owner) {
                                 } else {
                                     ctx.drawImage(texture, -spriteRadius * multlr, spriteOffsetY + spriteRadius * (1 - 2 * multf), spriteRadius * 2 * multlr, spriteRadius * 2 * multf);
                                 }
-                                ctx.globalCompositeOperation = 'source-over';
+                                ctx.globalCompositeOperation = isAdd ? 'lighter' : 'source-over';
                             }
                             // （光式怨霊は先行オーラパスでオーラ画像を既に加算描画済み）
 
@@ -4261,6 +4842,9 @@ function applyAbilityEffect(cardId, owner) {
 
                 if (curTrans > 0) {
                     ctx.globalAlpha = prevAlpha;
+                }
+                if (isAdd) {
+                    ctx.globalCompositeOperation = prevComposite;
                 }
 
                 // デバッグ用当たり判定の描画（Dキー押下時）
@@ -4463,9 +5047,17 @@ function applyAbilityEffect(cardId, owner) {
             let pImg = reimuImg_idle;
             let pFlipX = false;
  
-            if (inputState.left) { pImg = reimuImg_left; }
-            else if (inputState.right) { pImg = reimuImg_left; pFlipX = true; }
-            else { pImg = reimuImg_idle; } // 待機または上下移動
+            if (window.autoDodgeMode && player.autoDodgeDx !== undefined) {
+                if (player.autoDodgeDx < -0.01) { pImg = reimuImg_left; }
+                else if (player.autoDodgeDx > 0.01) { pImg = reimuImg_left; pFlipX = true; }
+                else { pImg = reimuImg_idle; }
+            } else if (inputState.left) {
+                pImg = reimuImg_left;
+            } else if (inputState.right) {
+                pImg = reimuImg_left; pFlipX = true;
+            } else {
+                pImg = reimuImg_idle;
+            }
  
             const animIndex = Math.floor(performance.now() / 150) % 4;
             const drawW = 48, drawH = 48;
@@ -4480,6 +5072,56 @@ function applyAbilityEffect(cardId, owner) {
             }
  
             if (showPlayer) {
+                // --- オートよけモード エメラルドオーラ（後ろに描画）---
+                if (window.autoDodgeMode) {
+                    const now = performance.now();
+                    const pulse = 0.7 + 0.3 * Math.sin(now / 150);
+                    const rotAngle = (now / 350) % (Math.PI * 2);
+                    ctx.save();
+                    ctx.translate(player.x, player.y);
+
+                    // 外側グロー
+                    const outerR = 34 + 6 * pulse;
+                    const gGlow = ctx.createRadialGradient(0, 0, 6, 0, 0, outerR);
+                    gGlow.addColorStop(0, `rgba(0, 255, 180, ${0.45 * pulse})`);
+                    gGlow.addColorStop(0.5, `rgba(0, 220, 200, ${0.25 * pulse})`);
+                    gGlow.addColorStop(1, 'rgba(0, 200, 200, 0)');
+                    ctx.fillStyle = gGlow;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // 回転する8方角サークル＆スパーク
+                    ctx.rotate(rotAngle);
+                    ctx.strokeStyle = `rgba(0, 255, 200, ${0.65 * pulse})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 20, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // 4方向のミニ菱形
+                    for (let s = 0; s < 4; s++) {
+                        const a = s * Math.PI / 2;
+                        const distR = 25;
+                        ctx.beginPath();
+                        ctx.arc(Math.cos(a) * distR, Math.sin(a) * distR, 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = '#00ffff';
+                        ctx.fill();
+                    }
+
+                    // 自機頭上の AUTO バッジ
+                    ctx.rotate(-rotAngle);
+                    ctx.font = 'bold 9px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillStyle = '#00ffcc';
+                    ctx.shadowColor = '#00ffcc';
+                    ctx.shadowBlur = 4;
+                    ctx.fillText('AUTO', 0, -26);
+
+                    ctx.restore();
+                }
+
                 // --- 開発者黄金オーラ（後ろに描画）---
                 if (window.devInvincibleMode) {
                     const now = performance.now();
@@ -5640,6 +6282,40 @@ function applyAbilityEffect(cardId, owner) {
                     }
                 }
                 ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+
+            // ── オートよけモード (AUTO DODGE) インジケータ描画 ──
+            if (window.autoDodgeMode) {
+                ctx.save();
+                ctx.font = 'bold 12px monospace';
+                const badgeText = 'AUTO DODGE [ON]';
+                const textMetrics = ctx.measureText(badgeText);
+                const badgeW = textMetrics.width + 16;
+                const badgeH = 22;
+                const badgeX = PLAY_WIDTH - badgeW - 10;
+                const badgeY = 76;
+
+                // 背景
+                ctx.fillStyle = 'rgba(0, 30, 25, 0.8)';
+                ctx.strokeStyle = '#00ffcc';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                if (typeof ctx.roundRect === 'function') {
+                    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4);
+                } else {
+                    ctx.rect(badgeX, badgeY, badgeW, badgeH);
+                }
+                ctx.fill();
+                ctx.stroke();
+
+                // テキスト
+                ctx.fillStyle = '#00ffcc';
+                ctx.shadowColor = '#00ffcc';
+                ctx.shadowBlur = 6;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(badgeText, badgeX + badgeW / 2, badgeY + badgeH / 2);
                 ctx.restore();
             }
 

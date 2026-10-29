@@ -2889,6 +2889,178 @@ once {
 }
     `,
     magicCircleScript: ``
+},{
+    difficulty: "NORMAL",
+    name: "氷雪「幻想のホワイトアウト」",
+    desc: "天空璋HNC記念スペカ",
+    hp: 3000,
+    duration: 50,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 4,
+    emitterScript: `
+while (true) {
+    if (enemyHp == 2000..20000) {
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(-30,30), "angle": 90 + 20 + random(-7,7), "radius": random(9,10), "hitRadius": 6, "isAbsolute": true, "x": random(0,1200), "color": "#ffffff", "d": 0 })
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(200,630), "angle": 90 - 10 + random(-7,7), "radius": 4, "hitRadius": 0, "isAbsolute": true, "x": random(-300,800), "color": "#ffffff", "destroyResist": true, "d": 0, "auraRange": random(3,4) })
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(100,530), "angle": 90 - 10 + random(-7,7), "radius": 4, "hitRadius": 0, "isAbsolute": true, "x": random(-300,800), "color": "#ffffff", "destroyResist": true, "d": 0, "auraRange": random(3,4) })
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(-30,330), "angle": 90 - 10 + random(-7,7), "radius": 4, "hitRadius": 0, "isAbsolute": true, "x": random(-300,800), "color": "#ffffff", "destroyResist": true, "d": 0, "auraRange": random(3,4) })
+        wf(2)
+    }
+    if (enemyHp == 0..2000) {
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(-30,330), "angle": 90 + 20 + random(-7,7), "radius": random(9,10), "hitRadius": 6, "isAbsolute": true, "x": random(0,1200), "color": "#ffffff", "d": 0, "auraRange": random(3,4) })
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(200,630), "angle": 90 - 10 + random(-7,7), "radius": 4, "hitRadius": 0, "isAbsolute": true, "x": random(-300,800), "color": "#ffffff", "destroyResist": true, "d": 0, "auraRange": random(3,4) })
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(100,530), "angle": 90 - 10 + random(-7,7), "radius": 4, "hitRadius": 0, "isAbsolute": true, "x": random(-300,800), "color": "#ffffff", "destroyResist": true, "d": 0, "auraRange": random(3,4) })
+        bullet({ "type": "normal", "image": "light", "speed": 200 + random(-30,330), "angle": 90 - 10 + random(-7,7), "radius": 4, "hitRadius": 0, "isAbsolute": true, "x": random(-300,800), "color": "#ffffff", "destroyResist": true, "d": 0, "auraRange": random(3,4) })
+        wf(1)
+    }
+}
+while (true) {
+    if (enemyHp == 0..2000) {
+        once {
+            bullet({ "type": "normal", "speed": 0, "radius": 600, "hitRadius": 0, "color": "#ffffff", "destroyResist": true, "transparency": 100, "effect": 1 })
+        }
+    }
+}
+    `,
+    bulletScript: `
+if (effect == 1) {
+    once {
+        tween("transparency", 100, 2, "seconds", 1)
+        wf(60)
+        wf(60)
+        tween("transparency", 2, 10, "seconds", 5)
+    }
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "HARD",
+    name: "「弾幕フレア」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 1500,
+    duration: 150,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    for (let i = 0; i < 3; i++) {
+        bullet({ "type": "normal", "image": "onryou_light_red", "speed": 250, "radius": 20, "hitRadius": 10, "way": 15 })
+        angle += 20.2
+    }
+    wf(10)
+    for (let i = 0; i < 5; i++) {
+        bullet({ "type": "normal", "image": "onryou_light_blue", "speed": 250, "radius": 20, "hitRadius": 10, "way": 15 })
+        angle -= 14.2
+    }
+    wf(10)
+}
+    `,
+    bulletScript: `
+once {
+    wf(40)
+    tween("speed", speed, speed + random(-100,100), "seconds", 1.5)
+    tween("angle", angle, angle + random(-1,1), "seconds", 1)
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "hard",
+    name: "「三色の妖蝶」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 2200,
+    duration: 60,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 6,
+    emitterScript: `
+while (true) {
+    wf(60)
+    tween("ex", ex, 378 + random(-200,200), "seconds", 0.3, "easeOut")
+    tween("ey", ey, 250 + random(-100,100), "seconds", 0.3, "easeOut")
+    wf(30)
+    angle = random(0,360)
+    susmu = 25
+    zentai = random(-180,180)
+    bure = random(4,15)
+    zentaido = random(-2,2)
+    for (let i = 0; i < 180; i++) {
+        for (let i = 0; i < 3; i++) {
+            bullet({ "type": "normal", "image": "rednormal", "speed": 0, "radius": 9, "hitRadius": 0, "transparency": 100 })
+            bullet({ "type": "normal", "image": "bluenormal", "speed": 0, "angle": 120 + angle, "radius": 9, "hitRadius": 0, "color": "#3388ff", "transparency": 100, "plus": 120 })
+            bullet({ "type": "normal", "image": "greennormal", "speed": 0, "angle": 240 + angle, "radius": 9, "hitRadius": 0, "color": "#33ff88", "transparency": 100, "plus": 240 })
+            angle += 3.87578
+            susmu += 3
+            zentai += zentaido
+        }
+        wf(1)
+    }
+    wf(120)
+}
+    `,
+    bulletScript: `
+once {
+    hitRadius = 0
+    advance(susmu)
+    hitRadius = 0
+    angle = zentai + random(-bure,bure) + plus
+    spriteAngle = angle
+    tween("transparency", 100, 0, "frames", 10)
+    tween("radius", 40, 9, "frames", 10)
+    wf(10)
+    if (dist < 100) {
+        y = -9999
+    }
+    hitRadius = 3
+    wf(110)
+    tween("transparency", 100, 0, "frames", 10)
+    tween("radius", 40, 9, "frames", 10)
+    wf(10)
+    tween("speed", 0, 200, "seconds", 6)
+    imageTo("tyoudan")
+    radius = 20
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "HARD",
+    name: "符象「天狐九星」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 2000,
+    duration: 60,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "orangekunai", "speed": 125, "angle": frame * 4.5134, "radius": 10, "hitRadius": 3, "way": 9 })
+    bullet({ "type": "normal", "image": "cyankunai2", "speed": 250, "angle": -frame * 8, "radius": 10, "hitRadius": 3, "way": 8 })
+    wf(4)
+    bullet({ "type": "normal", "image": "redkunai", "speed": 80, "angle": frame * 46.3, "radius": 10, "hitRadius": 3, "way": 20 })
+    bullet({ "type": "normal", "image": "goldkunai2", "speed": 250, "angle": -frame * 8, "radius": 10, "hitRadius": 3, "way": 8 })
+    wf(4)
+    bullet({ "type": "normal", "image": "greenkunai", "speed": 90, "angle": frame * 4.5134, "radius": 10, "hitRadius": 3, "way": 12 })
+    bullet({ "type": "normal", "image": "pinkkunai2", "speed": 250, "angle": -frame * 8, "radius": 10, "hitRadius": 3, "way": 8 })
+    wf(4)
+    bullet({ "type": "normal", "image": "bluekunai", "speed": 40, "angle": frame * 53, "radius": 10, "hitRadius": 2, "way": 4, "destroyResist": true })
+    bullet({ "type": "normal", "image": "whitekunai2", "speed": 250, "angle": -frame * 8, "radius": 10, "hitRadius": 3, "way": 8 })
+    wf(4)
+}
+while (true) {
+    tween("ex", ex, 378 + random(-100,100), "seconds", 1, "easeOut")
+    tween("ey", ey, 250 + random(-50,50), "seconds", 1, "easeOut")
+    wait(5)
+}
+    `,
+    bulletScript: `
+
+    `,
+    magicCircleScript: ``
 }
 ];
 

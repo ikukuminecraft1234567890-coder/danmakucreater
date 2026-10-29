@@ -88,6 +88,8 @@
                         <option value="enemyMaxHp">敵の最大HP (enemyMaxHp)</option>
                         <option value="health">耐久弾のHP (health)</option>
                         <option value="destroyResist">弾消し耐性 (destroyResist)</option>
+                        <option value="blend">合成モード (blend: 'lighter', 'source-over')</option>
+                        <option value="additive">加算合成フラグ (additive: true, false)</option>
                         <option value="isDestroyed">破壊された瞬間 (isDestroyed)</option>
                         <option value="timer">弾のタイマー (timer)</option>
                         <option value="second">秒数 (second)</option>
@@ -128,6 +130,8 @@
                         <option value="speed * 2">speed * 2</option>
                         <option value="floor(speed)">速度の切り捨て floor(speed)</option>
                         <option value="floor(angle)">角度の切り捨て floor(angle)</option>
+                        <option value="'lighter'">加算合成 ('lighter')</option>
+                        <option value="'source-over'">通常合成 ('source-over')</option>
                         <option value="'normal'">通常弾画像 ('normal')</option>
                         <option value="'rednormal'">パレット赤通常 ('rednormal')</option>
                         <option value="'aquastar'">パレットアクア星 ('aquastar')</option>
@@ -287,6 +291,7 @@
                             <button class="palette-btn color-motion" id="palette-btn-angle-set" onclick="customCardMakerAddBlock('angle_set')">angle = value</button>
                             <button class="palette-btn color-motion" id="palette-btn-color-set" onclick="customCardMakerAddBlock('color_set')">color = value</button>
                             <button class="palette-btn color-motion" id="palette-btn-bullet-image-set" onclick="customCardMakerAddBlock('bullet_image_set')">画像を変更 (imageTo)</button>
+                            <button class="palette-btn color-motion" id="palette-btn-blend-set" onclick="customCardMakerAddBlock('blend_set')">加算合成にする</button>
                             <button class="palette-btn color-motion" id="palette-btn-tweenangle" onclick="customCardMakerAddBlock('tween_angle')">角度をスムーズに変える</button>
                             <button class="palette-btn color-motion" id="palette-btn-tweenanglewait" onclick="customCardMakerAddBlock('tween_angle_wait')">角度をスムーズに変えて待つ</button>
                             <button class="palette-btn color-motion" id="palette-btn-slow" onclick="customCardMakerAddBlock('speed_scale_slow')">slow(e, f)</button>
@@ -413,6 +418,7 @@ bullet({ "type": "normal", "image": "star", "speed": 200, "angle": angle, "way":
 ※ wayのみ指定で全方位弾、distance指定でWay弾 (distancetype: "step" / "total")
 ※ type: "life" で自機ショットを吸い込んでダメージを受ける耐久弾
 ※ destroyResist: true でボム等の一括弾消し耐性 (HP破壊やボムダメージは有効)
+※ blend: "lighter" または additive: true で加算合成 (光る演出)
 
 // 敵HP (enemyHp) の直接操作
 enemyHp = 500   // HPを直接500にする
@@ -499,6 +505,8 @@ enemyHp        // 敵ボスの現在HP (直接代入・加減算でボスHPを�
 enemyMaxHp     // 敵ボスの最大HP (デフォルト: 1000)
 health, hp     // 耐久弾の残りHP
 destroyResist  // 弾消し耐性の有無 (true / false)
+blend          // 合成モード ('lighter' または 'source-over')
+additive       // 加算合成フラグ (true / false)
 dist           // 相手との直線距離
 second, timer  // 経過秒数 (弾は発射から、コアはカード開始から)
 frame          // 経過フレーム数
