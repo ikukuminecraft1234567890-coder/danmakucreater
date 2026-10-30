@@ -10,7 +10,7 @@
     },
     {
       "name": "support.function.danmaku",
-      "match": "\\b(spawnRing|spawnWay|spawnStraight|spawnBullet|spawnTrail|spawnTrailResist|spawnBeam|spawnBeamResist|spawnLaserWay|spawnLaserWayResist|spawnLaserRing|spawnLaserRingResist|spawnBeamWay|spawnBeamWayResist|spawnBeamRing|spawnBeamRingResist|spawnMagicCircle|aimAtTarget|aimAt|moveTo|slideTo|wait|playSound|slow|fast|bounce|homing|advance|tween|tweenWait|tweenAngle|tweenAngleWait|rand|sin|cos|tan|abs|min|max|floor|round|sqrt)\\b"
+      "match": "\\b(spawnRing|spawnWay|spawnStraight|spawnBullet|spawnTrail|spawnTrailResist|spawnBeam|spawnBeamResist|spawnLaserWay|spawnLaserWayResist|spawnLaserRing|spawnLaserRingResist|spawnBeamWay|spawnBeamWayResist|spawnBeamRing|spawnBeamRingResist|spawnMagicCircle|aimAtTarget|aimFromEnemy|aimAtTargetFromEnemy|aimAt|moveTo|slideTo|wait|playSound|slow|fast|bounce|homing|advance|tween|tweenWait|tweenAngle|tweenAngleWait|rand|sin|cos|tan|abs|min|max|floor|round|sqrt)\\b"
     },
     {
       "name": "variable.language.danmaku",

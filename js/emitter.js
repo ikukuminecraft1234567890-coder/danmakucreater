@@ -521,6 +521,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                         state.variables.image = img;
                         break;
                     }
+                    case 'aim_from_enemy': {
+                        let ox = (state && state.variables && state.variables.x_offset) ? (Number(state.variables.x_offset) || 0) : 0;
+                        let oy = (state && state.variables && state.variables.y_offset) ? (Number(state.variables.y_offset) || 0) : 0;
+                        let enemyX = ((attacker && attacker['x'] !== undefined) ? attacker['x'] : ((typeof cpu !== 'undefined' && cpu) ? cpu['x'] : (Number(state.variables.ex) || 0))) + ox;
+                        let enemyY = ((attacker && attacker['y'] !== undefined) ? attacker['y'] : ((typeof cpu !== 'undefined' && cpu) ? cpu['y'] : (Number(state.variables.ey) || 0))) + oy;
+                        let targetObj = target || (typeof player !== 'undefined' ? player : { x: 0, y: 0 });
+                        let targetX = targetObj.x;
+                        let targetY = targetObj.y;
+                        let dx = targetX - enemyX;
+                        let dy = isPlayerSide ? (enemyY - targetY) : (targetY - enemyY);
+                        state.variables.angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        break;
+                    }
                     case 'aim_at_target': {
                         let dx = target.x - (attacker.x + (state.variables.x_offset || 0));
                         let dy = target.y - (attacker.y + (state.variables.y_offset || 0));
@@ -3450,6 +3463,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 break;
                             }
+                            case 'aim_from_enemy': {
+                                let ox = (state && state.variables && state.variables.x_offset) ? (Number(state.variables.x_offset) || 0) : 0;
+                                let oy = (state && state.variables && state.variables.y_offset) ? (Number(state.variables.y_offset) || 0) : 0;
+                                let enemyX = ((attacker && attacker['x'] !== undefined) ? attacker['x'] : ((typeof cpu !== 'undefined' && cpu) ? cpu['x'] : (Number(state.variables.ex) || 0))) + ox;
+                                let enemyY = ((attacker && attacker['y'] !== undefined) ? attacker['y'] : ((typeof cpu !== 'undefined' && cpu) ? cpu['y'] : (Number(state.variables.ey) || 0))) + oy;
+                                let targetObj = target || (typeof player !== 'undefined' ? player : { x: 0, y: 0 });
+                                let targetX = targetObj.x;
+                                let targetY = targetObj.y;
+                                let dx = targetX - enemyX;
+                                let dy = isPlayerSide ? (enemyY - targetY) : (targetY - enemyY);
+                                state.variables.angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                                break;
+                            }
                             case 'aim_at_target': {
                                 let dx = target.x - b.x;
                                 let dy = isPlayerSide ? (b.y - target.y) : (target.y - b.y);
@@ -4008,6 +4034,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 case 'if':
                 case 'const_var':
                 case 'aim_at_target':
+                case 'aim_from_enemy':
                 case 'aim_at_coord':
                 case 'move_owner':
                 case 'to_front':
@@ -4356,6 +4383,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'tween_angle_wait': ['from', 'to', 'mode', 'duration', 'easing', 'rotMode'],
             'set_laser': ['warningTime', 'activeTime', 'laserWidth'],
             'aim_at_target': [],
+            'aim_from_enemy': [],
             'aim_at_coord': ['targetX', 'targetY'],
             'move_owner': ['preset', 'duration'],
             'slide_owner': ['preset', 'duration'],
@@ -4395,7 +4423,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'tween_var': 't', 'tween_var_wait': 'tw',
             'tween_angle': 'ta', 'tween_angle_wait': 'taw',
             'set_laser': 'sl',
-            'aim_at_target': 'a', 'aim_at_coord': 'ac', 'move_owner': 'm', 'slide_owner': 'd',
+            'aim_at_target': 'a', 'aim_from_enemy': 'afe', 'aim_at_coord': 'ac', 'move_owner': 'm', 'slide_owner': 'd',
             'spawn_bullet': 'sb', 'spawn_bullet_resist': 'sbr', 
             'spawn_trail': 'st', 'spawn_trail_resist': 'str',
             'spawn_ring': 'sr', 'spawn_ring_resist': 'srr', 

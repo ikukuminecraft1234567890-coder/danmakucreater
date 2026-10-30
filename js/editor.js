@@ -913,6 +913,13 @@ function customCardMakerSwitchTab(tab) {
                                 ${renderBlockControls(idx)}
                             `;
                             break;
+                        case 'aim_from_enemy':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] ボスから見た相手の方向を向く (angleを設定)</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
                         case 'aim_at_target':
                             blockDiv.className = 'maker-block color-motion';
                             html = `
@@ -2414,6 +2421,9 @@ function customCardMakerSwitchMode(mode) {
                         line = `imageTo("${img}")`;
                         break;
                     }
+                    case 'aim_from_enemy':
+                        line = `aimFromEnemy()`;
+                        break;
                     case 'aim_at_target':
                         line = `aimAtTarget()`;
                         break;
@@ -3156,6 +3166,8 @@ function customCardMakerSwitchMode(mode) {
                     }
                     let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                     if (mAim) block = { type: 'aim_at_target', params: {}, indent };
+                    let mAimEnemy = trimmed.match(/^(?:aimFromEnemy|aimAtTargetFromEnemy|aimFromBoss|aimAtTargetFromBoss)\(\)$/i);
+                    if (mAimEnemy) block = { type: 'aim_from_enemy', params: {}, indent };
                     let mAimCoord = trimmed.match(/^(?:aimAt|aimAtCoord)\((.*?)\)$/i);
                     if (mAimCoord) {
                         let args = splitArgs(mAimCoord[1]).map(s => s.trim());
@@ -3748,6 +3760,10 @@ function customCardMakerSwitchMode(mode) {
                 let mAim = trimmed.match(/^aimAtTarget\(\)$/i);
                 if (mAim) {
                     block = { type: 'aim_at_target', params: {}, indent: indent };
+                }
+                let mAimEnemy = trimmed.match(/^(?:aimFromEnemy|aimAtTargetFromEnemy|aimFromBoss|aimAtTargetFromBoss)\(\)$/i);
+                if (mAimEnemy) {
+                    block = { type: 'aim_from_enemy', params: {}, indent: indent };
                 }
                 let mAimCoord = trimmed.match(/^(?:aimAt|aimAtCoord)\((.*?)\)$/i);
                 if (mAimCoord) {

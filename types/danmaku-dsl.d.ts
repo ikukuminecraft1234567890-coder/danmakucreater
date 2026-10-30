@@ -197,8 +197,17 @@ declare function spawnMagicCircle(
 
 /**
  * ターゲット（自機）の方向へ発射角度（angle）を設定します。
+ * ※弾スクリプト内で使用した場合、弾自身の位置から自機を狙います。
  */
 declare function aimAtTarget(): void;
+
+/**
+ * エネミー（ボス）から見たターゲット（自機）の方向へ発射角度（angle）を設定します。
+ * 弾スクリプト（bulletScript）内で使用すると、各弾自身の位置ではなくボスの位置を基準に自機を狙うため、
+ * 展開された弾幕の形状・フォーメーションを崩さずにそのまま自機へ向けることができます。
+ */
+declare function aimFromEnemy(): void;
+declare function aimAtTargetFromEnemy(): void;
 
 /**
  * 指定した座標へ向けて発射角度（angle）を設定します。

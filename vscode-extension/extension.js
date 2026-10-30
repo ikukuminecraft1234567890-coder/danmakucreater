@@ -66,6 +66,8 @@ const DSL_FUNCTIONS = [
     { name: 'spawnLaserRing', snippet: 'spawnLaserRing("#ff3333", 6, 200, angle, 12, 0, 0, 0.2, 0.3, 0.5, true, "relative", 6)', detail: 'レーザーリング弾' },
     { name: 'spawnMagicCircle', snippet: 'spawnMagicCircle("#ff00ff", 30, 3.0, 0, 0, "relative")', detail: '魔法陣 (子機)' },
     { name: 'aimAtTarget', snippet: 'aimAtTarget()', detail: '自機狙い角度' },
+    { name: 'aimFromEnemy', snippet: 'aimFromEnemy()', detail: 'ボスから見た自機狙い角度' },
+    { name: 'aimAtTargetFromEnemy', snippet: 'aimAtTargetFromEnemy()', detail: 'ボスから見た自機狙い角度' },
     { name: 'aimAt', snippet: 'aimAt(${1:0}, ${2:0})', detail: '指定座標狙い' },
     { name: 'moveTo', snippet: 'moveTo(${1:0}, ${2:0})', detail: '瞬間移動' },
     { name: 'slideTo', snippet: 'slideTo(${1:0}, ${2:0}, ${3:1.0})', detail: 'スムーズ移動' },

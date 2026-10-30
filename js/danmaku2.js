@@ -3061,6 +3061,48 @@ while (true) {
 
     `,
     magicCircleScript: ``
+},{
+    difficulty: "HARD",
+    name: "宝塔「十方無量如意宝珠」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 3000,
+    duration: 60,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "rednormal", "speed": 300 + random(-80,50), "angle": frame * 2, "radius": 0, "hitRadius": 0, "way": 3, "destroyResist": true, "blend": "lighter", "susumu": 400, "kakudo": -150 })
+    bullet({ "type": "normal", "image": "yellownormal", "speed": 300 + random(-80,50), "angle": -frame * 2, "radius": 0, "hitRadius": 0, "color": "#ffffff", "way": 3, "destroyResist": true, "blend": "lighter", "susumu": 400, "kakudo": 150 })
+    wf(5)
+}
+    `,
+    bulletScript: `
+once {
+    advance(susumu-100)
+    angle += kakudo / 0.8 + random(-2.5,2.5)
+    spriteAngle = angle
+    wf(50)
+    tween("radius", 40, 5, "frame", 20)
+    wf(20)
+    if (color==#ff3333) {
+        imageTo("redlaser")
+    }
+    if (color==#ffffff) {
+        imageTo("yellowlaser")
+    }
+    speed = 200
+    radius = 10
+    hitRadius = 3
+    tween("multf", 0, 4, "seconds", 1, "easeOut")
+    tween("hitmultf", 0, 15, "seconds", 1, "easeOut")
+    wait(1)
+    tween("multf", 4, 80, "seconds", 2)
+    tween("hitmultf", 15, 300, "seconds", 2)
+}
+    `,
+    magicCircleScript: ``
 }
 ];
 
