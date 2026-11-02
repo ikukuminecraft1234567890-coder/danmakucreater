@@ -1857,8 +1857,10 @@ while (true) {
     for (let i = 0; i < 20; i++) {
         ang = angle
         ag = angle
-        ang += random(-40,40)
-        spawnBulletResist("normal", "#ffff99", 1500, ang, 0, 0, 30, "light", "relative", "20")
+        ang += random(-10,10)
+xx = random(-60,60)
+yy = random(-60,60)
+    spawnBulletResist("normal", "#ffff99", 1500, ang, xx, yy, 30, "light", "relative", "20")
         angle += 0.001
 }
         wf(1)
