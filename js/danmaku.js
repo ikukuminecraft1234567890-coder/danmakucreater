@@ -1853,13 +1853,15 @@ while (true) {
     wait(0.5)
     playSound("maspa_long")
     sp = 1
-    for (let i = 0; i < 5000; i++) {
+    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 20; i++) {
         ang = angle
         ag = angle
         ang += random(-40,40)
         spawnBulletResist("normal", "#ffff99", 1500, ang, 0, 0, 30, "light", "relative", "20")
-        wait(0.000005)
         angle += 0.001
+}
+        wf(1)
     }
     sp = 0
     wait(2)
