@@ -298,6 +298,7 @@
                             <button class="palette-btn color-motion" id="palette-btn-slow" onclick="customCardMakerAddBlock('speed_scale_slow')">slow(e, f)</button>
                             <button class="palette-btn color-motion" id="palette-btn-fast" onclick="customCardMakerAddBlock('speed_scale_fast')">fast(e, f)</button>
                             <button class="palette-btn color-motion" id="palette-btn-bounce" onclick="customCardMakerAddBlock('bounce')">壁で反射する</button>
+                            <button class="palette-btn color-motion" id="palette-btn-bounce-all" onclick="customCardMakerAddBlock('bounce_all')">全方位で反射する</button>
                             <button class="palette-btn color-motion" id="palette-btn-advance" onclick="customCardMakerAddBlock('advance')">進行方向に [D] px進める</button>
                             <button class="palette-btn color-motion" id="palette-btn-to-front" onclick="customCardMakerAddBlock('to_front')">最前面に移動 (toFront)</button>
                             <button class="palette-btn color-motion" id="palette-btn-to-back" onclick="customCardMakerAddBlock('to_back')">最背面に移動 (toBack)</button>
@@ -480,7 +481,7 @@ aimAt(X座標, Y座標)
 // 毎秒指定の度数で追尾(ホーミング)
 homing(90)
 
-// 画面外の壁で跳ね返る
+// 画面外の壁で跳ね返る (bounceAll() で全方位・下側も反射)
 bounce()
 
 // 速度の乗算変化 (倍率, 遅延秒数)

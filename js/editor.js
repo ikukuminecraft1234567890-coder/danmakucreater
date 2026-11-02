@@ -712,6 +712,7 @@ function customCardMakerSwitchTab(tab) {
             setDisplay('palette-btn-slow', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-fast', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-bounce', isBulletTab ? 'block' : 'none');
+            setDisplay('palette-btn-bounce-all', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-advance', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-to-front', isBulletTab ? 'block' : 'none');
             setDisplay('palette-btn-to-back', isBulletTab ? 'block' : 'none');
@@ -1613,6 +1614,13 @@ function customCardMakerSwitchTab(tab) {
                             blockDiv.className = 'maker-block color-motion';
                             html = `
                                 <span>[動作] 壁で跳ね返る (isBouncedを設定)</span>
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'bounce_all':
+                            blockDiv.className = 'maker-block color-motion';
+                            html = `
+                                <span>[動作] 全方位で反射する (isBouncedを設定)</span>
                                 ${renderBlockControls(idx)}
                             `;
                             break;
@@ -2760,6 +2768,9 @@ function customCardMakerSwitchMode(mode) {
                     case 'bounce':
                         line = `bounce()`;
                         break;
+                    case 'bounce_all':
+                        line = `bounceAll()`;
+                        break;
                     case 'to_front':
                         line = `toFront()`;
                         break;
@@ -3207,6 +3218,8 @@ function customCardMakerSwitchMode(mode) {
                     }
                     let mBounce = trimmed.match(/^bounce\(\)$/i);
                     if (mBounce) block = { type: 'bounce', params: {}, indent };
+                    let mBounceAll = trimmed.match(/^(?:bounceAll|bounce_all)\(\)$/i);
+                    if (mBounceAll) block = { type: 'bounce_all', params: {}, indent };
                     let mToFront = trimmed.match(/^(?:toFront|bringToFront|setFront|layer\(['"]front['"]\))(?:\(\))?$/i);
                     if (mToFront) block = { type: 'to_front', params: {}, indent };
                     let mToBack = trimmed.match(/^(?:toBack|sendToBack|setBack|layer\(['"]back['"]\))(?:\(\))?$/i);
@@ -3805,6 +3818,10 @@ function customCardMakerSwitchMode(mode) {
                 let mBounce = trimmed.match(/^bounce\(\)$/i);
                 if (mBounce) {
                     block = { type: 'bounce', params: {}, indent: indent };
+                }
+                let mBounceAll = trimmed.match(/^(?:bounceAll|bounce_all)\(\)$/i);
+                if (mBounceAll) {
+                    block = { type: 'bounce_all', params: {}, indent: indent };
                 }
                 let mToFront = trimmed.match(/^(?:toFront|bringToFront|setFront|layer\(['"]front['"]\))(?:\(\))?$/i);
                 if (mToFront) {

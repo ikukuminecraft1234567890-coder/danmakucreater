@@ -1808,6 +1808,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                 );
                 window.needsWallTouchDetection = (
                     codeStr.includes('isBounced') ||
+                    codeStr.includes('bounceAll') ||
+                    codeStr.includes('bounce_all') ||
                     codeStr.includes('isTouchWall') ||
                     codeStr.includes('touchingWall') ||
                     codeStr.includes('leftWall') ||
@@ -3553,6 +3555,51 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 break;
                             }
+                            case 'bounce_all': {
+                                let x = state.variables.x !== undefined ? state.variables.x : (b ? b.x : 0);
+                                let y = state.variables.y !== undefined ? state.variables.y : (b ? b.y : 0);
+                                let angle = Number(state.variables.angle) || 0;
+                                let bounced = false;
+                                if (x < 10 && Math.cos(angle * Math.PI / 180) < 0) {
+                                    angle = 180 - angle;
+                                    x = 10;
+                                    if (b) b.x = 10;
+                                    bounced = true;
+                                }
+                                if (x > PLAY_WIDTH - 10 && Math.cos(angle * Math.PI / 180) > 0) {
+                                    angle = 180 - angle;
+                                    x = PLAY_WIDTH - 10;
+                                    if (b) b.x = PLAY_WIDTH - 10;
+                                    bounced = true;
+                                }
+                                if (y < 10 && Math.sin(angle * Math.PI / 180) < 0) {
+                                    angle = -angle;
+                                    y = 10;
+                                    if (b) b.y = 10;
+                                    bounced = true;
+                                }
+                                let bottomLimit = (typeof canvas !== 'undefined' && canvas) ? canvas.height - 10 : 886;
+                                if (y > bottomLimit && Math.sin(angle * Math.PI / 180) > 0) {
+                                    angle = -angle;
+                                    y = bottomLimit;
+                                    if (b) b.y = bottomLimit;
+                                    bounced = true;
+                                }
+                                state.variables.x = x;
+                                state.variables.y = y;
+                                state.variables.angle = ((angle % 360) + 360) % 360;
+                                if (bounced) {
+                                    state.variables.isBounced = 1;
+                                    if (b) {
+                                        let finalRad = state.variables.angle * Math.PI / 180;
+                                        if (state.isPlayerSide) finalRad = -finalRad;
+                                        let spd = Number(state.variables.speed) || Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                                        b.vx = Math.cos(finalRad) * spd;
+                                        b.vy = Math.sin(finalRad) * spd;
+                                    }
+                                }
+                                break;
+                            }
                             case 'to_front': {
                                 if (b && window.requestBulletLayerChange) {
                                     window.requestBulletLayerChange(b, 'front');
@@ -4048,6 +4095,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 case 'spawn_beam':
                 case 'spawn_beam_resist':
                 case 'bounce':
+                case 'bounce_all':
                 case 'advance':
                     return 1;
                 case 'speed_scale':
@@ -4414,6 +4462,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'speed_scale_slow': ['effect', 'delay'],
             'speed_scale_fast': ['effect', 'delay'],
             'bounce': [],
+            'bounce_all': [],
             'advance': ['distance']
         };
 
@@ -4435,7 +4484,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'spawn_beam_ring': 'sbrg', 'spawn_beam_ring_resist': 'sbrgr',
             'homing': 'h', 'speed_add': 'sa', 'speed_set': 'ss',
             'angle_add': 'aa', 'angle_set': 'as', 'color_set': 'cs',
-            'speed_scale_slow': 'sls', 'speed_scale_fast': 'ssf', 'bounce': 'b',
+            'speed_scale_slow': 'sls', 'speed_scale_fast': 'ssf', 'bounce': 'b', 'bounce_all': 'ball',
             'advance': 'ad'
         };
 
