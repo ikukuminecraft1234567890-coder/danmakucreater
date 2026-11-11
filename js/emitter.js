@@ -1733,13 +1733,16 @@ function stepEmitter(c, state, attacker, target, dt) {
             if (b._expired) return true;
             if (!Number.isFinite(b.x) || !Number.isFinite(b.y)) return true;
             if (b.bulletState) {
-                let warnT = parseFloat(b.bulletState.variables.warningTime) || 0;
-                warnT = Math.max(0, warnT);
-                let actT = parseFloat(b.bulletState.variables.activeTime) || 0;
-                if (actT > 0 && b.bulletState.variables.warningTime !== undefined) {
-                    let laserStart = b.bulletState.variables.laserStartTime;
+                const vars = b.bulletState.variables;
+                const rawActT = vars.activeTime;
+                const actT = typeof rawActT === 'number' ? rawActT : (rawActT ? parseFloat(rawActT) : 0);
+                if (actT > 0 && vars.warningTime !== undefined) {
+                    let laserStart = vars.laserStartTime;
                     if (laserStart === null || laserStart === undefined) return false;
-                    let laserElapsed = (b.bulletState.variables.timer || 0) - laserStart;
+                    const rawWarnT = vars.warningTime;
+                    let warnT = typeof rawWarnT === 'number' ? rawWarnT : (parseFloat(rawWarnT) || 0);
+                    if (warnT < 0) warnT = 0;
+                    let laserElapsed = (vars.timer || 0) - laserStart;
                     if (laserElapsed >= warnT + actT) {
                         return true;
                     }
@@ -1796,6 +1799,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 allScripts.push(JSON.stringify(c.bulletScript));
                             }
                         }
+                        if (c.magicCircleScript) {
+                            if (typeof c.magicCircleScript === 'string') {
+                                allScripts.push(c.magicCircleScript);
+                            } else {
+                                allScripts.push(JSON.stringify(c.magicCircleScript));
+                            }
+                        }
                     });
                 }
                 const codeStr = allScripts.join(' ');
@@ -1824,7 +1834,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                 );
                 window.needsDistanceCalc = (
                     codeStr.includes('dist') ||
-                    codeStr.includes('speed') ||
                     codeStr.includes('aim') ||
                     codeStr.includes('homing')
                 );
@@ -1933,10 +1942,14 @@ function stepEmitter(c, state, attacker, target, dt) {
         }
 
         function getLaserWidth(b) {
-            let width = b && b.bulletState ? parseFloat(b.bulletState.variables.laserWidth) : NaN;
-            if (!Number.isFinite(width) || width <= 0) width = b && b.laserWidth ? parseFloat(b.laserWidth) : NaN;
+            let lw = b && b.bulletState ? b.bulletState.variables.laserWidth : undefined;
+            let width = typeof lw === 'number' ? lw : parseFloat(lw);
+            if (!Number.isFinite(width) || width <= 0) {
+                let blw = b ? b.laserWidth : undefined;
+                width = typeof blw === 'number' ? blw : parseFloat(blw);
+            }
             if (!Number.isFinite(width) || width <= 0) width = 12;
-            return Math.max(0, width);
+            return width;
         }
 
         function runCustomBulletScript(b, dt, attacker, target) {
@@ -1957,10 +1970,15 @@ function stepEmitter(c, state, attacker, target, dt) {
             // (Reverted to ensure 100% original behavior)
             const _t0 = performance.now();
 
-            const _hasTweens = state.tweens && state.tweens.length > 0;            
-            // --- tween処理（スムーズ移行）を毎フレーム先に適用 ---
+            let hasXTween = false;
+            let hasYTween = false;
+            // --- tween処理（スムーズ移行）を毎フレーム先に適用（インプレース更新で配列アロケーションを回避） ---
             if (state.tweens && state.tweens.length > 0) {
-                state.tweens = state.tweens.filter(tw => {
+                const tweens = state.tweens;
+                let writeIdx = 0;
+                for (let ti = 0, tLen = tweens.length; ti < tLen; ti++) {
+                    const tw = tweens[ti];
+                    let keep = false;
                     if (tw.isCoordPair) {
                         let nextX, nextY;
                         let isDone = false;
@@ -2031,23 +2049,23 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 state.variables.y = nextY;
                             }
                         }
-                        return !isDone;
-                    }
-                    if (tw.mode === 'step') {
+                        keep = !isDone;
+                    } else if (tw.mode === 'step') {
                         let cur = Number(state.variables[tw.name]) || 0;
                         let step = tw.stepVal;
                         let next = cur + step;
                         if ((step > 0 && next >= tw.to) || (step < 0 && next <= tw.to)) {
                             state.variables[tw.name] = tw.to;
-                            return false; // done
+                            keep = false; // done
+                        } else {
+                            state.variables[tw.name] = next;
+                            keep = true;
                         }
-                        state.variables[tw.name] = next;
-                        return true;
                     } else if (tw.mode === 'addOverTime') {
                         tw.elapsed += (tw.timeMode === 'seconds') ? dt : 1;
                         let varVal = Number(state.variables[tw.name]) || 0;
                         state.variables[tw.name] = varVal + tw.stepVal;
-                        return tw.elapsed < tw.total;
+                        keep = tw.elapsed < tw.total;
                     } else {
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
                         let t = Math.min(1, tw.elapsed / tw.total);
@@ -2069,9 +2087,15 @@ function stepEmitter(c, state, attacker, target, dt) {
                             state.variables[tw.name] = fVal + (tVal - fVal) * easedT;
                         }
                         
-                        return t < 1; // done if t==1
+                        keep = t < 1; // done if t==1
                     }
-                });
+                    if (keep) {
+                        tweens[writeIdx++] = tw;
+                        if (tw.name === 'x' || tw.name === 'xy' || (tw.isCoordPair && (tw.fromX !== undefined || tw.name.includes('x')))) hasXTween = true;
+                        if (tw.name === 'y' || tw.name === 'xy' || (tw.isCoordPair && (tw.fromY !== undefined || tw.name.includes('y')))) hasYTween = true;
+                    }
+                }
+                tweens.length = writeIdx;
             }
             const _t1 = performance.now(); // tween完了
             if (window.bulletDebugCount === undefined) window.bulletDebugCount = 0;
@@ -2079,16 +2103,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                 b.bulletDebugId = window.bulletDebugCount++;
             }
             let shouldLog = window.showDebugProfiler && b.bulletDebugId < 15; // デバッグモード時のみ最初の15発のみログ対象
-            if (window.currentCardSecond !== undefined) {
-                state.variables.cardSecond = window.currentCardSecond;
-                state.variables.cardFrame = window.currentCardFrame || 0;
-            } else if (b.sharedEmitterState && b.sharedEmitterState.variables) {
-                state.variables.cardSecond = Number(b.sharedEmitterState.variables.cardSecond || b.sharedEmitterState.variables.second || 0);
-                state.variables.cardFrame = Number(b.sharedEmitterState.variables.cardFrame || b.sharedEmitterState.variables.frame || 0);
-            } else {
-                state.variables.cardSecond = Number(state.variables.cardSecond || state.variables.second || 0);
-                state.variables.cardFrame = Number(state.variables.cardFrame || state.variables.frame || 0);
-            }
             
             let isPlayerSide = state.isPlayerSide;
             
@@ -2202,9 +2216,6 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.cardSecond = state.variables.second;
                 state.variables.cardFrame = state.variables.frame;
             }
-            
-            let hasXTween = !!(state.tweens && state.tweens.some(t => t.name === 'x' || t.name === 'xy' || (t.isCoordPair && (t.name.includes('x') || t.fromX !== undefined))));
-            let hasYTween = !!(state.tweens && state.tweens.some(t => t.name === 'y' || t.name === 'xy' || (t.isCoordPair && (t.name.includes('y') || t.fromY !== undefined))));
 
             if (!hasXTween) {
                 state.variables.x = b.x;
@@ -2227,8 +2238,13 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
-            state.variables.enemyHp = (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0;
-            state.variables.enemyMaxHp = (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0;
+            if (typeof cpu !== 'undefined' && cpu) {
+                state.variables.enemyHp = cpu.hp;
+                state.variables.enemyMaxHp = cpu.maxHp;
+            } else {
+                state.variables.enemyHp = 0;
+                state.variables.enemyMaxHp = 0;
+            }
 
             // 送信機（エミッター）の現在位置（差分追従方式で上書きを防ぐ）
             let emitterDx = attacker.x - (b.prevEmitterX !== undefined ? b.prevEmitterX : attacker.x);
@@ -2256,12 +2272,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 state.variables.dist = 0;
             }
             if (state.variables.speed === undefined || state.variables.speed === null) {
-                state.variables.speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-            }
-            
-            if (typeof cpu !== 'undefined' && cpu) {
-                state.variables.enemyHp = cpu.hp;
-                state.variables.enemyMaxHp = cpu.maxHp;
+                state.variables.speed = initSpeed;
             }
 
             if (b.isDestroyed) {
@@ -3855,35 +3866,25 @@ function stepEmitter(c, state, attacker, target, dt) {
                 b.laserMoved = true;
             }
             
-            // Sync custom variables to bullet physics properties
-            if (state.variables.bulletType === 'laser') {
-                b.isLaser = true;
-                b.isTrail = false;
-            } else if (state.variables.bulletType === 'trail') {
-                b.isTrail = true;
-                b.isLaser = false;
-                if (!b.trailHistory) b.trailHistory = [];
-            } else if (state.variables.bulletType === 'normal') {
-                b.isLaser = false;
-                b.isTrail = false;
-            }
-            let vGrowTime = window.getBulletVar(state.variables, 'growTime');
+            // Sync custom variables to bullet physics properties（O(1)直接参照＆型判定による高速化）
+            const vars = state.variables;
+            let vGrowTime = vars.growTime !== undefined ? vars.growTime : vars.growtime;
             if (vGrowTime !== undefined) {
-                b.growTime = parseFloat(vGrowTime) || 0.2;
+                b.growTime = (typeof vGrowTime === 'number' ? vGrowTime : parseFloat(vGrowTime)) || 0.2;
             }
-            let vKeepTime = window.getBulletVar(state.variables, 'keepTime');
+            let vKeepTime = vars.keepTime !== undefined ? vars.keepTime : vars.keeptime;
             if (vKeepTime !== undefined) {
-                b.keepTime = parseFloat(vKeepTime) || 0.3;
+                b.keepTime = (typeof vKeepTime === 'number' ? vKeepTime : parseFloat(vKeepTime)) || 0.3;
             }
-            let vShrinkTime = window.getBulletVar(state.variables, 'shrinkTime');
+            let vShrinkTime = vars.shrinkTime !== undefined ? vars.shrinkTime : vars.shrinktime;
             if (vShrinkTime !== undefined) {
-                b.shrinkTime = parseFloat(vShrinkTime) || 0.5;
+                b.shrinkTime = (typeof vShrinkTime === 'number' ? vShrinkTime : parseFloat(vShrinkTime)) || 0.5;
             }
-            let vRound = window.getBulletVar(state.variables, 'round');
+            let vRound = vars.round;
             if (vRound !== undefined) {
                 b.round = (vRound === 'true' || vRound === true);
             }
-            let vBulletType = window.getBulletVar(state.variables, 'bulletType');
+            let vBulletType = vars.bulletType !== undefined ? vars.bulletType : vars.bullettype;
             if (vBulletType !== undefined) {
                 b.bulletType = vBulletType;
                 if (vBulletType === 'laser') {
@@ -3898,114 +3899,113 @@ function stepEmitter(c, state, attacker, target, dt) {
                     b.isTrail = false;
                 }
             }
-            let vBulletImage = window.getBulletVar(state.variables, 'bulletImage');
-            if (vBulletImage === undefined) {
-                vBulletImage = window.getBulletVar(state.variables, 'image');
-            }
+            let vBulletImage = vars.bulletImage !== undefined ? vars.bulletImage : (vars.image !== undefined ? vars.image : vars.bulletimage);
             if (vBulletImage !== undefined) {
-                let imgStr = String(vBulletImage).trim().replace(/^['"]|['"]$/g, '');
-                b.bulletImage = imgStr;
+                if (vBulletImage !== state._lastRawImg) {
+                    state._lastRawImg = vBulletImage;
+                    state._cleanImg = String(vBulletImage).trim().replace(/^['"]|['"]$/g, '');
+                }
+                b.bulletImage = state._cleanImg;
             }
-            let vColor = window.getBulletVar(state.variables, 'color');
+            let vColor = vars.color;
             if (vColor !== undefined) {
                 b.color = vColor;
             }
-            let vBlend = window.getBulletVar(state.variables, 'blend');
-            if (vBlend === undefined) vBlend = window.getBulletVar(state.variables, 'blendMode');
+            let vBlend = vars.blend !== undefined ? vars.blend : (vars.blendMode !== undefined ? vars.blendMode : vars.blendmode);
             if (vBlend !== undefined) {
-                let blendStr = String(vBlend).trim().replace(/^['"]|['"]$/g, '');
-                b.blend = blendStr;
+                if (vBlend !== state._lastRawBlend) {
+                    state._lastRawBlend = vBlend;
+                    state._cleanBlend = String(vBlend).trim().replace(/^['"]|['"]$/g, '');
+                }
+                b.blend = state._cleanBlend;
             }
-            let vAdditive = window.getBulletVar(state.variables, 'additive');
-            if (vAdditive === undefined) vAdditive = window.getBulletVar(state.variables, 'isAdditive');
+            let vAdditive = vars.additive !== undefined ? vars.additive : (vars.isAdditive !== undefined ? vars.isAdditive : vars.isadditive);
             if (vAdditive !== undefined) {
                 let isAdd = (vAdditive === true || vAdditive === 'true' || vAdditive === 1 || vAdditive === '1');
                 b.blend = isAdd ? 'lighter' : 'source-over';
                 b.additive = isAdd;
             }
-            let vRadius = window.getBulletVar(state.variables, 'radius');
+            let vRadius = vars.radius;
             if (vRadius !== undefined) {
-                let rNum = parseFloat(evalExpr(vRadius, state.variables));
+                let rNum = typeof vRadius === 'number' ? vRadius : parseFloat(evalExpr(vRadius, vars));
                 if (!isNaN(rNum)) {
                     b.radius = rNum;
                 }
             }
-            let vHitRadius = window.getBulletVar(state.variables, 'hitRadius');
+            let vHitRadius = vars.hitRadius !== undefined ? vars.hitRadius : vars.hitradius;
             if (vHitRadius !== undefined) {
-                let hrVal = vHitRadius;
-                if (hrVal === '' || hrVal === 'none' || hrVal === '""' || hrVal === "''" || hrVal === undefined || hrVal === null) {
+                if (vHitRadius === '' || vHitRadius === 'none' || vHitRadius === '""' || vHitRadius === "''" || vHitRadius === null) {
                     b.hitRadius = undefined;
                 } else {
-                    let hrNum = parseFloat(evalExpr(hrVal, state.variables));
+                    let hrNum = typeof vHitRadius === 'number' ? vHitRadius : parseFloat(evalExpr(vHitRadius, vars));
                     if (!isNaN(hrNum)) {
                         if (hrNum < 0.1) hrNum = 0;
                         b.hitRadius = hrNum;
-                        window.setBulletVar(state.variables, 'hitRadius', hrNum);
+                        vars.hitRadius = hrNum;
                     }
                 }
             }
             b.laserWidth = getLaserWidth(b);
             // 前後・左右アスペクト比倍率 (multf / multlr) および 当たり判定専用倍率 (hitmultf / hitmultlr)
-            let vMultf = window.getBulletVar(state.variables, 'multf');
-            if (vMultf === undefined) vMultf = window.getBulletVar(state.variables, 'asba');
+            let vMultf = (vars.asba !== undefined && vars.asba !== 1 && vars.multf === 1) ? vars.asba : (vars.multf !== undefined ? vars.multf : vars.asba);
             if (vMultf !== undefined) {
-                let multfNum = parseFloat(evalExpr(vMultf, state.variables));
+                let multfNum = typeof vMultf === 'number' ? vMultf : parseFloat(evalExpr(vMultf, vars));
                 if (!isNaN(multfNum)) {
                     b.multf = multfNum;
                     b.asba = multfNum;
-                    window.setBulletVar(state.variables, 'multf', multfNum);
-                    window.setBulletVar(state.variables, 'asba', multfNum);
+                    vars.multf = multfNum;
+                    vars.asba = multfNum;
                 }
             }
-            let vMultlr = window.getBulletVar(state.variables, 'multlr');
-            if (vMultlr === undefined) vMultlr = window.getBulletVar(state.variables, 'aslr');
+            let vMultlr = (vars.aslr !== undefined && vars.aslr !== 1 && vars.multlr === 1) ? vars.aslr : (vars.multlr !== undefined ? vars.multlr : vars.aslr);
             if (vMultlr !== undefined) {
-                let multlrNum = parseFloat(evalExpr(vMultlr, state.variables));
+                let multlrNum = typeof vMultlr === 'number' ? vMultlr : parseFloat(evalExpr(vMultlr, vars));
                 if (!isNaN(multlrNum)) {
                     b.multlr = multlrNum;
                     b.aslr = multlrNum;
-                    window.setBulletVar(state.variables, 'multlr', multlrNum);
-                    window.setBulletVar(state.variables, 'aslr', multlrNum);
+                    vars.multlr = multlrNum;
+                    vars.aslr = multlrNum;
                 }
             }
-            let vHitmultf = window.getBulletVar(state.variables, 'hitmultf');
+            let vHitmultf = vars.hitmultf;
             if (vHitmultf !== undefined && vHitmultf !== '' && vHitmultf !== null && vHitmultf !== 'none') {
-                let hmfNum = parseFloat(evalExpr(vHitmultf, state.variables));
+                let hmfNum = typeof vHitmultf === 'number' ? vHitmultf : parseFloat(evalExpr(vHitmultf, vars));
                 if (!isNaN(hmfNum)) {
                     b.hitmultf = hmfNum;
-                    window.setBulletVar(state.variables, 'hitmultf', hmfNum);
+                    vars.hitmultf = hmfNum;
                 }
             } else if (vHitmultf === '' || vHitmultf === null || vHitmultf === 'none') {
                 b.hitmultf = undefined;
             }
-            let vHitmultlr = window.getBulletVar(state.variables, 'hitmultlr');
+            let vHitmultlr = vars.hitmultlr;
             if (vHitmultlr !== undefined && vHitmultlr !== '' && vHitmultlr !== null && vHitmultlr !== 'none') {
-                let hmlrNum = parseFloat(evalExpr(vHitmultlr, state.variables));
+                let hmlrNum = typeof vHitmultlr === 'number' ? vHitmultlr : parseFloat(evalExpr(vHitmultlr, vars));
                 if (!isNaN(hmlrNum)) {
                     b.hitmultlr = hmlrNum;
-                    window.setBulletVar(state.variables, 'hitmultlr', hmlrNum);
+                    vars.hitmultlr = hmlrNum;
                 }
             } else if (vHitmultlr === '' || vHitmultlr === null || vHitmultlr === 'none') {
                 b.hitmultlr = undefined;
             }
 
-            let vTransparency = window.getBulletVar(state.variables, 'transparency');
-            if (vTransparency === undefined) vTransparency = window.getBulletVar(state.variables, 'alpha');
+            let vTransparency = vars.transparency !== undefined ? vars.transparency : vars.alpha;
             if (vTransparency !== undefined) {
-                let transNum = parseFloat(evalExpr(vTransparency, state.variables));
+                let transNum = typeof vTransparency === 'number' ? vTransparency : parseFloat(evalExpr(vTransparency, vars));
                 if (!isNaN(transNum)) {
                     transNum = Math.max(0, Math.min(100, transNum));
                     b.transparency = transNum;
-                    window.setBulletVar(state.variables, 'transparency', transNum);
-                    window.setBulletVar(state.variables, 'alpha', transNum);
+                    vars.transparency = transNum;
+                    vars.alpha = transNum;
                 }
             }
             
             // 設置レーザー（警告線付きビーム）の制御
-            let warnT = parseFloat(state.variables.warningTime) || 0;
-            warnT = Math.max(0, warnT);
-            let actT = parseFloat(state.variables.activeTime) || 0;
-            if (actT > 0 && state.variables.warningTime !== undefined) {
+            let rawActT = vars.activeTime;
+            let actT = typeof rawActT === 'number' ? rawActT : (rawActT ? parseFloat(rawActT) : 0);
+            if (actT > 0 && vars.warningTime !== undefined) {
+                let rawWarnT = vars.warningTime;
+                let warnT = typeof rawWarnT === 'number' ? rawWarnT : (parseFloat(rawWarnT) || 0);
+                if (warnT < 0) warnT = 0;
                 state.variables.warningTime = warnT; // スクリプト側にも反映
                 if (state.variables.laserStartTime === null || state.variables.laserStartTime === undefined) {
                     state.variables.laserStartTime = state.variables.timer;

@@ -2681,49 +2681,48 @@
             }
         }
 
-        // 変数の大文字小文字を区別せずに取得・設定するグローバルヘルパー
+        // 変数の大文字小文字を区別せずに取得・設定するグローバルヘルパー（O(1)高速版）
+        const _bulletVarLowerCache = Object.create(null);
         window.getBulletVar = function(variables, name) {
             if (!variables) return undefined;
-            if (variables[name] !== undefined) return variables[name];
-            let lowerName = name.toLowerCase();
-            for (let key in variables) {
-                if (Object.prototype.hasOwnProperty.call(variables, key)) {
-                    if (key.toLowerCase() === lowerName) {
-                        return variables[key];
-                    }
-                }
+            let val = variables[name];
+            if (val !== undefined) return val;
+            let lowerName = _bulletVarLowerCache[name];
+            if (lowerName === undefined) {
+                lowerName = _bulletVarLowerCache[name] = name.toLowerCase();
+            }
+            if (lowerName !== name) {
+                return variables[lowerName];
             }
             return undefined;
         };
 
         window.setBulletVar = function(variables, name, value) {
             if (!variables) return;
-            if (Object.prototype.hasOwnProperty.call(variables, name)) {
+            if (variables[name] !== undefined || Object.prototype.hasOwnProperty.call(variables, name)) {
                 variables[name] = value;
                 return;
             }
-            let lowerName = name.toLowerCase();
-            for (let key in variables) {
-                if (Object.prototype.hasOwnProperty.call(variables, key)) {
-                    if (key.toLowerCase() === lowerName) {
-                        variables[key] = value;
-                        return;
-                    }
-                }
+            let lowerName = _bulletVarLowerCache[name];
+            if (lowerName === undefined) {
+                lowerName = _bulletVarLowerCache[name] = name.toLowerCase();
+            }
+            if (lowerName !== name && (variables[lowerName] !== undefined || Object.prototype.hasOwnProperty.call(variables, lowerName))) {
+                variables[lowerName] = value;
+                return;
             }
             variables[name] = value;
         };
 
         window.hasBulletVar = function(variables, name) {
             if (!variables) return false;
-            if (Object.prototype.hasOwnProperty.call(variables, name)) return true;
-            let lowerName = name.toLowerCase();
-            for (let key in variables) {
-                if (Object.prototype.hasOwnProperty.call(variables, key)) {
-                    if (key.toLowerCase() === lowerName) {
-                        return true;
-                    }
-                }
+            if (variables[name] !== undefined || Object.prototype.hasOwnProperty.call(variables, name)) return true;
+            let lowerName = _bulletVarLowerCache[name];
+            if (lowerName === undefined) {
+                lowerName = _bulletVarLowerCache[name] = name.toLowerCase();
+            }
+            if (lowerName !== name && (variables[lowerName] !== undefined || Object.prototype.hasOwnProperty.call(variables, lowerName))) {
+                return true;
             }
             return false;
         };

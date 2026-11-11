@@ -103,6 +103,267 @@ function isBulletAdditive(b) {
 }
 window.isBulletAdditive = isBulletAdditive;
 
+// ============================================================================
+// ショット着弾 ＆ 耐久弾破壊パーティクルシステム
+// ============================================================================
+const gameHitParticles = [];
+const gameShockwaves = [];
+window.gameHitParticles = gameHitParticles;
+window.gameShockwaves = gameShockwaves;
+const MAX_GAME_HIT_PARTICLES = 600;
+const MAX_GAME_SHOCKWAVES = 60;
+let lastLifeBulletDestroySoundTime = 0;
+
+function parseBulletColorRgb(bullet) {
+    let r = 255, g = 100, bVal = 100;
+    if (!bullet) return [r, g, bVal];
+    if (bullet.color) {
+        let c = String(bullet.color).toLowerCase().trim();
+        if (c === 'pink') return [255, 105, 180];
+        if (c === 'lime') return [50, 255, 50];
+        if (c === 'aqua') return [0, 255, 255];
+        if (typeof parseColorToRgb === 'function') {
+            return parseColorToRgb(bullet.color);
+        }
+    }
+    if (bullet.bulletImage && typeof bullet.bulletImage === 'string') {
+        let s = bullet.bulletImage.toLowerCase();
+        if (s.includes('red') || s.startsWith('r_')) return [255, 60, 60];
+        if (s.includes('blue') || s.startsWith('b_')) return [60, 140, 255];
+        if (s.includes('green') || s.startsWith('g_')) return [60, 255, 100];
+        if (s.includes('yellow') || s.startsWith('y_')) return [255, 230, 40];
+        if (s.includes('purple') || s.startsWith('p_')) return [200, 80, 255];
+        if (s.includes('aqua') || s.includes('cyan')) return [40, 240, 255];
+        if (s.includes('pink') || s.includes('magenta')) return [255, 110, 200];
+        if (s.includes('orange')) return [255, 140, 30];
+        if (s.includes('white') || s.startsWith('w_')) return [240, 240, 255];
+    }
+    return [r, g, bVal];
+}
+
+function spawnShotHitEffect(x, y, bullet) {
+    if (gameHitParticles.length >= MAX_GAME_HIT_PARTICLES) return;
+
+    const bvx = (bullet && typeof bullet.vx === 'number') ? bullet.vx : 0;
+    const bvy = (bullet && typeof bullet.vy === 'number') ? bullet.vy : -1100;
+    const kickX = -bvx * 0.08;
+    const kickY = -bvy * 0.08;
+
+    const count = 4 + Math.floor(Math.random() * 3);
+    for (let k = 0; k < count; k++) {
+        if (gameHitParticles.length >= MAX_GAME_HIT_PARTICLES) break;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 70 + Math.random() * 160;
+        const life = 0.12 + Math.random() * 0.10;
+
+        let color;
+        const rChoice = Math.random();
+        if (rChoice < 0.40) color = '#ffffff';
+        else if (rChoice < 0.75) color = '#99e8ff';
+        else color = '#fff2a8';
+
+        gameHitParticles.push({
+            x: x + (Math.random() - 0.5) * 6,
+            y: y + (Math.random() - 0.5) * 6,
+            vx: Math.cos(angle) * speed + kickX,
+            vy: Math.sin(angle) * speed + kickY,
+            size: 1.6 + Math.random() * 2.0,
+            color: color,
+            alpha: 1.0,
+            life: life,
+            maxLife: life,
+            drag: 0.88,
+            type: 'spark'
+        });
+    }
+
+    if (gameHitParticles.length < MAX_GAME_HIT_PARTICLES) {
+        gameHitParticles.push({
+            x: x,
+            y: y,
+            vx: 0,
+            vy: 0,
+            size: 6 + Math.random() * 4,
+            color: '#ffffff',
+            alpha: 0.95,
+            life: 0.06,
+            maxLife: 0.06,
+            drag: 1.0,
+            type: 'flash'
+        });
+    }
+}
+window.spawnShotHitEffect = spawnShotHitEffect;
+
+function spawnLifeBulletDestroyEffect(bullet) {
+    if (!bullet) return;
+    const x = bullet.x;
+    const y = bullet.y;
+    const bRadius = Math.max(8, Number(bullet.hitRadius) || Number(bullet.radius) || 14);
+
+    const [r, g, bVal] = parseBulletColorRgb(bullet);
+
+    // 破片パーティクル
+    const shardCount = Math.min(32, Math.max(16, Math.floor(bRadius * 0.85)));
+    for (let k = 0; k < shardCount; k++) {
+        if (gameHitParticles.length >= MAX_GAME_HIT_PARTICLES) break;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = (110 + Math.random() * 250) * (0.8 + Math.min(bRadius, 40) * 0.015);
+        const life = 0.32 + Math.random() * 0.28;
+
+        let col;
+        const pick = Math.random();
+        if (pick < 0.25) {
+            col = '#ffffff';
+        } else if (pick < 0.70) {
+            col = `rgb(${r}, ${g}, ${bVal})`;
+        } else {
+            col = `rgb(${Math.min(255, r + 80)}, ${Math.min(255, g + 80)}, ${Math.min(255, bVal + 80)})`;
+        }
+
+        gameHitParticles.push({
+            x: x + (Math.random() - 0.5) * (bRadius * 0.6),
+            y: y + (Math.random() - 0.5) * (bRadius * 0.6),
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 2.2 + Math.random() * 3.5,
+            color: col,
+            alpha: 1.0,
+            life: life,
+            maxLife: life,
+            drag: 0.92,
+            type: 'shard'
+        });
+    }
+
+    // 衝撃波リング
+    if (gameShockwaves.length < MAX_GAME_SHOCKWAVES) {
+        gameShockwaves.push({
+            x: x,
+            y: y,
+            r: bRadius * 0.4,
+            maxR: bRadius * 2.4 + 14,
+            color: `rgba(${r}, ${g}, ${bVal}, 0.9)`,
+            lineWidth: Math.max(1.8, Math.min(4.5, bRadius * 0.16)),
+            life: 0.30,
+            maxLife: 0.30
+        });
+    }
+
+    // 中心フラッシュ
+    if (gameHitParticles.length < MAX_GAME_HIT_PARTICLES) {
+        gameHitParticles.push({
+            x: x,
+            y: y,
+            vx: 0,
+            vy: 0,
+            size: bRadius * 1.3 + 4,
+            color: '#ffffff',
+            alpha: 1.0,
+            life: 0.10,
+            maxLife: 0.10,
+            drag: 1.0,
+            type: 'flash'
+        });
+    }
+
+
+    // 破壊SE再生
+    const now = performance.now();
+    if (now - lastLifeBulletDestroySoundTime >= 45) {
+        lastLifeBulletDestroySoundTime = now;
+        if (window.soundManager && typeof window.soundManager.play === 'function') {
+            window.soundManager.play('shot');
+        } else if (window.playSound) {
+            window.playSound('shot');
+        }
+    }
+}
+window.spawnLifeBulletDestroyEffect = spawnLifeBulletDestroyEffect;
+
+function handleLifeBulletDestroyed(bullet) {
+    if (!bullet || bullet._lifeDestroyedHandled) return;
+    bullet._lifeDestroyedHandled = true;
+    spawnLifeBulletDestroyEffect(bullet);
+}
+window.handleLifeBulletDestroyed = handleLifeBulletDestroyed;
+
+function updateGameHitParticles(dt) {
+    if (gameHitParticles.length === 0 && gameShockwaves.length === 0) return;
+
+    for (let i = gameHitParticles.length - 1; i >= 0; i--) {
+        const p = gameHitParticles[i];
+        p.life -= dt;
+        if (p.life <= 0) {
+            gameHitParticles[i] = gameHitParticles[gameHitParticles.length - 1];
+            gameHitParticles.pop();
+            continue;
+        }
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        if (p.drag && p.drag < 1.0) {
+            const dragFactor = Math.pow(p.drag, dt * 60);
+            p.vx *= dragFactor;
+            p.vy *= dragFactor;
+        }
+        p.alpha = Math.max(0, p.life / p.maxLife);
+    }
+
+    for (let i = gameShockwaves.length - 1; i >= 0; i--) {
+        const sw = gameShockwaves[i];
+        sw.life -= dt;
+        if (sw.life <= 0) {
+            gameShockwaves[i] = gameShockwaves[gameShockwaves.length - 1];
+            gameShockwaves.pop();
+            continue;
+        }
+        const progress = 1 - (sw.life / sw.maxLife);
+        sw.curR = sw.r + (sw.maxR - sw.r) * Math.sin(progress * Math.PI / 2);
+        sw.alpha = Math.max(0, sw.life / sw.maxLife);
+    }
+}
+window.updateGameHitParticles = updateGameHitParticles;
+
+function drawGameHitParticles(ctx) {
+    if (gameHitParticles.length === 0 && gameShockwaves.length === 0) return;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+
+    // 衝撃波リング
+    for (let i = 0; i < gameShockwaves.length; i++) {
+        const sw = gameShockwaves[i];
+        ctx.globalAlpha = sw.alpha * 0.85;
+        ctx.strokeStyle = sw.color;
+        ctx.lineWidth = sw.lineWidth;
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.curR || sw.r, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    // パーティクル＆フラッシュ
+    for (let i = 0; i < gameHitParticles.length; i++) {
+        const p = gameHitParticles[i];
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+
+        ctx.beginPath();
+        if (p.type === 'flash') {
+            const progress = p.life / p.maxLife;
+            const currentR = p.size * progress;
+            ctx.arc(p.x, p.y, Math.max(0.1, currentR), 0, Math.PI * 2);
+        } else {
+            const progress = p.life / p.maxLife;
+            const currentR = p.size * (0.35 + 0.65 * progress);
+            ctx.arc(p.x, p.y, Math.max(0.1, currentR), 0, Math.PI * 2);
+        }
+        ctx.fill();
+    }
+
+    ctx.restore();
+}
+window.drawGameHitParticles = drawGameHitParticles;
+
 window._pendingLayerBullets = [];
 window.requestBulletLayerChange = function(b, action) {
     if (!b) return;
@@ -2842,6 +3103,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             }
                         }
                         if (b.health <= 0) {
+                            handleLifeBulletDestroyed(b);
                             if (!b._hasRunDestroyScript) {
                                 b._hasRunDestroyScript = true;
                                 b.isDestroyed = true;
@@ -3125,6 +3387,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             }
 
                             if (!isCustomCardTesting && !b.destroyResist) {
+                                spawnShotHitEffect(b.x, b.y, b);
                                 if (useFastRemove) { b._dead = true; continue; }
                                 bullets.splice(i, 1); continue;
                             }
@@ -3187,6 +3450,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                                 }
 
                                 if (eb.health <= 0) {
+                                    handleLifeBulletDestroyed(eb);
                                     if (!eb._hasRunDestroyScript) {
                                         eb._hasRunDestroyScript = true;
                                         eb.isDestroyed = true;
@@ -3208,6 +3472,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             }
                         }
                         if (hitLifeBullet) {
+                            spawnShotHitEffect(b.x, b.y, b);
                             if (useFastRemove) { b._dead = true; continue; }
                             bullets.splice(i, 1); continue;
                         }
@@ -3377,6 +3642,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             cpu.recentHits.push({ damage: dmg, timestamp: performance.now() });
                             cpu.hitLastTurn = true; // 被弾履歴
 
+                            spawnShotHitEffect(b.x, b.y, b);
                             if (b.isNormal) {
                                 if (Math.random() < 0.25) spawnBombPiece(cpu.x, cpu.y, 2); // 25%の確率で2かけら
                             } else {
@@ -3460,6 +3726,9 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 }
 
 
+                // ショット着弾・耐久弾破壊パーティクルの更新
+                updateGameHitParticles(dt);
+
                 // 耐えた時の小さな爆発パーティクルの更新
                 if (window.miniExplosionEffect) {
                     window.miniExplosionEffect.forEach(p => {
@@ -3494,6 +3763,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                                 b.bulletState.variables.hp = b.health;
                             }
                             if (b.health <= 0) {
+                                handleLifeBulletDestroyed(b);
                                 if (!b._hasRunDestroyScript) {
                                     b._hasRunDestroyScript = true;
                                     b.isDestroyed = true;
@@ -5361,6 +5631,9 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 ctx.restore();
             }
 
+            // ショット着弾＆耐久弾破壊パーティクルの描画
+            drawGameHitParticles(ctx);
+
             // 耐えた時の小さな爆発エフェクトの描画
             if (isCustomCardTesting && window.miniExplosionEffect) {
                 window.miniExplosionEffect.forEach(p => {
@@ -6763,6 +7036,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             window.playerInvincibleTimer = 0;
             window.miniExplosionEffect = null;
             window.miniExplosionShockwave = null;
+            gameHitParticles.length = 0;
+            gameShockwaves.length = 0;
             player.respawnDelay = 0;
             player.respawnTimer = 0;
             player.respawnStartY = 0;
