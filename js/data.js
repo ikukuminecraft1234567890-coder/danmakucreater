@@ -1268,8 +1268,11 @@
         // ゲームコアロジック (戦闘システム拡張)
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
+        window.canvas = canvas;
         const ctx = canvas.getContext('2d');
+        window.ctx = ctx;
         const PLAY_WIDTH = 768;
+        window.PLAY_WIDTH = PLAY_WIDTH;
 
         // ==========================================
         // 画像リソース

@@ -207,6 +207,57 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `  state.onceMap['${bid}'] = true;\n`;
             js += window.DanmakuCompiler.generateBlocksJS(block.children || [], indent + 1);
             js += ind + `}\n`;
+        } else if (t === 'bounce' || t === 'bounce_all') {
+            let isAll = (t === 'bounce_all');
+            js += ind + `{\n`;
+            js += ind + `  let _curX = (vars['x'] !== undefined ? Number(vars['x']) : (b ? b.x : 0));\n`;
+            js += ind + `  let _curY = (vars['y'] !== undefined ? Number(vars['y']) : (b ? b.y : 0));\n`;
+            js += ind + `  let _curAngle = Number(vars['angle']) || 0;\n`;
+            js += ind + `  let _can = (typeof canvas !== 'undefined' && canvas && typeof canvas.height === 'number') ? canvas : ((typeof window !== 'undefined' && window.canvas && typeof window.canvas.height === 'number') ? window.canvas : null);\n`;
+            js += ind + `  let _pw = (typeof PLAY_WIDTH !== 'undefined' && typeof PLAY_WIDTH === 'number') ? PLAY_WIDTH : (_can && typeof _can.width === 'number' ? _can.width : 768);\n`;
+            js += ind + `  let _ch = (_can && typeof _can.height === 'number') ? _can.height : 896;\n`;
+            js += ind + `  let _bounced = false;\n`;
+            js += ind + `  if (_curX < 10 && Math.cos(_curAngle * Math.PI / 180) < 0) {\n`;
+            js += ind + `    _curAngle = 180 - _curAngle;\n`;
+            js += ind + `    _curX = 10;\n`;
+            js += ind + `    if (b) b.x = 10;\n`;
+            js += ind + `    _bounced = true;\n`;
+            js += ind + `  }\n`;
+            js += ind + `  if (_curX > _pw - 10 && Math.cos(_curAngle * Math.PI / 180) > 0) {\n`;
+            js += ind + `    _curAngle = 180 - _curAngle;\n`;
+            js += ind + `    _curX = _pw - 10;\n`;
+            js += ind + `    if (b) b.x = _pw - 10;\n`;
+            js += ind + `    _bounced = true;\n`;
+            js += ind + `  }\n`;
+            js += ind + `  if (_curY < 10 && Math.sin(_curAngle * Math.PI / 180) < 0) {\n`;
+            js += ind + `    _curAngle = -_curAngle;\n`;
+            js += ind + `    _curY = 10;\n`;
+            js += ind + `    if (b) b.y = (state.isPlayerSide ? _ch - 10 : 10);\n`;
+            js += ind + `    _bounced = true;\n`;
+            js += ind + `  }\n`;
+            if (isAll) {
+                js += ind + `  let _botLimit = _ch - 10;\n`;
+                js += ind + `  if (_curY > _botLimit && Math.sin(_curAngle * Math.PI / 180) > 0) {\n`;
+                js += ind + `    _curAngle = -_curAngle;\n`;
+                js += ind + `    _curY = _botLimit;\n`;
+                js += ind + `    if (b) b.y = (state.isPlayerSide ? 10 : _botLimit);\n`;
+                js += ind + `    _bounced = true;\n`;
+                js += ind + `  }\n`;
+            }
+            js += ind + `  vars['x'] = _curX;\n`;
+            js += ind + `  vars['y'] = _curY;\n`;
+            js += ind + `  vars['angle'] = ((_curAngle % 360) + 360) % 360;\n`;
+            js += ind + `  if (_bounced) {\n`;
+            js += ind + `    vars['isBounced'] = 1;\n`;
+            js += ind + `    if (b) {\n`;
+            js += ind + `      let _rad = vars['angle'] * Math.PI / 180;\n`;
+            js += ind + `      if (state.isPlayerSide) _rad = -_rad;\n`;
+            js += ind + `      let _spd = Number(vars['speed']) || Math.sqrt(b.vx * b.vx + b.vy * b.vy);\n`;
+            js += ind + `      b.vx = Math.cos(_rad) * _spd;\n`;
+            js += ind + `      b.vy = Math.sin(_rad) * _spd;\n`;
+            js += ind + `    }\n`;
+            js += ind + `  }\n`;
+            js += ind + `}\n`;
         } else {
             js += ind + `if (_util.executeBlock({ type: '${t}', `;
             if (block.id) {

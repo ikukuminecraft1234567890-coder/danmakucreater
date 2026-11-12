@@ -1818,6 +1818,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 );
                 window.needsWallTouchDetection = (
                     codeStr.includes('isBounced') ||
+                    codeStr.includes('bounce') ||
                     codeStr.includes('bounceAll') ||
                     codeStr.includes('bounce_all') ||
                     codeStr.includes('isTouchWall') ||
@@ -1826,7 +1827,8 @@ function stepEmitter(c, state, attacker, target, dt) {
                     codeStr.includes('rightWall') ||
                     codeStr.includes('topWall') ||
                     codeStr.includes('bottomWall') ||
-                    codeStr.includes('Edge')
+                    codeStr.includes('Edge') ||
+                    codeStr.includes('反射')
                 );
                 window.needsEmitterSync = (
                     /\be_[a-zA-Z0-9_]+/i.test(codeStr) ||

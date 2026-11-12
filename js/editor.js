@@ -3216,9 +3216,9 @@ function customCardMakerSwitchMode(mode) {
                         }
                         block = { type: 'move_owner', params: { preset, duration }, indent };
                     }
-                    let mBounce = trimmed.match(/^bounce\(\)$/i);
+                    let mBounce = trimmed.match(/^(?:bounce|壁で跳ね返る|壁で反射する)(?:\(\))?$/i);
                     if (mBounce) block = { type: 'bounce', params: {}, indent };
-                    let mBounceAll = trimmed.match(/^(?:bounceAll|bounce_all)\(\)$/i);
+                    let mBounceAll = trimmed.match(/^(?:bounceAll|bounce_all|全方位で反射する|全画面反射|全方位反射)(?:\(\))?$/i);
                     if (mBounceAll) block = { type: 'bounce_all', params: {}, indent };
                     let mToFront = trimmed.match(/^(?:toFront|bringToFront|setFront|layer\(['"]front['"]\))(?:\(\))?$/i);
                     if (mToFront) block = { type: 'to_front', params: {}, indent };
@@ -3815,11 +3815,11 @@ function customCardMakerSwitchMode(mode) {
                     }
                     block = { type: 'move_owner', params: { preset, duration }, indent: indent };
                 }
-                let mBounce = trimmed.match(/^bounce\(\)$/i);
+                let mBounce = trimmed.match(/^(?:bounce|壁で跳ね返る|壁で反射する)(?:\(\))?$/i);
                 if (mBounce) {
                     block = { type: 'bounce', params: {}, indent: indent };
                 }
-                let mBounceAll = trimmed.match(/^(?:bounceAll|bounce_all)\(\)$/i);
+                let mBounceAll = trimmed.match(/^(?:bounceAll|bounce_all|全方位で反射する|全画面反射|全方位反射)(?:\(\))?$/i);
                 if (mBounceAll) {
                     block = { type: 'bounce_all', params: {}, indent: indent };
                 }
