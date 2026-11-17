@@ -447,7 +447,14 @@ function customCardMakerSwitchTab(tab) {
             { val: 'onryou_light_yellow', label: '光式黄怨霊(光弾)', icon: 'onryou_light_yellow.png' },
             { val: 'mahoujin', label: '魔法陣(32px)', icon: 'mahoujin.png' },
             { val: 'mahoujin64', label: '魔法陣64(64px)', icon: 'mahoujin64.png' },
-            { val: 'mahoujin128', label: '魔法陣128(128px)', icon: 'mahoujin128.png' }
+            { val: 'mahoujin128', label: '魔法陣128(128px)', icon: 'mahoujin128.png' },
+            { val: 'haniwa', label: '偶像弾 (埴輪/土偶)', icon: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU_owdpJrMdJp5UzfYgWeCxCh_ZBW61L0ZoZS0pVC9uI8j4ozg556X8EwuoNHZR92g7GscB6K8Kay6pDZag6st3D0iSBqjdTMTgTWB5tkfOQnucqiy8biP9JSCLD7ccCxjewkCh6nN4R4/s400-rw/haniwa.png' },
+            { val: 'player_normal', label: '自機弾 (ノーマル)', icon: 'svg:player_normal' },
+            { val: 'player_missile', label: '自機弾 (ミサイル)', icon: 'svg:player_missile' },
+            { val: 'player_slash', label: '自機弾 (斬撃)', icon: 'svg:player_slash' },
+            { val: 'player_snake', label: '自機弾 (蛇弾)', icon: 'svg:player_snake' },
+            { val: 'player_knife', label: '自機弾 (ナイフ)', icon: 'svg:player_knife' },
+            { val: 'player_wave', label: '自機弾 (波動弾)', icon: 'svg:player_wave' }
         ];
 
         const bulletShapeLabelMap = {
@@ -550,9 +557,27 @@ function customCardMakerSwitchTab(tab) {
             ]}
         ];
 
+        function isBaseBulletImageMatch(itemVal, targetVal) {
+            return itemVal === targetVal ||
+                (itemVal === 'onmyoutama' && targetVal === 'onmyoudama') ||
+                (itemVal === 'haniwa' && (targetVal === 'idol' || targetVal === 'doguu'));
+        }
+
+        function getPlayerShotThumbSvg(shotKey) {
+            const svgs = {
+                player_normal: '<svg viewBox="0 0 24 24" class="bullet-item-thumb"><rect x="8" y="3" width="8" height="18" rx="1.5" fill="#fff" stroke="#88ddff" stroke-width="1.6"/></svg>',
+                player_missile: '<svg viewBox="0 0 24 24" class="bullet-item-thumb"><polygon points="12,2 8,9 16,9" fill="#ff4411"/><rect x="8.5" y="9" width="7" height="9" fill="#e2e8f0"/><polygon points="8.5,14 4,19 8.5,18" fill="#ff6622"/><polygon points="15.5,14 20,19 15.5,18" fill="#ff6622"/><polygon points="10,18 12,23 14,18" fill="#ffaa33"/></svg>',
+                player_slash: '<svg viewBox="0 0 24 24" class="bullet-item-thumb"><path d="M3,17 C6,5 18,4 21,12 C16,8 8,9 3,17 Z" fill="#66eeff" stroke="#fff" stroke-width="1"/></svg>',
+                player_snake: '<svg viewBox="0 0 24 24" class="bullet-item-thumb"><path d="M7,20 Q7,12 14,8" fill="none" stroke="#22ff66" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="7" r="4" fill="#22ff66"/><circle cx="15" cy="7" r="2" fill="#fff"/></svg>',
+                player_knife: '<svg viewBox="0 0 24 24" class="bullet-item-thumb"><polygon points="12,2 15.5,13 12,17 8.5,13" fill="#fff" stroke="#c084fc" stroke-width="1.2"/><rect x="8.5" y="15.5" width="7" height="2" fill="#a855f7"/></svg>',
+                player_wave: '<svg viewBox="0 0 24 24" class="bullet-item-thumb"><circle cx="12" cy="12" r="7" fill="rgba(56,189,248,0.45)" stroke="#38bdf8" stroke-width="1.4"/><path d="M6,10 A7,7 0 0,1 18,10" fill="none" stroke="#bae6fd" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="#fff"/></svg>'
+            };
+            return svgs[shotKey] || '<span style="font-size: 14px; text-align: center;">⚪</span>';
+        }
+
         function getBulletImageDisplayName(val) {
             if (!val || val === 'none') return '丸（ドロー）';
-            const base = bulletBaseImageItems.find(b => b.val === val || (b.val === 'onmyoutama' && val === 'onmyoudama'));
+            const base = bulletBaseImageItems.find(b => isBaseBulletImageMatch(b.val, val));
             if (base) return base.label;
 
             // パレット弾チェック
@@ -603,7 +628,7 @@ function customCardMakerSwitchTab(tab) {
             let html = '';
 
             // 1. 通常画像カテゴリ
-            let isBaseSelected = bulletBaseImageItems.some(b => b.val === currentVal || (b.val === 'onmyoutama' && currentVal === 'onmyoudama')) || (!currentVal || currentVal === 'none');
+            let isBaseSelected = bulletBaseImageItems.some(b => isBaseBulletImageMatch(b.val, currentVal)) || (!currentVal || currentVal === 'none');
             html += `
                 <details class="bullet-cat-details" ${isBaseSelected ? 'open' : ''}>
                     <summary class="bullet-cat-summary">
@@ -613,10 +638,15 @@ function customCardMakerSwitchTab(tab) {
                     <div class="bullet-grid">
             `;
             bulletBaseImageItems.forEach(item => {
-                const isActive = (currentVal === item.val || (item.val === 'onmyoutama' && currentVal === 'onmyoudama')) ? 'active' : '';
-                const thumbHtml = (item.icon && item.icon.endsWith('.png')) 
-                    ? `<div class="bullet-item-thumb-box"><img src="${item.icon}" class="bullet-item-thumb" alt=""></div>`
-                    : `<div class="bullet-item-thumb-box"><span style="font-size: 14px; text-align: center;">⚪</span></div>`;
+                const isActive = isBaseBulletImageMatch(item.val, currentVal) ? 'active' : '';
+                let thumbInner = '<span style="font-size: 14px; text-align: center;">⚪</span>';
+                if (item.icon && item.icon.startsWith('svg:')) {
+                    thumbInner = getPlayerShotThumbSvg(item.icon.slice(4));
+                } else if (item.icon && (item.icon.endsWith('.png') || item.icon.startsWith('http'))) {
+                    const refAttr = item.icon.startsWith('http') ? ' referrerpolicy="no-referrer"' : '';
+                    thumbInner = `<img src="${item.icon}" class="bullet-item-thumb" alt=""${refAttr}>`;
+                }
+                const thumbHtml = `<div class="bullet-item-thumb-box">${thumbInner}</div>`;
                 html += `
                     <button type="button" class="bullet-item-btn ${isActive}" onclick="selectBulletImage('${item.val}')">
                         ${thumbHtml}

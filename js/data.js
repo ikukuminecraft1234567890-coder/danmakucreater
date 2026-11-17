@@ -1612,6 +1612,10 @@
         haniwaImg.src = HANIWA_IMAGE_URL;
         window.haniwaImg = haniwaImg;
         window.HANIWA_IMAGE_URL = HANIWA_IMAGE_URL;
+        window.bulletImages['haniwa'] = haniwaImg;
+        window.bulletImages['haniwa.png'] = haniwaImg;
+        window.bulletImages['idol'] = haniwaImg;
+        window.bulletImages['doguu'] = haniwaImg;
 
         function initOnryouFrames() {
             if (!onryouMasterImg.complete || onryouMasterImg.naturalWidth <= 0) return;

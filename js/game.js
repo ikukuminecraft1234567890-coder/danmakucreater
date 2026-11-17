@@ -929,6 +929,157 @@ function triggerPlayerMissileExplosion(b, ctxFlags) {
     }
 }
 
+const PLAYER_SHOT_BULLET_IMAGE_KEYS = new Set([
+    'haniwa', 'idol', 'doguu',
+    'player_normal', 'player_missile', 'player_slash',
+    'player_snake', 'player_knife', 'player_wave'
+]);
+
+function drawPlayerShotAsBulletImage(ctx, b, shotKey, drawRadius, multf, multlr, vars) {
+    let angle;
+    if (vars && vars.spriteAngle !== undefined && vars.spriteAngle !== null) {
+        let spriteAngleRad = (Number(vars.spriteAngle) || 0) * Math.PI / 180;
+        if (b.bulletState && b.bulletState.isPlayerSide) spriteAngleRad = -spriteAngleRad;
+        angle = spriteAngleRad + Math.PI / 2;
+    } else {
+        angle = Math.atan2(b.vy, b.vx) + Math.PI / 2;
+    }
+
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(angle);
+    if (multf !== 1 || multlr !== 1) {
+        ctx.scale(multlr, multf);
+    }
+
+    const r = Math.max(4, drawRadius);
+    if (shotKey === 'haniwa' || shotKey === 'idol' || shotKey === 'doguu') {
+        const sz = r * 2;
+        const hImg = window.haniwaImg;
+        if (hImg && hImg.complete && hImg.naturalWidth > 0) {
+            const aspect = hImg.naturalWidth / (hImg.naturalHeight || hImg.naturalWidth);
+            const drawW = aspect >= 1 ? sz : sz * aspect;
+            const drawH = aspect >= 1 ? sz / aspect : sz;
+            ctx.drawImage(hImg, -drawW / 2, -drawH / 2, drawW, drawH);
+        } else {
+            ctx.fillStyle = '#d99b66';
+            ctx.strokeStyle = '#fef3c7';
+            ctx.lineWidth = Math.max(1.2, sz * 0.03);
+            ctx.beginPath();
+            ctx.ellipse(0, -sz * 0.14, sz * 0.24, sz * 0.22, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillRect(-sz * 0.18, sz * 0.04, sz * 0.36, sz * 0.32);
+            ctx.strokeRect(-sz * 0.18, sz * 0.04, sz * 0.36, sz * 0.32);
+            ctx.fillStyle = '#3b2412';
+            const eyeR = Math.max(1.5, sz * 0.055);
+            ctx.beginPath();
+            ctx.arc(-sz * 0.08, -sz * 0.17, eyeR, 0, Math.PI * 2);
+            ctx.arc(sz * 0.08, -sz * 0.17, eyeR, 0, Math.PI * 2);
+            ctx.arc(0, -sz * 0.07, eyeR * 1.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    } else if (shotKey === 'player_normal') {
+        const w = r * 1.1;
+        const h = r * 2.4;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-w / 2, -h / 2, w, h);
+        ctx.strokeStyle = '#88ddff';
+        ctx.lineWidth = Math.max(1.2, r * 0.15);
+        ctx.strokeRect(-w / 2, -h / 2, w, h);
+    } else if (shotKey === 'player_missile') {
+        const sc = r / 9;
+        ctx.scale(sc, sc);
+        const flameLen = 7 + Math.random() * 5;
+        ctx.fillStyle = '#ffaa33';
+        ctx.beginPath();
+        ctx.moveTo(-3.5, 7); ctx.lineTo(0, 8 + flameLen); ctx.lineTo(3.5, 7); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#fff3b0';
+        ctx.beginPath();
+        ctx.moveTo(-1.8, 7); ctx.lineTo(0, 7 + flameLen * 0.65); ctx.lineTo(1.8, 7); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ff6622';
+        ctx.beginPath();
+        ctx.moveTo(-3, 2); ctx.lineTo(-7, 8); ctx.lineTo(-3, 7);
+        ctx.moveTo(3, 2); ctx.lineTo(7, 8); ctx.lineTo(3, 7);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(-3, -4, 6, 11);
+        ctx.fillStyle = '#ff4411';
+        ctx.beginPath();
+        ctx.moveTo(-3, -4); ctx.lineTo(0, -11); ctx.lineTo(3, -4); ctx.closePath(); ctx.fill();
+    } else if (shotKey === 'player_slash') {
+        ctx.fillStyle = 'rgba(30, 200, 255, 0.42)';
+        ctx.beginPath();
+        ctx.moveTo(-r * 1.2, r * 0.55);
+        ctx.quadraticCurveTo(0, -r * 1.15, r * 1.2, r * 0.35);
+        ctx.quadraticCurveTo(0, -r * 0.35, -r * 1.2, r * 0.55);
+        ctx.fill();
+        ctx.fillStyle = '#66eeff';
+        ctx.beginPath();
+        ctx.moveTo(-r * 1.1, r * 0.48);
+        ctx.quadraticCurveTo(0, -r * 0.98, r * 1.1, r * 0.3);
+        ctx.quadraticCurveTo(0, -r * 0.42, -r * 1.1, r * 0.48);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.95, r * 0.38);
+        ctx.quadraticCurveTo(0, -r * 0.85, r * 0.95, r * 0.24);
+        ctx.quadraticCurveTo(0, -r * 0.52, -r * 0.95, r * 0.38);
+        ctx.fill();
+    } else if (shotKey === 'player_snake') {
+        ctx.fillStyle = 'rgba(34, 255, 102, 0.38)';
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.72, 0);
+        ctx.quadraticCurveTo(0, r * 2.2, r * 0.72, 0);
+        ctx.arc(0, 0, r * 0.72, 0, Math.PI, true);
+        ctx.fill();
+        ctx.fillStyle = '#22ff66';
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.78, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.42, 0, Math.PI * 2);
+        ctx.fill();
+    } else if (shotKey === 'player_knife') {
+        const sc = r / 7;
+        ctx.scale(sc, sc);
+        ctx.fillStyle = 'rgba(216, 180, 254, 0.42)';
+        ctx.beginPath();
+        ctx.moveTo(0, -14); ctx.lineTo(4.2, 2); ctx.lineTo(0, 10); ctx.lineTo(-4.2, 2); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(0, -12); ctx.lineTo(2.6, 2); ctx.lineTo(0, 6); ctx.lineTo(-2.6, 2); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(0, 8); ctx.stroke();
+        ctx.fillStyle = '#a855f7';
+        ctx.fillRect(-3, 4, 6, 2);
+    } else if (shotKey === 'player_wave') {
+        const pulse = 1 + Math.sin(performance.now() * 0.028 + b.x * 0.1) * 0.1;
+        const wr = r * 0.88 * pulse;
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.38)';
+        ctx.beginPath();
+        ctx.arc(0, 0, wr * 1.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(0, 0, wr, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#bae6fd';
+        ctx.lineWidth = Math.max(1.5, wr * 0.22);
+        ctx.beginPath();
+        ctx.arc(0, 1, wr * 1.15, -Math.PI * 0.82, -Math.PI * 0.18, false);
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, wr * 0.52, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.restore();
+}
+
 window._pendingLayerBullets = [];
 window.requestBulletLayerChange = function(b, action) {
     if (!b) return;
@@ -5762,7 +5913,9 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         imgKey = 'rednormal';
                     }
 
-                    if (imgKey && imgKey !== 'none') {
+                    if (PLAYER_SHOT_BULLET_IMAGE_KEYS.has(cleanImgKey)) {
+                        drawPlayerShotAsBulletImage(ctx, b, cleanImgKey, drawRadius, multf, multlr, vars);
+                    } else if (imgKey && imgKey !== 'none') {
                         let texture = null;
                         const isOnryou = isOnryouBulletKey(imgKey) || isOnryouBulletKey(cleanImgKey);
                         const isLightOnryou = isOnryou && (isLightOnryouBulletKey(imgKey) || isLightOnryouBulletKey(cleanImgKey));
@@ -8582,6 +8735,9 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             }
             if (['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain', 'onryou', 'onryou_red', 'onryou_blue', 'onryou_green', 'onryou_yellow', 'onryou_light_red', 'onryou_light_blue', 'onryou_light_green', 'onryou_light_yellow', 'onryou_light', 'mahoujin', 'mahoujin64', 'mahoujin128', 'mahoujin_64', 'mahoujin_128', '魔法陣', '魔法陣64', '魔法陣128'].includes(s) ||
                 ['none', 'light', 'sword', 'marutama', 'kome', 'ootama', 'ohuda', 'star', 'knife', 'uroko', 'poihuru', 'virus', 'onmyoutama', 'onmyoudama', 'b_marutama', 'b_ohuda', 'b_star', 'b_knife', 'b_poihuru', 'b_uroko', 'tyoudan', 'b_tyoudan', 'butterfly', 'dangan', 'kunai1', 'kunai2', 'grain', 'onryou', 'onryou_red', 'onryou_blue', 'onryou_green', 'onryou_yellow', 'onryou_light_red', 'onryou_light_blue', 'onryou_light_green', 'onryou_light_yellow', 'onryou_light', 'mahoujin', 'mahoujin64', 'mahoujin128', 'mahoujin_64', 'mahoujin_128', '魔法陣', '魔法陣64', '魔法陣128'].includes(clean)) {
+                return true;
+            }
+            if (PLAYER_SHOT_BULLET_IMAGE_KEYS.has(s) || PLAYER_SHOT_BULLET_IMAGE_KEYS.has(clean)) {
                 return true;
             }
             if (window.paletteBulletSet && (window.paletteBulletSet.has(s) || window.paletteBulletSet.has(clean) || window.paletteBulletSet.has('pallets/' + clean))) {
