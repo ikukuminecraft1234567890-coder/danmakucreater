@@ -364,6 +364,571 @@ function drawGameHitParticles(ctx) {
 }
 window.drawGameHitParticles = drawGameHitParticles;
 
+const PLAYER_SHIP_SHOT_INTERVALS = {
+    normal:  { boss: 0.07, battle: 0.14 },
+    missile: { boss: 0.16, battle: 0.32 },
+    slash:   { boss: 0.50, battle: 0.90 },
+    snake:   { boss: 0.10, battle: 0.20 },
+    knife:   { boss: 0.06, battle: 0.12 },
+    wave:    { boss: 0.30, battle: 0.60 },
+    idol:    { boss: 1.00, battle: 1.80 }
+};
+
+function findNearestPlayerEnemyTarget(x, y) {
+    let best = null;
+    let bestDistSq = Infinity;
+    if (typeof bullets !== 'undefined' && Array.isArray(bullets)) {
+        for (let idx = 0; idx < bullets.length; idx++) {
+            const eb = bullets[idx];
+            if (!eb || eb._dead || eb.team === 'PLAYER' || !eb.isLifeBullet || eb.health <= 0) continue;
+            const dx = eb.x - x;
+            const dy = eb.y - y;
+            const dSq = dx * dx + dy * dy;
+            if (dSq < bestDistSq) {
+                bestDistSq = dSq;
+                best = eb;
+            }
+        }
+    }
+    if (typeof cpu !== 'undefined' && cpu && cpu.hp > 0) {
+        const dx = cpu.x - x;
+        const dy = cpu.y - y;
+        const dSq = dx * dx + dy * dy;
+        if (dSq < bestDistSq) {
+            best = cpu;
+        }
+    }
+    return best;
+}
+
+function updatePlayerMissile(b, dt) {
+    b.age = (b.age || 0) + dt;
+    b.vy = Math.max(b.maxVy, b.vy + b.accelY * dt);
+}
+
+function updatePlayerIdolShot(b, dt) {
+    b.age = (b.age || 0) + dt;
+    b.spinAngle = (b.spinAngle || 0) + (b.spinSpeed || 8.5) * dt;
+}
+
+function updatePlayerSlash(b, dt) {
+    b.age = (b.age || 0) + dt;
+    if (b.age >= b.maxLife || !player || player.hp <= 0 || (player.respawnDelay && player.respawnDelay > 0)) {
+        b._expired = true;
+        return;
+    }
+    b.x = player.x;
+    b.y = player.y + (b.offsetY !== undefined ? b.offsetY : -46);
+}
+
+function isTargetInPlayerSlash(b, tx, ty, targetR) {
+    const rx = (b.hitRx || b.radius || 158) + targetR;
+    const ry = (b.hitRy || 88) + targetR;
+    const dx = tx - b.x;
+    const dy = ty - b.y;
+    return ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry)) <= 1;
+}
+
+function updatePlayerWaveShot(b, dt) {
+    b.age = (b.age || 0) + dt;
+    const target = findNearestPlayerEnemyTarget(b.x, b.y);
+    if (!target) return;
+    const curAng = Math.atan2(b.vy, b.vx);
+    const targetAng = Math.atan2(target.y - b.y, target.x - b.x);
+    let diff = targetAng - curAng;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    const maxTurn = (b.turnRate || 0.45) * dt;
+    const step = Math.max(-maxTurn, Math.min(maxTurn, diff));
+    const nextAng = curAng + step;
+    const spd = b.speed || 1150;
+    b.vx = Math.cos(nextAng) * spd;
+    b.vy = Math.sin(nextAng) * spd;
+}
+
+function updatePlayerSnakeShot(b, dt) {
+    b.age = (b.age || 0) + dt;
+    if (b.isHeadDead) {
+        b.vx = 0;
+        b.vy = 0;
+        return;
+    }
+    const target = findNearestPlayerEnemyTarget(b.x, b.y);
+    const upSpeed = b.upSpeed || 1200;
+    if (!target) {
+        b.snakePhase = 'forward';
+        b.vx = 0;
+        b.vy = -upSpeed;
+        return;
+    }
+
+    const dx = target.x - b.x;
+    const dy = target.y - b.y;
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+    const yMatchThreshold = 26;
+
+    // 1. まず前方に直進し、Y軸がある程度敵と合ったらX軸移動フェーズへ移行
+    if (b.snakePhase !== 'x_align' && b.snakePhase !== 'vertical_chase') {
+        const stepUp = upSpeed * dt;
+        const willCrossY = (b.y >= target.y && (b.y - stepUp) <= target.y);
+        if ((absDy <= yMatchThreshold || willCrossY) && absDx > 6) {
+            b.snakePhase = 'x_align';
+        } else {
+            b.snakePhase = 'forward';
+            b.vx = 0;
+            b.vy = -upSpeed;
+            return;
+        }
+    }
+
+    // 2. X軸移動フェーズ：この間Y軸は一切変えず、最寄りの敵へ高速でX軸を合わせる
+    if (b.snakePhase === 'x_align') {
+        const alignSpeed = b.alignSpeed || 1700;
+        const stepX = alignSpeed * dt;
+        b.vy = 0;
+        if (absDx <= stepX) {
+            b.vx = dx / Math.max(dt, 1e-4);
+            if (absDy > yMatchThreshold) {
+                b.snakePhase = 'vertical_chase';
+            }
+        } else {
+            b.vx = (dx >= 0 ? 1 : -1) * alignSpeed;
+        }
+        return;
+    }
+
+    // 3. X軸合致後に敵が上下へ移動して残っていた場合のみ縦に追尾
+    if (absDx > 14 && absDy <= yMatchThreshold) {
+        b.snakePhase = 'x_align';
+        const alignSpeed = b.alignSpeed || 1700;
+        b.vx = (dx >= 0 ? 1 : -1) * alignSpeed;
+        b.vy = 0;
+        return;
+    }
+    b.vx = 0;
+    b.vy = (dy <= 0) ? -upSpeed : upSpeed;
+}
+
+function spawnPlayerShipShot(shipType, isBoss) {
+    if (shipType === 'missile') {
+        const initVy = isBoss ? -520 : -360;
+        const accelY = isBoss ? -3800 : -2000;
+        const maxVy = isBoss ? -2000 : -1100;
+        const offsets = [-14, 14];
+        for (let k = 0; k < offsets.length; k++) {
+            bullets.push({
+                x: player.x + offsets[k],
+                y: player.y - 16,
+                vx: 0,
+                vy: initVy,
+                accelY: accelY,
+                maxVy: maxVy,
+                radius: 12,
+                hitRadius: 12,
+                drawScale: 2.0,
+                team: 'PLAYER',
+                isNormal: true,
+                isMissile: true,
+                customDmg: 4,
+                explosionDmg: 3,
+                explosionRadius: 58,
+                age: 0,
+                update: updatePlayerMissile
+            });
+        }
+        return;
+    }
+
+    if (shipType === 'slash') {
+        const offsetY = -46;
+        bullets.push({
+            x: player.x,
+            y: player.y + offsetY,
+            offsetY: offsetY,
+            vx: 0,
+            vy: 0,
+            radius: 166,
+            rx: 166,
+            ry: 90,
+            hitRadius: 158,
+            hitRx: 158,
+            hitRy: 88,
+            team: 'PLAYER',
+            isNormal: true,
+            isSlash: true,
+            customDmg: 90,
+            age: 0,
+            maxLife: 0.24,
+            hitTargets: new Set(),
+            update: updatePlayerSlash
+        });
+        return;
+    }
+
+    if (shipType === 'snake') {
+        const upSpeed = isBoss ? 1200 : 700;
+        const alignSpeed = isBoss ? 1700 : 950;
+        const strikeSpeed = isBoss ? 1800 : 1000;
+        bullets.push({
+            x: player.x,
+            y: player.y - 14,
+            vx: 0,
+            vy: -upSpeed,
+            upSpeed: upSpeed,
+            alignSpeed: alignSpeed,
+            strikeSpeed: strikeSpeed,
+            radius: 11,
+            hitRadius: 7,
+            team: 'PLAYER',
+            isNormal: true,
+            isTrail: true,
+            isSnakeShot: true,
+            customDmg: 7,
+            color: '#22ff66',
+            growTime: 0.03,
+            keepTime: 0.06,
+            shrinkTime: 0.16,
+            trailHistory: [],
+            snakePhase: 'launch',
+            age: 0,
+            update: updatePlayerSnakeShot
+        });
+        return;
+    }
+
+    if (shipType === 'knife') {
+        const speed = isBoss ? 2200 : 1100;
+        const aimAngle = (player.knifeAimAngle !== undefined && !isNaN(player.knifeAimAngle))
+            ? player.knifeAimAngle
+            : (-Math.PI / 2);
+        const dirX = Math.cos(aimAngle);
+        const dirY = Math.sin(aimAngle);
+        const perpX = -dirY;
+        const perpY = dirX;
+        const makeKnife = (x, y, vx, vy) => ({
+            x: x,
+            y: y,
+            vx: vx,
+            vy: vy,
+            radius: 3,
+            hitRadius: 2.0,
+            team: 'PLAYER',
+            isNormal: true,
+            isKnife: true,
+            customDmg: 11 / 3
+        });
+        // 1) 前方（上向き）に1本
+        bullets.push(makeKnife(player.x, player.y - 16, 0, -speed));
+        // 2) 進んだ方向と反対方向（低速時は固定向き）にそれぞれ2本ずつ（計5本、すべて同威力 11/3）
+        const aimOffsets = [-4, 4];
+        const aimSigns = [1, -1];
+        for (let s = 0; s < aimSigns.length; s++) {
+            const sign = aimSigns[s];
+            const sx = dirX * sign;
+            const sy = dirY * sign;
+            for (let k = 0; k < aimOffsets.length; k++) {
+                const off = aimOffsets[k];
+                bullets.push(makeKnife(
+                    player.x + sx * 12 + perpX * off,
+                    player.y + sy * 12 + perpY * off,
+                    sx * speed,
+                    sy * speed
+                ));
+            }
+        }
+        return;
+    }
+
+    if (shipType === 'wave') {
+        const speed = isBoss ? 1150 : 650;
+        const spreads = [-0.09, 0, 0.09];
+        const xOffsets = [-12, 0, 12];
+        for (let k = 0; k < spreads.length; k++) {
+            const ang = -Math.PI / 2 + spreads[k];
+            bullets.push({
+                x: player.x + xOffsets[k],
+                y: player.y - 16,
+                vx: Math.cos(ang) * speed,
+                vy: Math.sin(ang) * speed,
+                speed: speed,
+                turnRate: 0.45, // ごくわずかな微追尾 (rad/s)
+                radius: 9,
+                hitRadius: 8,
+                team: 'PLAYER',
+                isNormal: true,
+                isWave: true,
+                isPiercing: true,
+                customDmg: 11, // 3発全ヒットで33 / 0.3s -> 110.0 DPS (ノーマル120よりやや低い)
+                hitTargets: new Set(),
+                age: 0,
+                update: updatePlayerWaveShot
+            });
+        }
+        return;
+    }
+
+    if (shipType === 'idol') {
+        const speed = isBoss ? -320 : -187;
+        bullets.push({
+            x: player.x,
+            y: player.y - 20,
+            vx: 0,
+            vy: speed,
+            radius: 88,
+            hitRadius: 64,
+            drawSize: 192,
+            spinAngle: 0,
+            spinSpeed: 8.5,
+            team: 'PLAYER',
+            isNormal: true,
+            isIdol: true,
+            customDmg: 25,
+            explosionRadius: 135,
+            explosionDmg: 120,
+            age: 0,
+            update: updatePlayerIdolShot
+        });
+        return;
+    }
+
+    // Default: ノーマル型 (Normal: 正面2本＋左右各2本の計6way、1本あたり1/3火力)
+    const pSpeed = isBoss ? 2200 : 1100;
+    const normalWays = [
+        { ox: -9, oy: -14, spread: -0.09 },
+        { ox: -6, oy: -15, spread: -0.045 },
+        { ox: -4, oy: -15, spread: 0 },
+        { ox: 4,  oy: -15, spread: 0 },
+        { ox: 6,  oy: -15, spread: 0.045 },
+        { ox: 9,  oy: -14, spread: 0.09 }
+    ];
+    for (let k = 0; k < normalWays.length; k++) {
+        const w = normalWays[k];
+        const ang = -Math.PI / 2 + w.spread;
+        bullets.push({
+            x: player.x + w.ox,
+            y: player.y + w.oy,
+            vx: w.spread === 0 ? 0 : Math.cos(ang) * pSpeed,
+            vy: w.spread === 0 ? -pSpeed : Math.sin(ang) * pSpeed,
+            radius: 6,
+            team: 'PLAYER',
+            isNormal: true,
+            customDmg: 5 / 3
+        });
+    }
+}
+
+function spawnMissileExplosionEffect(x, y, blastRadius, isIdol) {
+    if (isIdol) {
+        if (gameShockwaves.length < MAX_GAME_SHOCKWAVES) {
+            gameShockwaves.push({
+                x: x,
+                y: y,
+                r: 12,
+                curR: 12,
+                maxR: blastRadius || 135,
+                color: '#f59e0b',
+                lineWidth: 5.5,
+                life: 0.34,
+                maxLife: 0.34
+            });
+        }
+        if (gameShockwaves.length < MAX_GAME_SHOCKWAVES) {
+            gameShockwaves.push({
+                x: x,
+                y: y,
+                r: 8,
+                curR: 8,
+                maxR: (blastRadius || 135) * 0.72,
+                color: '#fde68a',
+                lineWidth: 4.0,
+                life: 0.26,
+                maxLife: 0.26
+            });
+        }
+        if (gameHitParticles.length < MAX_GAME_HIT_PARTICLES) {
+            gameHitParticles.push({
+                x: x, y: y, vx: 0, vy: 0,
+                size: 40, color: '#fffbeb', alpha: 0.98,
+                life: 0.16, maxLife: 0.16, drag: 1, type: 'flash'
+            });
+        }
+        const idolColors = ['#f59e0b', '#fbbf24', '#fde68a', '#d97706'];
+        for (let k = 0; k < 18; k++) {
+            if (gameHitParticles.length >= MAX_GAME_HIT_PARTICLES) break;
+            const ang = (Math.PI * 2 * k) / 18 + (Math.random() - 0.5) * 0.3;
+            const spd = 180 + Math.random() * 260;
+            gameHitParticles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(ang) * spd,
+                vy: Math.sin(ang) * spd,
+                size: 4.5 + Math.random() * 3.5,
+                color: idolColors[k % idolColors.length],
+                alpha: 1,
+                life: 0.26 + Math.random() * 0.12,
+                maxLife: 0.38,
+                drag: 0.90,
+                type: 'spark'
+            });
+        }
+        return;
+    }
+
+    if (gameShockwaves.length < MAX_GAME_SHOCKWAVES) {
+        gameShockwaves.push({
+            x: x,
+            y: y,
+            r: 6,
+            curR: 6,
+            maxR: blastRadius || 56,
+            color: '#ff9944',
+            lineWidth: 3.5,
+            life: 0.22,
+            maxLife: 0.22
+        });
+    }
+    if (gameHitParticles.length < MAX_GAME_HIT_PARTICLES) {
+        gameHitParticles.push({
+            x: x, y: y, vx: 0, vy: 0,
+            size: 20, color: '#fff3cc', alpha: 0.95,
+            life: 0.12, maxLife: 0.12, drag: 1, type: 'flash'
+        });
+    }
+    const colors = ['#ffaa33', '#ff5522', '#ffdd66'];
+    for (let k = 0; k < 10; k++) {
+        if (gameHitParticles.length >= MAX_GAME_HIT_PARTICLES) break;
+        const ang = (Math.PI * 2 * k) / 10 + (Math.random() - 0.5) * 0.4;
+        const spd = 120 + Math.random() * 190;
+        gameHitParticles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 3.5 + Math.random() * 2.5,
+            color: colors[k % colors.length],
+            alpha: 1,
+            life: 0.20 + Math.random() * 0.10,
+            maxLife: 0.30,
+            drag: 0.91,
+            type: 'spark'
+        });
+    }
+}
+
+function applyPlayerDamageToLifeBullet(eb, rawDmg, b, ctxFlags) {
+    if (!eb || eb._dead || eb.team === 'PLAYER' || !eb.isLifeBullet || eb.health <= 0) return false;
+    let dmg = rawDmg;
+    if (!ctxFlags.isMainShot && ctxFlags._acLen2) dmg = Math.floor(dmg / 2);
+    if (ctxFlags._pp8)  dmg = Math.floor(dmg * 1.25);
+    if (ctxFlags._pp14) dmg = Math.floor(dmg * 1.10);
+    if (ctxFlags._pp16) dmg = Math.floor(dmg * 1.25);
+    if (ctxFlags._pp22) dmg = Math.floor(dmg * 1.20);
+
+    eb.health = Math.max(0, eb.health - dmg);
+    if (eb.bulletState && eb.bulletState.variables) {
+        eb.bulletState.variables.health = eb.health;
+        eb.bulletState.variables.hp = eb.health;
+    }
+
+    if (isCustomCardTesting && window.isBossMode) {
+        window.totalScore = (window.totalScore || 0) + 50;
+    }
+
+    if (eb.health <= 0) {
+        handleLifeBulletDestroyed(eb);
+        if (!eb._hasRunDestroyScript) {
+            eb._hasRunDestroyScript = true;
+            eb.isDestroyed = true;
+            if (eb.bulletState && eb.bulletState.variables) {
+                eb.bulletState.variables.isDestroyed = true;
+                eb.bulletState.variables.destroyed = true;
+                eb.bulletState.variables.is_destroyed = true;
+            }
+            const updateFn = (typeof eb.update === 'function') ? eb.update : eb._origUpdate;
+            if (typeof updateFn === 'function') {
+                try { updateFn(eb, 0); } catch (e) {}
+            }
+        }
+        eb._dead = true;
+    }
+    return true;
+}
+
+function applyPlayerDamageToCpu(rawDmg, b, ctxFlags, hitX, hitY) {
+    if (ctxFlags._cInv || ctxFlags._cEndure) return false;
+    if (isCustomCardTesting && window.isBossMode && cpu.hp <= 0) return false;
+    let dmg = rawDmg;
+    if (!ctxFlags.isMainShot && ctxFlags._acLen2) {
+        dmg = Math.floor(dmg / 2);
+    }
+    if (ctxFlags._pp8)  dmg = Math.floor(dmg * 1.25);
+    if (ctxFlags._pp14) dmg = Math.floor(dmg * 1.10);
+    if (ctxFlags._pp16) dmg = Math.floor(dmg * 1.25);
+    if (ctxFlags._pp22) dmg = Math.floor(dmg * 1.20);
+
+    if (ctxFlags._cp1)                        dmg = Math.max(1, dmg - 20);
+    if (ctxFlags._cp15 && !ctxFlags.isMainShot) dmg = Math.max(1, dmg - 15);
+    if (ctxFlags._cp17)                       dmg = Math.floor(dmg * 0.80);
+
+    cpu.pendingDamage += dmg;
+    if (isCustomCardTesting && window.isBossMode) {
+        window.totalScore = (window.totalScore || 0) + 100;
+        cpu.hp = Math.max(0, cpu.hp - dmg);
+        cpu.pendingDamage = 0;
+
+        if (window.playSound && cpu.hp > 0) {
+            const now = performance.now();
+            if (!cpu.lastDamageSETime || now - cpu.lastDamageSETime >= 35) {
+                cpu.lastDamageSETime = now;
+                const hpRatio = cpu.maxHp > 0 ? (cpu.hp / cpu.maxHp) : 1.0;
+                window.playSound(hpRatio <= 0.10 ? 'se_damage01' : 'se_damage00');
+            }
+        }
+
+        if (cpu.hp <= 0) {
+            handleBossDefeat(false);
+        }
+    }
+    if (!cpu.recentHits) cpu.recentHits = [];
+    cpu.recentHits.push({ damage: dmg, timestamp: performance.now() });
+    cpu.hitLastTurn = true;
+
+    spawnShotHitEffect(hitX, hitY, b);
+    if (ctxFlags.dropBombPiece !== false) {
+        if (ctxFlags.isMainShot) {
+            if (Math.random() < 0.25) spawnBombPiece(cpu.x, cpu.y, 2);
+        } else {
+            spawnBombPiece(cpu.x, cpu.y, 15);
+        }
+    }
+    return true;
+}
+
+function triggerPlayerMissileExplosion(b, ctxFlags) {
+    const blastR = b.explosionRadius || 58;
+    const blastDmg = b.explosionDmg || 3;
+    spawnMissileExplosionEffect(b.x, b.y, blastR, !!b.isIdol);
+
+    for (let ebIdx = 0; ebIdx < bullets.length; ebIdx++) {
+        const eb = bullets[ebIdx];
+        if (!eb || eb === b || eb._dead || eb.team === 'PLAYER' || !eb.isLifeBullet || eb.health <= 0) continue;
+        const ebHitR = eb.hitRadius !== undefined ? Number(eb.hitRadius) : (eb.radius || 6);
+        const dSq = (eb.x - b.x) ** 2 + (eb.y - b.y) ** 2;
+        if (dSq <= (blastR + ebHitR) ** 2) {
+            applyPlayerDamageToLifeBullet(eb, blastDmg, b, ctxFlags);
+            spawnShotHitEffect(eb.x, eb.y, b);
+        }
+    }
+
+    if (!(ctxFlags._cInv || ctxFlags._cEndure)) {
+        const dSqCpu = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
+        if (dSqCpu <= (blastR + ctxFlags._cHitR) ** 2) {
+            applyPlayerDamageToCpu(blastDmg, b, { ...ctxFlags, dropBombPiece: false }, b.x, b.y);
+        }
+    }
+}
+
 window._pendingLayerBullets = [];
 window.requestBulletLayerChange = function(b, action) {
     if (!b) return;
@@ -2814,6 +3379,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         }
                     }
 
+                    const prevTrackX = (player.lastKnifeTrackX !== undefined) ? player.lastKnifeTrackX : player.x;
+                    const prevTrackY = (player.lastKnifeTrackY !== undefined) ? player.lastKnifeTrackY : player.y;
                     const currentSpeed = useSlow ? player.slowSpeed : player.speed;
                     player.x += dx * currentSpeed * dt;
                     player.y += dy * currentSpeed * dt;
@@ -2821,6 +3388,19 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     const playBottom = canvas.height - 24;
                     player.x = Math.max(player.grazeRadius, Math.min(PLAY_WIDTH - player.grazeRadius, player.x));
                     player.y = Math.max(player.grazeRadius, Math.min(playBottom - player.grazeRadius, player.y));
+
+                    player.isSlowMoving = !!useSlow;
+                    if (!useSlow) {
+                        const trackDx = player.x - prevTrackX;
+                        const trackDy = player.y - prevTrackY;
+                        if (dx !== 0 || dy !== 0) {
+                            player.knifeAimAngle = Math.atan2(dy, dx);
+                        } else if (trackDx * trackDx + trackDy * trackDy > 0.25) {
+                            player.knifeAimAngle = Math.atan2(trackDy, trackDx);
+                        }
+                    }
+                    player.lastKnifeTrackX = player.x;
+                    player.lastKnifeTrackY = player.y;
                 }
                 if (isCustomActionLocked('PLAYER')) {
                     applyCustomOwnerPositionLock('PLAYER', dt);
@@ -2931,9 +3511,11 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             });
                         }
 
-                        // 常時発射：通常ショット（同時攻撃、死亡・被弾待機中は発射不可、ボム無敵中は発射可能）
+                        // 常時発射：自機ショット（機体別ショット：同時攻撃、死亡・被弾待機中は発射不可、ボム無敵中は発射可能）
                         normalShotTimer += dt;
-                        let shotInterval = (window.isBossMode) ? 0.07 : 0.14; // ボス戦は連射速度2倍
+                        const activeShipType = player.shipType || (window.getPlayerShipType ? window.getPlayerShipType() : 'normal');
+                        const shipIntervals = PLAYER_SHIP_SHOT_INTERVALS[activeShipType] || PLAYER_SHIP_SHOT_INTERVALS.normal;
+                        let shotInterval = (window.isBossMode) ? shipIntervals.boss : shipIntervals.battle;
                         if (window.devHyperMode) shotInterval *= 0.1; // 開発者超攻撃モード: 10倍連射
                         if (normalShotTimer >= shotInterval) {
                             normalShotTimer = 0;
@@ -2941,9 +3523,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             if (canPlayerShoot) {
                                 // スペル発動中（ターンオーナー）は通常攻撃を撃たない（防御側のみ反撃）
                                 if ((turnOwner !== 'PLAYER' && !isCustomCardTesting) || (isCustomCardTesting && window.isBossMode)) {
-                                    let pShotSpeed = (window.isBossMode) ? -2200 : -1100; // ボス戦は弾速2倍
-                                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: pShotSpeed, radius: 4, team: 'PLAYER', isNormal: true });
-                                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: pShotSpeed, radius: 4, team: 'PLAYER', isNormal: true });
+                                    spawnPlayerShipShot(activeShipType, !!window.isBossMode);
                                 }
                             }
                             if (turnOwner !== 'CPU') {
@@ -3150,8 +3730,9 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             shouldDespawn = true;
                         }
                     } else {
-                        // Default spells and normal shots: despawn immediately when offscreen (with a small 30px visual margin)
-                        if (b.x < -30 || b.x > PLAY_WIDTH + 30 || b.y < -30 || b.y > canvas.height + 30) {
+                        // Default spells and normal shots: despawn immediately when offscreen (with a small 30px visual margin; larger for giant idol shot)
+                        const despawnMargin = b.isIdol ? ((b.drawSize || 192) * 0.6 + 20) : 30;
+                        if (b.x < -despawnMargin || b.x > PLAY_WIDTH + despawnMargin || b.y < -despawnMargin || b.y > canvas.height + despawnMargin) {
                             shouldDespawn = true;
                         }
                     }
@@ -3423,56 +4004,47 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             continue;
                         }
 
+                        const playerDmgCtx = {
+                            _pp8, _pp14, _pp16, _pp22,
+                            _cp1, _cp15, _cp17,
+                            _acLen2, _cInv, _cEndure, _cHitR,
+                            isMainShot: !!b.isNormal
+                        };
+                        const rawBulletDmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 5 : 40);
+
                         // life弾（耐久値つき敵弾）への当たり判定（攻撃が吸われる）
                         let hitLifeBullet = false;
                         let bHitR = b.hitRadius !== undefined ? Number(b.hitRadius) : (b.radius || 6);
                         for (let ebIdx = 0; ebIdx < bullets.length; ebIdx++) {
                             let eb = bullets[ebIdx];
                             if (!eb || eb === b || eb._dead || eb.team === 'PLAYER' || !eb.isLifeBullet || eb.health <= 0) continue;
+                            const isPierce = !!(b.isSlash || b.isPiercing);
+                            if (isPierce && b.hitTargets && b.hitTargets.has(eb)) continue;
                             let ebHitR = eb.hitRadius !== undefined ? Number(eb.hitRadius) : (eb.radius || 6);
-                            let dSq = (eb.x - b.x) ** 2 + (eb.y - b.y) ** 2;
-                            if (dSq < (ebHitR + bHitR) ** 2) {
-                                let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 5 : 40);
-                                if (!b.isNormal && _acLen2) dmg = Math.floor(dmg / 2);
-                                if (_pp8)  dmg = Math.floor(dmg * 1.25);
-                                if (_pp14) dmg = Math.floor(dmg * 1.10);
-                                if (_pp16) dmg = Math.floor(dmg * 1.25);
-                                if (_pp22) dmg = Math.floor(dmg * 1.20);
-
-                                eb.health = Math.max(0, eb.health - dmg);
-                                if (eb.bulletState && eb.bulletState.variables) {
-                                    eb.bulletState.variables.health = eb.health;
-                                    eb.bulletState.variables.hp = eb.health;
+                            let isHitLB = b.isSlash
+                                ? isTargetInPlayerSlash(b, eb.x, eb.y, ebHitR)
+                                : (((eb.x - b.x) ** 2 + (eb.y - b.y) ** 2) < (ebHitR + bHitR) ** 2);
+                            if (isHitLB) {
+                                applyPlayerDamageToLifeBullet(eb, rawBulletDmg, b, playerDmgCtx);
+                                if (isPierce) {
+                                    if (b.hitTargets) b.hitTargets.add(eb);
+                                    spawnShotHitEffect(eb.x, eb.y, b);
+                                    continue;
                                 }
-
-                                if (isCustomCardTesting && window.isBossMode) {
-                                    window.totalScore = (window.totalScore || 0) + 50;
-                                }
-
-                                if (eb.health <= 0) {
-                                    handleLifeBulletDestroyed(eb);
-                                    if (!eb._hasRunDestroyScript) {
-                                        eb._hasRunDestroyScript = true;
-                                        eb.isDestroyed = true;
-                                        if (eb.bulletState && eb.bulletState.variables) {
-                                            eb.bulletState.variables.isDestroyed = true;
-                                            eb.bulletState.variables.destroyed = true;
-                                            eb.bulletState.variables.is_destroyed = true;
-                                        }
-                                        let updateFn = (typeof eb.update === 'function') ? eb.update : eb._origUpdate;
-                                        if (typeof updateFn === 'function') {
-                                            try { updateFn(eb, 0); } catch(e) {}
-                                        }
-                                    }
-                                    eb._dead = true;
-                                }
-
                                 hitLifeBullet = true;
                                 break;
                             }
                         }
                         if (hitLifeBullet) {
                             spawnShotHitEffect(b.x, b.y, b);
+                            if (b.isMissile || b.isIdol) {
+                                triggerPlayerMissileExplosion(b, playerDmgCtx);
+                            }
+                            if (b.isSnakeShot) {
+                                b.isHeadDead = true;
+                                b.hitRadius = 0;
+                                continue;
+                            }
                             if (useFastRemove) { b._dead = true; continue; }
                             bullets.splice(i, 1); continue;
                         }
@@ -3481,7 +4053,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             continue;
                         }
                         let distSq;
-                        if (b.isTrail) {
+                        if (b.isTrail && !b.isSnakeShot) {
                             let history = b.trailHistory || [];
                             let baseR = b.hitRadius !== undefined ? Number(b.hitRadius) : ((b.radius || 8) * 0.60);
                             let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
@@ -3587,6 +4159,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                                 }
                             }
                             distSq = isSwordHit ? 0 : Infinity;
+                        } else if (b.isSlash) {
+                            distSq = isTargetInPlayerSlash(b, cpu.x, cpu.y, _cHitR) ? 0 : Infinity;
                         } else {
                             let aspectData = getAspectBulletHitData(b, bHitR);
                             if (aspectData.isAspect) {
@@ -3597,59 +4171,28 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             }
                         }
                         if (distSq < (_cHitR + bHitR) ** 2) {
-                            let dmg = b.customDmg !== undefined ? b.customDmg : (b.isNormal ? 5 : 40); // 通常弾は一発5ダメージ
-                            if (!b.isNormal && _acLen2) {
-                                dmg = Math.floor(dmg / 2);
-                            }
-                            // 攻撃側（PLAYER）のパッシブ補正
-                            if (_pp8)  { dmg = Math.floor(dmg * 1.25); }
-                            if (_pp14) { dmg = Math.floor(dmg * 1.10); } // 気炎万丈 (+10%)
-                            if (_pp16) { dmg = Math.floor(dmg * 1.25); } // 背水の陣 (+25%)
-                            if (_pp22) { dmg = Math.floor(dmg * 1.20); } // 憤怒の炎 (+20%)
-
-                            // 防御側（CPU）のパッシブ補正
-                            if (_cp1)                   dmg = Math.max(1, dmg - 20); // 被弾軽減
-                            if (_cp15 && !b.isNormal)  dmg = Math.max(1, dmg - 15); // 弾幕結界
-                            if (_cp17)                  dmg = Math.floor(dmg * 0.80); // 金剛結界 (-20%)
-
-                            cpu.pendingDamage += dmg;
-                            if (isCustomCardTesting && window.isBossMode) {
-                                // 打ち込み点（自機ショット1発命中ごとに+100点）
-                                window.totalScore = (window.totalScore || 0) + 100;
-
-                                cpu.hp = Math.max(0, cpu.hp - dmg);
-                                cpu.pendingDamage = 0;
-
-                                // 敵被弾SE再生: 通常hit時は damage00、残りHPが10%以下のときは damage01
-                                if (window.playSound && cpu.hp > 0) {
-                                    let now = performance.now();
-                                    if (!cpu.lastDamageSETime || now - cpu.lastDamageSETime >= 35) {
-                                        cpu.lastDamageSETime = now;
-                                        let hpRatio = cpu.maxHp > 0 ? (cpu.hp / cpu.maxHp) : 1.0;
-                                        if (hpRatio <= 0.10) {
-                                            window.playSound('se_damage01');
-                                        } else {
-                                            window.playSound('se_damage00');
-                                        }
-                                    }
-                                }
-
-                                if (cpu.hp <= 0) {
-                                    handleBossDefeat(false);
-                                }
-                            }
-                            if (!cpu.recentHits) cpu.recentHits = [];
-                            cpu.recentHits.push({ damage: dmg, timestamp: performance.now() });
-                            cpu.hitLastTurn = true; // 被弾履歴
-
-                            spawnShotHitEffect(b.x, b.y, b);
-                            if (b.isNormal) {
-                                if (Math.random() < 0.25) spawnBombPiece(cpu.x, cpu.y, 2); // 25%の確率で2かけら
+                            const isPierce = !!(b.isSlash || b.isPiercing);
+                            const hitPosX = b.isSlash ? cpu.x : b.x;
+                            const hitPosY = b.isSlash ? cpu.y : b.y;
+                            if (isPierce && b.hitTargets && b.hitTargets.has('CPU')) {
+                                // Already pierced/cleaved CPU once
                             } else {
-                                spawnBombPiece(cpu.x, cpu.y, 15); // スペルカード命中時は15かけら
+                                applyPlayerDamageToCpu(rawBulletDmg, b, playerDmgCtx, hitPosX, hitPosY);
+                                if (isPierce) {
+                                    if (b.hitTargets) b.hitTargets.add('CPU');
+                                } else {
+                                    if (b.isMissile || b.isIdol) {
+                                        triggerPlayerMissileExplosion(b, playerDmgCtx);
+                                    }
+                                    if (b.isSnakeShot) {
+                                        b.isHeadDead = true;
+                                        b.hitRadius = 0;
+                                        continue;
+                                    }
+                                    if (useFastRemove) { b._dead = true; continue; }
+                                    bullets.splice(i, 1); continue;
+                                }
                             }
-                            if (useFastRemove) { b._dead = true; continue; }
-                            bullets.splice(i, 1); continue;
                         }
                         if (!b.grazed && distSq < (_cGrazeR + bHitR) ** 2) {
                             b.grazed = true; cpu.grazeCount++;
@@ -4169,12 +4712,25 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             let tDrawBStart = performance.now();
             const _drawNow = tDrawBStart; // performance.now() をループ外で1回だけキャッシュ
 
+            // ── 弾の描画：自機弾（PLAYER）を先に描画し、相手弾が必ず上位レイヤーになるようにする ──
+            let _hasPlayerBullets = false;
+            for (let _chk = 0; _chk < bullets.length; _chk++) {
+                if (bullets[_chk].team === 'PLAYER') {
+                    _hasPlayerBullets = true;
+                    break;
+                }
+            }
+            const _startTeamPass = _hasPlayerBullets ? 0 : 1;
+            for (let _teamPass = _startTeamPass; _teamPass < 2; _teamPass++) {
+                const _wantPlayer = (_teamPass === 0);
+
             // ── 光弾・光式怨霊のオーラ（グロー）を先行して描画（加算合成＋揺らぎエフェクト） ──
             // 最適化: 事前の bullets.some() 全走査を排除し、最初の対象弾が見つかった時点で lighter モードを開始
             let _auraPassStarted = false;
             for (let _li = 0; _li < bullets.length; _li++) {
                 const b = bullets[_li];
                 if (b.radius <= 0) continue;
+                if ((b.team === 'PLAYER') !== _wantPlayer) continue;
                 const isLightB = (b.bulletImage === 'light');
                 const isOnryouB = !isLightB && (isOnryouBulletKey(b.bulletImage) && isLightOnryouBulletKey(b.bulletImage));
                 if (!isLightB && !isOnryouB) continue;
@@ -4329,6 +4885,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 for (let _bi = 0; _bi < bullets.length; _bi++) {
                     const b = bullets[_bi];
                     if (b.radius <= 0) continue;
+                    if ((b.team === 'PLAYER') !== _wantPlayer) continue;
 
                     // レイヤー振り分け (最背面・最前面)
                     if (b._layer === 'back') {
@@ -4356,7 +4913,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     const _isAdditive = isBulletAdditive(b);
                     const _isSpecial = b.isBeam || b.isLaser || b.isWarningLaser || b.isCustomBeam ||
                                        b.isGungnir || b.isStar || b.isBombPiece || b.isTrail ||
-                                       b.isSweeper || _hasDynImg || b.isNormal || _hasAspect || _hasTrans || _isAdditive;
+                                       b.isSweeper || b.isMissile || b.isSlash || b.isKnife || b.isWave || b.isIdol || _hasDynImg || b.isNormal || _hasAspect || _hasTrans || _isAdditive;
 
                     // 光弾かつ変形なし・透明度なしの場合、光弾コア専用バッチで1回のfill()に集約して超高速化
                     const _isSimpleLight = (b.bulletImage === 'light') && !_hasAspect && !_hasTrans && !_isAdditive &&
@@ -4604,6 +5161,23 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                             ctx.beginPath();
                             buildRibbonDirect(0.50);
                             ctx.fill();
+
+                            // 蛇型ショットの先端発光ヘッド
+                            if (b.isSnakeShot && !b.isHeadDead) {
+                                ctx.save();
+                                ctx.translate(b.x, b.y);
+                                ctx.fillStyle = '#33ff77';
+                                ctx.globalAlpha = 0.65;
+                                ctx.beginPath();
+                                ctx.arc(0, 0, 10, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.fillStyle = '#ffffff';
+                                ctx.globalAlpha = 0.95;
+                                ctx.beginPath();
+                                ctx.arc(0, 0, 5, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.restore();
+                            }
                         }
                         ctx.restore();
                     }
@@ -4831,15 +5405,275 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         ctx.fill();
                     }
                     ctx.restore();
+                } else if (b.isMissile && b.team === 'PLAYER') {
+                    ctx.save();
+                    ctx.translate(b.x, b.y);
+                    ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2);
+                    const mScale = b.drawScale || 1;
+                    if (mScale !== 1) ctx.scale(mScale, mScale);
+
+                    // 噴射炎
+                    const flameLen = 7 + Math.random() * 6;
+                    ctx.fillStyle = '#ffaa33';
+                    ctx.beginPath();
+                    ctx.moveTo(-3.5, 7);
+                    ctx.lineTo(0, 8 + flameLen);
+                    ctx.lineTo(3.5, 7);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.fillStyle = '#fff3b0';
+                    ctx.beginPath();
+                    ctx.moveTo(-1.8, 7);
+                    ctx.lineTo(0, 7 + flameLen * 0.65);
+                    ctx.lineTo(1.8, 7);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 安定翼
+                    ctx.fillStyle = '#ff6622';
+                    ctx.beginPath();
+                    ctx.moveTo(-3, 2);
+                    ctx.lineTo(-7, 8);
+                    ctx.lineTo(-3, 7);
+                    ctx.moveTo(3, 2);
+                    ctx.lineTo(7, 8);
+                    ctx.lineTo(3, 7);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 弾体
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.fillRect(-3, -4, 6, 11);
+
+                    // 弾頭
+                    ctx.fillStyle = '#ff4411';
+                    ctx.beginPath();
+                    ctx.moveTo(-3, -4);
+                    ctx.lineTo(0, -11);
+                    ctx.lineTo(3, -4);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                } else if (b.isSlash && b.team === 'PLAYER') {
+                    const p = Math.min(1, (b.age || 0) / (b.maxLife || 0.24));
+                    const startAng = -Math.PI * 0.92; // 左下寄りから開始
+                    const endAng = -Math.PI * 0.06;   // 右側へ大きく薙ぎ払う
+                    const headT = Math.min(1, p / 0.58);
+                    const headEase = 1 - Math.pow(1 - headT, 3);
+                    const tailT = Math.max(0, (p - 0.12) / 0.88);
+                    const tailEase = Math.pow(tailT, 1.65);
+
+                    const curTail = startAng + (endAng - startAng) * tailEase;
+                    const curHead = startAng + (endAng - startAng) * headEase;
+                    const span = curHead - curTail;
+                    if (span > 0.02) {
+                        const rx = b.rx || b.radius || 166;
+                        const ry = b.ry || 90;
+                        const fade = p < 0.68 ? 1 : Math.max(0.04, 1 - (p - 0.68) / 0.32);
+                        const segs = 26;
+
+                        const drawBladeSweep = (scaleX, scaleY, thickScale, color, alpha) => {
+                            const oRx = rx * scaleX;
+                            const oRy = ry * scaleY;
+                            ctx.globalAlpha = alpha;
+                            ctx.fillStyle = color;
+                            ctx.beginPath();
+                            for (let s = 0; s <= segs; s++) {
+                                const t = s / segs;
+                                const ang = curTail + span * t;
+                                const px = Math.cos(ang) * oRx;
+                                const py = Math.sin(ang) * oRy;
+                                if (s === 0) ctx.moveTo(px, py);
+                                else ctx.lineTo(px, py);
+                            }
+                            for (let s = segs; s >= 0; s--) {
+                                const t = s / segs;
+                                const ang = curTail + span * t;
+                                // 尾は針のように細く、刃先寄りが鋭く張り出す三日月ブレード形状
+                                const profile = Math.sin(t * Math.PI * 0.94) * (0.18 + 0.82 * t);
+                                const iRx = Math.max(12, oRx - (rx * 0.26 * thickScale) * profile);
+                                const iRy = Math.max(8, oRy - (ry * 0.42 * thickScale) * profile);
+                                ctx.lineTo(Math.cos(ang) * iRx, Math.sin(ang) * iRy + (profile * 6 * thickScale));
+                            }
+                            ctx.closePath();
+                            ctx.fill();
+                        };
+
+                        ctx.save();
+                        ctx.translate(b.x, b.y + 24);
+                        ctx.rotate(-0.07);
+                        ctx.globalCompositeOperation = 'lighter';
+
+                        // 振り抜き時の高速モーション残像ライン
+                        ctx.strokeStyle = '#44ddff';
+                        ctx.lineWidth = 1.6;
+                        ctx.globalAlpha = 0.32 * fade;
+                        ctx.beginPath();
+                        ctx.ellipse(0, 4, rx * 0.84, ry * 0.78, 0, curTail, curTail + span * 0.82, false);
+                        ctx.stroke();
+                        ctx.globalAlpha = 0.20 * fade;
+                        ctx.beginPath();
+                        ctx.ellipse(0, 8, rx * 0.72, ry * 0.64, 0, curTail + span * 0.08, curTail + span * 0.72, false);
+                        ctx.stroke();
+
+                        // 外側シアン光輪・青白ブレード・鋭利純白コア
+                        drawBladeSweep(1.04, 1.05, 1.35, '#1ec8ff', 0.38 * fade);
+                        drawBladeSweep(1.00, 1.00, 1.00, '#66eeff', 0.78 * fade);
+                        drawBladeSweep(0.99, 0.98, 0.48, '#ffffff', 0.96 * fade);
+
+                        // 先端の剣閃スパーク
+                        if (p < 0.74) {
+                            const hx = Math.cos(curHead) * rx * 0.98;
+                            const hy = Math.sin(curHead) * ry * 0.98;
+                            const tx = -Math.sin(curHead) * rx;
+                            const ty = Math.cos(curHead) * ry;
+                            const tLen = Math.hypot(tx, ty) || 1;
+                            const ux = tx / tLen;
+                            const uy = ty / tLen;
+                            const tipAlpha = (1 - p / 0.74) * 0.92;
+
+                            ctx.globalAlpha = tipAlpha;
+                            ctx.fillStyle = '#ffffff';
+                            ctx.beginPath();
+                            ctx.arc(hx, hy, 7.5, 0, Math.PI * 2);
+                            ctx.fill();
+
+                            ctx.strokeStyle = '#aef8ff';
+                            ctx.lineWidth = 2.6;
+                            ctx.beginPath();
+                            ctx.moveTo(hx - ux * 20, hy - uy * 20);
+                            ctx.lineTo(hx + ux * 22, hy + uy * 22);
+                            ctx.stroke();
+                        }
+
+                        ctx.restore();
+                    }
+                } else if (b.isKnife && b.team === 'PLAYER') {
+                    ctx.save();
+                    ctx.translate(b.x, b.y);
+                    ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2);
+
+                    // 銀紫のアウタールミナス
+                    ctx.fillStyle = 'rgba(216, 180, 254, 0.42)';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -14);
+                    ctx.lineTo(4.2, 2);
+                    ctx.lineTo(0, 10);
+                    ctx.lineTo(-4.2, 2);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 鋭利なナイフ刃体
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -12);
+                    ctx.lineTo(2.6, 2);
+                    ctx.lineTo(0, 6);
+                    ctx.lineTo(-2.6, 2);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 中央の紫ライン＆鍔
+                    ctx.strokeStyle = '#c084fc';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -10);
+                    ctx.lineTo(0, 8);
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#a855f7';
+                    ctx.fillRect(-3, 4, 6, 2);
+                    ctx.restore();
+                } else if (b.isWave && b.team === 'PLAYER') {
+                    const pulse = 1 + Math.sin((b.age || 0) * 28) * 0.12;
+                    const r = (b.radius || 9) * pulse;
+                    ctx.save();
+                    ctx.translate(b.x, b.y);
+                    ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2);
+                    ctx.globalCompositeOperation = 'lighter';
+
+                    // 後方波動リング
+                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+                    ctx.lineWidth = 1.6;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 7, r * 0.85, r * 0.42, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // 外側エネルギー波紋
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.42)';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r * 1.35, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // メイン波動オーラ・前衛三日月波
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.strokeStyle = '#bae6fd';
+                    ctx.lineWidth = 2.2;
+                    ctx.beginPath();
+                    ctx.arc(0, 1, r * 1.18, -Math.PI * 0.82, -Math.PI * 0.18, false);
+                    ctx.stroke();
+
+                    // 純白エネルギーコア
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                } else if (b.isIdol && b.team === 'PLAYER') {
+                    const spin = (b.spinAngle !== undefined) ? b.spinAngle : ((b.age || 0) * (b.spinSpeed || 8.5));
+                    const sz = b.drawSize || 48;
+                    ctx.save();
+                    ctx.translate(b.x, b.y);
+
+                    // 偶像弾の黄金オーラ輪
+                    ctx.strokeStyle = 'rgba(251, 191, 36, 0.55)';
+                    ctx.lineWidth = Math.max(2, sz * 0.02);
+                    ctx.beginPath();
+                    ctx.arc(0, 0, sz * 0.52, spin, spin + Math.PI * 1.45);
+                    ctx.stroke();
+
+                    ctx.rotate(spin);
+                    const hImg = window.haniwaImg;
+                    if (hImg && hImg.complete && hImg.naturalWidth > 0) {
+                        const aspect = hImg.naturalWidth / (hImg.naturalHeight || hImg.naturalWidth);
+                        const drawW = aspect >= 1 ? sz : sz * aspect;
+                        const drawH = aspect >= 1 ? sz / aspect : sz;
+                        ctx.drawImage(hImg, -drawW / 2, -drawH / 2, drawW, drawH);
+                    } else {
+                        // 画像未読込時フォールバック（埴輪シルエット）
+                        ctx.fillStyle = '#d99b66';
+                        ctx.strokeStyle = '#fef3c7';
+                        ctx.lineWidth = Math.max(1.4, sz * 0.025);
+                        ctx.beginPath();
+                        ctx.ellipse(0, -sz * 0.14, sz * 0.24, sz * 0.22, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        ctx.fillRect(-sz * 0.18, sz * 0.04, sz * 0.36, sz * 0.32);
+                        ctx.strokeRect(-sz * 0.18, sz * 0.04, sz * 0.36, sz * 0.32);
+                        ctx.fillStyle = '#3b2412';
+                        const eyeR = Math.max(2.6, sz * 0.055);
+                        const mouthR = Math.max(3.2, sz * 0.068);
+                        ctx.beginPath();
+                        ctx.arc(-sz * 0.08, -sz * 0.17, eyeR, 0, Math.PI * 2);
+                        ctx.arc(sz * 0.08, -sz * 0.17, eyeR, 0, Math.PI * 2);
+                        ctx.arc(0, -sz * 0.07, mouthR, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
                 } else if (b.isNormal && b.team === 'PLAYER') {
                     ctx.save();
                     ctx.translate(b.x, b.y);
                     ctx.rotate(Math.atan2(b.vy, b.vx) + Math.PI / 2);
-                    let w = 8, h = 16;
+                    let w = 11, h = 24;
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(-w / 2, -h / 2, w, h);
-                    ctx.strokeStyle = '#aaaa88';
-                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = '#88ddff';
+                    ctx.lineWidth = 1.4;
                     ctx.strokeRect(-w / 2, -h / 2, w, h);
                     ctx.restore();
                 } else if (b.isSweeper) {
@@ -5264,6 +6098,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             } // end of special bullet draw block
             } // end of for _bsi loop
             } // end of for _pass loop
+            } // end of for _teamPass loop
             window.perfDrawB = performance.now() - tDrawBStart;
 
             // 魔法陣（Magic Circles）の描画
@@ -5578,6 +6413,40 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 ctx.strokeStyle = outerColor;
                 ctx.lineWidth = 1;
                 ctx.stroke();
+
+                // スローイングナイフ型：現在の射撃方向インジケーター
+                const curShip = player.shipType || (window.getPlayerShipType ? window.getPlayerShipType() : 'normal');
+                if (curShip === 'knife') {
+                    const aimAng = (player.knifeAimAngle !== undefined && !isNaN(player.knifeAimAngle))
+                        ? player.knifeAimAngle
+                        : (-Math.PI / 2);
+                    ctx.save();
+                    ctx.translate(player.x, player.y);
+                    ctx.rotate(aimAng + Math.PI / 2);
+                    const baseAlpha = player.isSlowMoving ? 0.92 : 0.72;
+                    ctx.fillStyle = player.isSlowMoving ? '#f0abfc' : '#d8b4fe';
+                    const markerDirs = [1, -1];
+                    for (let m = 0; m < markerDirs.length; m++) {
+                        const s = markerDirs[m];
+                        ctx.globalAlpha = s > 0 ? baseAlpha : baseAlpha * 0.65;
+                        ctx.beginPath();
+                        ctx.moveTo(0, -28 * s);
+                        ctx.lineTo(5, -18 * s);
+                        ctx.lineTo(0, -21 * s);
+                        ctx.lineTo(-5, -18 * s);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                    if (player.isSlowMoving) {
+                        ctx.globalAlpha = baseAlpha;
+                        ctx.strokeStyle = '#e879f9';
+                        ctx.lineWidth = 1.2;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 19, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
             }
 
             // 食らいボム猶予サークル（被弾瞬間に現れ、可変猶予で自機中心へと収縮する可視化円）
@@ -6149,10 +7018,11 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
 
                     let scoreText = 'Score:  ' + (window.totalScore || 0).toLocaleString();
 
+                    const shipSpec = (typeof window.getPlayerShipSpec === 'function') ? window.getPlayerShipSpec() : null;
                     let playerInfoW = 165;
                     let playerInfoX = PLAY_WIDTH - playerInfoW - 10;
                     let playerInfoY = spellName ? (bannerEndY + bannerH + 28) : 48;
-                    let playerInfoH = 50;
+                    let playerInfoH = shipSpec ? 64 : 50;
 
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
                     ctx.fillRect(playerInfoX, playerInfoY, playerInfoW, playerInfoH);
@@ -6175,6 +7045,12 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     // 3行目: ボム
                     ctx.fillStyle = player.bombs > 0 ? '#33ffaa' : '#888888';
                     ctx.fillText(bombText, playerInfoX + 10, playerInfoY + 39);
+
+                    // 4行目: 機体
+                    if (shipSpec) {
+                        ctx.fillStyle = shipSpec.color || '#88ddff';
+                        ctx.fillText('Unit:   ' + shipSpec.name, playerInfoX + 10, playerInfoY + 54);
+                    }
 
                     // 7. スペル取得・失敗演出（中央上部表示）
                     if (window.spellClearResult) {
@@ -6665,6 +7541,12 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 ctx.fillStyle = '#fff';
                 ctx.font = '20px sans-serif';
                 ctx.fillText('PLAYER', UI_X, 765);
+                const battleShipSpec = (typeof window.getPlayerShipSpec === 'function') ? window.getPlayerShipSpec() : null;
+                if (battleShipSpec) {
+                    ctx.fillStyle = battleShipSpec.color || '#88ddff';
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.fillText(`[${battleShipSpec.name}]`, UI_X + 92, 765);
+                }
 
                 // プレイヤーのHP表示 - 表示位置は 800 (位置を上げる)
                 ctx.fillStyle = player.hp < 300 ? '#ff5555' : '#55ff55';

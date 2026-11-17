@@ -10,7 +10,7 @@
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=1.4.0">
+    <link rel="stylesheet" href="style.css?v=1.4.2">
 </head>
 
 <body>
@@ -41,6 +41,7 @@
                 <button class="menu-btn" onclick="showBossListScreen();" style="background: linear-gradient(135deg, #660022 0%, #2a0011 100%); border-color: #ff3366; text-shadow: 0 0 8px rgba(255, 51, 102, 0.7); font-weight: bold; width: 280px; height: 52px; font-size: 18px; margin-bottom: 12px;">
                     ボスに挑戦！
                 </button>
+                <div class="ship-trigger-wrap" data-ship-selector="full" style="margin-bottom: 12px;"></div>
                 <button class="menu-btn" onclick="openConfigScreen();" style="background: linear-gradient(135deg, #554400 0%, #221100 100%); border-color: #ffcc00; text-shadow: 0 0 8px rgba(255, 200, 0, 0.6); font-weight: bold; width: 280px; height: 52px; font-size: 18px;">
                     ゲーム設定 (Config)
                 </button>
@@ -351,7 +352,8 @@
                         </div>
                     </div>
 
-                    <div style="margin-top: 15px; display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap;">
+                    <div class="ship-selector-strip" data-ship-selector="compact" style="margin-top: 10px;"></div>
+                    <div style="margin-top: 12px; display: flex; gap: 15px; justify-content: center; width: 100%; flex-wrap: wrap;">
                         <button class="menu-btn" id="custom-card-test-btn" onclick="startCustomCardTest()" style="width: 160px; background: linear-gradient(135deg, #3c0055 0%, #1a0022 100%); border-color: #d800ff; text-shadow: 0 0 8px rgba(216, 0, 255, 0.6);">
                             弾幕をプレイ
                         </button>
@@ -632,6 +634,7 @@ while (true) {
                         <button id="tab-season-2" class="menu-btn shared-danmaku-tab-btn" onclick="openSharedDanmakuSeason(2)">シーズン2</button>
                     </div>
                 </div>
+                <div class="ship-selector-strip" data-ship-selector="compact"></div>
                 <div id="shared-danmaku-list-container" style="display: flex; flex-direction: column; gap: 4px; width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; padding: 4px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(216,0,255,0.2); box-sizing: border-box;">
                 </div>
                 <div id="shared-danmaku-pagination" style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin: 1px 0;">
@@ -648,6 +651,7 @@ while (true) {
             <!-- 7.5 ボス一覧（ボスに挑戦！）画面 -->
             <div id="screen-boss-list" class="selection-group hidden" style="width: 100%; height: calc(100% - 40px); display: flex; flex-direction: column; align-items: center; gap: 8px; box-sizing: border-box; justify-content: space-between; padding: 5px 0;">
                 <h3 style="margin: 0; color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.8);">ボスに挑戦！</h3>
+                <div class="ship-selector-strip" data-ship-selector="compact"></div>
                 <div id="boss-list-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; padding: 5px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,51,102,0.3); box-sizing: border-box;">
                 </div>
                 <button class="menu-btn" onclick="showScreen('screen-menu')" style="margin-top: 5px; background: #222; width: 220px; font-size: 14px; flex-shrink: 0;">タイトル画面に戻る</button>
@@ -659,6 +663,7 @@ while (true) {
                     <h3 id="boss-spell-select-title" style="margin: 0; color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.8);">弾幕選択 (開発者モード)</h3>
                     <div style="font-size: 11px; color: #aaa; margin-top: 2px;">開始したいフェーズ（通常弾幕 / スペルカード）を選択してください</div>
                 </div>
+                <div class="ship-selector-strip" data-ship-selector="compact"></div>
                 <div id="boss-spell-list-container" style="display: flex; flex-direction: column; gap: 6px; width: 100%; flex-grow: 1; min-height: 0; overflow-y: auto; padding: 5px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,51,102,0.3); box-sizing: border-box;">
                 </div>
                 <div style="display: flex; gap: 10px; width: 100%; justify-content: center; flex-shrink: 0; margin-top: 5px;">
@@ -716,6 +721,24 @@ while (true) {
                     <button class="menu-btn" onclick="showScreen('screen-menu')" style="background: #222; border-color: #555; width: 80px; font-size: 13px; margin: 0;">
                         戻る
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 機体選択モーダル -->
+        <div id="ship-select-modal" class="hidden" onclick="if (event.target === this) closeShipSelectModal();">
+            <div class="ship-modal-box">
+                <div class="ship-modal-header">
+                    <div class="ship-modal-title-wrap">
+                        <h2 class="ship-modal-title">機体選択</h2>
+                        <span class="ship-modal-subtitle">SELECT UNIT</span>
+                    </div>
+                    <button type="button" class="ship-modal-close-x" onclick="closeShipSelectModal()" aria-label="閉じる">✕</button>
+                </div>
+                <div id="ship-select-modal-grid" class="ship-modal-grid"></div>
+                <div class="ship-modal-footer">
+                    <div id="ship-select-modal-summary" class="ship-modal-summary"></div>
+                    <button type="button" class="menu-btn ship-modal-confirm-btn" onclick="closeShipSelectModal()">この機体で決定</button>
                 </div>
             </div>
         </div>

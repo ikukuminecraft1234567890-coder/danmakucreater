@@ -1805,6 +1805,7 @@ function customCardMakerSwitchTab(tab) {
             prevBombInput = false;
             activeEffects.length = 0;
             
+            if (window.resetPlayerShipCombatState) window.resetPlayerShipCombatState();
             player.x = PLAY_WIDTH / 2;
             player.y = canvas.height * 0.8;
             player.targetX = player.x;
@@ -4965,6 +4966,7 @@ function customCardMakerSwitchMode(mode) {
             prevBombInput = false;
             activeEffects.length = 0;
 
+            if (window.resetPlayerShipCombatState) window.resetPlayerShipCombatState();
             player.x = PLAY_WIDTH / 2;
             player.y = canvas.height * 0.8;
             player.targetX = player.x;
@@ -5477,6 +5479,7 @@ function customCardMakerSwitchMode(mode) {
             }
 
             if (!isNextSpell) {
+                if (window.resetPlayerShipCombatState) window.resetPlayerShipCombatState();
                 player.x = PLAY_WIDTH / 2;
                 player.y = canvas.height * 0.8;
                 player.targetX = player.x;

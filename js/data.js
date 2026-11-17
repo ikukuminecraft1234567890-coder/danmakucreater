@@ -348,11 +348,301 @@
         }
         document.addEventListener('DOMContentLoaded', () => {
             integrateCustomCards();
+            if (typeof renderShipSelectors === 'function') {
+                renderShipSelectors();
+            }
             if (typeof checkUrlParams === 'function') {
                 checkUrlParams();
             }
         });
         // --------------------------------
+
+        // ==========================================
+        // 自機（機体）システム定義
+        // ==========================================
+        const PLAYER_SHIPS = {
+            normal: {
+                id: 'normal',
+                name: 'ノーマル型',
+                shortName: 'ノーマル',
+                tag: '標準6way連射',
+                color: '#88ddff',
+                accent: '#ffffff',
+                stats: { power: 60, range: 90, area: 62 },
+                desc: '正面2本と左右に少し広がる4本の計6wayショットを高速連射。扱いやすいバランス型。'
+            },
+            missile: {
+                id: 'missile',
+                name: 'ミサイル型',
+                shortName: 'ミサイル',
+                tag: '着弾小爆発',
+                color: '#ff9933',
+                accent: '#ffdd66',
+                stats: { power: 45, range: 85, area: 85 },
+                desc: '単体DPSはノーマルに劣るが、着弾時に小さな爆発を起こして周囲にもダメージを与える。'
+            },
+            slash: {
+                id: 'slash',
+                name: '斬撃型',
+                shortName: '斬撃',
+                tag: '近接広範囲',
+                color: '#66eeff',
+                accent: '#ffffff',
+                stats: { power: 85, range: 22, area: 95 },
+                desc: '自機前方に左から右へ巨大な斬撃を放つ。遠距離攻撃手段は0だが、接近時のDPSはノーマルの約1.5倍。'
+            },
+            snake: {
+                id: 'snake',
+                name: '蛇型',
+                shortName: '蛇',
+                tag: '軌跡弾・高速X追尾',
+                color: '#33ff77',
+                accent: '#bbffdd',
+                stats: { power: 42, range: 95, area: 60 },
+                desc: '前方に軌跡弾を直進させ、敵とY軸が合うとY軸を固定したまま最寄りの敵へ高速でX軸を合わせて突き刺さる。'
+            },
+            knife: {
+                id: 'knife',
+                name: 'スローイングナイフ型',
+                shortName: 'ナイフ',
+                tag: '前方＋移動＆反対方向',
+                color: '#d8b4fe',
+                accent: '#ffffff',
+                stats: { power: 78, range: 90, area: 18 },
+                desc: '前方に1本、移動方向とその反対方向へ2本ずつ（同威力・計5本）を放つ（低速移動中は向き固定）。狭い攻撃幅ながら高火力。'
+            },
+            wave: {
+                id: 'wave',
+                name: '波動弾型',
+                shortName: '波動弾',
+                tag: '微誘導・3連貫通',
+                color: '#38bdf8',
+                accent: '#e0f2fe',
+                stats: { power: 54, range: 100, area: 78 },
+                desc: '0.3sごとに微追尾する貫通波動弾を3発放つ。DPSはノーマルよりやや低いが、耐久弾も貫通して敵を撃ち抜く。'
+            },
+            idol: {
+                id: 'idol',
+                name: '偶像型',
+                shortName: '偶像弾',
+                tag: '1s周期・巨大回転埴輪爆砕',
+                color: '#f59e0b',
+                accent: '#fde68a',
+                stats: { power: 92, range: 90, area: 100 },
+                desc: '1秒ごとにゆっくり飛びながら回転する巨大な偶像弾（埴輪）を前方に放ち、着弾時に広範囲へ大ダメージを与える。'
+            }
+        };
+        const PLAYER_SHIP_ORDER = ['normal', 'missile', 'slash', 'snake', 'knife', 'wave', 'idol'];
+        window.PLAYER_SHIPS = PLAYER_SHIPS;
+        window.PLAYER_SHIP_ORDER = PLAYER_SHIP_ORDER;
+
+        window.selectedShipType = 'normal';
+        try {
+            const savedShip = localStorage.getItem('touhou_kyoukaisen_player_ship');
+            if (savedShip && PLAYER_SHIPS[savedShip]) {
+                window.selectedShipType = savedShip;
+            }
+        } catch (e) { }
+
+        function resetPlayerShipCombatState() {
+            if (typeof player === 'undefined' || !player) return;
+            player.shipType = window.selectedShipType || 'normal';
+            player.slashSwingDir = 1;
+            player.knifeAimAngle = -Math.PI / 2;
+            player.isSlowMoving = false;
+            player.lastKnifeTrackX = undefined;
+            player.lastKnifeTrackY = undefined;
+        }
+        window.resetPlayerShipCombatState = resetPlayerShipCombatState;
+
+        function getPlayerShipType() {
+            const ship = (typeof player !== 'undefined' && player && player.shipType && PLAYER_SHIPS[player.shipType])
+                ? player.shipType
+                : window.selectedShipType;
+            return PLAYER_SHIPS[ship] ? ship : 'normal';
+        }
+        window.getPlayerShipType = getPlayerShipType;
+
+        function getPlayerShipSpec(shipId) {
+            const id = shipId || getPlayerShipType();
+            return PLAYER_SHIPS[id] || PLAYER_SHIPS.normal;
+        }
+        window.getPlayerShipSpec = getPlayerShipSpec;
+
+        function getPlayerShipPreviewSvg(shipId) {
+            if (shipId === 'missile') {
+                return `<svg viewBox="0 0 120 76" class="ship-preview-svg" aria-hidden="true">
+                    <circle cx="60" cy="24" r="18" fill="rgba(255,140,40,0.2)" stroke="#ff9933" stroke-width="1.5" stroke-dasharray="3 2"/>
+                    <circle cx="60" cy="24" r="9" fill="rgba(255,220,100,0.45)"/>
+                    <path d="M38,44 L44,24 L50,44 Z" fill="#ffaa44"/>
+                    <path d="M70,44 L76,24 L82,44 Z" fill="#ffaa44"/>
+                    <path d="M41,44 L44,54 L47,44 Z" fill="#ff5522"/>
+                    <path d="M73,44 L76,54 L79,44 Z" fill="#ff5522"/>
+                    <polygon points="60,54 51,69 69,69" fill="#ffaa33" opacity="0.9"/>
+                </svg>`;
+            }
+            if (shipId === 'slash') {
+                return `<svg viewBox="0 0 120 76" class="ship-preview-svg" aria-hidden="true">
+                    <path d="M12,48 C26,18 94,16 110,36 C88,26 32,28 12,48 Z" fill="rgba(51,221,255,0.45)"/>
+                    <path d="M18,44 C34,20 88,18 106,33 C84,25 36,27 18,44 Z" fill="#ffffff"/>
+                    <circle cx="106" cy="33" r="4" fill="#ffffff"/>
+                    <line x1="99" y1="26" x2="113" y2="40" stroke="#99f6ff" stroke-width="2"/>
+                    <polygon points="60,52 51,67 69,67" fill="#66eeff" opacity="0.9"/>
+                </svg>`;
+            }
+            if (shipId === 'snake') {
+                return `<svg viewBox="0 0 120 76" class="ship-preview-svg" aria-hidden="true">
+                    <path d="M44,58 L44,22 L92,22" fill="none" stroke="rgba(51,255,119,0.5)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M44,58 L44,22 L92,22" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="94" cy="22" r="5" fill="#33ff77"/>
+                    <circle cx="94" cy="22" r="2.5" fill="#ffffff"/>
+                    <circle cx="98" cy="22" r="9" fill="none" stroke="#ff5577" stroke-width="1.2" stroke-dasharray="2 2"/>
+                    <polygon points="44,58 36,71 52,71" fill="#33ff77" opacity="0.9"/>
+                </svg>`;
+            }
+            if (shipId === 'knife') {
+                return `<svg viewBox="0 0 120 76" class="ship-preview-svg" aria-hidden="true">
+                    <polygon points="60,7 57,19 63,19" fill="#e9d5ff" opacity="0.95"/>
+                    <line x1="60" y1="19" x2="60" y2="38" stroke="rgba(216,180,254,0.38)" stroke-width="1.5" stroke-dasharray="3 2"/>
+                    <line x1="20" y1="62" x2="100" y2="24" stroke="rgba(216,180,254,0.32)" stroke-width="2" stroke-dasharray="4 3"/>
+                    <polygon points="103,18 89,20 93,27" fill="#ffffff" stroke="#d8b4fe" stroke-width="1"/>
+                    <polygon points="106,27 92,29 96,36" fill="#ffffff" stroke="#d8b4fe" stroke-width="1"/>
+                    <polygon points="16,60 30,58 26,51" fill="#ffffff" stroke="#d8b4fe" stroke-width="1"/>
+                    <polygon points="19,68 33,66 29,59" fill="#ffffff" stroke="#d8b4fe" stroke-width="1"/>
+                    <polygon points="60,37 52,50 68,50" fill="#d8b4fe" opacity="0.95"/>
+                </svg>`;
+            }
+            if (shipId === 'wave') {
+                return `<svg viewBox="0 0 120 76" class="ship-preview-svg" aria-hidden="true">
+                    <path d="M46,54 Q40,34 45,14" fill="none" stroke="rgba(56,189,248,0.45)" stroke-width="2" stroke-dasharray="3 2"/>
+                    <path d="M60,54 Q60,34 60,12" fill="none" stroke="rgba(56,189,248,0.45)" stroke-width="2" stroke-dasharray="3 2"/>
+                    <path d="M74,54 Q80,34 75,14" fill="none" stroke="rgba(56,189,248,0.45)" stroke-width="2" stroke-dasharray="3 2"/>
+                    <circle cx="45" cy="18" r="6" fill="rgba(56,189,248,0.45)" stroke="#38bdf8" stroke-width="1.2"/>
+                    <circle cx="45" cy="18" r="2.8" fill="#ffffff"/>
+                    <circle cx="60" cy="14" r="6" fill="rgba(56,189,248,0.45)" stroke="#38bdf8" stroke-width="1.2"/>
+                    <circle cx="60" cy="14" r="2.8" fill="#ffffff"/>
+                    <circle cx="75" cy="18" r="6" fill="rgba(56,189,248,0.45)" stroke="#38bdf8" stroke-width="1.2"/>
+                    <circle cx="75" cy="18" r="2.8" fill="#ffffff"/>
+                    <polygon points="60,54 51,69 69,69" fill="#38bdf8" opacity="0.95"/>
+                </svg>`;
+            }
+            if (shipId === 'idol') {
+                const haniwaUrl = window.HANIWA_IMAGE_URL || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU_owdpJrMdJp5UzfYgWeCxCh_ZBW61L0ZoZS0pVC9uI8j4ozg556X8EwuoNHZR92g7GscB6K8Kay6pDZag6st3D0iSBqjdTMTgTWB5tkfOQnucqiy8biP9JSCLD7ccCxjewkCh6nN4R4/s400-rw/haniwa.png';
+                return `<svg viewBox="0 0 120 76" class="ship-preview-svg" aria-hidden="true">
+                    <circle cx="60" cy="28" r="24" fill="rgba(245,158,11,0.16)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <circle cx="60" cy="28" r="16" fill="rgba(253,230,138,0.22)"/>
+                    <path d="M40,22 A21,21 0 0,1 80,22" fill="none" stroke="#fde68a" stroke-width="1.4" stroke-dasharray="3 2"/>
+                    <path d="M80,34 A21,21 0 0,1 40,34" fill="none" stroke="#fde68a" stroke-width="1.4" stroke-dasharray="3 2"/>
+                    <image href="${haniwaUrl}" x="43" y="10" width="34" height="36" transform="rotate(-14 60 28)" preserveAspectRatio="xMidYMid meet"/>
+                    <polygon points="60,55 51,69 69,69" fill="#f59e0b" opacity="0.95"/>
+                </svg>`;
+            }
+            return `<svg viewBox="0 0 120 76" class="ship-preview-svg" aria-hidden="true">
+                <rect x="49" y="10" width="5" height="20" rx="1.5" fill="#ffffff" stroke="#88ddff" stroke-width="1"/>
+                <rect x="66" y="10" width="5" height="20" rx="1.5" fill="#ffffff" stroke="#88ddff" stroke-width="1"/>
+                <rect x="36" y="13" width="4.5" height="17" rx="1.5" transform="rotate(-7 38 22)" fill="#ffffff" stroke="#88ddff" stroke-width="0.9"/>
+                <rect x="79.5" y="13" width="4.5" height="17" rx="1.5" transform="rotate(7 82 22)" fill="#ffffff" stroke="#88ddff" stroke-width="0.9"/>
+                <rect x="23" y="18" width="4.5" height="16" rx="1.5" transform="rotate(-14 25 26)" fill="rgba(255,255,255,0.85)" stroke="#88ddff" stroke-width="0.9"/>
+                <rect x="92.5" y="18" width="4.5" height="16" rx="1.5" transform="rotate(14 95 26)" fill="rgba(255,255,255,0.85)" stroke="#88ddff" stroke-width="0.9"/>
+                <polygon points="60,54 51,69 69,69" fill="#88ddff" opacity="0.9"/>
+            </svg>`;
+        }
+
+        function renderShipSelectModalGrid() {
+            const grid = document.getElementById('ship-select-modal-grid');
+            const summary = document.getElementById('ship-select-modal-summary');
+            if (!grid) return;
+            const current = getPlayerShipType();
+            const currentSpec = getPlayerShipSpec(current);
+            grid.innerHTML = '';
+
+            PLAYER_SHIP_ORDER.forEach(id => {
+                const spec = PLAYER_SHIPS[id];
+                const isSelected = id === current;
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'ship-modal-card' + (isSelected ? ' active' : '');
+                card.style.setProperty('--ship-accent', spec.color);
+                card.innerHTML = `
+                    <div class="ship-card-top">
+                        <span class="ship-card-name">${spec.name}</span>
+                        <span class="ship-card-tag">${isSelected ? '★ 装備中' : spec.tag}</span>
+                    </div>
+                    <div class="ship-card-preview">${getPlayerShipPreviewSvg(id)}</div>
+                    <div class="ship-card-desc">${spec.desc}</div>
+                    <div class="ship-card-stats">
+                        <div class="ship-stat-row"><span>火力</span><div class="ship-stat-track"><div class="ship-stat-fill" style="width:${spec.stats.power}%;"></div></div></div>
+                        <div class="ship-stat-row"><span>射程</span><div class="ship-stat-track"><div class="ship-stat-fill" style="width:${spec.stats.range}%;"></div></div></div>
+                        <div class="ship-stat-row"><span>範囲</span><div class="ship-stat-track"><div class="ship-stat-fill" style="width:${spec.stats.area}%;"></div></div></div>
+                    </div>
+                `;
+                card.onclick = () => {
+                    selectPlayerShip(id);
+                };
+                grid.appendChild(card);
+            });
+
+            if (summary) {
+                summary.innerHTML = `装備中: <strong style="color:${currentSpec.color};">${currentSpec.name}</strong> <span style="opacity:0.8;">(${currentSpec.tag})</span>`;
+            }
+        }
+
+        function openShipSelectModal() {
+            const modal = document.getElementById('ship-select-modal');
+            if (!modal) return;
+            renderShipSelectModalGrid();
+            modal.classList.remove('hidden');
+        }
+        window.openShipSelectModal = openShipSelectModal;
+
+        function closeShipSelectModal() {
+            const modal = document.getElementById('ship-select-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+        }
+        window.closeShipSelectModal = closeShipSelectModal;
+
+        function selectPlayerShip(shipId) {
+            if (!PLAYER_SHIPS[shipId]) return;
+            window.selectedShipType = shipId;
+            if (typeof player !== 'undefined' && player) {
+                player.shipType = shipId;
+            }
+            try {
+                localStorage.setItem('touhou_kyoukaisen_player_ship', shipId);
+            } catch (e) { }
+            renderShipSelectors();
+            renderShipSelectModalGrid();
+        }
+        window.selectPlayerShip = selectPlayerShip;
+
+        function renderShipSelectors() {
+            const current = window.selectedShipType && PLAYER_SHIPS[window.selectedShipType] ? window.selectedShipType : 'normal';
+            const currentSpec = PLAYER_SHIPS[current];
+            const containers = document.querySelectorAll('[data-ship-selector]');
+            containers.forEach(container => {
+                const mode = container.getAttribute('data-ship-selector') || 'compact';
+                container.innerHTML = '';
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.style.setProperty('--ship-accent', currentSpec.color);
+                if (mode === 'full') {
+                    btn.className = 'menu-btn ship-menu-trigger-btn';
+                    btn.innerHTML = `<span class="ship-trigger-main">機体選択</span><span class="ship-trigger-badge">${currentSpec.name}</span>`;
+                } else {
+                    btn.className = 'ship-compact-trigger-btn';
+                    btn.innerHTML = `<span class="ship-strip-label">機体選択:</span><strong class="ship-compact-name">${currentSpec.name}</strong><span class="ship-compact-edit">変更</span>`;
+                }
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    openShipSelectModal();
+                };
+                container.appendChild(btn);
+            });
+            renderShipSelectModalGrid();
+        }
+        window.renderShipSelectors = renderShipSelectors;
 
         let editingDeckIndex = -1; // -1:新規作成, >=0:編集中のデッキインデックス
         let activeEffects = []; // 戦闘中のパッシブ等の発動エフェクト表示用
@@ -899,6 +1189,9 @@
 
             activeConfiguringKey = null;
             activeConfiguringGamepadAction = null;
+            if (typeof renderShipSelectors === 'function') {
+                renderShipSelectors();
+            }
             setTimeout(scanUIFocusElements, 100);
         }
 
@@ -1312,6 +1605,14 @@
         window.bulletImages['onryou'] = onryouMasterImg;
         window.bulletImages['onryou.png'] = onryouMasterImg;
 
+        // 偶像型（埴輪弾）画像プリロード
+        const HANIWA_IMAGE_URL = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU_owdpJrMdJp5UzfYgWeCxCh_ZBW61L0ZoZS0pVC9uI8j4ozg556X8EwuoNHZR92g7GscB6K8Kay6pDZag6st3D0iSBqjdTMTgTWB5tkfOQnucqiy8biP9JSCLD7ccCxjewkCh6nN4R4/s400-rw/haniwa.png';
+        const haniwaImg = new Image();
+        haniwaImg.referrerPolicy = 'no-referrer';
+        haniwaImg.src = HANIWA_IMAGE_URL;
+        window.haniwaImg = haniwaImg;
+        window.HANIWA_IMAGE_URL = HANIWA_IMAGE_URL;
+
         function initOnryouFrames() {
             if (!onryouMasterImg.complete || onryouMasterImg.naturalWidth <= 0) return;
             const colors = [
@@ -1437,6 +1738,12 @@
         // エンティティ
         const player = {
             team: 'PLAYER',
+            shipType: window.selectedShipType || 'normal',
+            slashSwingDir: 1,
+            knifeAimAngle: -Math.PI / 2,
+            isSlowMoving: false,
+            lastKnifeTrackX: undefined,
+            lastKnifeTrackY: undefined,
             x: PLAY_WIDTH / 2, y: canvas.height * 0.8,
             hp: 1000, maxHp: 1000, grazeCount: 0, pendingDamage: 0, pendingHeal: 0,
             recentHits: [], // 被弾履歴 (デスボム用)
@@ -2219,6 +2526,7 @@
                 cpu.ignoreChance = 0.00;  // 0%で見落とさない（完全見切り）
             }
             cpu.thinkTimer = 0;
+            resetPlayerShipCombatState();
             player.x = PLAY_WIDTH / 2; player.y = canvas.height * 0.8;
             player.isInvincible = false;
             player.invincibleTimer = 0;
