@@ -395,7 +395,17 @@ function findNearestPlayerEnemyTarget(x, y) {
         const dy = cpu.y - y;
         const dSq = dx * dx + dy * dy;
         if (dSq < bestDistSq) {
+            bestDistSq = dSq;
             best = cpu;
+        }
+    }
+    if (typeof window !== 'undefined' && window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active && cpu2.hp > 0) {
+        const dx = cpu2.x - x;
+        const dy = cpu2.y - y;
+        const dSq = dx * dx + dy * dy;
+        if (dSq < bestDistSq) {
+            bestDistSq = dSq;
+            best = cpu2;
         }
     }
     return best;
@@ -855,9 +865,79 @@ function applyPlayerDamageToLifeBullet(eb, rawDmg, b, ctxFlags) {
     return true;
 }
 
-function applyPlayerDamageToCpu(rawDmg, b, ctxFlags, hitX, hitY) {
+function getActiveBossUnits() {
+    const list = [];
+    if (typeof cpu !== 'undefined' && cpu && (!window.isBossMode || cpu.hp > 0)) {
+        list.push(cpu);
+    }
+    if (typeof window !== 'undefined' && window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active && cpu2.hp > 0) {
+        list.push(cpu2);
+    }
+    return list;
+}
+
+function areAllBossesDefeated() {
+    if (typeof cpu === 'undefined' || !cpu) return false;
+    if (cpu.hp > 0) return false;
+    if (typeof window !== 'undefined' && window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active && cpu2.hp > 0) {
+        return false;
+    }
+    return true;
+}
+
+function handleSingleBossUnitDefeated(bossUnit, isBomb) {
+    if (!bossUnit) return;
+    bossUnit.hp = 0;
+    if (bossUnit.defeated) {
+        if (areAllBossesDefeated()) handleBossDefeat(isBomb);
+        return;
+    }
+    bossUnit.defeated = true;
+
+    if (areAllBossesDefeated()) {
+        handleBossDefeat(isBomb);
+        return;
+    }
+
+    // 片割れ撃破演出：該当ボスの弾を消去し、相方に戦闘を託す
+    const key = bossUnit.bossKey || 'CPU';
+    if (window.playSound) window.playSound('se_tan00');
+    if (gameShockwaves.length < MAX_GAME_SHOCKWAVES) { gameShockwaves.push({ x: bossUnit.x, y: bossUnit.y, r: 10, curR: 10, maxR: 140, color: bossUnit === cpu ? '#ff4466' : '#44ddff', lineWidth: 5, life: 0.55, maxLife: 0.55 }); }
+    for (let k = 0; k < 28; k++) {
+        if (gameHitParticles.length >= MAX_GAME_HIT_PARTICLES) break;
+        const ang = (Math.PI * 2 * k) / 28 + Math.random() * 0.2;
+        const spd = 120 + Math.random() * 240;
+        gameHitParticles.push({
+            x: bossUnit.x, y: bossUnit.y,
+            vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+            size: 5 + Math.random() * 4,
+            color: bossUnit === cpu ? '#ff6688' : '#66eeff',
+            alpha: 1, life: 0.45 + Math.random() * 0.25, maxLife: 0.7, drag: 0.93, type: 'spark'
+        });
+    }
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        const eb = bullets[i];
+        if (!eb || eb.team === 'PLAYER' || eb.destroyResist) continue;
+        const ebOwner = eb.bossOwner || (eb.bulletState && eb.bulletState.bossOwner) || (eb.sharedEmitterState && eb.sharedEmitterState.bossOwner);
+        if (ebOwner === key) {
+            bullets.splice(i, 1);
+        }
+    }
+    for (let i = magicCircles.length - 1; i >= 0; i--) {
+        const mc = magicCircles[i];
+        if (!mc) continue;
+        const mcOwner = mc.bossOwner || (mc.emitterState && mc.emitterState.bossOwner);
+        if (mcOwner === key) {
+            magicCircles.splice(i, 1);
+        }
+    }
+}
+window.handleSingleBossUnitDefeated = handleSingleBossUnitDefeated;
+
+function applyPlayerDamageToBoss(targetBoss, rawDmg, b, ctxFlags, hitX, hitY) {
+    if (!targetBoss) return false;
     if (ctxFlags._cInv || ctxFlags._cEndure) return false;
-    if (isCustomCardTesting && window.isBossMode && cpu.hp <= 0) return false;
+    if (isCustomCardTesting && window.isBossMode && targetBoss.hp <= 0) return false;
     let dmg = rawDmg;
     if (!ctxFlags.isMainShot && ctxFlags._acLen2) {
         dmg = Math.floor(dmg / 2);
@@ -871,38 +951,42 @@ function applyPlayerDamageToCpu(rawDmg, b, ctxFlags, hitX, hitY) {
     if (ctxFlags._cp15 && !ctxFlags.isMainShot) dmg = Math.max(1, dmg - 15);
     if (ctxFlags._cp17)                       dmg = Math.floor(dmg * 0.80);
 
-    cpu.pendingDamage += dmg;
+    targetBoss.pendingDamage += dmg;
     if (isCustomCardTesting && window.isBossMode) {
         window.totalScore = (window.totalScore || 0) + 100;
-        cpu.hp = Math.max(0, cpu.hp - dmg);
-        cpu.pendingDamage = 0;
+        targetBoss.hp = Math.max(0, targetBoss.hp - dmg);
+        targetBoss.pendingDamage = 0;
 
-        if (window.playSound && cpu.hp > 0) {
+        if (window.playSound && targetBoss.hp > 0) {
             const now = performance.now();
-            if (!cpu.lastDamageSETime || now - cpu.lastDamageSETime >= 35) {
-                cpu.lastDamageSETime = now;
-                const hpRatio = cpu.maxHp > 0 ? (cpu.hp / cpu.maxHp) : 1.0;
+            if (!targetBoss.lastDamageSETime || now - targetBoss.lastDamageSETime >= 35) {
+                targetBoss.lastDamageSETime = now;
+                const hpRatio = targetBoss.maxHp > 0 ? (targetBoss.hp / targetBoss.maxHp) : 1.0;
                 window.playSound(hpRatio <= 0.10 ? 'se_damage01' : 'se_damage00');
             }
         }
 
-        if (cpu.hp <= 0) {
-            handleBossDefeat(false);
+        if (targetBoss.hp <= 0) {
+            handleSingleBossUnitDefeated(targetBoss, false);
         }
     }
-    if (!cpu.recentHits) cpu.recentHits = [];
-    cpu.recentHits.push({ damage: dmg, timestamp: performance.now() });
-    cpu.hitLastTurn = true;
+    if (!targetBoss.recentHits) targetBoss.recentHits = [];
+    targetBoss.recentHits.push({ damage: dmg, timestamp: performance.now() });
+    targetBoss.hitLastTurn = true;
 
     spawnShotHitEffect(hitX, hitY, b);
     if (ctxFlags.dropBombPiece !== false) {
         if (ctxFlags.isMainShot) {
-            if (Math.random() < 0.25) spawnBombPiece(cpu.x, cpu.y, 2);
+            if (Math.random() < 0.25) spawnBombPiece(targetBoss.x, targetBoss.y, 2);
         } else {
-            spawnBombPiece(cpu.x, cpu.y, 15);
+            spawnBombPiece(targetBoss.x, targetBoss.y, 15);
         }
     }
     return true;
+}
+
+function applyPlayerDamageToCpu(rawDmg, b, ctxFlags, hitX, hitY) {
+    return applyPlayerDamageToBoss(cpu, rawDmg, b, ctxFlags, hitX, hitY);
 }
 
 function triggerPlayerMissileExplosion(b, ctxFlags) {
@@ -922,9 +1006,14 @@ function triggerPlayerMissileExplosion(b, ctxFlags) {
     }
 
     if (!(ctxFlags._cInv || ctxFlags._cEndure)) {
-        const dSqCpu = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
-        if (dSqCpu <= (blastR + ctxFlags._cHitR) ** 2) {
-            applyPlayerDamageToCpu(blastDmg, b, { ...ctxFlags, dropBombPiece: false }, b.x, b.y);
+        const bosses = getActiveBossUnits();
+        for (let bi = 0; bi < bosses.length; bi++) {
+            const tb = bosses[bi];
+            const hitR = (typeof tb.hitboxRadius === 'number') ? tb.hitboxRadius : ctxFlags._cHitR;
+            const dSqBoss = (tb.x - b.x) ** 2 + (tb.y - b.y) ** 2;
+            if (dSqBoss <= (blastR + hitR) ** 2) {
+                applyPlayerDamageToBoss(tb, blastDmg, b, { ...ctxFlags, dropBombPiece: false }, b.x, b.y);
+            }
         }
     }
 }
@@ -1380,6 +1469,7 @@ function applyAbilityEffect(cardId, owner) {
             actionTimer = Math.max(...activeCards.map(c => c.duration));
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            if (typeof resetCardSharedVars === 'function') resetCardSharedVars();
             normalShotTimer = 0;
             changePhase('ACTION', turnOwner);
         }
@@ -2615,7 +2705,7 @@ function applyAbilityEffect(cardId, owner) {
 
         function handleBossDefeat(isBomb) {
             if (!isCustomCardTesting || !window.isBossMode || window.isEnduranceSpell) return;
-            if (typeof cpu === 'undefined' || !cpu || cpu.hp > 0) return;
+            if (!areAllBossesDefeated()) return;
             let deathEff = (typeof customCardDeathEffect !== 'undefined' ? customCardDeathEffect : (window.customCardDeathEffect || null));
             if (deathEff || window.customCardClearEffect || (window.spellTransitionTimer && window.spellTransitionTimer > 0)) {
                 return;
@@ -2694,10 +2784,12 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
     const rawHitR = player.hitboxRadius || 2.25;
     const safePlayerR = rawHitR + 4.5;
 
-    // 敵（ボス）の目標X座標を特定（描画およびエネミーマーカーと同一の cpu.x を参照）
+    // 敵（ボス）の目標X座標を特定（生存中のボスを優先参照）
     let targetX = playW / 2;
-    if (typeof cpu !== 'undefined' && cpu && typeof cpu.x === 'number' && !isNaN(cpu.x)) {
+    if (typeof cpu !== 'undefined' && cpu && cpu.hp > 0 && typeof cpu.x === 'number' && !isNaN(cpu.x)) {
         targetX = cpu.x;
+    } else if (typeof window !== 'undefined' && window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active && cpu2.hp > 0 && typeof cpu2.x === 'number' && !isNaN(cpu2.x)) {
+        targetX = cpu2.x;
     }
     targetX = Math.max(minX + 4, Math.min(maxX - 4, targetX));
 
@@ -3558,12 +3650,20 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 }
 
                 // --- CPUの自律移動（CPU戦は廃止されたためAIによる計算・移動処理を全削除） ---
-                // ターゲット（ダミー）としての座標は維持しつつ、無駄な計算を一切行わない
-                cpu.x = PLAY_WIDTH / 2;
-                cpu.y = canvas.height * 0.2;
+                const _cpuHome = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+                cpu.x = _cpuHome.x;
+                cpu.y = _cpuHome.y;
                 cpu.targetX = cpu.x;
                 cpu.targetY = cpu.y;
                 cpu.prevX = cpu.x;
+                if (typeof window !== 'undefined' && window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) {
+                    const _cpu2Home = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU2') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+                    cpu2.x = _cpu2Home.x;
+                    cpu2.y = _cpu2Home.y;
+                    cpu2.targetX = cpu2.x;
+                    cpu2.targetY = cpu2.y;
+                    cpu2.prevX = cpu2.x;
+                }
 
                 enforceCustomActionLock(dt);
 
@@ -3612,7 +3712,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     }
 
                     // 制限時間内かつスペル遷移中でない場合のみ弾・エミッターを生成する
-                    let isSpellActive = !isBossPhaseEntryMoving && (actionTimer > 0) && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!window.isBossMode || cpu.hp > 0);
+                    let isSpellActive = !isBossPhaseEntryMoving && (actionTimer > 0) && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!window.isBossMode || !areAllBossesDefeated());
 
                     if (isSpellActive) {
                         let attacker = turnOwner === 'PLAYER' ? player : cpu;
@@ -3621,8 +3721,11 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         let tEmitStart = performance.now();
                         activeCards.forEach(c => {
                             if (c.isCustom) {
-                                if (c.emitterState) {
+                                if (c.emitterState && (!window.isBossMode || cpu.hp > 0)) {
                                     stepEmitter(c, c.emitterState, attacker, target, dt);
+                                }
+                                if (window.isDoubleBossMode && c.emitterState2 && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active && cpu2.hp > 0) {
+                                    stepEmitter(c, c.emitterState2, cpu2, player, dt);
                                 }
                             } else {
                                 c.spawnTimer += dt;
@@ -4203,171 +4306,179 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         if (_cInv || _cEndure) {
                             continue;
                         }
-                        let distSq;
-                        if (b.isTrail && !b.isSnakeShot) {
-                            let history = b.trailHistory || [];
-                            let baseR = b.hitRadius !== undefined ? Number(b.hitRadius) : ((b.radius || 8) * 0.60);
-                            let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
-                            let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
-                            let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
+                        const _bossTargets = getActiveBossUnits();
+                        let _bulletConsumed = false;
+                        for (let _bti = 0; _bti < _bossTargets.length; _bti++) {
+                            const _tb = _bossTargets[_bti];
+                            const _tbHitR = (typeof _tb.hitboxRadius === 'number') ? _tb.hitboxRadius : _cHitR;
+                            const _tbGrazeR = (typeof _tb.grazeRadius === 'number') ? _tb.grazeRadius : _cGrazeR;
+                            const _tbKey = _tb.bossKey || 'CPU';
+                            let distSq;
+                            if (b.isTrail && !b.isSnakeShot) {
+                                let history = b.trailHistory || [];
+                                let baseR = b.hitRadius !== undefined ? Number(b.hitRadius) : ((b.radius || 8) * 0.60);
+                                let gT = (b.growTime !== undefined) ? Number(b.growTime) : 0.2;
+                                let kT = (b.keepTime !== undefined) ? Number(b.keepTime) : 0.3;
+                                let sT = (b.shrinkTime !== undefined) ? Number(b.shrinkTime) : 0.5;
 
-                            function getTNRadiusCPU(age) {
-                                if (gT > 0 && age < gT) {
-                                    let t = age / gT;
-                                    return baseR * Math.sin(t * Math.PI / 2);
-                                } else if (age < gT + kT) {
-                                    return baseR;
-                                } else if (sT > 0 && age < gT + kT + sT) {
-                                    let t = (age - (gT + kT)) / sT;
-                                    return baseR * Math.cos(t * Math.PI / 2);
+                                const getTNRadiusCPU = (age) => {
+                                    if (gT > 0 && age < gT) {
+                                        let t = age / gT;
+                                        return baseR * Math.sin(t * Math.PI / 2);
+                                    } else if (age < gT + kT) {
+                                        return baseR;
+                                    } else if (sT > 0 && age < gT + kT + sT) {
+                                        let t = (age - (gT + kT)) / sT;
+                                        return baseR * Math.cos(t * Math.PI / 2);
+                                    }
+                                    return 0;
+                                };
+
+                                let isHit = false;
+                                let step = history.length > 20 ? 2 : 1;
+                                for (let k = 0; k < history.length - 1; k += step) {
+                                    let kNext = Math.min(history.length - 1, k + step);
+                                    let p1 = history[k];
+                                    let p2 = history[kNext];
+                                    let r1 = getTNRadiusCPU(p1.age);
+                                    let r2 = getTNRadiusCPU(p2.age);
+                                    if (r1 <= 0.1 && r2 <= 0.1) continue;
+                                    let A = _tb.x - p1.x;
+                                    let B = _tb.y - p1.y;
+                                    let C = p2.x - p1.x;
+                                    let D = p2.y - p1.y;
+                                    let dot = A * C + B * D;
+                                    let lenSq = C * C + D * D;
+                                    let param = lenSq !== 0 ? dot / lenSq : -1;
+                                    if (param < 0) param = 0;
+                                    else if (param > 1) param = 1;
+
+                                    let cx = p1.x + param * C;
+                                    let cy = p1.y + param * D;
+                                    let rClosest = r1 + param * (r2 - r1);
+                                    let dSq = (_tb.x - cx) ** 2 + (_tb.y - cy) ** 2;
+                                    if (rClosest > 0.1 && dSq < (_tbHitR + rClosest) ** 2) { isHit = true; break; }
                                 }
-                                return 0;
-                            }
-
-                            let isHit = false;
-                            let step = history.length > 20 ? 2 : 1;
-                            for (let k = 0; k < history.length - 1; k += step) {
-                                let kNext = Math.min(history.length - 1, k + step);
-                                let p1 = history[k];
-                                let p2 = history[kNext];
-                                let r1 = getTNRadiusCPU(p1.age);
-                                let r2 = getTNRadiusCPU(p2.age);
-                                if (r1 <= 0.1 && r2 <= 0.1) continue;
-                                let A = cpu.x - p1.x;
-                                let B = cpu.y - p1.y;
-                                let C = p2.x - p1.x;
-                                let D = p2.y - p1.y;
+                                distSq = isHit ? 0 : Infinity;
+                            } else if (b.isLaser) {
+                                let x1 = b.x;
+                                let y1 = b.y;
+                                let x2, y2;
+                                if (b.isCustomBeam && b.bulletState) {
+                                    let rad = (b.bulletState.variables.angle || 0) * Math.PI / 180;
+                                    if (b.bulletState.isPlayerSide) {
+                                        rad = -rad;
+                                    }
+                                    x2 = b.x + Math.cos(rad) * 1200;
+                                    y2 = b.y + Math.sin(rad) * 1200;
+                                } else {
+                                    let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+                                    let dx = b.vx / (speed || 1);
+                                    let dy = b.vy / (speed || 1);
+                                    let len = 80;
+                                    x2 = b.x - dx * len;
+                                    y2 = b.y - dy * len;
+                                }
+                                
+                                let A = _tb.x - x1;
+                                let B = _tb.y - y1;
+                                let C = x2 - x1;
+                                let D = y2 - y1;
+                                
                                 let dot = A * C + B * D;
                                 let lenSq = C * C + D * D;
-                                let param = lenSq !== 0 ? dot / lenSq : -1;
-                                if (param < 0) param = 0;
-                                else if (param > 1) param = 1;
-
-                                let cx = p1.x + param * C;
-                                let cy = p1.y + param * D;
-                                let rClosest = r1 + param * (r2 - r1);
-                                let dSq = (cpu.x - cx) ** 2 + (cpu.y - cy) ** 2;
-                                if (rClosest > 0.1 && dSq < (_cHitR + rClosest) ** 2) { isHit = true; break; }
-                            }
-                            distSq = isHit ? 0 : Infinity;
-                        } else if (b.isLaser) {
-                            let x1 = b.x;
-                            let y1 = b.y;
-                            let x2, y2;
-                            if (b.isCustomBeam && b.bulletState) {
-                                let rad = (b.bulletState.variables.angle || 0) * Math.PI / 180;
-                                if (b.bulletState.isPlayerSide) {
-                                    rad = -rad;
+                                let param = -1;
+                                if (lenSq !== 0) param = dot / lenSq;
+                                
+                                let xx, yy;
+                                if (param < 0) {
+                                    xx = x1;
+                                    yy = y1;
+                                } else if (param > 1) {
+                                    xx = x2;
+                                    yy = y2;
+                                } else {
+                                    xx = x1 + param * C;
+                                    yy = y1 + param * D;
                                 }
-                                x2 = b.x + Math.cos(rad) * 1200;
-                                y2 = b.y + Math.sin(rad) * 1200;
-                            } else {
+                                distSq = (_tb.x - xx) ** 2 + (_tb.y - yy) ** 2;
+                            } else if (b.bulletImage === 'sword') {
+                                // 剣弾 of 5点マルチサークル判定（CPU）
                                 let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
                                 let dx = b.vx / (speed || 1);
                                 let dy = b.vy / (speed || 1);
-                                let len = 80;
-                                x2 = b.x - dx * len;
-                                y2 = b.y - dy * len;
-                            }
-                            
-                            let A = cpu.x - x1;
-                            let B = cpu.y - y1;
-                            let C = x2 - x1;
-                            let D = y2 - y1;
-                            
-                            let dot = A * C + B * D;
-                            let lenSq = C * C + D * D;
-                            let param = -1;
-                            if (lenSq !== 0) param = dot / lenSq;
-                            
-                            let xx, yy;
-                            if (param < 0) {
-                                xx = x1;
-                                yy = y1;
-                            } else if (param > 1) {
-                                xx = x2;
-                                yy = y2;
-                            } else {
-                                xx = x1 + param * C;
-                                yy = y1 + param * D;
-                            }
-                            distSq = (cpu.x - xx) ** 2 + (cpu.y - yy) ** 2;
-                        } else if (b.bulletImage === 'sword') {
-                            // 剣弾 of 5点マルチサークル判定（CPU）
-                            let speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-                            let dx = b.vx / (speed || 1);
-                            let dy = b.vy / (speed || 1);
-                            let step = bHitR * 1.3;
-                            
-                            let isSwordHit = false;
-                            for (let k = 0; k <= 4; k++) {
-                                let cx = b.x + dx * (k * step);
-                                let cy = b.y + dy * (k * step);
-                                let dSq = (cpu.x - cx) ** 2 + (cpu.y - cy) ** 2;
-                                if (dSq < (cpu.hitboxRadius + bHitR) ** 2) {
-                                    isSwordHit = true;
-                                    break;
+                                let step = bHitR * 1.3;
+                                
+                                let isSwordHit = false;
+                                for (let k = 0; k <= 4; k++) {
+                                    let cx = b.x + dx * (k * step);
+                                    let cy = b.y + dy * (k * step);
+                                    let dSq = (_tb.x - cx) ** 2 + (_tb.y - cy) ** 2;
+                                    if (dSq < (_tbHitR + bHitR) ** 2) {
+                                        isSwordHit = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            distSq = isSwordHit ? 0 : Infinity;
-                        } else if (b.isSlash) {
-                            distSq = isTargetInPlayerSlash(b, cpu.x, cpu.y, _cHitR) ? 0 : Infinity;
-                        } else {
-                            let aspectData = getAspectBulletHitData(b, bHitR);
-                            if (aspectData.isAspect) {
-                                let isHit = isPointInAspectEllipse(cpu.x, cpu.y, _cHitR, aspectData);
-                                distSq = isHit ? 0 : Infinity;
+                                distSq = isSwordHit ? 0 : Infinity;
+                            } else if (b.isSlash) {
+                                distSq = isTargetInPlayerSlash(b, _tb.x, _tb.y, _tbHitR) ? 0 : Infinity;
                             } else {
-                                distSq = (cpu.x - b.x) ** 2 + (cpu.y - b.y) ** 2;
-                            }
-                        }
-                        if (distSq < (_cHitR + bHitR) ** 2) {
-                            const isPierce = !!(b.isSlash || b.isPiercing);
-                            const hitPosX = b.isSlash ? cpu.x : b.x;
-                            const hitPosY = b.isSlash ? cpu.y : b.y;
-                            if (isPierce && b.hitTargets && b.hitTargets.has('CPU')) {
-                                // Already pierced/cleaved CPU once
-                            } else {
-                                applyPlayerDamageToCpu(rawBulletDmg, b, playerDmgCtx, hitPosX, hitPosY);
-                                if (isPierce) {
-                                    if (b.hitTargets) b.hitTargets.add('CPU');
+                                let aspectData = getAspectBulletHitData(b, bHitR);
+                                if (aspectData.isAspect) {
+                                    let isHit = isPointInAspectEllipse(_tb.x, _tb.y, _tbHitR, aspectData);
+                                    distSq = isHit ? 0 : Infinity;
                                 } else {
-                                    if (b.isMissile || b.isIdol) {
-                                        triggerPlayerMissileExplosion(b, playerDmgCtx);
+                                    distSq = (_tb.x - b.x) ** 2 + (_tb.y - b.y) ** 2;
+                                }
+                            }
+                            if (distSq < (_tbHitR + bHitR) ** 2) {
+                                const isPierce = !!(b.isSlash || b.isPiercing);
+                                const hitPosX = b.isSlash ? _tb.x : b.x;
+                                const hitPosY = b.isSlash ? _tb.y : b.y;
+                                if (isPierce && b.hitTargets && b.hitTargets.has(_tbKey)) {
+                                    // Already pierced/cleaved this boss once
+                                } else {
+                                    applyPlayerDamageToBoss(_tb, rawBulletDmg, b, playerDmgCtx, hitPosX, hitPosY);
+                                    if (isPierce) {
+                                        if (b.hitTargets) b.hitTargets.add(_tbKey);
+                                    } else {
+                                        if (b.isMissile || b.isIdol) {
+                                            triggerPlayerMissileExplosion(b, playerDmgCtx);
+                                        }
+                                        if (b.isSnakeShot) {
+                                            b.isHeadDead = true;
+                                            b.hitRadius = 0;
+                                            _bulletConsumed = true;
+                                            break;
+                                        }
+                                        if (useFastRemove) { b._dead = true; _bulletConsumed = true; break; }
+                                        bullets.splice(i, 1); _bulletConsumed = true; break;
                                     }
-                                    if (b.isSnakeShot) {
-                                        b.isHeadDead = true;
-                                        b.hitRadius = 0;
-                                        continue;
+                                }
+                            }
+                            if (!b.grazed && distSq < (_tbGrazeR + bHitR) ** 2) {
+                                b.grazed = true; _tb.grazeCount++;
+                                if (_tb === cpu) {
+                                    if (_cp6 && Math.random() < 0.5) {
+                                        cpu.pendingHeal += 1;
                                     }
-                                    if (useFastRemove) { b._dead = true; continue; }
-                                    bullets.splice(i, 1); continue;
+                                    if (_cp21 && cpu.grazeCount % 20 === 0) {
+                                        cpu.pendingHeal += 10;
+                                        addBattleEffect("【吸血の牙】 相手のHP回復量+10！", "#ffaacc");
+                                    }
+                                    if (_cp5 && cpu.grazeCount % 500 === 0) {
+                                        if (cpu.bombs < cpu.maxBombs) cpu.bombs++;
+                                    }
+                                    if (_cp10 && Math.random() < 0.01) {
+                                        if (cpu.bombs < cpu.maxBombs) {
+                                            cpu.bombs++;
+                                            addBattleEffect("【霊力還元】 相手のボムが回復！", "#ff8888");
+                                        }
+                                    }
                                 }
                             }
                         }
-                        if (!b.grazed && distSq < (_cGrazeR + bHitR) ** 2) {
-                            b.grazed = true; cpu.grazeCount++;
-                            if (_cp6 && Math.random() < 0.5) {
-                                cpu.pendingHeal += 1;
-                            }
-
-                            // p21 吸血の牙 (20グレイズごとにHP回復)
-                            if (_cp21 && cpu.grazeCount % 20 === 0) {
-                                cpu.pendingHeal += 10;
-                                addBattleEffect("【吸血の牙】 相手のHP回復量+10！", "#ffaacc");
-                            }
-
-                            // CPUのパッシブ判定
-                            if (_cp5 && cpu.grazeCount % 500 === 0) {
-                                if (cpu.bombs < cpu.maxBombs) cpu.bombs++;
-                            }
-                            if (_cp10 && Math.random() < 0.01) {
-                                if (cpu.bombs < cpu.maxBombs) {
-                                    cpu.bombs++;
-                                    addBattleEffect("【霊力還元】 相手のボムが回復！", "#ff8888");
-                                }
-                            }
-                        }
+                        if (_bulletConsumed) continue;
                     }
                 }
                 // 弾ループの最後: 残存弾を先頭から詰める
@@ -4481,30 +4592,28 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     });
 
                     // ボムの範囲内の敵（ボス・CPU）に毎秒100ダメージ
-                    if (isCustomCardTesting && window.isBossMode && !window.isEnduranceSpell && typeof cpu !== 'undefined' && cpu.hp > 0 && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
-                        let cpuHitR = (typeof cpu.hitboxRadius === 'number') ? cpu.hitboxRadius : 20;
-                        let distCpu = Math.sqrt((cpu.x - sw.x) ** 2 + (cpu.y - sw.y) ** 2);
-                        if (distCpu <= sw.r + cpuHitR) {
-                            let bombDmg = 100 * dt;
-                            cpu.hp = Math.max(0, cpu.hp - bombDmg);
+                    if (isCustomCardTesting && window.isBossMode && !window.isEnduranceSpell && !customCardDeathEffect && !window.customCardClearEffect && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0)) {
+                        const _bombBossTargets = getActiveBossUnits();
+                        for (let _bbi = 0; _bbi < _bombBossTargets.length; _bbi++) {
+                            const _bb = _bombBossTargets[_bbi];
+                            let bossHitR = (typeof _bb.hitboxRadius === 'number') ? _bb.hitboxRadius : 20;
+                            let distBoss = Math.sqrt((_bb.x - sw.x) ** 2 + (_bb.y - sw.y) ** 2);
+                            if (distBoss <= sw.r + bossHitR) {
+                                let bombDmg = 100 * dt;
+                                _bb.hp = Math.max(0, _bb.hp - bombDmg);
 
-                            // 敵被弾SE
-                            if (window.playSound && cpu.hp > 0) {
-                                let now = performance.now();
-                                if (!cpu.lastDamageSETime || now - cpu.lastDamageSETime >= 100) {
-                                    cpu.lastDamageSETime = now;
-                                    let hpRatio = cpu.maxHp > 0 ? (cpu.hp / cpu.maxHp) : 1.0;
-                                    if (hpRatio <= 0.10) {
-                                        window.playSound('se_damage01');
-                                    } else {
-                                        window.playSound('se_damage00');
+                                if (window.playSound && _bb.hp > 0) {
+                                    let now = performance.now();
+                                    if (!_bb.lastDamageSETime || now - _bb.lastDamageSETime >= 100) {
+                                        _bb.lastDamageSETime = now;
+                                        let hpRatio = _bb.maxHp > 0 ? (_bb.hp / _bb.maxHp) : 1.0;
+                                        window.playSound(hpRatio <= 0.10 ? 'se_damage01' : 'se_damage00');
                                     }
                                 }
-                            }
 
-                            // 撃破判定
-                            if (cpu.hp <= 0) {
-                                handleBossDefeat(true);
+                                if (_bb.hp <= 0) {
+                                    handleSingleBossUnitDefeated(_bb, true);
+                                }
                             }
                         }
                     }
@@ -4693,8 +4802,16 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     }
                 }
                 // スクリプト操作等も含めたボス戦モードの敵HP0による撃破チェック
-                if (isCustomCardTesting && window.isBossMode && !window.isEnduranceSpell && typeof cpu !== 'undefined' && cpu && cpu.hp <= 0) {
-                    handleBossDefeat(false);
+                if (isCustomCardTesting && window.isBossMode && !window.isEnduranceSpell) {
+                    if (typeof cpu !== 'undefined' && cpu && cpu.hp <= 0 && !cpu.defeated) {
+                        handleSingleBossUnitDefeated(cpu, false);
+                    }
+                    if (window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active && cpu2.hp <= 0 && !cpu2.defeated) {
+                        handleSingleBossUnitDefeated(cpu2, false);
+                    }
+                    if (areAllBossesDefeated()) {
+                        handleBossDefeat(false);
+                    }
                 }
 
                 // actionTimer が切れた時の処理
@@ -4811,14 +4928,23 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 const playBottom = H - 24; // 下部にエネミーマーカー用の外枠領域を確保
                 const t = performance.now();
 
+                // 2D疑似3D背景プリセットの描画
+                const _activeBgPreset = (typeof activeCards !== 'undefined' && activeCards && activeCards[0] && activeCards[0].bg) ? activeCards[0].bg : 'none';
+                const _bgBrightness = (typeof window.bg3dBrightnessSetting === 'number' ? window.bg3dBrightnessSetting : 70) / 100;
+                const _bgTimeSec = (typeof window.currentCardSecond === 'number' && isCustomCardTesting) ? window.currentCardSecond : (t / 1000);
+                let _bg3dDrawn = false;
+                if (_activeBgPreset && _activeBgPreset !== 'none' && typeof window.drawPseudo3DBackground === 'function') {
+                    _bg3dDrawn = window.drawPseudo3DBackground(ctx, _activeBgPreset, W, playBottom, _bgTimeSec, _bgBrightness);
+                }
+
                 ctx.save();
 
                 // 下枠フレームの背景（外枠スペース）
                 ctx.fillStyle = '#06060c';
                 ctx.fillRect(0, playBottom, W, 24);
 
-                // 薄いグリッド線（縦4本・横6本、ゲーム画面内）
-                ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+                // 薄いグリッド線（3D背景オフ時は標準、オン時は控えめに描画）
+                ctx.strokeStyle = _bg3dDrawn ? 'rgba(255,255,255,0.012)' : 'rgba(255,255,255,0.03)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 const cols = 4, rows = 6;
@@ -6729,33 +6855,77 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 ctx.restore();
             }
 
-            // 敵機の描画
-            let cImg;
-            if (cpu.moveDir === -1) { cImg = youmuImg_left; }
-            else if (cpu.moveDir === 1) { cImg = youmuImg_right; }
-            else { cImg = youmuImg_idle; }
+            // 敵機の描画（シングル / ダブル対応）
+            const drawBossUnitSprite = (bossUnit, isSecondBoss) => {
+                if (!bossUnit) return;
+                if (window.isBossMode && bossUnit.hp <= 0) return;
 
-            const cpuAnimIndex = Math.floor(performance.now() / 150) % 4;
-            const cpuDrawW = 72, cpuDrawH = 72; // 見た目サイズ 3/4 (72x72)
+                let cImg;
+                if (bossUnit.moveDir === -1) { cImg = youmuImg_left; }
+                else if (bossUnit.moveDir === 1) { cImg = youmuImg_right; }
+                else { cImg = youmuImg_idle; }
 
-            ctx.save();
-            ctx.translate(cpu.x, cpu.y);
-            if (window.isEnduranceSpell) ctx.globalAlpha = 0.45;
-            if (cImg && cImg.complete && cImg.naturalWidth > 0 && cImg.src.indexOf("dummy") === -1) {
-                let spriteW = cImg.naturalWidth >= 192 ? 48 : cImg.naturalWidth;
-                let spriteH = cImg.naturalHeight >= 48 ? 48 : cImg.naturalHeight;
-                let srcX = (cImg.naturalWidth >= 192) ? cpuAnimIndex * 48 : 0;
-                ctx.drawImage(cImg, srcX, 0, spriteW, spriteH, -cpuDrawW / 2, -cpuDrawH / 2, cpuDrawW, cpuDrawH);
-            } else {
-                ctx.fillStyle = '#ff5555';
-                ctx.fillRect(-18, -24, 36, 48);
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText("敵機", 0, 0);
+                const cpuAnimIndex = Math.floor(performance.now() / 150) % 4;
+                const cpuDrawW = 72, cpuDrawH = 72; // 見た目サイズ 3/4 (72x72)
+
+                ctx.save();
+                ctx.translate(bossUnit.x, bossUnit.y);
+                if (window.isEnduranceSpell) ctx.globalAlpha = 0.45;
+
+                // ダブルボス時は区別用の回転マジックリングを描画
+                if (window.isDoubleBossMode) {
+                    ctx.save();
+                    ctx.rotate((performance.now() / 1000) * (isSecondBoss ? -1.4 : 1.4));
+                    ctx.strokeStyle = isSecondBoss ? 'rgba(80, 225, 255, 0.55)' : 'rgba(255, 95, 130, 0.55)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([8, 6]);
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 42, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                if (cImg && cImg.complete && cImg.naturalWidth > 0 && cImg.src.indexOf("dummy") === -1) {
+                    let spriteW = cImg.naturalWidth >= 192 ? 48 : cImg.naturalWidth;
+                    let spriteH = cImg.naturalHeight >= 48 ? 48 : cImg.naturalHeight;
+                    let srcX = (cImg.naturalWidth >= 192) ? cpuAnimIndex * 48 : 0;
+                    if (isSecondBoss) {
+                        // ボス2用のシアン系オフスクリーンキャッシュで見た目を差別化
+                        if (!window._boss2TintCache) window._boss2TintCache = new Map();
+                        const cacheKey = (cImg.src || '') + '_' + srcX;
+                        let tinted = window._boss2TintCache.get(cacheKey);
+                        if (!tinted) {
+                            const off = document.createElement('canvas');
+                            off.width = spriteW;
+                            off.height = spriteH;
+                            const octx = off.getContext('2d');
+                            octx.drawImage(cImg, srcX, 0, spriteW, spriteH, 0, 0, spriteW, spriteH);
+                            octx.globalCompositeOperation = 'source-atop';
+                            octx.fillStyle = 'rgba(0, 200, 255, 0.35)';
+                            octx.fillRect(0, 0, spriteW, spriteH);
+                            tinted = off;
+                            window._boss2TintCache.set(cacheKey, tinted);
+                        }
+                        ctx.drawImage(tinted, 0, 0, spriteW, spriteH, -cpuDrawW / 2, -cpuDrawH / 2, cpuDrawW, cpuDrawH);
+                    } else {
+                        ctx.drawImage(cImg, srcX, 0, spriteW, spriteH, -cpuDrawW / 2, -cpuDrawH / 2, cpuDrawW, cpuDrawH);
+                    }
+                } else {
+                    ctx.fillStyle = isSecondBoss ? '#44ccff' : '#ff5555';
+                    ctx.fillRect(-18, -24, 36, 48);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(isSecondBoss ? "敵2" : "敵機", 0, 0);
+                }
+                ctx.restore();
+            };
+
+            drawBossUnitSprite(cpu, false);
+            if (window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active && cpu2.hp > 0) {
+                drawBossUnitSprite(cpu2, true);
             }
-            ctx.restore();
 
             // 霊撃カットイン
             if (reigekiCutinTimer > 0) {
@@ -6864,62 +7034,69 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 ctx.lineTo(PLAY_WIDTH, playBottom);
                 ctx.stroke();
 
-                if (typeof cpu !== 'undefined' && cpu && (window.isBossMode || isCustomCardTesting || (typeof gameState !== 'undefined' && gameState === 'BATTLE'))) {
-                    let isCpuAlive = cpu.hp > 0 && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!customCardDeathEffect && !window.customCardClearEffect);
-                    if (isCpuAlive) {
-                        let markerX = Math.max(28, Math.min(PLAY_WIDTH - 28, cpu.x));
-                        let textCenterY = playBottom + 12; // 外枠の中央
-                        let now = performance.now();
-                        let pulse = 0.85 + 0.15 * Math.sin(now / 150);
+                const drawEnemyMarkerForUnit = (bossUnit, labelText, isSecondBoss) => {
+                    if (!bossUnit) return;
+                    let isAlive = bossUnit.hp > 0 && (!window.spellTransitionTimer || window.spellTransitionTimer <= 0) && (!customCardDeathEffect && !window.customCardClearEffect);
+                    if (!isAlive) return;
+                    let markerX = Math.max(28, Math.min(PLAY_WIDTH - 28, bossUnit.x));
+                    let textCenterY = playBottom + 12;
+                    let now = performance.now();
+                    let pulse = 0.85 + 0.15 * Math.sin(now / 150);
 
-                        // 1. 下枠フレーム内だけの赤いグロー（ゲーム画面内にはみ出さないようにクリップ）
-                        ctx.save();
-                        ctx.beginPath();
-                        ctx.rect(0, playBottom, PLAY_WIDTH, 24);
-                        ctx.clip(); // 下枠内だけにクリッピング
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(0, playBottom, PLAY_WIDTH, 24);
+                    ctx.clip();
 
-                        let badgeGrad = ctx.createRadialGradient(markerX, textCenterY, 2, markerX, textCenterY, 36);
+                    let badgeGrad = ctx.createRadialGradient(markerX, textCenterY, 2, markerX, textCenterY, 36);
+                    if (isSecondBoss) {
+                        badgeGrad.addColorStop(0, `rgba(40, 210, 255, ${0.6 * pulse})`);
+                        badgeGrad.addColorStop(0.6, `rgba(0, 140, 220, ${0.25 * pulse})`);
+                    } else {
                         badgeGrad.addColorStop(0, `rgba(255, 20, 60, ${0.6 * pulse})`);
                         badgeGrad.addColorStop(0.6, `rgba(200, 0, 30, ${0.25 * pulse})`);
-                        badgeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                        ctx.fillStyle = badgeGrad;
-                        ctx.fillRect(markerX - 40, playBottom, 80, 24);
+                    }
+                    badgeGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    ctx.fillStyle = badgeGrad;
+                    ctx.fillRect(markerX - 40, playBottom, 80, 24);
 
-                        // 2. 赤いひし形ミニマーカー（下枠内）
-                        ctx.fillStyle = '#ff2244';
-                        ctx.shadowColor = '#ff0033';
-                        ctx.shadowBlur = 6 * pulse;
-                        ctx.beginPath();
-                        ctx.moveTo(markerX - 24, textCenterY);
-                        ctx.lineTo(markerX - 20, textCenterY - 4.5);
-                        ctx.lineTo(markerX - 16, textCenterY);
-                        ctx.lineTo(markerX - 20, textCenterY + 4.5);
-                        ctx.closePath();
-                        ctx.fill();
+                    ctx.fillStyle = isSecondBoss ? '#22ddff' : '#ff2244';
+                    ctx.shadowColor = isSecondBoss ? '#00ccff' : '#ff0033';
+                    ctx.shadowBlur = 6 * pulse;
+                    ctx.beginPath();
+                    ctx.moveTo(markerX - 24, textCenterY);
+                    ctx.lineTo(markerX - 20, textCenterY - 4.5);
+                    ctx.lineTo(markerX - 16, textCenterY);
+                    ctx.lineTo(markerX - 20, textCenterY + 4.5);
+                    ctx.closePath();
+                    ctx.fill();
 
-                        // ひし形中央の白色ハイライト
-                        ctx.fillStyle = '#ffffff';
-                        ctx.beginPath();
-                        ctx.arc(markerX - 20, textCenterY, 1.2, 0, Math.PI * 2);
-                        ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(markerX - 20, textCenterY, 1.2, 0, Math.PI * 2);
+                    ctx.fill();
 
-                        // 3. "Enemy" テキスト描画 (外枠内にスタイリッシュな赤い斜体)
-                        ctx.font = "italic 900 11px 'Trebuchet MS', 'Arial Black', sans-serif";
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
+                    ctx.font = "italic 900 11px 'Trebuchet MS', 'Arial Black', sans-serif";
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeText(labelText, markerX + 5, textCenterY);
 
-                        // 黒の縁取り
-                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
-                        ctx.lineWidth = 2.5;
-                        ctx.strokeText("Enemy", markerX + 4, textCenterY);
+                    ctx.fillStyle = isSecondBoss
+                        ? `rgb(${Math.floor(80 + 50 * pulse)}, ${Math.floor(220 + 35 * pulse)}, 255)`
+                        : `rgb(255, ${Math.floor(60 + 50 * pulse)}, ${Math.floor(80 + 50 * pulse)})`;
+                    ctx.shadowColor = isSecondBoss ? '#00ccff' : '#ff2244';
+                    ctx.shadowBlur = 6 * pulse;
+                    ctx.fillText(labelText, markerX + 5, textCenterY);
+                    ctx.restore();
+                };
 
-                        // 文字本体
-                        ctx.fillStyle = `rgb(255, ${Math.floor(60 + 50 * pulse)}, ${Math.floor(80 + 50 * pulse)})`;
-                        ctx.shadowColor = '#ff2244';
-                        ctx.shadowBlur = 6 * pulse;
-                        ctx.fillText("Enemy", markerX + 4, textCenterY);
-
-                        ctx.restore();
+                if (typeof cpu !== 'undefined' && cpu && (window.isBossMode || isCustomCardTesting || (typeof gameState !== 'undefined' && gameState === 'BATTLE'))) {
+                    const isDouble = !!(window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active);
+                    drawEnemyMarkerForUnit(cpu, isDouble ? "Boss 1" : "Enemy", false);
+                    if (isDouble) {
+                        drawEnemyMarkerForUnit(cpu2, "Boss 2", true);
                     }
                 }
                 ctx.restore();
@@ -6937,40 +7114,70 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     let spellName = (card.name && card.name.trim()) ? card.name.trim() : '';
                     let isNonSpell = !spellName;
 
-                    // 1. 最上部 HPバー (左端から右上タイマー手前まで、区切り線なし)
-                    let hpBarX = 12;
-                    let hpBarY = 8;
-                    let hpBarW = PLAY_WIDTH - 130;
-                    let hpBarH = 5;
-                    let hpRatio = cpu.maxHp > 0 ? Math.max(0, Math.min(1, cpu.hp / cpu.maxHp)) : 1.0;
+                    // 1. 最上部 HPバー (シングル1本 / ダブル2本)
+                    const isDoubleHud = !!(window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active);
+                    let hpBarX = isDoubleHud ? 26 : 12;
+                    let hpBarW = PLAY_WIDTH - (isDoubleHud ? 144 : 130);
 
-                    // HPバー背景枠
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-                    ctx.fillRect(hpBarX - 1, hpBarY - 1, hpBarW + 2, hpBarH + 2);
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(hpBarX - 1, hpBarY - 1, hpBarW + 2, hpBarH + 2);
+                    if (isDoubleHud) {
+                        const drawSingleHpStrip = (unit, barY, barH, badge, isBoss2Bar) => {
+                            let ratio = (unit && unit.maxHp > 0) ? Math.max(0, Math.min(1, unit.hp / unit.maxHp)) : 0;
+                            ctx.fillStyle = isBoss2Bar ? '#44ddff' : '#ff6688';
+                            ctx.font = "bold 10px sans-serif";
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(badge, hpBarX - 5, barY + barH / 2);
 
-                    // HPバー中身（通常弾幕時は白色、スペルカード時は赤・橙・黄）
-                    let hpGrad = ctx.createLinearGradient(hpBarX, 0, hpBarX + hpBarW, 0);
-                    if (isNonSpell) {
-                        hpGrad.addColorStop(0, '#ffffff');
-                        hpGrad.addColorStop(0.5, '#e8e8e8');
-                        hpGrad.addColorStop(1, '#c0c0c0');
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                            ctx.fillRect(hpBarX - 1, barY - 1, hpBarW + 2, barH + 2);
+                            ctx.strokeStyle = isBoss2Bar ? 'rgba(100, 225, 255, 0.55)' : 'rgba(255, 160, 180, 0.55)';
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(hpBarX - 1, barY - 1, hpBarW + 2, barH + 2);
+
+                            let grad = ctx.createLinearGradient(hpBarX, 0, hpBarX + hpBarW, 0);
+                            if (isBoss2Bar) {
+                                grad.addColorStop(0, '#33bbff');
+                                grad.addColorStop(1, '#7755ff');
+                            } else {
+                                grad.addColorStop(0, '#ff9900');
+                                grad.addColorStop(1, '#ff3355');
+                            }
+                            ctx.fillStyle = grad;
+                            ctx.fillRect(hpBarX, barY, hpBarW * ratio, barH);
+                        };
+                        drawSingleHpStrip(cpu, 6, 4, '1', false);
+                        drawSingleHpStrip(cpu2, 13, 4, '2', true);
                     } else {
-                        if (hpRatio > 0.5) {
-                            hpGrad.addColorStop(0, '#ff9900');
-                            hpGrad.addColorStop(1, '#ff3344');
-                        } else if (hpRatio > 0.2) {
-                            hpGrad.addColorStop(0, '#ffcc00');
-                            hpGrad.addColorStop(1, '#ff6600');
+                        let hpBarY = 8;
+                        let hpBarH = 5;
+                        let hpRatio = cpu.maxHp > 0 ? Math.max(0, Math.min(1, cpu.hp / cpu.maxHp)) : 1.0;
+
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                        ctx.fillRect(hpBarX - 1, hpBarY - 1, hpBarW + 2, hpBarH + 2);
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(hpBarX - 1, hpBarY - 1, hpBarW + 2, hpBarH + 2);
+
+                        let hpGrad = ctx.createLinearGradient(hpBarX, 0, hpBarX + hpBarW, 0);
+                        if (isNonSpell) {
+                            hpGrad.addColorStop(0, '#ffffff');
+                            hpGrad.addColorStop(0.5, '#e8e8e8');
+                            hpGrad.addColorStop(1, '#c0c0c0');
                         } else {
-                            hpGrad.addColorStop(0, '#ff3366');
-                            hpGrad.addColorStop(1, '#ff0033');
+                            if (hpRatio > 0.5) {
+                                hpGrad.addColorStop(0, '#ff9900');
+                                hpGrad.addColorStop(1, '#ff3344');
+                            } else if (hpRatio > 0.2) {
+                                hpGrad.addColorStop(0, '#ffcc00');
+                                hpGrad.addColorStop(1, '#ff6600');
+                            } else {
+                                hpGrad.addColorStop(0, '#ff3366');
+                                hpGrad.addColorStop(1, '#ff0033');
+                            }
                         }
+                        ctx.fillStyle = hpGrad;
+                        ctx.fillRect(hpBarX, hpBarY, hpBarW * hpRatio, hpBarH);
                     }
-                    ctx.fillStyle = hpGrad;
-                    ctx.fillRect(hpBarX, hpBarY, hpBarW * hpRatio, hpBarH);
 
                     // 2. 右上 残り時間 (東方風: 整数部大・小数部小のスタイリッシュな斜体デジタル)
                     let totalFormatted = t.toFixed(2);
@@ -7020,19 +7227,20 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     ctx.restore();
 
                     // 3. 左上 ボス名 (大きめフォント) & 残りスペカ数
-                    let bossName = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.name) ? currentBoss.name : '敵機';
+                    let bossName = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.name) ? currentBoss.name : (isDoubleHud ? '双璧ボス' : '敵機');
                     if (bossName) {
+                        const nameY = isDoubleHud ? 22 : 16;
                         ctx.textAlign = 'left';
                         ctx.textBaseline = 'top';
                         ctx.font = "bold 18px 'Noto Serif JP', sans-serif";
                         
                         // 影
                         ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-                        ctx.fillText(bossName, 13, 17);
+                        ctx.fillText(bossName, 13, nameY + 1);
 
                         // 本体
                         ctx.fillStyle = (typeof currentBoss !== 'undefined' && currentBoss && currentBoss.color) ? currentBoss.color : '#88ffaa';
-                        ctx.fillText(bossName, 12, 16);
+                        ctx.fillText(bossName, 12, nameY);
 
                         // ボス残機星マーク (★★★★: 通常弾幕は除外して名前付きスペルカードの残数のみ表示)
                         let starStr = '';
@@ -7053,11 +7261,12 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         }
                         
                         if (starStr.length > 0) {
+                            const starY = isDoubleHud ? 43 : 37;
                             ctx.font = "bold 13px sans-serif";
                             ctx.fillStyle = 'rgba(0,0,0,0.85)';
-                            ctx.fillText(starStr, 13, 38);
+                            ctx.fillText(starStr, 13, starY + 1);
                             ctx.fillStyle = '#88ffaa';
-                            ctx.fillText(starStr, 12, 37);
+                            ctx.fillText(starStr, 12, starY);
                         }
                     }
 
@@ -8067,6 +8276,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             // reset state
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            if (typeof resetCardSharedVars === 'function') resetCardSharedVars();
             window.playerMissCount = 0; // 残機・ミス数を確実にリセット
             window.playerInvincibleTimer = 0;
             window.miniExplosionEffect = null;
@@ -8096,7 +8306,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             window.lastTimeoutSecond = 11;
             window.spellDeclarationTimer = 2.8;
             window.totalScore = 0; // スコアリセット
-            window.isS2Danmaku = (tempCustomCard.season === 2) || (typeof window.currentDanmakuSeason !== 'undefined' && window.currentDanmakuSeason === 2);
+            window.isS2Danmaku = (tempCustomCard.season === 2 || tempCustomCard.season === 3) || (typeof window.currentDanmakuSeason !== 'undefined' && (window.currentDanmakuSeason === 2 || window.currentDanmakuSeason === 3));
+            window.isDoubleBossMode = (tempCustomCard.bossMode === 'double');
             if (window.soundManager) {
                 window.soundManager.stopPreviousCancelableSound();
                 if (window.soundManager.ctx && window.soundManager.ctx.state === 'suspended') {
@@ -8121,18 +8332,57 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 player.bombs = (typeof window.playerDefaultBombs === 'number') ? window.playerDefaultBombs : 2;
             }
             
+            if (typeof resetCustomOwnerPositionLocks === 'function') resetCustomOwnerPositionLocks();
+            const _retryHome1 = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+            cpu.x = _retryHome1.x;
+            cpu.y = _retryHome1.y;
+            cpu.targetX = cpu.x;
+            cpu.targetY = cpu.y;
+            cpu.prevX = cpu.x;
             cpu.hp = cpu.maxHp;
+            cpu.defeated = false;
             cpu.pendingDamage = 0;
             cpu.pendingHeal = 0;
             cpu.recentHits = [];
+
+            if (typeof cpu2 !== 'undefined' && cpu2) {
+                if (window.isDoubleBossMode) {
+                    const _retryHome2 = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU2') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+                    const _hp2 = (tempCustomCard.hp2 !== undefined && tempCustomCard.hp2 > 0) ? tempCustomCard.hp2 : (cpu.maxHp || 1000);
+                    cpu2.active = true;
+                    cpu2.defeated = false;
+                    cpu2.x = _retryHome2.x;
+                    cpu2.y = _retryHome2.y;
+                    cpu2.targetX = cpu2.x;
+                    cpu2.targetY = cpu2.y;
+                    cpu2.prevX = cpu2.x;
+                    cpu2.hp = _hp2;
+                    cpu2.maxHp = _hp2;
+                    cpu2.pendingDamage = 0;
+                    cpu2.pendingHeal = 0;
+                    cpu2.grazeCount = 0;
+                    cpu2.recentHits = [];
+                } else {
+                    cpu2.active = false;
+                    cpu2.defeated = false;
+                    cpu2.hp = 0;
+                }
+            }
             
             bullets.length = 0;
             magicCircles.length = 0;
             activeReigekis.length = 0;
             
-            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, 0, 0, tempCustomCard.id);
             activeCards[0].emitterState.bulletScript = tempCustomCard.bulletScript || [];
             activeCards[0].emitterState.magicCircleScript = tempCustomCard.magicCircleScript || [];
+            if (window.isDoubleBossMode && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) {
+                activeCards[0].emitterState2 = initEmitterState(tempCustomCard.emitterScript2 || [], cpu2, player, 0, 0, tempCustomCard.id ? (tempCustomCard.id + '_boss2') : null);
+                activeCards[0].emitterState2.bulletScript = tempCustomCard.bulletScript2 || [];
+                activeCards[0].emitterState2.magicCircleScript = tempCustomCard.magicCircleScript2 || [];
+            } else {
+                activeCards[0].emitterState2 = null;
+            }
             actionTimer = tempCustomCard.duration;
             
             gameState = 'BATTLE';
@@ -8565,7 +8815,12 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         let isNonNumericVal = (key === 'value' || key === 'bulletImage') && (
                             block.type === 'bullet_image_set' ||
                             (block.type === 'set_var' && (block.params.name === 'bulletImage' || block.params.name === 'image' || block.params.name === 'color')) ||
-                            (block.type === 'const_var' && (block.params.name === 'bulletImage' || block.params.name === 'image' || block.params.name === 'color'))
+                            (block.type === 'const_var' && (block.params.name === 'bulletImage' || block.params.name === 'image' || block.params.name === 'color')) ||
+                            (block.type === 'shared_var' && typeof val === 'string' && (
+                                isCssColorLiteral(val) || isBulletImageKey(val) ||
+                                /^['"].*['"]$/.test(val.trim()) ||
+                                /^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?$/.test(val.trim())
+                            ))
                         );
                         if (typeof val === 'string' && val.trim() !== '' && keysToCompile.has(key) && !isNonNumericVal) {
                             if (key === 'cond') {
@@ -8622,14 +8877,18 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
 
             setupBlocks.forEach(block => {
                 if (!block || !block.params) return;
-                if (block.type === 'const_var' || block.type === 'set_var') {
+                if (block.type === 'shared_var') {
+                    setScriptVariable(state, block.params.name, evalValue(block.params.value, state.variables), !!block.params.isConst, true);
+                } else if (block.type === 'const_var' || block.type === 'set_var') {
                     setScriptVariable(state, block.params.name, evalValue(block.params.value, state.variables), block.type === 'const_var');
                 } else if (block.type === 'change_var') {
                     const varName = block.params.name;
                     const val = evalExpr(block.params.value, state.variables);
                     const delta = block.params.op === '-' ? -val : val;
-                    if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-                    if (!state.constVars.has(varName)) state.variables[varName] = (Number(state.variables[varName]) || 0) + delta;
+                    if (!isScriptVarConst(state, varName)) {
+                        const cur = Number(getScriptVariable(state.variables, varName)) || 0;
+                        setScriptVariable(state, varName, cur + delta, false);
+                    }
                 }
             });
 
@@ -8749,16 +9008,92 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             return false;
         }
 
+        // ==========================================
+        // カード内 共通変数 (ボス1 / ボス2 / 弾 / 子弾 でリアルタイム共有)
+        // ==========================================
+        window.cardSharedVars = window.cardSharedVars || {};
+        window.cardSharedConstVars = window.cardSharedConstVars || new Set();
+        const BUILTIN_LOCAL_VARS = new Set([
+            'speed', 'angle', 'spriteAngle', 'timer', 'second', 'frame', 'cardSecond', 'cardFrame',
+            'x', 'y', 'tx', 'ty', 'dist', 'ex', 'ey', 'exy', 'txy', 'emitter_x', 'emitter_y',
+            'x_offset', 'y_offset', 'isBounced', 'isTouchWall', 'touchingWall',
+            'isTouchBullet', 'touchingBullet', 'touchColor', 'touchX', 'touchY',
+            'warningTime', 'activeTime', 'laserStartTime', 'laserWidth', 'color', 'bulletType',
+            'bulletImage', 'image', 'blend', 'additive', 'radius', 'hitRadius',
+            'multf', 'multlr', 'hitmultf', 'hitmultlr', 'asba', 'aslr',
+            'enemyHp', 'enemyMaxHp', 'boss1Hp', 'boss1MaxHp', 'boss2Hp', 'boss2MaxHp',
+            'partnerHp', 'partnerAlive', 'ex1', 'ey1', 'exy1', 'ex2', 'ey2', 'exy2',
+            'boss1_x', 'boss1_y', 'boss2_x', 'boss2_y', 'partner_x', 'partner_y', 'partner_xy',
+            'player_x', 'player_y', 'health', 'destroyResist', 'isDestroyed', 'i'
+        ]);
+
+        function resetCardSharedVars() {
+            if (!window.cardSharedVars || typeof window.cardSharedVars !== 'object') {
+                window.cardSharedVars = {};
+            } else {
+                const keys = Object.keys(window.cardSharedVars);
+                for (let i = 0; i < keys.length; i++) delete window.cardSharedVars[keys[i]];
+            }
+            if (!window.cardSharedConstVars || typeof window.cardSharedConstVars.clear !== 'function') {
+                window.cardSharedConstVars = new Set();
+            } else {
+                window.cardSharedConstVars.clear();
+            }
+        }
+        window.resetCardSharedVars = resetCardSharedVars;
+
+        function parseSharedVarName(rawName) {
+            const s = String(rawName || '').trim();
+            if (!s) return { isExplicitShared: false, name: '' };
+            const mDot = s.match(/^(?:global|shared)\.([a-zA-Z_][a-zA-Z0-9_]*)$/);
+            if (mDot) return { isExplicitShared: true, name: mDot[1] };
+            const mDollar = s.match(/^\$([a-zA-Z_][a-zA-Z0-9_]*)$/);
+            if (mDollar) return { isExplicitShared: true, name: mDollar[1] };
+            return { isExplicitShared: false, name: s };
+        }
+        window.parseSharedVarName = parseSharedVarName;
+
+        function getScriptVariable(variables, rawName) {
+            const parsed = parseSharedVarName(rawName);
+            if (!parsed.name) return undefined;
+            const g = window.cardSharedVars;
+            if (parsed.isExplicitShared) {
+                return (g && Object.prototype.hasOwnProperty.call(g, parsed.name)) ? g[parsed.name] : undefined;
+            }
+            if (variables && Object.prototype.hasOwnProperty.call(variables, parsed.name) && variables[parsed.name] !== undefined) {
+                return variables[parsed.name];
+            }
+            if (g && Object.prototype.hasOwnProperty.call(g, parsed.name) && g[parsed.name] !== undefined) {
+                return g[parsed.name];
+            }
+            return undefined;
+        }
+        window.getScriptVariable = getScriptVariable;
+
+        function isScriptVarConst(state, rawName) {
+            const parsed = parseSharedVarName(rawName);
+            if (!parsed.name) return false;
+            const g = window.cardSharedVars;
+            const gConst = window.cardSharedConstVars;
+            const hasLocal = state && state.variables && Object.prototype.hasOwnProperty.call(state.variables, parsed.name);
+            const hasShared = g && Object.prototype.hasOwnProperty.call(g, parsed.name);
+            if (parsed.isExplicitShared || (!hasLocal && hasShared)) {
+                return !!(gConst && typeof gConst.has === 'function' && gConst.has(parsed.name));
+            }
+            return !!(state && state.constVars && typeof state.constVars.has === 'function' && state.constVars.has(parsed.name));
+        }
+        window.isScriptVarConst = isScriptVarConst;
+
         function resolveBulletImageParam(imgParam, variables) {
             if (imgParam === undefined || imgParam === null) return 'none';
             let s = String(imgParam).trim();
             if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
                 s = s.substring(1, s.length - 1).trim();
             }
-            if (variables && variables[s] !== undefined) {
-                let v = variables[s];
-                if (typeof v === 'string') return v.trim().replace(/^['"]|['"]$/g, '');
-                return String(v);
+            const resolvedVar = getScriptVariable(variables, s);
+            if (resolvedVar !== undefined) {
+                if (typeof resolvedVar === 'string') return resolvedVar.trim().replace(/^['"]|['"]$/g, '');
+                return String(resolvedVar);
             }
             return s;
         }
@@ -8768,7 +9103,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             let s = String(expr).trim();
             if (s === '') return 0;
             if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) return s.substring(1, s.length - 1);
-            if (variables && variables[s] !== undefined) return variables[s];
+            const resolvedVar = getScriptVariable(variables, s);
+            if (resolvedVar !== undefined) return resolvedVar;
             if (isCssColorLiteral(s)) return s;
             if (isBulletImageKey(s)) return s;
             // "12,522" のようなコンマ区切り座標リテラルは数式評価せずそのまま文字列として返す
@@ -8781,13 +9117,15 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
                 raw = raw.substring(1, raw.length - 1);
             }
-            if (variables && variables[raw] !== undefined) return String(variables[raw]);
+            const resolvedDirect = getScriptVariable(variables, raw);
+            if (resolvedDirect !== undefined) return String(resolvedDirect);
             if (isBulletImageKey(raw)) return raw;
             // カンマ区切りの座標指定（例: x0,y0 など）の各大要素を個別に evalExpr する
             if (raw.includes(',')) {
                 let parts = raw.split(',').map(part => {
                     let trimmed = part.trim();
-                    if (variables && variables[trimmed] !== undefined) return variables[trimmed];
+                    const resolvedPart = getScriptVariable(variables, trimmed);
+                    if (resolvedPart !== undefined) return resolvedPart;
                     let val = evalExpr(trimmed, variables);
                     return val !== null && val !== undefined ? val : trimmed;
                 });
@@ -8806,7 +9144,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
 
         function resolveColorParam(colorParam, variables) {
             let raw = String(colorParam || '#ff3333').trim();
-            if (variables && variables[raw] !== undefined) return String(variables[raw]);
+            const resolvedDirect = getScriptVariable(variables, raw);
+            if (resolvedDirect !== undefined) return String(resolvedDirect);
             if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
                 raw = raw.substring(1, raw.length - 1);
             }
@@ -8834,7 +9173,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
                 return s.substring(1, s.length - 1);
             }
-            if (variables && variables[s] !== undefined) return variables[s];
+            const resolved = getScriptVariable(variables, s);
+            if (resolved !== undefined) return resolved;
             return s;
         }
 
@@ -8888,13 +9228,20 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 let hasQuotedSide = /^['"]/.test(leftRaw) || /^['"]/.test(rightRaw);
                 let hasColorSide = /#(?:[0-9a-f]{3,8})\b/i.test(leftRaw + rightRaw);
                 if (hasQuotedSide || hasColorSide) {
-                    const isValidIdentifier = name => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name);
-                    let leftExpr = (leftRaw.startsWith('"') || leftRaw.startsWith("'")) ? leftRaw : 
-                                   (isValidIdentifier(leftRaw) ? '(__v.' + leftRaw + ' !== undefined ? __v.' + leftRaw + ' : "")' : '"' + leftRaw + '"');
-                    let rightExpr = (rightRaw.startsWith('"') || rightRaw.startsWith("'")) ? rightRaw : 
-                                    (isValidIdentifier(rightRaw) ? '(__v.' + rightRaw + ' !== undefined ? __v.' + rightRaw + ' : "")' : '"' + rightRaw + '"');
+                    const toStringOperandExpr = (raw) => {
+                        if (raw.startsWith('"') || raw.startsWith("'")) return raw;
+                        const mShared = raw.match(/^(?:(?:global|shared)\.|\$)([a-zA-Z_][a-zA-Z0-9_]*)$/);
+                        if (mShared) return '(__g.' + mShared[1] + ' !== undefined ? __g.' + mShared[1] + ' : "")';
+                        if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(raw)) {
+                            return '(__v.' + raw + ' !== undefined ? __v.' + raw + ' : (__g.' + raw + ' !== undefined ? __g.' + raw + ' : ""))';
+                        }
+                        return JSON.stringify(raw);
+                    };
+                    let leftExpr = toStringOperandExpr(leftRaw);
+                    let rightExpr = toStringOperandExpr(rightRaw);
 
-                    stringResultFn = new Function('__v', 
+                    stringResultFn = new Function('__v',
+                        'const __g = (typeof window !== "undefined" && window.cardSharedVars) ? window.cardSharedVars : {};' +
                         'let left = ' + leftExpr + ';' +
                         'let right = ' + rightExpr + ';' +
                         'return ' + (m[2] === '==' ? 'String(left).trim().toLowerCase() === String(right).trim().toLowerCase()' : 'String(left).trim().toLowerCase() !== String(right).trim().toLowerCase()') + ';'
@@ -8932,23 +9279,55 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             const fn = compileCondition(cond);
             return fn(variables || EMPTY_OBJECT);
         }
-        function setScriptVariable(state, name, value, isConst) {
+        function setScriptVariable(state, name, value, isConst, forceShared) {
             if (!name) return;
+            const parsed = parseSharedVarName(name);
+            const bareName = parsed.name;
+            if (!bareName) return;
+            const g = window.cardSharedVars || (window.cardSharedVars = {});
+            const gConst = window.cardSharedConstVars || (window.cardSharedConstVars = new Set());
+            const hasLocal = !!(state && state.variables && Object.prototype.hasOwnProperty.call(state.variables, bareName));
+            const hasShared = Object.prototype.hasOwnProperty.call(g, bareName);
+            const writeToShared = !!(forceShared || parsed.isExplicitShared || (!hasLocal && hasShared));
+
+            if (writeToShared) {
+                if (gConst.has(bareName) && !isConst) return;
+                g[bareName] = value;
+                if (isConst) gConst.add(bareName);
+                if (forceShared && state && state.variables && !BUILTIN_LOCAL_VARS.has(bareName) && Object.prototype.hasOwnProperty.call(state.variables, bareName)) {
+                    delete state.variables[bareName];
+                }
+                if (typeof value === 'string' && value.includes(',')) {
+                    let parts = value.split(',').map(p => parseFloat(p.trim()));
+                    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                        g[bareName + '_x'] = parts[0];
+                        g[bareName + '_y'] = parts[1];
+                        g[bareName + '.x'] = parts[0];
+                        g[bareName + '.y'] = parts[1];
+                    }
+                }
+                return;
+            }
+
             if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-            if (state.constVars.has(name) && !isConst) return;
-            state.variables[name] = value;
-            if (isConst) state.constVars.add(name);
+            if (state.constVars.has(bareName) && !isConst) return;
+            state.variables[bareName] = value;
+            if (isConst) state.constVars.add(bareName);
             
-            // 敵ボスのHP直接操作（enemyHp, bossHp等）
-            if (name === 'enemyHp' || name === 'enemy_hp' || name === 'bossHp' || name === 'boss_hp') {
-                if (typeof cpu !== 'undefined' && cpu) {
+            // 敵ボスのHP直接操作（enemyHp, bossHp, boss1Hp, boss2Hp 等）
+            if (bareName === 'enemyHp' || bareName === 'enemy_hp' || bareName === 'bossHp' || bareName === 'boss_hp' || bareName === 'boss1Hp' || bareName === 'boss2Hp') {
+                const targetBoss = (bareName === 'boss2Hp' || (bareName !== 'boss1Hp' && state && state.bossOwner === 'CPU2'))
+                    ? (typeof cpu2 !== 'undefined' ? cpu2 : null)
+                    : (typeof cpu !== 'undefined' ? cpu : null);
+                if (targetBoss) {
                     let hpNum = parseFloat(value);
                     if (!isNaN(hpNum)) {
-                        cpu.hp = Math.max(0, hpNum);
-                        state.variables[name] = cpu.hp;
-                        state.variables.enemyHp = cpu.hp;
-                        if (cpu.hp <= 0 && typeof handleBossDefeat === 'function') {
-                            handleBossDefeat(false);
+                        targetBoss.hp = Math.max(0, hpNum);
+                        state.variables[bareName] = targetBoss.hp;
+                        if (bareName !== 'boss1Hp' && bareName !== 'boss2Hp') state.variables.enemyHp = targetBoss.hp;
+                        if (targetBoss.hp <= 0) {
+                            if (typeof handleSingleBossUnitDefeated === 'function') handleSingleBossUnitDefeated(targetBoss, false);
+                            else if (typeof handleBossDefeat === 'function') handleBossDefeat(false);
                         }
                     }
                 }
@@ -8958,11 +9337,11 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             if (typeof value === 'string' && value.includes(',')) {
                 let parts = value.split(',').map(p => parseFloat(p.trim()));
                 if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                    state.variables[name + '_x'] = parts[0];
-                    state.variables[name + '_y'] = parts[1];
-                    state.variables[name + '.x'] = parts[0];
-                    state.variables[name + '.y'] = parts[1];
-                    if (name === 'exy') {
+                    state.variables[bareName + '_x'] = parts[0];
+                    state.variables[bareName + '_y'] = parts[1];
+                    state.variables[bareName + '.x'] = parts[0];
+                    state.variables[bareName + '.y'] = parts[1];
+                    if (bareName === 'exy') {
                         state.variables.ex = parts[0];
                         state.variables.ey = parts[1];
                     }
@@ -9088,7 +9467,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             'sin', 'cos', 'tan', 'sqrt', 'abs', 'min', 'max', 'PI', 'PI2',
             'atan2', 'pow', 'log', 'exp', 'floor', 'trunc', 'int', 'round', 'ceil', 'random', 'rand',
             'Math', 'const', 'let', 'var', 'function', 'return', 'n',
-            '__fuzzyEqual', '__fuzzyNotEqual', '__v', '__seedrandom'
+            '__fuzzyEqual', '__fuzzyNotEqual', '__v', '__g', '__seedrandom'
         ]);
 
         function compileNumericExpr(expr) {
@@ -9144,16 +9523,22 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                     return strictEquals[parseInt(index, 10)];
                 });
 
-                // 7. 変数部分を __v.変数名 にトランスパイル (最後のフェーズで実行して構文破壊を完璧に防ぐ)
-                s = s.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, function(match) {
-                    if (RESERVED_WORDS.has(match)) {
-                        if (match === 'random' || match === 'rand') {
+                // 7. 変数部分を __v.変数名 / __g.変数名 にトランスパイル (最後のフェーズで実行して構文破壊を完璧に防ぐ)
+                s = s.replace(/\b(?:global|shared)\.([a-zA-Z_][a-zA-Z0-9_]*)|\$([a-zA-Z_][a-zA-Z0-9_]*)|\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, function(match, dotShared, dollarShared, ident) {
+                    if (dotShared) {
+                        return '(__g.' + dotShared + ' !== undefined ? __g.' + dotShared + ' : 0)';
+                    }
+                    if (dollarShared) {
+                        return '(__g.' + dollarShared + ' !== undefined ? __g.' + dollarShared + ' : 0)';
+                    }
+                    if (RESERVED_WORDS.has(ident)) {
+                        if (ident === 'random' || ident === 'rand') {
                             return '__rand';
                         }
-                        return match;
+                        return ident;
                     }
-                    if (match.startsWith('___LITERAL_')) return match; // 退避した文字列リテラルはスキップ
-                    return '(__v.' + match + ' !== undefined ? __v.' + match + ' : 0)';
+                    if (ident.startsWith('___LITERAL_')) return ident; // 退避した文字列リテラルはスキップ
+                    return '(__v.' + ident + ' !== undefined ? __v.' + ident + ' : (__g.' + ident + ' !== undefined ? __g.' + ident + ' : 0))';
                 });
 
                 // 8. 退避していた文字列リテラルを元に戻す
@@ -9174,7 +9559,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         varName = optMatch[3];
                         coeff = parseFloat(optMatch[1]);
                     }
-                    s = `(__v.n !== undefined ? (__v.${varName} === ${coeff} * __v.n) : (Math.round(__v.${varName} / ${coeff}) >= 1 && Math.abs(__v.${varName} - ${coeff} * Math.round(__v.${varName} / ${coeff})) < 0.017))`;
+                    const vRef = `(__v.${varName} !== undefined ? __v.${varName} : (__g.${varName} !== undefined ? __g.${varName} : 0))`;
+                    s = `(__v.n !== undefined ? (${vRef} === ${coeff} * __v.n) : (Math.round(${vRef} / ${coeff}) >= 1 && Math.abs(${vRef} - ${coeff} * Math.round(${vRef} / ${coeff})) < 0.017))`;
                     optimized = true;
                 }
 
@@ -9182,6 +9568,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 const hasN = !optimized && /\bn\b/.test(expr);
 
                 let functionBody = 
+                    'const __g = (typeof window !== "undefined" && window.cardSharedVars) ? window.cardSharedVars : {};' +
                     'const __rand = (a, b) => {' +
                     '  if (b !== undefined) return Number(a || 0) + __random() * (Number(b || 0) - Number(a || 0));' +
                     '  if (a !== undefined) return __random() * Number(a || 0);' +
@@ -9343,7 +9730,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
             let s = String(expr).trim();
             if (s === '') return 0;
             
-            if (vars[s] !== undefined) return vars[s];
+            const resolvedDirect = getScriptVariable(vars, s);
+            if (resolvedDirect !== undefined) return resolvedDirect;
 
             // 高速なJITコンパイル評価
             const fastValue = evalNumericExprFast(s, vars);
@@ -9359,6 +9747,9 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
         }
 
         function initEmitterState(script, attacker, target, initXOffset = 0, initYOffset = 0, patternId = null) {
+            const isBoss2Attacker = (typeof cpu2 !== 'undefined' && attacker === cpu2) || (attacker && attacker.bossOwner === 'CPU2') || (attacker && attacker.bossKey === 'CPU2');
+            const selfBoss = isBoss2Attacker ? (typeof cpu2 !== 'undefined' ? cpu2 : null) : (typeof cpu !== 'undefined' ? cpu : null);
+            const partnerBoss = isBoss2Attacker ? (typeof cpu !== 'undefined' ? cpu : null) : (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active ? cpu2 : null);
             let variables = {
                 angle: 0,
                 speed: 200,
@@ -9368,10 +9759,35 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 frame: 0,
                 cardSecond: 0,
                 cardFrame: 0,
-                enemyHp: (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0,
-                enemyMaxHp: (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0
+                enemyHp: selfBoss ? selfBoss.hp : 0,
+                enemyMaxHp: selfBoss ? selfBoss.maxHp : 0,
+                boss1Hp: (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0,
+                boss1MaxHp: (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0,
+                boss2Hp: (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) ? cpu2.hp : 0,
+                boss2MaxHp: (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) ? cpu2.maxHp : 0,
+                partnerHp: partnerBoss ? partnerBoss.hp : 0,
+                partnerAlive: (partnerBoss && partnerBoss.hp > 0) ? 1 : 0
             };
             let isPlayerSide = (attacker === player);
+            const _cH = (typeof canvas !== 'undefined' && canvas) ? canvas.height : 896;
+            const _ib1x = (typeof cpu !== 'undefined' && cpu) ? cpu.x : attacker.x;
+            const _ib1y = (typeof cpu !== 'undefined' && cpu) ? (isPlayerSide ? (_cH - cpu.y) : cpu.y) : (isPlayerSide ? (_cH - attacker.y) : attacker.y);
+            const _hasIB2 = (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active);
+            const _ib2x = _hasIB2 ? cpu2.x : _ib1x;
+            const _ib2y = _hasIB2 ? (isPlayerSide ? (_cH - cpu2.y) : cpu2.y) : _ib1y;
+            variables.ex1 = _ib1x;
+            variables.ey1 = _ib1y;
+            variables.boss1_x = _ib1x;
+            variables.boss1_y = _ib1y;
+            variables.exy1 = `${_ib1x},${_ib1y}`;
+            variables.ex2 = _ib2x;
+            variables.ey2 = _ib2y;
+            variables.boss2_x = _ib2x;
+            variables.boss2_y = _ib2y;
+            variables.exy2 = `${_ib2x},${_ib2y}`;
+            variables.partner_x = isBoss2Attacker ? _ib1x : _ib2x;
+            variables.partner_y = isBoss2Attacker ? _ib1y : _ib2y;
+            variables.partner_xy = `${variables.partner_x},${variables.partner_y}`;
             let dx = target.x - attacker.x;
             let dy = target.y - attacker.y;
             if (isPlayerSide) {
@@ -9400,6 +9816,7 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                 variables: variables,
                 finished: false,
                 isPlayerSide: isPlayerSide,
+                bossOwner: isPlayerSide ? 'PLAYER' : (isBoss2Attacker ? 'CPU2' : 'CPU'),
                 lifetimeOnce: new Set(),
                 constVars: new Set(),
                 speedScaleApplied: new Set()

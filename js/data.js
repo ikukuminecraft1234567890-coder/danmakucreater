@@ -186,6 +186,15 @@
                 { type: 'wait_frame', params: { frames: '12' }, indent: 1 }
             ],
             bulletScript: [],
+            magicCircleScript: [],
+            bg: 'none',
+            bossMode: 'single',
+            hp2: 1000,
+            x_offset2: 0,
+            y_offset2: 0,
+            emitterScript2: [],
+            bulletScript2: [],
+            magicCircleScript2: [],
             bounceScript: [],
             testPassed: false
         };
@@ -249,6 +258,38 @@
             }
             if (cc.magicCircleScript === undefined) {
                 cc.magicCircleScript = [];
+                changed = true;
+            }
+            if (cc.bg === undefined) {
+                cc.bg = 'none';
+                changed = true;
+            }
+            if (cc.bossMode === undefined) {
+                cc.bossMode = 'single';
+                changed = true;
+            }
+            if (cc.hp2 === undefined) {
+                cc.hp2 = 1000;
+                changed = true;
+            }
+            if (cc.x_offset2 === undefined) {
+                cc.x_offset2 = 0;
+                changed = true;
+            }
+            if (cc.y_offset2 === undefined) {
+                cc.y_offset2 = 0;
+                changed = true;
+            }
+            if (cc.emitterScript2 === undefined) {
+                cc.emitterScript2 = [];
+                changed = true;
+            }
+            if (cc.bulletScript2 === undefined) {
+                cc.bulletScript2 = [];
+                changed = true;
+            }
+            if (cc.magicCircleScript2 === undefined) {
+                cc.magicCircleScript2 = [];
                 changed = true;
             }
             if (cc.despawnTime === undefined) {
@@ -718,6 +759,7 @@
         // ローカルストレージからキー設定・ゲームパッド設定・当たり判定色設定ロード
         window.hitboxColorSetting = 'red';
         window.seVolumeSetting = 30; // デフォルト30%
+        window.bg3dBrightnessSetting = 70; // デフォルト70%
         try {
             const savedKeys = localStorage.getItem('touhou_kyoukaisen_keys');
             if (savedKeys) {
@@ -740,6 +782,11 @@
             }
             const savedMobileBomb = localStorage.getItem('touhou_kyoukaisen_mobile_bomb');
             window.mobileBombSetting = savedMobileBomb || 'button';
+            const savedBg3d = localStorage.getItem('touhou_kyoukaisen_bg3d_brightness');
+            if (savedBg3d !== null) {
+                const parsedBg = parseInt(savedBg3d, 10);
+                if (!isNaN(parsedBg)) window.bg3dBrightnessSetting = Math.max(0, Math.min(100, parsedBg));
+            }
         } catch (e) { }
 
         function renderKeyConfig() {
@@ -907,6 +954,14 @@
                     window.soundManager.setVolume(window.seVolumeSetting / 100);
                 }
             }
+            const bgSlider = document.getElementById('setting-bg3d-brightness');
+            if (bgSlider) {
+                const parsedBg = parseInt(bgSlider.value, 10);
+                window.bg3dBrightnessSetting = isNaN(parsedBg) ? 70 : Math.max(0, Math.min(100, parsedBg));
+                try {
+                    localStorage.setItem('touhou_kyoukaisen_bg3d_brightness', window.bg3dBrightnessSetting.toString());
+                } catch (e) {}
+            }
             try {
                 localStorage.setItem('touhou_kyoukaisen_keys', JSON.stringify(keyConfig));
                 localStorage.setItem('touhou_kyoukaisen_gamepad', JSON.stringify(gamepadConfig));
@@ -922,7 +977,15 @@
                 display.textContent = value + '%';
             }
         }
+        function updateBg3dBrightnessDisplay(value) {
+            const display = document.getElementById('bg3d-brightness-value');
+            if (display) {
+                const num = parseInt(value, 10);
+                display.textContent = (num <= 0) ? 'OFF' : (num + '%');
+            }
+        }
         window.updateSEVolumeDisplay = updateSEVolumeDisplay;
+        window.updateBg3dBrightnessDisplay = updateBg3dBrightnessDisplay;
         window.saveKeyConfigAndSettings = saveKeyConfigAndSettings;
 
         function openConfigScreen() {
@@ -934,6 +997,11 @@
                 volumeSlider.value = window.seVolumeSetting;
             }
             updateSEVolumeDisplay(window.seVolumeSetting);
+            const bgSlider = document.getElementById('setting-bg3d-brightness');
+            if (bgSlider) {
+                bgSlider.value = (window.bg3dBrightnessSetting !== undefined) ? window.bg3dBrightnessSetting : 70;
+            }
+            updateBg3dBrightnessDisplay((window.bg3dBrightnessSetting !== undefined) ? window.bg3dBrightnessSetting : 70);
             const select = document.getElementById('setting-hitbox-color');
             if (select) {
                 select.value = window.hitboxColorSetting || 'red';
@@ -988,6 +1056,15 @@
                     volumeSlider.value = 30;
                 }
                 updateSEVolumeDisplay(30);
+                window.bg3dBrightnessSetting = 70;
+                try {
+                    localStorage.setItem('touhou_kyoukaisen_bg3d_brightness', '70');
+                } catch (e) {}
+                const bgSlider = document.getElementById('setting-bg3d-brightness');
+                if (bgSlider) {
+                    bgSlider.value = 70;
+                }
+                updateBg3dBrightnessDisplay(70);
             }
         }
 
@@ -1763,6 +1840,7 @@
         };
 
         const cpu = {
+            bossKey: 'CPU',
             team: 'CPU',
             x: PLAY_WIDTH / 2, y: canvas.height * 0.2,
             hp: 1000, maxHp: 1000, pendingDamage: 0, pendingHeal: 0, grazeCount: 0,
@@ -1774,8 +1852,28 @@
             maxBombs: 3,
             bombCooldown: 0,
             isInvincible: false,
+            invincibleTimer: 0,
+            defeated: false
+        };
+
+        const cpu2 = {
+            bossKey: 'CPU2',
+            team: 'CPU',
+            active: false,
+            defeated: false,
+            x: PLAY_WIDTH / 2, y: canvas.height * 0.2,
+            hp: 1000, maxHp: 1000, pendingDamage: 0, pendingHeal: 0, grazeCount: 0,
+            recentHits: [],
+            hitboxRadius: 40, grazeRadius: 45, speed: 200,
+            deck: [], hand: [], passives: [], targetX: PLAY_WIDTH / 2, targetY: 180,
+            prevX: PLAY_WIDTH / 2, moveDir: 0,
+            bombs: 0,
+            maxBombs: 0,
+            bombCooldown: 0,
+            isInvincible: false,
             invincibleTimer: 0
         };
+        if (typeof window !== 'undefined') window.cpu2 = cpu2;
 
         let bullets = [];
         let magicCircles = [];
@@ -1783,13 +1881,37 @@
 
         const customOwnerPositionLocks = {
             PLAYER: null,
-            CPU: null
+            CPU: null,
+            CPU2: null
         };
 
+        function resetCustomOwnerPositionLocks() {
+            customOwnerPositionLocks.PLAYER = null;
+            customOwnerPositionLocks.CPU = null;
+            customOwnerPositionLocks.CPU2 = null;
+        }
+        if (typeof window !== 'undefined') window.resetCustomOwnerPositionLocks = resetCustomOwnerPositionLocks;
+
         function getHomePositionForOwner(owner) {
+            if (owner === 'PLAYER') {
+                return { x: PLAY_WIDTH / 2, y: canvas.height * 0.8 };
+            }
+            const activeCard = (typeof activeCards !== 'undefined' && activeCards && activeCards[0]) ? activeCards[0] : null;
+            const clampX = (val) => Math.max(24, Math.min(PLAY_WIDTH - 24, val));
+            const clampY = (val) => Math.max(24, Math.min(canvas.height - 48, val));
+            if (owner === 'CPU2') {
+                const ox2 = activeCard ? (Number(activeCard.x_offset2) || 0) : 0;
+                const oy2 = activeCard ? (Number(activeCard.y_offset2) || 0) : 0;
+                return {
+                    x: clampX(PLAY_WIDTH / 2 + ox2),
+                    y: clampY(canvas.height * 0.2 + oy2)
+                };
+            }
+            const ox1 = activeCard ? (Number(activeCard.x_offset) || 0) : 0;
+            const oy1 = activeCard ? (Number(activeCard.y_offset) || 0) : 0;
             return {
-                x: PLAY_WIDTH / 2,
-                y: owner === 'PLAYER' ? canvas.height * 0.8 : canvas.height * 0.2
+                x: clampX(PLAY_WIDTH / 2 + ox1),
+                y: clampY(canvas.height * 0.2 + oy1)
             };
         }
 
@@ -1797,6 +1919,7 @@
             let unit;
             if (owner === 'PLAYER') unit = player;
             else if (owner === 'CPU') unit = cpu;
+            else if (owner === 'CPU2') unit = cpu2;
             else {
                 // Find matching magic circle by ID
                 unit = magicCircles ? magicCircles.find(mc => mc.id === owner) : null;
@@ -1840,6 +1963,7 @@
             let unit;
             if (owner === 'PLAYER') unit = player;
             else if (owner === 'CPU') unit = cpu;
+            else if (owner === 'CPU2') unit = cpu2;
             else {
                 unit = magicCircles ? magicCircles.find(mc => mc.id === owner) : null;
             }
@@ -1855,6 +1979,9 @@
             } else if (owner === 'CPU') {
                 cpu.targetX = pos.x;
                 cpu.targetY = pos.y;
+            } else if (owner === 'CPU2') {
+                cpu2.targetX = pos.x;
+                cpu2.targetY = pos.y;
             }
         }
 
@@ -1866,6 +1993,7 @@
             let unit;
             if (owner === 'PLAYER') unit = player;
             else if (owner === 'CPU') unit = cpu;
+            else if (owner === 'CPU2') unit = cpu2;
             else {
                 unit = magicCircles ? magicCircles.find(mc => mc.id === owner) : null;
             }
@@ -1889,8 +2017,17 @@
         function applyCustomOwnerPositionLock(owner, dt = 0) {
             let lock = customOwnerPositionLocks[owner];
             if (!lock) {
-                setCustomOwnerPosition(owner, 'center', 0);
-                lock = customOwnerPositionLocks[owner];
+                const home = getHomePositionForOwner(owner);
+                customOwnerPositionLocks[owner] = {
+                    startX: home.x,
+                    startY: home.y,
+                    targetX: home.x,
+                    targetY: home.y,
+                    duration: 0,
+                    elapsed: 0
+                };
+                placeCustomOwnerAt(owner, home);
+                return;
             }
             if (lock.duration <= 0) {
                 placeCustomOwnerAt(owner, { x: lock.targetX, y: lock.targetY });
@@ -1913,7 +2050,12 @@
 
         function enforceCustomActionLock(dt = 0) {
             if (isCustomActionLocked('PLAYER')) applyCustomOwnerPositionLock('PLAYER', dt);
-            if (isCustomActionLocked('CPU')) applyCustomOwnerPositionLock('CPU', dt);
+            if (isCustomActionLocked('CPU')) {
+                applyCustomOwnerPositionLock('CPU', dt);
+                if (typeof window !== 'undefined' && window.isDoubleBossMode && cpu2 && cpu2.active && cpu2.hp > 0) {
+                    applyCustomOwnerPositionLock('CPU2', dt);
+                }
+            }
         }
 
         // ==========================================

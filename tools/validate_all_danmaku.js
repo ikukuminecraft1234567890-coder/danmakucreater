@@ -71,6 +71,11 @@ if (fs.existsSync(path.join(jsDir, 'danmaku2.js'))) {
 } else {
     window.sharedDanmakuListS2 = [];
 }
+if (fs.existsSync(path.join(jsDir, 'danmaku3.js'))) {
+    eval(fs.readFileSync(path.join(jsDir, 'danmaku3.js'), 'utf8') + ';\nwindow.sharedDanmakuListS3 = typeof sharedDanmakuListS3 !== "undefined" ? sharedDanmakuListS3 : [];');
+} else {
+    window.sharedDanmakuListS3 = [];
+}
 eval(fs.readFileSync(path.join(jsDir, 'emitter.js'), 'utf8'));
 eval(fs.readFileSync(path.join(jsDir, 'compiledanmaku.js'), 'utf8'));
 
@@ -78,13 +83,35 @@ console.log(`========================================`);
 console.log(`DANMAKU VALIDATION & STATIC ANALYSIS`);
 console.log(`Total S1 danmaku to test: ${window.sharedDanmakuList.length}`);
 console.log(`Total S2 danmaku to test: ${window.sharedDanmakuListS2.length}`);
+console.log(`Total S3 danmaku to test: ${window.sharedDanmakuListS3.length}`);
 console.log(`========================================\n`);
 
 let issuesFound = 0;
 
+const expandDoubleBoss = (list, season, prefix) => {
+    const out = [];
+    list.forEach((d, i) => {
+        const baseId = d.id || (prefix + i);
+        out.push({ ...d, _season: season, _id: baseId });
+        if (d.bossMode === 'double' || d.emitterScript2) {
+            out.push({
+                ...d,
+                name: (d.name || `Card #${i}`) + ' [Boss2]',
+                emitterScript: d.emitterScript2 || '',
+                bulletScript: d.bulletScript2 || '',
+                magicCircleScript: d.magicCircleScript2 || '',
+                _season: season,
+                _id: baseId + '_boss2'
+            });
+        }
+    });
+    return out;
+};
+
 const allDanmakuToTest = [
     ...window.sharedDanmakuList.map((d, i) => ({ ...d, _season: 1, _id: d.id || ('danmaku_' + i) })),
-    ...window.sharedDanmakuListS2.map((d, i) => ({ ...d, _season: 2, _id: d.id || ('danmaku_s2_' + i) }))
+    ...expandDoubleBoss(window.sharedDanmakuListS2, 2, 'danmaku_s2_'),
+    ...expandDoubleBoss(window.sharedDanmakuListS3, 3, 'danmaku_s3_')
 ];
 
 allDanmakuToTest.forEach((danmaku, idx) => {

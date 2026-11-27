@@ -214,46 +214,83 @@
                     </div>
                     
                     <div class="maker-metadata">
-                        <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">スペル名 (Name)</label>
-                            <input type="text" id="custom-card-name" class="metadata-input" placeholder="例: 「スターブレイカー」" oninput="saveCustomCardDraft(false, false, true)">
+                        <div class="meta-row meta-row-title">
+                            <div class="meta-field meta-field-name">
+                                <label>スペル名 (Name)</label>
+                                <input type="text" id="custom-card-name" class="metadata-input" placeholder="例: 「スターブレイカー」" oninput="saveCustomCardDraft(false, false, true)">
+                            </div>
+                            <div class="meta-field meta-field-desc">
+                                <label>説明文 (Description)</label>
+                                <input type="text" id="custom-card-desc" class="metadata-input" placeholder="カードの効果やフレーバーテキスト" oninput="saveCustomCardDraft(false, false, true)">
+                            </div>
                         </div>
-                        <div style="flex: 2; min-width: 200px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">説明文 (Description)</label>
-                            <input type="text" id="custom-card-desc" class="metadata-input" placeholder="カードの効果やフレーバーテキスト" oninput="saveCustomCardDraft(false, false, true)">
+                        <div class="meta-row meta-row-rules">
+                            <div class="meta-field meta-field-num">
+                                <label>制限時間(s)</label>
+                                <input type="number" id="custom-card-duration" class="metadata-input" min="1" max="999.99" step="0.01" value="15" oninput="customCardMakerOnDurationInput()">
+                            </div>
+                            <div class="meta-field meta-field-num">
+                                <label>画面外消滅(秒)</label>
+                                <input type="number" id="custom-card-despawn-time" class="metadata-input" min="0.5" max="30" step="0.1" value="1.5" oninput="saveCustomCardDraft(false, false, true)">
+                            </div>
+                            <div class="meta-field meta-field-num">
+                                <label>ミス可能回数</label>
+                                <input type="text" id="custom-card-max-misses" class="metadata-input" placeholder="2 または inf" value="2" oninput="saveCustomCardDraft(false, false, true)">
+                            </div>
+                            <div class="meta-field meta-field-select">
+                                <label>難易度</label>
+                                <select id="custom-card-difficulty" class="metadata-input" onchange="saveCustomCardDraft(false, false, true)">
+                                    <option value="EASY">Easy</option>
+                                    <option value="NORMAL" selected>Normal</option>
+                                    <option value="HARD">Hard</option>
+                                    <option value="LUNATIC">Lunatic</option>
+                                </select>
+                            </div>
+                            <div class="meta-field meta-field-select">
+                                <label style="color: #ffd166;">ボス構成</label>
+                                <select id="custom-card-boss-mode" class="metadata-input" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.55); font-weight: bold;" onchange="onCustomCardBossModeChange()">
+                                    <option value="single" selected>シングル (1体)</option>
+                                    <option value="double">ダブル (2体)</option>
+                                </select>
+                            </div>
+                            <div class="meta-field meta-field-bg">
+                                <label style="color: #88ffbb;">3D背景プリセット</label>
+                                <select id="custom-card-bg" class="metadata-input" style="color: #88ffbb; border-color: rgba(100, 255, 180, 0.45);" onchange="saveCustomCardDraft(false, false, true)">
+                                    <option value="none">なし（デフォルト黒背景）</option>
+                                </select>
+                            </div>
                         </div>
-                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #ff88aa;">ボスHP</label>
-                            <input type="number" id="custom-card-hp" class="metadata-input" min="0" max="99999" step="100" value="1000" placeholder="1000" oninput="saveCustomCardDraft(false, false, true)">
-                        </div>
-                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">制限時間(s)</label>
-                            <input type="number" id="custom-card-duration" class="metadata-input" min="1" max="999.99" step="0.01" value="15" oninput="customCardMakerOnDurationInput()">
-                        </div>
-                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">出現位置 X</label>
-                            <input type="number" id="custom-card-x-offset" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
-                        </div>
-                        <div style="flex: 0 0 80px; min-width: 80px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">出現位置 Y</label>
-                            <input type="number" id="custom-card-y-offset" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
-                        </div>
-                        <div style="flex: 0 0 100px; min-width: 100px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">画面外消滅(秒)</label>
-                            <input type="number" id="custom-card-despawn-time" class="metadata-input" min="0.5" max="30" step="0.1" value="1.5" oninput="saveCustomCardDraft(false, false, true)">
-                        </div>
-                        <div style="flex: 0 0 90px; min-width: 90px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">ミス可能回数</label>
-                            <input type="text" id="custom-card-max-misses" class="metadata-input" placeholder="2 または inf" value="2" oninput="saveCustomCardDraft(false, false, true)">
-                        </div>
-                        <div style="flex: 0 0 90px; min-width: 90px; display: flex; flex-direction: column; gap: 4px;">
-                            <label style="font-size: 11px; color: #aaa;">難易度</label>
-                            <select id="custom-card-difficulty" class="metadata-input" style="height: 25px; border-radius: 4px; padding: 2px 4px; background: #1a1a2e; color: #fff; border: 1px solid #555;" onchange="saveCustomCardDraft(false, false, true)">
-                                <option value="EASY">Easy</option>
-                                <option value="NORMAL" selected>Normal</option>
-                                <option value="HARD">Hard</option>
-                                <option value="LUNATIC">Lunatic</option>
-                            </select>
+                        <div class="meta-row meta-row-bosses">
+                            <div class="boss-meta-card boss1-card">
+                                <span class="boss-card-badge">ボス1</span>
+                                <div class="meta-field">
+                                    <label style="color: #ff9ab2;">HP</label>
+                                    <input type="number" id="custom-card-hp" class="metadata-input" min="0" max="99999" step="100" value="1000" placeholder="1000" oninput="saveCustomCardDraft(false, false, true)">
+                                </div>
+                                <div class="meta-field">
+                                    <label style="color: #ff9ab2;">出現位置 X</label>
+                                    <input type="number" id="custom-card-x-offset" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
+                                </div>
+                                <div class="meta-field">
+                                    <label style="color: #ff9ab2;">出現位置 Y</label>
+                                    <input type="number" id="custom-card-y-offset" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
+                                </div>
+                            </div>
+                            <div id="custom-card-boss2-meta" class="boss-meta-card boss2-card hidden">
+                                <span class="boss-card-badge">ボス2</span>
+                                <div class="meta-field">
+                                    <label style="color: #7ee8ff;">HP</label>
+                                    <input type="number" id="custom-card-hp2" class="metadata-input" min="0" max="99999" step="100" value="1000" placeholder="1000" oninput="saveCustomCardDraft(false, false, true)">
+                                </div>
+                                <div class="meta-field">
+                                    <label style="color: #7ee8ff;">出現位置 X</label>
+                                    <input type="number" id="custom-card-x-offset2" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
+                                </div>
+                                <div class="meta-field">
+                                    <label style="color: #7ee8ff;">出現位置 Y</label>
+                                    <input type="number" id="custom-card-y-offset2" class="metadata-input" placeholder="0" value="0" oninput="saveCustomCardDraft(false, false, true)">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -269,6 +306,7 @@
                             <button class="palette-btn color-control" id="palette-btn-once" onclick="customCardMakerAddBlock('once')">1度だけ実行する</button>
                             
                             <div class="palette-group-title" id="palette-title-vars">変数 (Variables)</div>
+                            <button class="palette-btn color-vars" id="palette-btn-sharedvar" onclick="customCardMakerAddBlock('shared_var')" style="border-color: #00e5ff; color: #80f4ff; font-weight: bold;">共通変数 (shared name = val)</button>
                             <button class="palette-btn color-vars" id="palette-btn-setconst" onclick="customCardMakerAddBlock('const_var')">const name = value</button>
 
                             <button class="palette-btn color-vars" id="palette-btn-setvar" onclick="customCardMakerAddBlock('set_var')">set variable</button>
@@ -335,15 +373,21 @@
                         <!-- ワークスペース -->
                         <div class="workspace-panel">
                             <div class="tabs-header">
-                                <button id="tab-btn-emitter" class="tab-btn active" onclick="customCardMakerSwitchTab('emitter')">コアの挙動 (Emitter)</button>
-                                <button id="tab-btn-bullet" class="tab-btn" onclick="customCardMakerSwitchTab('bullet')">弾の挙動 (Bullet)</button>
-                                <button id="tab-btn-magic-circle" class="tab-btn" onclick="customCardMakerSwitchTab('magicCircle')">子弾の挙動 (Child Bullet)</button>
-                                <div style="flex-grow: 1;"></div>
-                                <button id="mode-btn-block" class="tab-btn active" onclick="customCardMakerSwitchMode('block')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">ブロック</button>
-                                <button id="mode-btn-code" class="tab-btn" onclick="customCardMakerSwitchMode('code')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">JSコード</button>
-                                <button id="mode-btn-compiled" class="tab-btn" onclick="customCardMakerSwitchMode('compiled')" style="font-size: 11px; padding: 4px 10px; margin-left: 2px; color: #ff99ff;">コンパイル済</button>
-                                <button class="tab-btn" onclick="customCardMakerCompileCurrent()" style="font-size: 11px; padding: 4px 10px; margin-left: 10px; background: #990033; color: white;">コンパイル実行(ラグ解消)</button>
-                                <button id="code-guide-btn" class="tab-btn" onclick="toggleCustomCodeGuide(true)" style="font-size: 11px; padding: 4px 10px; margin-left: 2px;">コードヘルプ</button>
+                                <div class="tabs-group-scripts">
+                                    <button id="tab-btn-emitter" class="tab-btn active" onclick="customCardMakerSwitchTab('emitter')">コアの挙動 (Emitter)</button>
+                                    <button id="tab-btn-bullet" class="tab-btn" onclick="customCardMakerSwitchTab('bullet')">弾の挙動 (Bullet)</button>
+                                    <button id="tab-btn-magic-circle" class="tab-btn" onclick="customCardMakerSwitchTab('magicCircle')">子弾の挙動 (Child Bullet)</button>
+                                    <button id="tab-btn-emitter2" class="tab-btn hidden" onclick="customCardMakerSwitchTab('emitter2')" style="border-color: #00ccff; color: #66e0ff;">ボス2 コア</button>
+                                    <button id="tab-btn-bullet2" class="tab-btn hidden" onclick="customCardMakerSwitchTab('bullet2')" style="border-color: #00ccff; color: #66e0ff;">ボス2 弾</button>
+                                    <button id="tab-btn-magic-circle2" class="tab-btn hidden" onclick="customCardMakerSwitchTab('magicCircle2')" style="border-color: #00ccff; color: #66e0ff;">ボス2 子弾</button>
+                                </div>
+                                <div class="tabs-group-modes">
+                                    <button id="mode-btn-block" class="tab-btn active" onclick="customCardMakerSwitchMode('block')">ブロック</button>
+                                    <button id="mode-btn-code" class="tab-btn" onclick="customCardMakerSwitchMode('code')">JSコード</button>
+                                    <button id="mode-btn-compiled" class="tab-btn" onclick="customCardMakerSwitchMode('compiled')" style="color: #ff99ff;">コンパイル済</button>
+                                    <button class="tab-btn" onclick="customCardMakerCompileCurrent()" style="background: #990033 !important; border-color: #ff4477 !important; color: #ffffff !important;">コンパイル実行(ラグ解消)</button>
+                                    <button id="code-guide-btn" class="tab-btn" onclick="toggleCustomCodeGuide(true)">コードヘルプ</button>
+                                </div>
                             </div>
                             <div class="workspace-scroll" id="workspace-blocks-container">
                             </div>
@@ -498,7 +542,15 @@ laserWidth = 12    // 幅12px</pre>
 
                                     <section>
                                         <h5>組み込み変数と衝突判定</h5>
-                                        <pre>// --- 共通変数 ---
+                                        <pre>// --- カード内 ユーザー共通変数 (ボス1・ボス2・弾・子弾でリアルタイム共有) ---
+shared phase = 0    // 共通変数を宣言 (global phase = 0 も可)
+shared const k = 5  // 書き換え不可の共通定数
+phase += 1          // 宣言済みならそのまま加減算・参照OK (他タブからも即反映)
+shared.flag = 1     // 宣言なしでも shared.変数名 / global.変数名 / $変数名 で即共有
+if (global.flag == 1) { ... } // 条件・数式・tween・色/画像指定でもそのまま使用可
+※ カード開始・リトライ・次スペル移行時に自動でリセットされます
+
+// --- 組み込み変数 ---
 angle, speed   // 角度、速度
 spriteAngle    // 画像の回転角度 (見た目の向きのみ)
 x, y           // 現在のX, Y座標
@@ -516,6 +568,13 @@ second, timer  // 経過秒数 (弾は発射から、コアはカード開始か
 frame          // 経過フレーム数
 cardSecond     // 【弾側】カード開始からの秒数
 cardFrame      // 【弾側】カード開始からのフレーム数
+
+// --- ダブルボス用変数 (コア・弾共通) ---
+ex, ey, exy    // 自ボス（ボス1タブならボス1、ボス2タブならボス2）の現在座標
+ex1, ey1, exy1 // ボス1の現在座標 (boss1_x, boss1_y も可)
+ex2, ey2, exy2 // ボス2の現在座標 (boss2_x, boss2_y も可)
+partner_x, partner_y, partner_xy // 相方ボスの現在座標
+boss1Hp, boss2Hp, partnerHp, partnerAlive // 各ボスHPと相方生存フラグ (1/0)
 
 // --- 弾側専用の変数 ---
 ex, ey         // 発射された瞬間（初期位置）のエミッターの位置
@@ -620,6 +679,9 @@ while (true) {
                 <button class="menu-btn" onclick="openSharedDanmakuSeason(2)" style="background: linear-gradient(135deg, #004466 0%, #001a2b 100%); border-color: #00ccff; text-shadow: 0 0 8px rgba(0, 204, 255, 0.7); font-weight: bold; width: 280px; height: 50px; font-size: 16px;">
                     シーズン2 (Season 2)
                 </button>
+                <button class="menu-btn" onclick="openSharedDanmakuSeason(3)" style="background: linear-gradient(135deg, #0a4d3c 0%, #041f18 100%); border-color: #44ffaa; text-shadow: 0 0 8px rgba(68, 255, 170, 0.7); font-weight: bold; width: 280px; height: 50px; font-size: 16px;">
+                    シーズン3 (Season 3)
+                </button>
                 <button class="menu-btn" onclick="showScreen('screen-menu')" style="margin-top: 15px; background: #222; border-color: #555; width: 220px; font-size: 14px;">
                     タイトル画面に戻る
                 </button>
@@ -632,6 +694,7 @@ while (true) {
                     <div style="display: flex; gap: 8px; width: 100%; justify-content: center;">
                         <button id="tab-season-1" class="menu-btn shared-danmaku-tab-btn" onclick="openSharedDanmakuSeason(1)">シーズン1</button>
                         <button id="tab-season-2" class="menu-btn shared-danmaku-tab-btn" onclick="openSharedDanmakuSeason(2)">シーズン2</button>
+                        <button id="tab-season-3" class="menu-btn shared-danmaku-tab-btn" onclick="openSharedDanmakuSeason(3)">シーズン3</button>
                     </div>
                 </div>
                 <div class="ship-selector-strip" data-ship-selector="compact"></div>
@@ -701,6 +764,15 @@ while (true) {
                         <span id="se-volume-value" style="font-size: 13px; color: #00ffcc; font-weight: bold;">30%</span>
                     </div>
                     <input type="range" id="setting-se-volume" min="0" max="100" value="30" style="width: 100%; cursor: pointer;" oninput="updateSEVolumeDisplay(this.value)">
+                </div>
+
+                <!-- 3D背景明るさ設定 -->
+                <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 8px; padding: 10px 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; box-sizing: border-box; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span style="font-size: 13px; color: #e0e0e8;">3D背景の明るさ</span>
+                        <span id="bg3d-brightness-value" style="font-size: 13px; color: #44ffaa; font-weight: bold;">70%</span>
+                    </div>
+                    <input type="range" id="setting-bg3d-brightness" min="0" max="100" step="5" value="70" style="width: 100%; cursor: pointer;" oninput="updateBg3dBrightnessDisplay(this.value)">
                 </div>
                 
                 <h4 style="margin: 5px 0 2px 0; color: #00ffcc; font-size: 13px;">キーボード設定 (クリックしてキー入力)</h4>
@@ -788,12 +860,19 @@ while (true) {
     <script>
         document.write('<script src="js/danmaku.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/danmaku2.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/danmaku3.js?v=1.5.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/compiledanmaku.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/bossdanmakucompiledata.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/compiler.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/bossdata.js?v=1.4.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/data.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/emitter.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bg3d/core.js?v=1.6.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bg3d/pack_a.js?v=1.6.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bg3d/pack_b.js?v=1.6.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bg3d/pack_c.js?v=1.6.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/bg3d/pack_d.js?v=1.6.0&t=' + Date.now() + '"><\/script>');
+        document.write('<script src="js/background3d.js?v=1.6.0&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/game.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
         document.write('<script src="js/editor.js?v=1.4.2&t=' + Date.now() + '"><\/script>');
     </script>

@@ -1,25 +1,98 @@
-function customCardMakerSwitchTab(tab) {
+function getScriptForTab(tab) {
+            if (tab === 'emitter') { if (!customCardMaker.emitterScript) customCardMaker.emitterScript = []; return customCardMaker.emitterScript; }
+            if (tab === 'bullet') { if (!customCardMaker.bulletScript) customCardMaker.bulletScript = []; return customCardMaker.bulletScript; }
+            if (tab === 'magicCircle') { if (!customCardMaker.magicCircleScript) customCardMaker.magicCircleScript = []; return customCardMaker.magicCircleScript; }
+            if (tab === 'emitter2') { if (!customCardMaker.emitterScript2) customCardMaker.emitterScript2 = []; return customCardMaker.emitterScript2; }
+            if (tab === 'bullet2') { if (!customCardMaker.bulletScript2) customCardMaker.bulletScript2 = []; return customCardMaker.bulletScript2; }
+            if (tab === 'magicCircle2') { if (!customCardMaker.magicCircleScript2) customCardMaker.magicCircleScript2 = []; return customCardMaker.magicCircleScript2; }
+            if (!customCardMaker.emitterScript) customCardMaker.emitterScript = [];
+            return customCardMaker.emitterScript;
+        }
+
+        function setScriptForTab(tab, blocks) {
+            if (tab === 'emitter') customCardMaker.emitterScript = blocks;
+            else if (tab === 'bullet') customCardMaker.bulletScript = blocks;
+            else if (tab === 'magicCircle') customCardMaker.magicCircleScript = blocks;
+            else if (tab === 'emitter2') customCardMaker.emitterScript2 = blocks;
+            else if (tab === 'bullet2') customCardMaker.bulletScript2 = blocks;
+            else if (tab === 'magicCircle2') customCardMaker.magicCircleScript2 = blocks;
+        }
+
+        function syncCustomCardBossModeUI() {
+            const bossModeSel = document.getElementById('custom-card-boss-mode');
+            const isDouble = bossModeSel ? (bossModeSel.value === 'double') : (customCardMaker.bossMode === 'double');
+            customCardMaker.bossMode = isDouble ? 'double' : 'single';
+
+            const meta2 = document.getElementById('custom-card-boss2-meta');
+            if (meta2) meta2.classList.toggle('hidden', !isDouble);
+
+            const boss2Tabs = [
+                { id: 'tab-btn-emitter2', tab: 'emitter2' },
+                { id: 'tab-btn-bullet2', tab: 'bullet2' },
+                { id: 'tab-btn-magic-circle2', tab: 'magicCircle2' }
+            ];
+            boss2Tabs.forEach(t => {
+                const el = document.getElementById(t.id);
+                if (!el) return;
+                el.className = (customCardMaker.activeTab === t.tab ? 'tab-btn active' : 'tab-btn') + (isDouble ? '' : ' hidden');
+            });
+
+            const b1Tabs = [
+                { id: 'tab-btn-emitter', tab: 'emitter' },
+                { id: 'tab-btn-bullet', tab: 'bullet' },
+                { id: 'tab-btn-magic-circle', tab: 'magicCircle' }
+            ];
+            b1Tabs.forEach(t => {
+                const el = document.getElementById(t.id);
+                if (el) el.className = customCardMaker.activeTab === t.tab ? 'tab-btn active' : 'tab-btn';
+            });
+        }
+
+        function onCustomCardBossModeChange() {
+            const bossModeSel = document.getElementById('custom-card-boss-mode');
+            const isDouble = bossModeSel && bossModeSel.value === 'double';
+            customCardMaker.bossMode = isDouble ? 'double' : 'single';
+
+            const ox1El = document.getElementById('custom-card-x-offset');
+            const ox2El = document.getElementById('custom-card-x-offset2');
+            const curOx1 = ox1El ? (Number(ox1El.value) || 0) : (Number(customCardMaker.x_offset) || 0);
+            const curOx2 = ox2El ? (Number(ox2El.value) || 0) : (Number(customCardMaker.x_offset2) || 0);
+            if (isDouble) {
+                if (curOx1 === 0 && curOx2 === 0) {
+                    customCardMaker.x_offset = -115;
+                    customCardMaker.x_offset2 = 115;
+                    if (ox1El) ox1El.value = -115;
+                    if (ox2El) ox2El.value = 115;
+                }
+            } else {
+                if (curOx1 === -115 && curOx2 === 115) {
+                    customCardMaker.x_offset = 0;
+                    customCardMaker.x_offset2 = 0;
+                    if (ox1El) ox1El.value = 0;
+                    if (ox2El) ox2El.value = 0;
+                }
+                if (String(customCardMaker.activeTab || '').endsWith('2')) {
+                    customCardMakerSwitchTab('emitter');
+                }
+            }
+            syncCustomCardBossModeUI();
+            saveCustomCardDraft(false, false, true);
+        }
+        window.syncCustomCardBossModeUI = syncCustomCardBossModeUI;
+        window.onCustomCardBossModeChange = onCustomCardBossModeChange;
+
+        function customCardMakerSwitchTab(tab) {
             if (customCardMakerMode === 'code') {
                 let code = document.getElementById('workspace-code-textarea').value;
                 let parsed = codeToBlocks(code);
-                if (customCardMaker.activeTab === 'emitter') {
-                    customCardMaker.emitterScript = parsed;
-                } else if (customCardMaker.activeTab === 'bullet') {
-                    customCardMaker.bulletScript = parsed;
-                } else if (customCardMaker.activeTab === 'magicCircle') {
-                    customCardMaker.magicCircleScript = parsed;
-                }
+                setScriptForTab(customCardMaker.activeTab, parsed);
             }
 
             customCardMaker.activeTab = tab;
-            document.getElementById('tab-btn-emitter').className = tab === 'emitter' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('tab-btn-bullet').className = tab === 'bullet' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('tab-btn-magic-circle').className = tab === 'magicCircle' ? 'tab-btn active' : 'tab-btn';
+            syncCustomCardBossModeUI();
             
             if (customCardMakerMode === 'code') {
-                let script = tab === 'emitter' ? customCardMaker.emitterScript 
-                            : tab === 'bullet' ? customCardMaker.bulletScript 
-                            : (customCardMaker.magicCircleScript || []);
+                let script = getScriptForTab(tab);
                 document.getElementById('workspace-code-textarea').value = blocksToCode(script);
                 scheduleCustomCardCostCalculation();
             } else {
@@ -28,10 +101,7 @@ function customCardMakerSwitchTab(tab) {
         }
 
         function getActiveScript() {
-            if (customCardMaker.activeTab === 'emitter') return customCardMaker.emitterScript;
-            if (customCardMaker.activeTab === 'bullet') return customCardMaker.bulletScript;
-            if (!customCardMaker.magicCircleScript) customCardMaker.magicCircleScript = [];
-            return customCardMaker.magicCircleScript;
+            return getScriptForTab(customCardMaker.activeTab);
         }
 
         function customCardMakerAddBlock(type) {
@@ -55,6 +125,9 @@ function customCardMakerSwitchTab(tab) {
             } else if (type === 'const_var') {
                 block.params.name = 'baseSpeed';
                 block.params.value = '250';
+            } else if (type === 'shared_var') {
+                block.params.name = 'phase';
+                block.params.value = '0';
             } else if (type === 'set_var') {
                 block.params.name = 'speed';
                 block.params.value = '250';
@@ -719,13 +792,14 @@ function customCardMakerSwitchTab(tab) {
             setDisplay('palette-btn-changevar', 'block');
             setDisplay('palette-btn-tweenvar', 'block');
             setDisplay('palette-btn-tweenvarwait', 'block');
-            let isBulletTab = (tab === 'bullet' || tab === 'magicCircle');
+            let isEmitterTab = (tab === 'emitter' || tab === 'emitter2');
+            let isBulletTab = (tab === 'bullet' || tab === 'magicCircle' || tab === 'bullet2' || tab === 'magicCircle2');
             setDisplay('palette-btn-setlaser', isBulletTab ? 'block' : 'none');
             
             // 動作グループ
             setDisplay('palette-btn-aim', 'block');
-            setDisplay('palette-btn-move-owner', (tab === 'emitter') ? 'block' : 'none');
-            setDisplay('palette-btn-slide-owner', (tab === 'emitter') ? 'block' : 'none');
+            setDisplay('palette-btn-move-owner', isEmitterTab ? 'block' : 'none');
+            setDisplay('palette-btn-slide-owner', isEmitterTab ? 'block' : 'none');
             setDisplay('palette-btn-bullet', 'block');
             setDisplay('palette-btn-spawn', 'block');
             setDisplay('palette-btn-spawn-ring', 'block');
@@ -894,6 +968,17 @@ function customCardMakerSwitchTab(tab) {
                             blockDiv.className = 'maker-block color-vars';
                             html = `
                                 <span>[const]</span>
+                                <input type="text" list="var-suggestions" style="width:75px;" value="${b.params.name}" onchange="customCardMakerUpdateParam(${idx}, 'name', this.value)">
+                                <span>=</span>
+                                <input type="text" list="val-suggestions" style="width:70px;" value="${b.params.value}" onchange="customCardMakerUpdateParam(${idx}, 'value', this.value)">
+                                ${renderBlockControls(idx)}
+                            `;
+                            break;
+                        case 'shared_var':
+                            blockDiv.className = 'maker-block color-vars';
+                            blockDiv.style.borderLeft = '3px solid #00e5ff';
+                            html = `
+                                <span style="color:#80f4ff; font-weight:bold;">[${b.params.isConst ? '共通const' : '共通変数'}]</span>
                                 <input type="text" list="var-suggestions" style="width:75px;" value="${b.params.name}" onchange="customCardMakerUpdateParam(${idx}, 'name', this.value)">
                                 <span>=</span>
                                 <input type="text" list="val-suggestions" style="width:70px;" value="${b.params.value}" onchange="customCardMakerUpdateParam(${idx}, 'value', this.value)">
@@ -1718,13 +1803,7 @@ function customCardMakerSwitchTab(tab) {
                 if (codeTextarea && !codeTextarea.classList.contains('hidden')) {
                     let code = codeTextarea.value;
                     let parsed = codeToBlocks(code);
-                    if (customCardMaker.activeTab === 'emitter') {
-                        customCardMaker.emitterScript = parsed;
-                    } else if (customCardMaker.activeTab === 'bullet') {
-                        customCardMaker.bulletScript = parsed;
-                    } else if (customCardMaker.activeTab === 'magicCircle') {
-                        customCardMaker.magicCircleScript = parsed;
-                    }
+                    setScriptForTab(customCardMaker.activeTab, parsed);
                 }
             }
 
@@ -1734,6 +1813,12 @@ function customCardMakerSwitchTab(tab) {
             
             let xOffsetInput = document.getElementById('custom-card-x-offset') ? Number(document.getElementById('custom-card-x-offset').value) || 0 : 0;
             let yOffsetInput = document.getElementById('custom-card-y-offset') ? Number(document.getElementById('custom-card-y-offset').value) || 0 : 0;
+            let bgInput = document.getElementById('custom-card-bg') ? (document.getElementById('custom-card-bg').value || 'none') : (customCardMaker.bg || 'none');
+            let bossModeInput = document.getElementById('custom-card-boss-mode') ? (document.getElementById('custom-card-boss-mode').value || 'single') : (customCardMaker.bossMode || 'single');
+            let isDouble = bossModeInput === 'double';
+            let hp2Input = document.getElementById('custom-card-hp2') ? parseInt(document.getElementById('custom-card-hp2').value, 10) || 0 : 0;
+            let xOffset2Input = document.getElementById('custom-card-x-offset2') ? Number(document.getElementById('custom-card-x-offset2').value) || 0 : 0;
+            let yOffset2Input = document.getElementById('custom-card-y-offset2') ? Number(document.getElementById('custom-card-y-offset2').value) || 0 : 0;
 
             let currentDiffVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : 'NORMAL';
             let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(currentDiffVal) : currentDiffVal.toUpperCase();
@@ -1748,6 +1833,11 @@ function customCardMakerSwitchTab(tab) {
                 name: testName,
                 duration: cardDuration,
                 hp: hpInput,
+                bg: bgInput,
+                bossMode: bossModeInput,
+                hp2: hp2Input,
+                x_offset2: xOffset2Input,
+                y_offset2: yOffset2Input,
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
@@ -1767,7 +1857,10 @@ function customCardMakerSwitchTab(tab) {
                 isCustom: true,
                 emitterScript: JSON.parse(JSON.stringify(customCardMaker.emitterScript)),
                 bulletScript: JSON.parse(JSON.stringify(customCardMaker.bulletScript)),
-                magicCircleScript: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || []))
+                magicCircleScript: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || [])),
+                emitterScript2: JSON.parse(JSON.stringify(customCardMaker.emitterScript2 || [])),
+                bulletScript2: JSON.parse(JSON.stringify(customCardMaker.bulletScript2 || [])),
+                magicCircleScript2: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript2 || []))
             };
             
             window.cpuDifficulty = formattedDiff;
@@ -1781,13 +1874,15 @@ function customCardMakerSwitchTab(tab) {
             }
             
             isCustomCardTesting = true;
-            window.isBossMode = hpInput > 0;
+            window.isDoubleBossMode = isDouble;
+            window.isBossMode = (hpInput > 0) || (isDouble && hp2Input > 0);
             if (typeof checkBulletTouchRequirement === 'function') {
                 checkBulletTouchRequirement();
             }
             currentTestPlaySource = 'maker';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            if (typeof window.resetCardSharedVars === 'function') window.resetCardSharedVars();
             window.spellMissCount = 0;
             window.spellBombCount = 0;
             window.spellMaxBonus = 10000000;
@@ -1855,14 +1950,18 @@ function customCardMakerSwitchTab(tab) {
             player.passives = [];
             player.recentHits = [];
             
-            cpu.x = PLAY_WIDTH / 2;
-            cpu.y = canvas.height * 0.2;
+            activeCards = [ tempCustomCard ];
+            if (typeof resetCustomOwnerPositionLocks === 'function') resetCustomOwnerPositionLocks();
+            const _home1 = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+            cpu.x = _home1.x;
+            cpu.y = _home1.y;
             cpu.targetX = cpu.x;
             cpu.targetY = cpu.y;
             cpu.prevX = cpu.x;
             cpu.prevY = cpu.y;
             cpu.hp = hpInput > 0 ? hpInput : 1000;
             cpu.maxHp = hpInput > 0 ? hpInput : 1000;
+            cpu.defeated = false;
             cpu.pendingDamage = 0;
             cpu.pendingHeal = 0;
             cpu.grazeCount = 0;
@@ -1870,16 +1969,49 @@ function customCardMakerSwitchTab(tab) {
             cpu.maxBombs = 0;
             cpu.passives = [];
             cpu.recentHits = [];
+
+            if (typeof cpu2 !== 'undefined' && cpu2) {
+                if (isDouble) {
+                    const _home2 = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU2') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+                    cpu2.active = true;
+                    cpu2.defeated = false;
+                    cpu2.x = _home2.x;
+                    cpu2.y = _home2.y;
+                    cpu2.targetX = cpu2.x;
+                    cpu2.targetY = cpu2.y;
+                    cpu2.prevX = cpu2.x;
+                    cpu2.prevY = cpu2.y;
+                    cpu2.hp = hp2Input > 0 ? hp2Input : 1000;
+                    cpu2.maxHp = hp2Input > 0 ? hp2Input : 1000;
+                    cpu2.pendingDamage = 0;
+                    cpu2.pendingHeal = 0;
+                    cpu2.grazeCount = 0;
+                    cpu2.bombs = 0;
+                    cpu2.maxBombs = 0;
+                    cpu2.passives = [];
+                    cpu2.recentHits = [];
+                } else {
+                    cpu2.active = false;
+                    cpu2.defeated = false;
+                    cpu2.hp = 0;
+                }
+            }
             
             gameState = 'BATTLE';
             battlePhase = 'ACTION';
             turnOwner = 'CPU';
             turnCount = 1;
             
-            activeCards = [ tempCustomCard ];
-            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, 0, 0, tempCustomCard.id);
             activeCards[0].emitterState.bulletScript = tempCustomCard.bulletScript || [];
             activeCards[0].emitterState.magicCircleScript = tempCustomCard.magicCircleScript || [];
+            if (isDouble && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) {
+                activeCards[0].emitterState2 = initEmitterState(tempCustomCard.emitterScript2 || [], cpu2, player, 0, 0, tempCustomCard.id + '_boss2');
+                activeCards[0].emitterState2.bulletScript = tempCustomCard.bulletScript2 || [];
+                activeCards[0].emitterState2.magicCircleScript = tempCustomCard.magicCircleScript2 || [];
+            } else {
+                activeCards[0].emitterState2 = null;
+            }
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
             customCardDeathEffect = null;
@@ -1896,6 +2028,8 @@ function customCardMakerSwitchTab(tab) {
             if (typeof resumeGameFromPause === 'function') resumeGameFromPause();
             isCustomCardTesting = false;
             window.isBossMode = false;
+            window.isDoubleBossMode = false;
+            if (typeof cpu2 !== 'undefined' && cpu2) cpu2.active = false;
             window.isBossPracticeMode = false;
             window.isEnduranceSpell = false;
             isGameRunning = false;
@@ -1950,13 +2084,7 @@ function customCardMakerSwitchTab(tab) {
             if (customCardMakerMode === 'code') {
                 let code = document.getElementById('workspace-code-textarea').value;
                 let parsed = codeToBlocks(code);
-                if (customCardMaker.activeTab === 'emitter') {
-                    customCardMaker.emitterScript = parsed;
-                } else if (customCardMaker.activeTab === 'bullet') {
-                    customCardMaker.bulletScript = parsed;
-                } else if (customCardMaker.activeTab === 'magicCircle') {
-                    customCardMaker.magicCircleScript = parsed;
-                }
+                setScriptForTab(customCardMaker.activeTab, parsed);
             }
 
             // コスト制限チェックを無効化
@@ -1976,6 +2104,11 @@ function customCardMakerSwitchTab(tab) {
             let yOffsetInput = document.getElementById('custom-card-y-offset') ? Number(document.getElementById('custom-card-y-offset').value) || 0 : 0;
 
             let hpInput = document.getElementById('custom-card-hp') ? parseInt(document.getElementById('custom-card-hp').value, 10) || 0 : 0;
+            let bgInput = document.getElementById('custom-card-bg') ? (document.getElementById('custom-card-bg').value || 'none') : (customCardMaker.bg || 'none');
+            let bossModeInput = document.getElementById('custom-card-boss-mode') ? (document.getElementById('custom-card-boss-mode').value || 'single') : (customCardMaker.bossMode || 'single');
+            let hp2Input = document.getElementById('custom-card-hp2') ? parseInt(document.getElementById('custom-card-hp2').value, 10) || 0 : 1000;
+            let xOffset2Input = document.getElementById('custom-card-x-offset2') ? Number(document.getElementById('custom-card-x-offset2').value) || 0 : 0;
+            let yOffset2Input = document.getElementById('custom-card-y-offset2') ? Number(document.getElementById('custom-card-y-offset2').value) || 0 : 0;
             let cardId = customCardMaker.editingId || ('custom_' + Date.now());
             let cardData = {
                 id: cardId,
@@ -1983,6 +2116,11 @@ function customCardMakerSwitchTab(tab) {
                 desc: descInput,
                 duration: cardDuration,
                 hp: hpInput,
+                bg: bgInput,
+                bossMode: bossModeInput,
+                hp2: hp2Input,
+                x_offset2: xOffset2Input,
+                y_offset2: yOffset2Input,
                 x_offset: xOffsetInput,
                 y_offset: yOffsetInput,
                 despawnTime: document.getElementById('custom-card-despawn-time') ? parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5 : 1.5,
@@ -1999,7 +2137,10 @@ function customCardMakerSwitchTab(tab) {
                 isCustom: true,
                 emitterScript: JSON.parse(JSON.stringify(customCardMaker.emitterScript)),
                 bulletScript: JSON.parse(JSON.stringify(customCardMaker.bulletScript)),
-                magicCircleScript: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || []))
+                magicCircleScript: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || [])),
+                emitterScript2: JSON.parse(JSON.stringify(customCardMaker.emitterScript2 || [])),
+                bulletScript2: JSON.parse(JSON.stringify(customCardMaker.bulletScript2 || [])),
+                magicCircleScript2: JSON.parse(JSON.stringify(customCardMaker.magicCircleScript2 || []))
             };
 
             if (customCardMaker.editingId) {
@@ -2051,19 +2192,44 @@ function customCardMakerSwitchTab(tab) {
             let y_offset = (card.y_offset !== undefined && !isNaN(Number(card.y_offset))) ? Number(card.y_offset) : 0;
             let despawnTime = (card.despawnTime !== undefined && !isNaN(Number(card.despawnTime))) ? Number(card.despawnTime) : 1.5;
 
-            let emitterCode = (typeof card.emitterScript === 'string' ? card.emitterScript : (typeof blocksToCode === 'function' ? blocksToCode(card.emitterScript || []) : '')).trim();
-            let bulletCode = (typeof card.bulletScript === 'string' ? card.bulletScript : (typeof blocksToCode === 'function' ? blocksToCode(card.bulletScript || []) : '')).trim();
-            let magicCircleCode = (typeof card.magicCircleScript === 'string' ? card.magicCircleScript : (typeof blocksToCode === 'function' ? blocksToCode(card.magicCircleScript || []) : '')).trim();
+            const escCode = (s) => s.replace(/`/g, '\\`').replace(/\${/g, '\\${');
+            const toCode = (src) => escCode((typeof src === 'string' ? src : (typeof blocksToCode === 'function' ? blocksToCode(src || []) : '')).trim());
 
-            emitterCode = emitterCode.replace(/`/g, '\\`').replace(/\${/g, '\\${');
-            bulletCode = bulletCode.replace(/`/g, '\\`').replace(/\${/g, '\\${');
-            magicCircleCode = magicCircleCode.replace(/`/g, '\\`').replace(/\${/g, '\\${');
+            let emitterCode = toCode(card.emitterScript);
+            let bulletCode = toCode(card.bulletScript);
+            let magicCircleCode = toCode(card.magicCircleScript);
+
+            let bg = (card.bg && card.bg !== 'none') ? card.bg : null;
+            let isDouble = card.bossMode === 'double';
+            let extraLines = '';
+            if (bg) {
+                extraLines += `    bg: ${JSON.stringify(bg)},\n`;
+            }
+            if (isDouble) {
+                let hp2 = (card.hp2 !== undefined && !isNaN(Number(card.hp2))) ? Number(card.hp2) : 1000;
+                let x_offset2 = (card.x_offset2 !== undefined && !isNaN(Number(card.x_offset2))) ? Number(card.x_offset2) : 0;
+                let y_offset2 = (card.y_offset2 !== undefined && !isNaN(Number(card.y_offset2))) ? Number(card.y_offset2) : 0;
+                extraLines += `    bossMode: "double",\n    hp2: ${hp2},\n    x_offset2: ${x_offset2},\n    y_offset2: ${y_offset2},\n`;
+            }
+
+            let boss2Scripts = '';
+            if (isDouble) {
+                let emitterCode2 = toCode(card.emitterScript2);
+                let bulletCode2 = toCode(card.bulletScript2);
+                let magicCircleCode2 = toCode(card.magicCircleScript2);
+                boss2Scripts = `,
+    emitterScript2: \`
+${emitterCode2}
+    \`,
+    bulletScript2: ${bulletCode2 ? `\`\n${bulletCode2}\n    \`` : '``'},
+    magicCircleScript2: ${magicCircleCode2 ? `\`\n${magicCircleCode2}\n    \`` : '``'}`;
+            }
 
             return `,{
     difficulty: "${difficulty}",
     name: ${JSON.stringify(name)},
     desc: ${JSON.stringify(desc)},
-    hp: ${hp},
+${extraLines}    hp: ${hp},
     duration: ${duration},
     maxMisses: ${maxMisses},
     x_offset: ${x_offset},
@@ -2075,13 +2241,13 @@ ${emitterCode}
     bulletScript: \`
 ${bulletCode}
     \`,
-    magicCircleScript: ${magicCircleCode ? `\`\n${magicCircleCode}\n    \`` : '``'}
+    magicCircleScript: ${magicCircleCode ? `\`\n${magicCircleCode}\n    \`` : '``'}${boss2Scripts}
 }`;
         }
 
         function copyDanmakuCodeToClipboard(text, cardName) {
             function showSuccess() {
-                alert(`スペルカード「${cardName}」の弾幕データをクリップボードにコピーしました！\n\njs/danmaku2.js の末尾に貼り付けて保存し、compile.bat を実行すればゲーム内に反映されます。`);
+                alert(`スペルカード「${cardName}」の弾幕データをクリップボードにコピーしました！\n\njs/danmaku3.js（または js/danmaku2.js）の末尾に貼り付けて保存し、compile.bat を実行すればゲーム内に反映されます。`);
             }
 
             if (navigator.clipboard && window.isSecureContext) {
@@ -2135,18 +2301,18 @@ ${bulletCode}
             let despawnTime = document.getElementById('custom-card-despawn-time') ? (parseFloat(document.getElementById('custom-card-despawn-time').value) || 1.5) : 1.5;
             let difficulty = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value.toUpperCase() : 'NORMAL';
 
+            let bg = document.getElementById('custom-card-bg') ? (document.getElementById('custom-card-bg').value || 'none') : 'none';
+            let bossMode = document.getElementById('custom-card-boss-mode') ? (document.getElementById('custom-card-boss-mode').value || 'single') : 'single';
+            let hp2 = document.getElementById('custom-card-hp2') ? (parseInt(document.getElementById('custom-card-hp2').value, 10) || 1000) : 1000;
+            let x_offset2 = document.getElementById('custom-card-x-offset2') ? (Number(document.getElementById('custom-card-x-offset2').value) || 0) : 0;
+            let y_offset2 = document.getElementById('custom-card-y-offset2') ? (Number(document.getElementById('custom-card-y-offset2').value) || 0) : 0;
+
             // コードモードの場合は現在編集中のタブを最新化
             if (customCardMakerMode === 'code') {
                 let codeArea = document.getElementById('workspace-code-textarea');
                 let currentCode = codeArea ? codeArea.value : '';
                 let parsed = (typeof codeToBlocks === 'function') ? codeToBlocks(currentCode) : [];
-                if (customCardMaker.activeTab === 'emitter') {
-                    customCardMaker.emitterScript = parsed;
-                } else if (customCardMaker.activeTab === 'bullet') {
-                    customCardMaker.bulletScript = parsed;
-                } else if (customCardMaker.activeTab === 'magicCircle') {
-                    customCardMaker.magicCircleScript = parsed;
-                }
+                setScriptForTab(customCardMaker.activeTab, parsed);
             }
 
             function getScript(tabName) {
@@ -2154,31 +2320,33 @@ ${bulletCode}
                     let codeArea = document.getElementById('workspace-code-textarea');
                     if (codeArea) return codeArea.value;
                 }
-                let s = (tabName === 'emitter') ? customCardMaker.emitterScript
-                      : (tabName === 'bullet') ? customCardMaker.bulletScript
-                      : (customCardMaker.magicCircleScript || []);
+                let s = getScriptForTab(tabName);
                 if (typeof s === 'string') return s;
                 if (Array.isArray(s) && typeof blocksToCode === 'function') return blocksToCode(s);
                 return '';
             }
 
-            let emitterScript = getScript('emitter');
-            let bulletScript = getScript('bullet');
-            let magicCircleScript = getScript('magicCircle');
-
             let cardData = {
                 name,
                 desc,
+                bg,
+                bossMode,
                 hp,
+                hp2,
                 duration,
                 maxMisses,
                 x_offset,
                 y_offset,
+                x_offset2,
+                y_offset2,
                 despawnTime,
                 difficulty,
-                emitterScript,
-                bulletScript,
-                magicCircleScript
+                emitterScript: getScript('emitter'),
+                bulletScript: getScript('bullet'),
+                magicCircleScript: getScript('magicCircle'),
+                emitterScript2: getScript('emitter2'),
+                bulletScript2: getScript('bullet2'),
+                magicCircleScript2: getScript('magicCircle2')
             };
 
             let formattedText = formatCardToDanmaku2(cardData);
@@ -2250,31 +2418,41 @@ ${bulletCode}
             }
             
             // 現在のタブの最新コードを保存
-            if (customCardMaker.activeTab === 'emitter') customCardMaker.emitterScript = flatBlocks;
-            if (customCardMaker.activeTab === 'bullet') customCardMaker.bulletScript = flatBlocks;
-            if (customCardMaker.activeTab === 'magicCircle') customCardMaker.magicCircleScript = flatBlocks;
+            setScriptForTab(customCardMaker.activeTab, flatBlocks);
 
             try {
                 window.compiledDanmaku = window.compiledDanmaku || {};
                 let finalJS = "";
 
-                // Emitter
-                let emBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(customCardMaker.emitterScript || [])));
-                let emStr = window.DanmakuCompiler.compileSingle(emBlocks, false);
-                finalJS += `// Emitter Script\nwindow.compiledDanmaku['custom_test'] = ${emStr};\n\n`;
-                eval(`window.compiledDanmaku['custom_test'] = ${emStr};`);
+                const compileOne = (key, rawBlocks, isBullet) => {
+                    let cBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(rawBlocks || [])));
+                    if (!isBullet && typeof window.DanmakuCompiler.splitParallelThreadGroups === 'function') {
+                        let groups = window.DanmakuCompiler.splitParallelThreadGroups(cBlocks);
+                        if (groups && groups.length >= 2) {
+                            let funcs = groups.map(g => window.DanmakuCompiler.compileSingle(g, false));
+                            let code = `window.compiledDanmaku['${key}'] = [\n  ${funcs.join(',\n  ')}\n];`;
+                            finalJS += `// ${key}\n${code}\n\n`;
+                            eval(code);
+                            return;
+                        }
+                    }
+                    let cStr = window.DanmakuCompiler.compileSingle(cBlocks, isBullet);
+                    let code = `window.compiledDanmaku['${key}'] = ${cStr};`;
+                    finalJS += `// ${key}\n${code}\n\n`;
+                    eval(code);
+                };
 
-                // Bullet
-                let buBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(customCardMaker.bulletScript || [])));
-                let buStr = window.DanmakuCompiler.compileSingle(buBlocks, true);
-                finalJS += `// Bullet Script\nwindow.compiledDanmaku['custom_test_bullet'] = ${buStr};\n\n`;
-                eval(`window.compiledDanmaku['custom_test_bullet'] = ${buStr};`);
+                compileOne('custom_test', customCardMaker.emitterScript, false);
+                compileOne('custom_test_bullet', customCardMaker.bulletScript, true);
+                compileOne('custom_test_magic', customCardMaker.magicCircleScript, true);
 
-                // Magic
-                let maBlocks = compileIndentedBlocks(JSON.parse(JSON.stringify(customCardMaker.magicCircleScript || [])));
-                let maStr = window.DanmakuCompiler.compileSingle(maBlocks, true);
-                finalJS += `// Magic Circle Script\nwindow.compiledDanmaku['custom_test_magic'] = ${maStr};\n\n`;
-                eval(`window.compiledDanmaku['custom_test_magic'] = ${maStr};`);
+                const bossModeSel = document.getElementById('custom-card-boss-mode');
+                const isDouble = bossModeSel ? (bossModeSel.value === 'double') : (customCardMaker.bossMode === 'double');
+                if (isDouble) {
+                    compileOne('custom_test_boss2', customCardMaker.emitterScript2, false);
+                    compileOne('custom_test_boss2_bullet', customCardMaker.bulletScript2, true);
+                    compileOne('custom_test_boss2_magic', customCardMaker.magicCircleScript2, true);
+                }
                 
                 if (compiledTextarea) {
                     compiledTextarea.value = finalJS;
@@ -2304,12 +2482,7 @@ function customCardMakerSwitchMode(mode) {
             if (customCardMakerMode === 'code') {
                 let code = codeTextarea ? codeTextarea.value : "";
                 let parsedBlocks = codeToBlocks(code);
-                
-                if (customCardMaker.activeTab === 'emitter') {
-                    customCardMaker.emitterScript = parsedBlocks;
-                } else if (customCardMaker.activeTab === 'bullet') {
-                    customCardMaker.bulletScript = parsedBlocks;
-                }
+                setScriptForTab(customCardMaker.activeTab, parsedBlocks);
             }
             
             // 一旦すべてのメインエリアを非表示にする
@@ -2374,12 +2547,7 @@ function customCardMakerSwitchMode(mode) {
             let textarea = document.getElementById('workspace-code-textarea');
             let code = textarea ? textarea.value : "";
             let parsedBlocks = codeToBlocks(code);
-            
-            if (customCardMaker.activeTab === 'emitter') {
-                customCardMaker.emitterScript = parsedBlocks;
-            } else if (customCardMaker.activeTab === 'bullet') {
-                customCardMaker.bulletScript = parsedBlocks;
-            }
+            setScriptForTab(customCardMaker.activeTab, parsedBlocks);
             
             customCardMaker.testPassed = false;
             scheduleCustomCardCostCalculation();
@@ -2445,6 +2613,9 @@ function customCardMakerSwitchMode(mode) {
                         break;
                     case 'const_var':
                         line = `const ${b.params.name || 'angle'} = ${b.params.value || '0'}`;
+                        break;
+                    case 'shared_var':
+                        line = `${b.params.isConst ? 'shared const' : 'shared'} ${b.params.name || 'phase'} = ${b.params.value || '0'}`;
                         break;
                     case 'set_var':
                         line = `${b.params.name || 'angle'} = ${b.params.value || '0'}`;
@@ -3616,12 +3787,30 @@ function customCardMakerSwitchMode(mode) {
                                 let mode = (rawVal === 'true' || rawVal === '1' || rawVal === 'lighter') ? 'lighter' : 'source-over';
                                 block = { type: 'blend_set', params: { blend: mode }, indent };
                             } else {
-                                let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
-                                if (mChange) block = { type: 'change_var', params: { name: mChange[1], op: mChange[2], value: mChange[3] }, indent };
-                                else {
-                                    let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
-                                    if (mConst) block = { type: 'const_var', params: { name: mConst[2], value: mConst[3] }, indent };
-                                    else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) block = { type: 'set_var', params: { name: mSet[1], value: mSet[2] }, indent }; }
+                                let mSharedChange = trimmed.match(/^(?:shared|global)\s+([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/i);
+                                if (mSharedChange) {
+                                    let sName = mSharedChange[1].trim().replace(/^(?:(?:shared|global)\.|\$)/, '');
+                                    block = { type: 'change_var', params: { name: 'shared.' + sName, op: mSharedChange[2], value: mSharedChange[3].trim() }, indent };
+                                } else {
+                                    let mSharedConst = trimmed.match(/^(?:(?:shared|global)\s+const|const\s+(?:shared|global))\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                    if (mSharedConst) {
+                                        let sName = mSharedConst[1].trim().replace(/^(?:(?:shared|global)\.|\$)/, '');
+                                        block = { type: 'shared_var', params: { name: sName, value: mSharedConst[2].trim(), isConst: true }, indent };
+                                    } else {
+                                        let mShared = trimmed.match(/^(?:shared|global)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                        if (mShared) {
+                                            let sName = mShared[1].trim().replace(/^(?:(?:shared|global)\.|\$)/, '');
+                                            block = { type: 'shared_var', params: { name: sName, value: mShared[2].trim() }, indent };
+                                        } else {
+                                            let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
+                                            if (mChange) block = { type: 'change_var', params: { name: mChange[1], op: mChange[2], value: mChange[3] }, indent };
+                                            else {
+                                                let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                                if (mConst) block = { type: 'const_var', params: { name: mConst[2], value: mConst[3] }, indent };
+                                                else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) block = { type: 'set_var', params: { name: mSet[1], value: mSet[2] }, indent }; }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4357,17 +4546,39 @@ function customCardMakerSwitchMode(mode) {
                             let mode = (rawVal === 'true' || rawVal === '1' || rawVal === 'lighter') ? 'lighter' : 'source-over';
                             block = { type: 'blend_set', params: { blend: mode }, indent: indent };
                         } else {
-                            let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
-                            if (mChange) {
+                            let mSharedChange = trimmed.match(/^(?:shared|global)\s+([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/i);
+                            if (mSharedChange) {
+                                let sName = mSharedChange[1].trim().replace(/^(?:(?:shared|global)\.|\$)/, '');
                                 block = {
                                     type: 'change_var',
-                                    params: { name: mChange[1].trim(), op: mChange[2], value: mChange[3].trim() },
+                                    params: { name: 'shared.' + sName, op: mSharedChange[2], value: mSharedChange[3].trim() },
                                     indent: indent
                                 };
                             } else {
-                                let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
-                                if (mConst) { block = { type: 'const_var', params: { name: mConst[2].trim(), value: mConst[3].trim() }, indent: indent }; }
-                                else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) { block = { type: 'set_var', params: { name: mSet[1].trim(), value: mSet[2].trim() }, indent: indent }; } }
+                                let mSharedConst = trimmed.match(/^(?:(?:shared|global)\s+const|const\s+(?:shared|global))\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                if (mSharedConst) {
+                                    let sName = mSharedConst[1].trim().replace(/^(?:(?:shared|global)\.|\$)/, '');
+                                    block = { type: 'shared_var', params: { name: sName, value: mSharedConst[2].trim(), isConst: true }, indent: indent };
+                                } else {
+                                    let mShared = trimmed.match(/^(?:shared|global)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                    if (mShared) {
+                                        let sName = mShared[1].trim().replace(/^(?:(?:shared|global)\.|\$)/, '');
+                                        block = { type: 'shared_var', params: { name: sName, value: mShared[2].trim() }, indent: indent };
+                                    } else {
+                                        let mChange = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*([+\-])=\s*(.+)$/);
+                                        if (mChange) {
+                                            block = {
+                                                type: 'change_var',
+                                                params: { name: mChange[1].trim(), op: mChange[2], value: mChange[3].trim() },
+                                                indent: indent
+                                            };
+                                        } else {
+                                            let mConst = trimmed.match(/^(const|let|var)\s+([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/i);
+                                            if (mConst) { block = { type: 'const_var', params: { name: mConst[2].trim(), value: mConst[3].trim() }, indent: indent }; }
+                                            else { let mSet = trimmed.match(/^([^\s+\-*/=(),;{}]+)\s*=\s*(.+)$/); if (mSet) { block = { type: 'set_var', params: { name: mSet[1].trim(), value: mSet[2].trim() }, indent: indent }; } }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -4447,11 +4658,55 @@ function customCardMakerSwitchMode(mode) {
         initZoomControls();
 
         // -------------------------------------------------------------
-        // 共有弾幕（作った弾幕一覧）S1 / S2 表示・プレイ機能
+        // 共有弾幕（作った弾幕一覧）S1 / S2 / S3 表示・プレイ機能
         // -------------------------------------------------------------
         let currentSharedDanmakuName = null;
         let currentSharedDanmakuSeason = 1;
         window.currentSharedDanmakuSeason = currentSharedDanmakuSeason;
+
+        function normalizeSharedSeason(season) {
+            const s = Number(season);
+            return (s === 2 || s === 3) ? s : 1;
+        }
+
+        function getSharedDanmakuListBySeason(season) {
+            const s = normalizeSharedSeason(season);
+            if (s === 3) return window.sharedDanmakuListS3 || [];
+            if (s === 2) return window.sharedDanmakuListS2 || [];
+            return window.sharedDanmakuList || [];
+        }
+
+        function getSharedDanmakuStorageKeys(season) {
+            const s = normalizeSharedSeason(season);
+            if (s === 3) {
+                return {
+                    cleared: 'touhou_kyoukaisen_cleared_s3',
+                    nomiss: 'touhou_kyoukaisen_nomiss_s3',
+                    nobomb: 'touhou_kyoukaisen_nobomb_s3',
+                    nn: 'touhou_kyoukaisen_nn_s3',
+                    minmiss: 'touhou_kyoukaisen_minmiss_s3',
+                    score: 'touhou_kyoukaisen_highscore_s3'
+                };
+            }
+            if (s === 2) {
+                return {
+                    cleared: 'touhou_kyoukaisen_cleared_s2',
+                    nomiss: 'touhou_kyoukaisen_nomiss_s2',
+                    nobomb: 'touhou_kyoukaisen_nobomb_s2',
+                    nn: 'touhou_kyoukaisen_nn_s2',
+                    minmiss: 'touhou_kyoukaisen_minmiss_s2',
+                    score: 'touhou_kyoukaisen_highscore_s2'
+                };
+            }
+            return {
+                cleared: 'touhou_kyoukaisen_cleared_shared',
+                nomiss: 'touhou_kyoukaisen_nomiss_shared',
+                nobomb: 'touhou_kyoukaisen_nobomb_shared',
+                nn: 'touhou_kyoukaisen_nn_shared',
+                minmiss: 'touhou_kyoukaisen_minmiss_shared',
+                score: 'touhou_kyoukaisen_highscore_shared'
+            };
+        }
 
         function showSharedDanmakuSeasonSelect() {
             showScreen('screen-shared-danmaku-season-select');
@@ -4459,7 +4714,7 @@ function customCardMakerSwitchMode(mode) {
         window.showSharedDanmakuSeasonSelect = showSharedDanmakuSeasonSelect;
 
         function openSharedDanmakuSeason(season) {
-            currentSharedDanmakuSeason = season === 2 ? 2 : 1;
+            currentSharedDanmakuSeason = normalizeSharedSeason(season);
             window.currentSharedDanmakuSeason = currentSharedDanmakuSeason;
             sharedDanmakuPage = 0;
             showScreen('screen-shared-danmaku');
@@ -4469,7 +4724,7 @@ function customCardMakerSwitchMode(mode) {
 
         function getSharedDanmakuMinMiss(name, season) {
             season = season || currentSharedDanmakuSeason || 1;
-            const key = season === 2 ? 'touhou_kyoukaisen_minmiss_s2' : 'touhou_kyoukaisen_minmiss_shared';
+            const key = getSharedDanmakuStorageKeys(season).minmiss;
             try {
                 const saved = localStorage.getItem(key);
                 if (saved) {
@@ -4482,7 +4737,7 @@ function customCardMakerSwitchMode(mode) {
 
         function getSharedDanmakuHighScore(name, season) {
             season = season || currentSharedDanmakuSeason || 1;
-            const key = season === 2 ? 'touhou_kyoukaisen_highscore_s2' : 'touhou_kyoukaisen_highscore_shared';
+            const key = getSharedDanmakuStorageKeys(season).score;
             try {
                 const saved = localStorage.getItem(key);
                 if (saved) {
@@ -4495,12 +4750,13 @@ function customCardMakerSwitchMode(mode) {
 
         function saveClearedSharedDanmaku(name, isNoMiss, isNoBomb, missCount, isInfMisses, finalScore, season) {
             season = season || currentSharedDanmakuSeason || 1;
-            const clearedKey = season === 2 ? 'touhou_kyoukaisen_cleared_s2' : 'touhou_kyoukaisen_cleared_shared';
-            const nomissKey = season === 2 ? 'touhou_kyoukaisen_nomiss_s2' : 'touhou_kyoukaisen_nomiss_shared';
-            const nobombKey = season === 2 ? 'touhou_kyoukaisen_nobomb_s2' : 'touhou_kyoukaisen_nobomb_shared';
-            const nnKey = season === 2 ? 'touhou_kyoukaisen_nn_s2' : 'touhou_kyoukaisen_nn_shared';
-            const minmissKey = season === 2 ? 'touhou_kyoukaisen_minmiss_s2' : 'touhou_kyoukaisen_minmiss_shared';
-            const scoreKey = season === 2 ? 'touhou_kyoukaisen_highscore_s2' : 'touhou_kyoukaisen_highscore_shared';
+            const keys = getSharedDanmakuStorageKeys(season);
+            const clearedKey = keys.cleared;
+            const nomissKey = keys.nomiss;
+            const nobombKey = keys.nobomb;
+            const nnKey = keys.nn;
+            const minmissKey = keys.minmiss;
+            const scoreKey = keys.score;
 
             // 1. クリア記録
             let clearedList = [];
@@ -4581,7 +4837,7 @@ function customCardMakerSwitchMode(mode) {
 
         function isSharedDanmakuCleared(name, season) {
             season = season || currentSharedDanmakuSeason || 1;
-            const clearedKey = season === 2 ? 'touhou_kyoukaisen_cleared_s2' : 'touhou_kyoukaisen_cleared_shared';
+            const clearedKey = getSharedDanmakuStorageKeys(season).cleared;
             try {
                 const saved = localStorage.getItem(clearedKey);
                 if (saved) {
@@ -4594,7 +4850,7 @@ function customCardMakerSwitchMode(mode) {
 
         function isSharedDanmakuNN(name, season) {
             season = season || currentSharedDanmakuSeason || 1;
-            const nnKey = season === 2 ? 'touhou_kyoukaisen_nn_s2' : 'touhou_kyoukaisen_nn_shared';
+            const nnKey = getSharedDanmakuStorageKeys(season).nn;
             try {
                 const saved = localStorage.getItem(nnKey);
                 if (saved) {
@@ -4607,7 +4863,7 @@ function customCardMakerSwitchMode(mode) {
 
         function isSharedDanmakuNoBomb(name, season) {
             season = season || currentSharedDanmakuSeason || 1;
-            const nobombKey = season === 2 ? 'touhou_kyoukaisen_nobomb_s2' : 'touhou_kyoukaisen_nobomb_shared';
+            const nobombKey = getSharedDanmakuStorageKeys(season).nobomb;
             try {
                 const saved = localStorage.getItem(nobombKey);
                 if (saved) {
@@ -4620,7 +4876,7 @@ function customCardMakerSwitchMode(mode) {
 
         function isSharedDanmakuNoMiss(name, season) {
             season = season || currentSharedDanmakuSeason || 1;
-            const nomissKey = season === 2 ? 'touhou_kyoukaisen_nomiss_s2' : 'touhou_kyoukaisen_nomiss_shared';
+            const nomissKey = getSharedDanmakuStorageKeys(season).nomiss;
             try {
                 const saved = localStorage.getItem(nomissKey);
                 if (saved) {
@@ -4639,7 +4895,7 @@ function customCardMakerSwitchMode(mode) {
         const SHARED_PAGE_SIZE = 8;
 
         function changeSharedDanmakuPage(delta) {
-            const list = currentSharedDanmakuSeason === 2 ? (window.sharedDanmakuListS2 || []) : (window.sharedDanmakuList || []);
+            const list = getSharedDanmakuListBySeason(currentSharedDanmakuSeason);
             const total = list.length;
             const maxPage = Math.max(0, Math.ceil(total / SHARED_PAGE_SIZE) - 1);
             sharedDanmakuPage = Math.max(0, Math.min(maxPage, sharedDanmakuPage + delta));
@@ -4652,13 +4908,19 @@ function customCardMakerSwitchMode(mode) {
             if (!container) return;
             container.innerHTML = '';
 
-            const isS2 = currentSharedDanmakuSeason === 2;
-            const list = isS2 ? (window.sharedDanmakuListS2 || []) : (window.sharedDanmakuList || []);
+            const season = normalizeSharedSeason(currentSharedDanmakuSeason);
+            const isS2 = season === 2;
+            const isS3 = season === 3;
+            const list = getSharedDanmakuListBySeason(season);
 
             // ヘッダータイトルの更新
             const titleEl = document.getElementById('shared-danmaku-title');
             if (titleEl) {
-                if (isS2) {
+                if (isS3) {
+                    titleEl.textContent = '作った弾幕 - シーズン3';
+                    titleEl.style.color = '#44ffaa';
+                    titleEl.style.textShadow = '0 0 8px rgba(68, 255, 170, 0.8)';
+                } else if (isS2) {
                     titleEl.textContent = '作った弾幕 - シーズン2';
                     titleEl.style.color = '#00ccff';
                     titleEl.style.textShadow = '0 0 8px rgba(0, 204, 255, 0.8)';
@@ -4670,37 +4932,26 @@ function customCardMakerSwitchMode(mode) {
             }
 
             // タブのアクティブスタイル更新
-            const tab1 = document.getElementById('tab-season-1');
-            const tab2 = document.getElementById('tab-season-2');
-            if (tab1) {
-                if (!isS2) {
-                    tab1.style.background = 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)';
-                    tab1.style.borderColor = '#d800ff';
-                    tab1.style.color = '#fff';
-                    tab1.style.boxShadow = '0 0 8px rgba(216, 0, 255, 0.6)';
+            const applyTabStyle = (el, active, bg, border, shadow) => {
+                if (!el) return;
+                if (active) {
+                    el.style.background = bg;
+                    el.style.borderColor = border;
+                    el.style.color = '#fff';
+                    el.style.boxShadow = shadow;
                 } else {
-                    tab1.style.background = '#1a1a24';
-                    tab1.style.borderColor = '#444';
-                    tab1.style.color = '#888';
-                    tab1.style.boxShadow = 'none';
+                    el.style.background = '#1a1a24';
+                    el.style.borderColor = '#444';
+                    el.style.color = '#888';
+                    el.style.boxShadow = 'none';
                 }
-            }
-            if (tab2) {
-                if (isS2) {
-                    tab2.style.background = 'linear-gradient(135deg, #004466 0%, #001a2b 100%)';
-                    tab2.style.borderColor = '#00ccff';
-                    tab2.style.color = '#fff';
-                    tab2.style.boxShadow = '0 0 8px rgba(0, 204, 255, 0.6)';
-                } else {
-                    tab2.style.background = '#1a1a24';
-                    tab2.style.borderColor = '#444';
-                    tab2.style.color = '#888';
-                    tab2.style.boxShadow = 'none';
-                }
-            }
+            };
+            applyTabStyle(document.getElementById('tab-season-1'), season === 1, 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)', '#d800ff', '0 0 8px rgba(216, 0, 255, 0.6)');
+            applyTabStyle(document.getElementById('tab-season-2'), season === 2, 'linear-gradient(135deg, #004466 0%, #001a2b 100%)', '#00ccff', '0 0 8px rgba(0, 204, 255, 0.6)');
+            applyTabStyle(document.getElementById('tab-season-3'), season === 3, 'linear-gradient(135deg, #0a4d3c 0%, #041f18 100%)', '#44ffaa', '0 0 8px rgba(68, 255, 170, 0.6)');
 
             if (list.length === 0) {
-                const targetFile = isS2 ? 'js/danmaku2.js' : 'js/danmaku.js';
+                const targetFile = isS3 ? 'js/danmaku3.js' : (isS2 ? 'js/danmaku2.js' : 'js/danmaku.js');
                 container.innerHTML = `<div style="color:#888; font-size:12px; text-align:center; padding:50px 0; border:1.5px dashed rgba(255,255,255,0.1); border-radius:8px;">作った弾幕がありません。「${targetFile}」にデータを追加してください。</div>`;
                 const pageInfo = document.getElementById('shared-page-info');
                 if (pageInfo) pageInfo.textContent = '1 / 1';
@@ -4728,14 +4979,14 @@ function customCardMakerSwitchMode(mode) {
                 const minMissCount = getSharedDanmakuMinMiss(card.name, currentSharedDanmakuSeason);
                 const highScore = getSharedDanmakuHighScore(card.name, currentSharedDanmakuSeason);
                 
-                // 配色出し分け (クリア時は青/シアン、未クリア時は紫/ダーク)
-                const borderNormal = isCleared ? (isS2 ? 'rgba(0,180,255,0.35)' : 'rgba(0,120,255,0.3)') : (isS2 ? 'rgba(0,100,160,0.25)' : 'rgba(216,0,255,0.25)');
-                const borderHover = isCleared ? (isS2 ? 'rgba(0,200,255,0.7)' : 'rgba(0,140,255,0.7)') : (isS2 ? 'rgba(0,160,255,0.6)' : 'rgba(216,0,255,0.6)');
-                const titleColor = isCleared ? '#ccffff' : '#ffccff';
-                const titleShadow = isCleared ? 'rgba(0,120,255,0.4)' : 'rgba(216,0,255,0.4)';
-                const btnBg = isCleared ? (isS2 ? 'linear-gradient(135deg, #003355 0%, #001122 100%)' : 'linear-gradient(135deg, #002255 0%, #000c22 100%)') : (isS2 ? 'linear-gradient(135deg, #004466 0%, #001a2b 100%)' : 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)');
-                const btnBorder = isCleared ? (isS2 ? '#00ccff' : '#0088ff') : (isS2 ? '#00aacc' : '#d800ff');
-                const btnShadow = isCleared ? (isS2 ? 'rgba(0,204,255,0.6)' : 'rgba(0,136,255,0.6)') : (isS2 ? 'rgba(0,170,204,0.5)' : 'rgba(216,0,255,0.5)');
+                // 配色出し分け
+                const borderNormal = isCleared ? (isS3 ? 'rgba(68,255,170,0.4)' : (isS2 ? 'rgba(0,180,255,0.35)' : 'rgba(0,120,255,0.3)')) : (isS3 ? 'rgba(40,180,120,0.28)' : (isS2 ? 'rgba(0,100,160,0.25)' : 'rgba(216,0,255,0.25)'));
+                const borderHover = isCleared ? (isS3 ? 'rgba(68,255,170,0.75)' : (isS2 ? 'rgba(0,200,255,0.7)' : 'rgba(0,140,255,0.7)')) : (isS3 ? 'rgba(68,255,170,0.6)' : (isS2 ? 'rgba(0,160,255,0.6)' : 'rgba(216,0,255,0.6)'));
+                const titleColor = isCleared ? (isS3 ? '#ccffea' : '#ccffff') : (isS3 ? '#b8ffdc' : '#ffccff');
+                const titleShadow = isCleared ? (isS3 ? 'rgba(68,255,170,0.45)' : 'rgba(0,120,255,0.4)') : (isS3 ? 'rgba(68,255,170,0.35)' : 'rgba(216,0,255,0.4)');
+                const btnBg = isCleared ? (isS3 ? 'linear-gradient(135deg, #0b4a3a 0%, #041d16 100%)' : (isS2 ? 'linear-gradient(135deg, #003355 0%, #001122 100%)' : 'linear-gradient(135deg, #002255 0%, #000c22 100%)')) : (isS3 ? 'linear-gradient(135deg, #0a5540 0%, #042219 100%)' : (isS2 ? 'linear-gradient(135deg, #004466 0%, #001a2b 100%)' : 'linear-gradient(135deg, #3c0055 0%, #1a0022 100%)'));
+                const btnBorder = isCleared ? (isS3 ? '#44ffaa' : (isS2 ? '#00ccff' : '#0088ff')) : (isS3 ? '#22cc88' : (isS2 ? '#00aacc' : '#d800ff'));
+                const btnShadow = isCleared ? (isS3 ? 'rgba(68,255,170,0.6)' : (isS2 ? 'rgba(0,204,255,0.6)' : 'rgba(0,136,255,0.6)')) : (isS3 ? 'rgba(34,204,136,0.5)' : (isS2 ? 'rgba(0,170,204,0.5)' : 'rgba(216,0,255,0.5)'));
 
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'shared-danmaku-card';
@@ -4855,55 +5106,58 @@ function customCardMakerSwitchMode(mode) {
         }
 
         function playSharedDanmaku(idx, season) {
-            season = season || currentSharedDanmakuSeason || 1;
+            season = normalizeSharedSeason(season || currentSharedDanmakuSeason || 1);
             window.currentDanmakuSeason = season;
-            const list = season === 2 ? (window.sharedDanmakuListS2 || []) : (window.sharedDanmakuList || []);
+            const list = getSharedDanmakuListBySeason(season);
             const sharedCard = list[idx];
             if (!sharedCard) return;
             currentSharedDanmakuName = sharedCard.name;
 
-            // 独自のJS風コード文字列、またはブロック配列をパースする
-            let emitterScript = [];
-            if (typeof sharedCard.emitterScript === 'string') {
-                emitterScript = codeToBlocks(sharedCard.emitterScript);
-            } else if (Array.isArray(sharedCard.emitterScript)) {
-                emitterScript = sharedCard.emitterScript;
-            }
+            const parseScriptVal = (val) => {
+                if (typeof val === 'string') return codeToBlocks(val);
+                if (Array.isArray(val)) return val;
+                return [];
+            };
 
-            let bulletScript = [];
-            if (typeof sharedCard.bulletScript === 'string') {
-                bulletScript = codeToBlocks(sharedCard.bulletScript);
-            } else if (Array.isArray(sharedCard.bulletScript)) {
-                bulletScript = sharedCard.bulletScript;
-            }
-
-            let magicCircleScript = [];
-            if (typeof sharedCard.magicCircleScript === 'string') {
-                magicCircleScript = codeToBlocks(sharedCard.magicCircleScript);
-            } else if (Array.isArray(sharedCard.magicCircleScript)) {
-                magicCircleScript = sharedCard.magicCircleScript;
-            }
+            let emitterScript = parseScriptVal(sharedCard.emitterScript);
+            let bulletScript = parseScriptVal(sharedCard.bulletScript);
+            let magicCircleScript = parseScriptVal(sharedCard.magicCircleScript);
+            let emitterScript2 = parseScriptVal(sharedCard.emitterScript2);
+            let bulletScript2 = parseScriptVal(sharedCard.bulletScript2);
+            let magicCircleScript2 = parseScriptVal(sharedCard.magicCircleScript2);
 
             let cardDuration = parseFloat(sharedCard.duration) || 15;
             let xOffset = Number(sharedCard.x_offset) || 0;
             let yOffset = Number(sharedCard.y_offset) || 0;
+            let xOffset2 = Number(sharedCard.x_offset2) || 0;
+            let yOffset2 = Number(sharedCard.y_offset2) || 0;
             let despawnTime = parseFloat(sharedCard.despawnTime) || 1.5;
 
             let cardDiffVal = sharedCard.difficulty || 'NORMAL';
             let formattedDiff = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(cardDiffVal) : cardDiffVal.toUpperCase();
 
-            let isS2 = season === 2;
-            let defaultHp = isS2 ? 2000 : 0;
+            let isS2Plus = season >= 2;
+            let isS3 = season === 3;
+            let defaultHp = isS2Plus ? 2000 : 0;
             let cardHp = (sharedCard.hp !== undefined && sharedCard.hp !== null) ? parseInt(sharedCard.hp, 10) : defaultHp;
             if (isNaN(cardHp)) cardHp = defaultHp;
 
-            let cardId = sharedCard.id || (isS2 ? ('danmaku_s2_' + idx) : ('danmaku_' + idx));
+            let isDouble = (sharedCard.bossMode === 'double');
+            let cardHp2 = (sharedCard.hp2 !== undefined && sharedCard.hp2 !== null) ? parseInt(sharedCard.hp2, 10) : (cardHp > 0 ? cardHp : 1000);
+            if (isNaN(cardHp2)) cardHp2 = 1000;
+
+            let cardId = sharedCard.id || (isS3 ? ('danmaku_s3_' + idx) : (season === 2 ? ('danmaku_s2_' + idx) : ('danmaku_' + idx)));
 
             let tempCustomCard = {
                 id: cardId,
                 name: (sharedCard.name || '共有弾幕').replace(/^【A】/, ''),
                 duration: cardDuration,
                 hp: cardHp,
+                bg: sharedCard.bg || 'none',
+                bossMode: isDouble ? 'double' : 'single',
+                hp2: cardHp2,
+                x_offset2: xOffset2,
+                y_offset2: yOffset2,
                 season: season,
                 x_offset: xOffset,
                 y_offset: yOffset,
@@ -4917,7 +5171,7 @@ function customCardMakerSwitchMode(mode) {
                     return isNaN(parsed) ? 2 : parsed;
                 })(),
                 difficulty: formattedDiff,
-                pattern: isS2 ? ('custom_test_shared_s2_' + idx) : ('custom_test_shared_' + idx),
+                pattern: isS3 ? ('custom_test_shared_s3_' + idx) : (season === 2 ? ('custom_test_shared_s2_' + idx) : ('custom_test_shared_' + idx)),
                 interval: 0.1,
                 rawCost: 0,
                 cost: 0,
@@ -4925,7 +5179,10 @@ function customCardMakerSwitchMode(mode) {
                 isCustom: true,
                 emitterScript: emitterScript,
                 bulletScript: bulletScript,
-                magicCircleScript: magicCircleScript
+                magicCircleScript: magicCircleScript,
+                emitterScript2: emitterScript2,
+                bulletScript2: bulletScript2,
+                magicCircleScript2: magicCircleScript2
             };
 
             window.cpuDifficulty = formattedDiff;
@@ -4940,14 +5197,16 @@ function customCardMakerSwitchMode(mode) {
             }
 
             isCustomCardTesting = true;
-            window.isBossMode = cardHp > 0;
-            window.isS2Danmaku = isS2;
+            window.isDoubleBossMode = isDouble;
+            window.isBossMode = (cardHp > 0) || (isDouble && cardHp2 > 0);
+            window.isS2Danmaku = isS2Plus;
             if (typeof checkBulletTouchRequirement === 'function') {
                 checkBulletTouchRequirement();
             }
             currentTestPlaySource = 'shared';
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            if (typeof window.resetCardSharedVars === 'function') window.resetCardSharedVars();
             window.spellMissCount = 0;
             window.spellBombCount = 0;
             window.spellMaxBonus = 10000000;
@@ -5022,14 +5281,18 @@ function customCardMakerSwitchMode(mode) {
             player.passives = [];
             player.recentHits = [];
 
-            cpu.x = PLAY_WIDTH / 2;
-            cpu.y = canvas.height * 0.2;
+            activeCards = [ tempCustomCard ];
+            if (typeof resetCustomOwnerPositionLocks === 'function') resetCustomOwnerPositionLocks();
+            const _shHome1 = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+            cpu.x = _shHome1.x;
+            cpu.y = _shHome1.y;
             cpu.targetX = cpu.x;
             cpu.targetY = cpu.y;
             cpu.prevX = cpu.x;
             cpu.prevY = cpu.y;
             cpu.hp = cardHp > 0 ? cardHp : 1000;
             cpu.maxHp = cardHp > 0 ? cardHp : 1000;
+            cpu.defeated = false;
             cpu.pendingDamage = 0;
             cpu.pendingHeal = 0;
             cpu.grazeCount = 0;
@@ -5038,15 +5301,48 @@ function customCardMakerSwitchMode(mode) {
             cpu.passives = [];
             cpu.recentHits = [];
 
+            if (typeof cpu2 !== 'undefined' && cpu2) {
+                if (isDouble) {
+                    const _shHome2 = (typeof getHomePositionForOwner === 'function') ? getHomePositionForOwner('CPU2') : { x: PLAY_WIDTH / 2, y: canvas.height * 0.2 };
+                    cpu2.active = true;
+                    cpu2.defeated = false;
+                    cpu2.x = _shHome2.x;
+                    cpu2.y = _shHome2.y;
+                    cpu2.targetX = cpu2.x;
+                    cpu2.targetY = cpu2.y;
+                    cpu2.prevX = cpu2.x;
+                    cpu2.prevY = cpu2.y;
+                    cpu2.hp = cardHp2 > 0 ? cardHp2 : 1000;
+                    cpu2.maxHp = cardHp2 > 0 ? cardHp2 : 1000;
+                    cpu2.pendingDamage = 0;
+                    cpu2.pendingHeal = 0;
+                    cpu2.grazeCount = 0;
+                    cpu2.bombs = 0;
+                    cpu2.maxBombs = 0;
+                    cpu2.passives = [];
+                    cpu2.recentHits = [];
+                } else {
+                    cpu2.active = false;
+                    cpu2.defeated = false;
+                    cpu2.hp = 0;
+                }
+            }
+
             gameState = 'BATTLE';
             battlePhase = 'ACTION';
             turnOwner = 'CPU';
             turnCount = 1;
 
-            activeCards = [ tempCustomCard ];
-            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, tempCustomCard.x_offset || 0, tempCustomCard.y_offset || 0, tempCustomCard.id);
+            activeCards[0].emitterState = initEmitterState(tempCustomCard.emitterScript, cpu, player, 0, 0, tempCustomCard.id);
             activeCards[0].emitterState.bulletScript = tempCustomCard.bulletScript || [];
             activeCards[0].emitterState.magicCircleScript = tempCustomCard.magicCircleScript || [];
+            if (isDouble && typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) {
+                activeCards[0].emitterState2 = initEmitterState(tempCustomCard.emitterScript2 || [], cpu2, player, 0, 0, tempCustomCard.id + '_boss2');
+                activeCards[0].emitterState2.bulletScript = tempCustomCard.bulletScript2 || [];
+                activeCards[0].emitterState2.magicCircleScript = tempCustomCard.magicCircleScript2 || [];
+            } else {
+                activeCards[0].emitterState2 = null;
+            }
             actionTimer = tempCustomCard.duration;
             customCardTestEmitterDone = false;
             customCardDeathEffect = null;
@@ -5438,6 +5734,9 @@ function customCardMakerSwitchMode(mode) {
 
             isCustomCardTesting = true;
             window.isBossMode = true;
+            window.isDoubleBossMode = false;
+            if (typeof cpu2 !== 'undefined' && cpu2) { cpu2.active = false; cpu2.defeated = false; cpu2.hp = 0; }
+            if (typeof resetCustomOwnerPositionLocks === 'function') resetCustomOwnerPositionLocks();
             if (typeof resumeGameFromPause === 'function') resumeGameFromPause();
             if (typeof checkBulletTouchRequirement === 'function') {
                 checkBulletTouchRequirement();
@@ -5447,6 +5746,7 @@ function customCardMakerSwitchMode(mode) {
 
             window.currentCardSecond = 0;
             window.currentCardFrame = 0;
+            if (typeof window.resetCardSharedVars === 'function') window.resetCardSharedVars();
             window.spellMissCount = 0;
             window.spellBombCount = 0;
             window.spellMaxBonus = (tempSpellCard && tempSpellCard.bonusScore) ? parseInt(tempSpellCard.bonusScore, 10) : 10000000;

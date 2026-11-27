@@ -74,11 +74,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let curX, curY;
                             if (tw.name.includes(',')) {
                                 let varNames = tw.name.split(',').map(n => n.trim());
-                                curX = Number(state.variables[varNames[0]]) || tw.fromX;
-                                curY = Number(state.variables[varNames[1]]) || tw.fromY;
+                                curX = Number(getScriptVariable(state.variables, varNames[0])) || tw.fromX;
+                                curY = Number(getScriptVariable(state.variables, varNames[1])) || tw.fromY;
                             } else {
-                                curX = Number(state.variables[tw.name + '_x']) || tw.fromX;
-                                curY = Number(state.variables[tw.name + '_y']) || tw.fromY;
+                                curX = Number(getScriptVariable(state.variables, tw.name + '_x')) || tw.fromX;
+                                curY = Number(getScriptVariable(state.variables, tw.name + '_y')) || tw.fromY;
                             }
                             
                             if (tw.isVecStep) {
@@ -125,32 +125,28 @@ function stepEmitter(c, state, attacker, target, dt) {
                         // 変数へ書き戻し
                         if (tw.name.includes(',')) {
                             let varNames = tw.name.split(',').map(n => n.trim());
-                            state.variables[varNames[0]] = nextX;
-                            state.variables[varNames[1]] = nextY;
+                            setScriptVariable(state, varNames[0], nextX, false);
+                            setScriptVariable(state, varNames[1], nextY, false);
                         } else {
-                            state.variables[tw.name] = `${nextX},${nextY}`;
-                            state.variables[tw.name + '_x'] = nextX;
-                            state.variables[tw.name + '_y'] = nextY;
-                            state.variables[tw.name + '.x'] = nextX;
-                            state.variables[tw.name + '.y'] = nextY;
+                            setScriptVariable(state, tw.name, `${nextX},${nextY}`, false);
                         }
                         return !isDone;
                     }
                     if (tw.mode === 'step') {
                         // 毎フレーム固定量加算
-                        let cur = Number(state.variables[tw.name]) || 0;
+                        let cur = Number(getScriptVariable(state.variables, tw.name)) || 0;
                         let step = tw.stepVal;
                         let next = cur + step;
                         if ((step > 0 && next >= tw.to) || (step < 0 && next <= tw.to)) {
-                            state.variables[tw.name] = tw.to;
+                            setScriptVariable(state, tw.name, tw.to, false);
                             return false; // done
                         }
-                        state.variables[tw.name] = next;
+                        setScriptVariable(state, tw.name, next, false);
                         return true;
                     } else if (tw.mode === 'addOverTime') {
                         tw.elapsed += (tw.timeMode === 'seconds') ? dt : 1;
-                        let varVal = Number(state.variables[tw.name]) || 0;
-                        state.variables[tw.name] = varVal + tw.stepVal;
+                        let varVal = Number(getScriptVariable(state.variables, tw.name)) || 0;
+                        setScriptVariable(state, tw.name, varVal + tw.stepVal, false);
                         return tw.elapsed < tw.total;
                     } else {
                         // 時間 / フレーム制御の線形補間
@@ -160,14 +156,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                         
                         if (tw.isAngleTween) {
                             if (tw.rotMode === 'direct') {
-                                state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                                setScriptVariable(state, tw.name, tw.from + (tw.to - tw.from) * easedT, false);
                             } else {
                                 let diff = ((tw.to - tw.from + 180) % 360 + 360) % 360 - 180;
                                 let newAngle = tw.from + diff * easedT;
-                                state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                                setScriptVariable(state, tw.name, ((newAngle % 360) + 360) % 360, false);
                             }
                         } else {
-                            state.variables[tw.name] = tw.from + (tw.to - tw.from) * easedT;
+                            setScriptVariable(state, tw.name, tw.from + (tw.to - tw.from) * easedT, false);
                         }
                         
                         return t < 1; // done if t==1
@@ -199,7 +195,9 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
 
             // 現在スライド移動中かどうか判定
-            const ownerKey = isPlayerSide ? 'PLAYER' : 'CPU';
+            const isBoss2 = !isPlayerSide && ((state.bossOwner === 'CPU2') || (typeof cpu2 !== 'undefined' && attacker === cpu2) || (attacker && attacker.bossOwner === 'CPU2') || (attacker && attacker.bossKey === 'CPU2'));
+            const ownerKey = isPlayerSide ? 'PLAYER' : (isBoss2 ? 'CPU2' : 'CPU');
+            if (!state.bossOwner) state.bossOwner = ownerKey;
             const slideLock = (typeof customOwnerPositionLocks !== 'undefined') ? customOwnerPositionLocks[ownerKey] : null;
             const isSliding = slideLock && slideLock.elapsed < slideLock.duration;
 
@@ -221,8 +219,34 @@ function stepEmitter(c, state, attacker, target, dt) {
             // プレイヤーの絶対座標（常にプレイヤー側、Y軸は画面下が0の論理座標）
             state.variables.player_x = player.x;
             state.variables.player_y = canvas.height - player.y;
-            state.variables.enemyHp = (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0;
-            state.variables.enemyMaxHp = (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0;
+            const selfBossUnit = isBoss2 ? (typeof cpu2 !== 'undefined' ? cpu2 : null) : (typeof cpu !== 'undefined' ? cpu : null);
+            const partnerBossUnit = isBoss2 ? (typeof cpu !== 'undefined' ? cpu : null) : (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active ? cpu2 : null);
+            state.variables.enemyHp = selfBossUnit ? selfBossUnit.hp : 0;
+            state.variables.enemyMaxHp = selfBossUnit ? selfBossUnit.maxHp : 0;
+            state.variables.boss1Hp = (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0;
+            state.variables.boss1MaxHp = (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0;
+            state.variables.boss2Hp = (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) ? cpu2.hp : 0;
+            state.variables.boss2MaxHp = (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) ? cpu2.maxHp : 0;
+            state.variables.partnerHp = partnerBossUnit ? partnerBossUnit.hp : 0;
+            state.variables.partnerAlive = state.variables.partnerHp > 0 ? 1 : 0;
+            const _b1x = (typeof cpu !== 'undefined' && cpu) ? cpu.x : 0;
+            const _b1y = (typeof cpu !== 'undefined' && cpu) ? (isPlayerSide ? (canvas.height - cpu.y) : cpu.y) : 0;
+            const _hasB2 = (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active);
+            const _b2x = _hasB2 ? cpu2.x : _b1x;
+            const _b2y = _hasB2 ? (isPlayerSide ? (canvas.height - cpu2.y) : cpu2.y) : _b1y;
+            state.variables.ex1 = _b1x;
+            state.variables.ey1 = _b1y;
+            state.variables.boss1_x = _b1x;
+            state.variables.boss1_y = _b1y;
+            state.variables.exy1 = `${_b1x},${_b1y}`;
+            state.variables.ex2 = _b2x;
+            state.variables.ey2 = _b2y;
+            state.variables.boss2_x = _b2x;
+            state.variables.boss2_y = _b2y;
+            state.variables.exy2 = `${_b2x},${_b2y}`;
+            state.variables.partner_x = isBoss2 ? _b1x : _b2x;
+            state.variables.partner_y = isBoss2 ? _b1y : _b2y;
+            state.variables.partner_xy = `${state.variables.partner_x},${state.variables.partner_y}`;
             if (!state.isParallelThread) {
                 state.variables.second = (Number(state.variables.second) || 0) + dt;
                 state.variables.frame = (Number(state.variables.frame) || 0) + 1;
@@ -478,6 +502,13 @@ function stepEmitter(c, state, attacker, target, dt) {
                         break;
                     }
 
+                    case 'shared_var': {
+                        let varName = block.params.name;
+                        let val = evalValue(block.params.value, state.variables);
+                        setScriptVariable(state, varName, val, !!block.params.isConst, true);
+                        syncAttackerFromEmitterVariables(state, attacker);
+                        break;
+                    }
                     case 'const_var':
                     case 'set_var': {
                         let varName = block.params.name;
@@ -490,10 +521,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                         let varName = block.params.name;
                         let val = evalExpr(block.params.value, state.variables);
                         let delta = block.params.op === '-' ? -val : val;
-                        if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-                        if (!state.constVars.has(varName)) {
-                            let newVal = (Number(state.variables[varName]) || 0) + delta;
+                        if (!isScriptVarConst(state, varName)) {
+                            let curVal = Number(getScriptVariable(state.variables, varName)) || 0;
+                            let newVal = curVal + delta;
                             setScriptVariable(state, varName, newVal, false);
+                        }
+                        syncAttackerFromEmitterVariables(state, attacker);
+                        break;
+                    }
+                    case 'floor_var': {
+                        let varName = block.params.name || block.params.var || 'speed';
+                        if (!isScriptVarConst(state, varName)) {
+                            let curVal = Number(getScriptVariable(state.variables, varName)) || 0;
+                            setScriptVariable(state, varName, Math.floor(curVal), false);
                         }
                         syncAttackerFromEmitterVariables(state, attacker);
                         break;
@@ -568,7 +608,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         break;
                     }
                     case 'move_owner': {
-                        const owner = attacker === player ? 'PLAYER' : 'CPU';
+                        const owner = attacker === player ? 'PLAYER' : ((state.bossOwner === 'CPU2' || (typeof cpu2 !== 'undefined' && attacker === cpu2) || (attacker && attacker.bossOwner === 'CPU2')) ? 'CPU2' : 'CPU');
                         const preset = resolveTextParam(block.params.preset || 'center', state.variables);
                         const duration = evalExpr(block.params.duration || '0', state.variables);
                         setCustomOwnerPosition(owner, preset, duration);
@@ -1498,6 +1538,7 @@ function stepEmitter(c, state, attacker, target, dt) {
 
                         let mcId = 'MC_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
 
+                        const mcBossOwner = state.bossOwner || ((typeof cpu2 !== 'undefined' && attacker === cpu2) ? 'CPU2' : (attacker === player ? 'PLAYER' : 'CPU'));
                         let newMagicCircle = {
                             id: mcId,
                             x: spawnX,
@@ -1505,10 +1546,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                             radius: 18,
                             color: bColor,
                             team: attacker.team,
+                            bossOwner: mcBossOwner,
                             isCustom: true,
-                            emitterState: initEmitterState(state.magicCircleScript || [], { x: spawnX, y: spawnY }, target, 0, 0, state.id ? state.id + '_magic' : null),
+                            emitterState: initEmitterState(state.magicCircleScript || [], { x: spawnX, y: spawnY, bossOwner: mcBossOwner }, target, 0, 0, state.id ? state.id + '_magic' : null),
                             bulletScript: state.magicCircleScript || []
                         };
+                        newMagicCircle.emitterState.bossOwner = mcBossOwner;
                         newMagicCircle.emitterState.magicCircleScript = state.magicCircleScript || [];
 
                         magicCircles.push(newMagicCircle);
@@ -1571,7 +1614,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
                             let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
                             if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
-                                state.variables[varName] = fromVal;
+                                setScriptVariable(state, varName, fromVal, false);
                                 if (mode === 'step' || mode === 'vecstep') {
                                     let stepVal = evalExpr(block.params.stepVal || block.params.value || '5', state.variables);
                                     if (mode === 'vecstep') {
@@ -1634,10 +1677,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     });
                                 }
                                 // 子変数を即座に初期化
-                                state.variables[varName + '_x'] = fromParts[0];
-                                state.variables[varName + '_y'] = fromParts[1];
-                                state.variables[varName + '.x'] = fromParts[0];
-                                state.variables[varName + '.y'] = fromParts[1];
+                                setScriptVariable(state, varName, fromVal, false);
                                 if (block.type === 'tween_var_wait') {
                                     state.waitingTweenName = varName;
                                 }
@@ -1648,7 +1688,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                         if (mode === 'step') {
                             let stepVal = evalExpr(block.params.stepVal || '5', state.variables);
                             if (fromVal > toVal && stepVal > 0) stepVal = -stepVal;
-                            state.variables[varName] = fromVal;
+                            setScriptVariable(state, varName, fromVal, false);
                             state.tweens.push({ name: varName, to: toVal, mode: 'step', stepVal });
                         } else {
                             let total = evalExpr(block.params.duration || '1', state.variables);
@@ -1658,7 +1698,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                             if (isNaN(fNum)) fNum = 0;
                             let tNum = Number(toVal);
                             if (isNaN(tNum)) tNum = 0;
-                            state.variables[varName] = fNum;
+                            setScriptVariable(state, varName, fNum, false);
                             state.tweens.push({ name: varName, from: fNum, to: tNum, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
                         }
                         if (block.type === 'tween_var_wait') {
@@ -1713,6 +1753,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                 aslr: 1
             };
             let compiledBlocks = (!script || script.length === 0) ? [] : compileIndentedBlocks(JSON.parse(JSON.stringify(script)));
+            const bossOwner = (attacker && attacker.bossOwner) ? attacker.bossOwner
+                : (typeof cpu2 !== 'undefined' && attacker === cpu2) ? 'CPU2'
+                : (typeof player !== 'undefined' && attacker === player) ? 'PLAYER'
+                : (attacker && attacker.bossKey) ? attacker.bossKey
+                : 'CPU';
 
             return {
                 blocks: compiledBlocks,
@@ -1724,6 +1769,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 constVars: new Set(),
                 speedScaleApplied: new Set(),
                 finished: false,
+                bossOwner: bossOwner,
                 compiledFn: compiledFn || null
             };
         }
@@ -1989,11 +2035,11 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let curX, curY;
                             if (tw.name.includes(',')) {
                                 let varNames = tw.name.split(',').map(n => n.trim());
-                                curX = Number(state.variables[varNames[0]]) || tw.fromX;
-                                curY = Number(state.variables[varNames[1]]) || tw.fromY;
+                                curX = Number(getScriptVariable(state.variables, varNames[0])) || tw.fromX;
+                                curY = Number(getScriptVariable(state.variables, varNames[1])) || tw.fromY;
                             } else {
-                                curX = Number(state.variables[tw.name + '_x']) || tw.fromX;
-                                curY = Number(state.variables[tw.name + '_y']) || tw.fromY;
+                                curX = Number(getScriptVariable(state.variables, tw.name + '_x')) || tw.fromX;
+                                curY = Number(getScriptVariable(state.variables, tw.name + '_y')) || tw.fromY;
                             }
                             
                             if (tw.isVecStep) {
@@ -2038,14 +2084,10 @@ function stepEmitter(c, state, attacker, target, dt) {
                         // 変数へ書き戻し
                         if (tw.name.includes(',')) {
                             let varNames = tw.name.split(',').map(n => n.trim());
-                            state.variables[varNames[0]] = nextX;
-                            state.variables[varNames[1]] = nextY;
+                            setScriptVariable(state, varNames[0], nextX, false);
+                            setScriptVariable(state, varNames[1], nextY, false);
                         } else {
-                            state.variables[tw.name] = `${nextX},${nextY}`;
-                            state.variables[tw.name + '_x'] = nextX;
-                            state.variables[tw.name + '_y'] = nextY;
-                            state.variables[tw.name + '.x'] = nextX;
-                            state.variables[tw.name + '.y'] = nextY;
+                            setScriptVariable(state, tw.name, `${nextX},${nextY}`, false);
                             if (tw.name === 'xy') {
                                 state.variables.x = nextX;
                                 state.variables.y = nextY;
@@ -2053,20 +2095,20 @@ function stepEmitter(c, state, attacker, target, dt) {
                         }
                         keep = !isDone;
                     } else if (tw.mode === 'step') {
-                        let cur = Number(state.variables[tw.name]) || 0;
+                        let cur = Number(getScriptVariable(state.variables, tw.name)) || 0;
                         let step = tw.stepVal;
                         let next = cur + step;
                         if ((step > 0 && next >= tw.to) || (step < 0 && next <= tw.to)) {
-                            state.variables[tw.name] = tw.to;
+                            setScriptVariable(state, tw.name, tw.to, false);
                             keep = false; // done
                         } else {
-                            state.variables[tw.name] = next;
+                            setScriptVariable(state, tw.name, next, false);
                             keep = true;
                         }
                     } else if (tw.mode === 'addOverTime') {
                         tw.elapsed += (tw.timeMode === 'seconds') ? dt : 1;
-                        let varVal = Number(state.variables[tw.name]) || 0;
-                        state.variables[tw.name] = varVal + tw.stepVal;
+                        let varVal = Number(getScriptVariable(state.variables, tw.name)) || 0;
+                        setScriptVariable(state, tw.name, varVal + tw.stepVal, false);
                         keep = tw.elapsed < tw.total;
                     } else {
                         tw.elapsed += (tw.mode === 'seconds') ? dt : 1;
@@ -2077,16 +2119,16 @@ function stepEmitter(c, state, attacker, target, dt) {
                             let fVal = Number(tw.from) || 0;
                             let tVal = Number(tw.to) || 0;
                             if (tw.rotMode === 'direct') {
-                                state.variables[tw.name] = fVal + (tVal - fVal) * easedT;
+                                setScriptVariable(state, tw.name, fVal + (tVal - fVal) * easedT, false);
                             } else {
                                 let diff = ((tVal - fVal + 180) % 360 + 360) % 360 - 180;
                                 let newAngle = fVal + diff * easedT;
-                                state.variables[tw.name] = ((newAngle % 360) + 360) % 360;
+                                setScriptVariable(state, tw.name, ((newAngle % 360) + 360) % 360, false);
                             }
                         } else {
                             let fVal = Number(tw.from) || 0;
                             let tVal = Number(tw.to) || 0;
-                            state.variables[tw.name] = fVal + (tVal - fVal) * easedT;
+                            setScriptVariable(state, tw.name, fVal + (tVal - fVal) * easedT, false);
                         }
                         
                         keep = t < 1; // done if t==1
@@ -2240,13 +2282,40 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             state.variables.tx = target.x;
             state.variables.ty = isPlayerSide ? (canvas.height - target.y) : target.y;
-            if (typeof cpu !== 'undefined' && cpu) {
-                state.variables.enemyHp = cpu.hp;
-                state.variables.enemyMaxHp = cpu.maxHp;
+            const isBulletBoss2 = !isPlayerSide && ((state.bossOwner === 'CPU2') || (typeof cpu2 !== 'undefined' && attacker === cpu2) || (b.sharedEmitterState && b.sharedEmitterState.bossOwner === 'CPU2'));
+            const selfBulletBoss = isBulletBoss2 ? (typeof cpu2 !== 'undefined' ? cpu2 : null) : (typeof cpu !== 'undefined' ? cpu : null);
+            const partnerBulletBoss = isBulletBoss2 ? (typeof cpu !== 'undefined' ? cpu : null) : (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active ? cpu2 : null);
+            if (selfBulletBoss) {
+                state.variables.enemyHp = selfBulletBoss.hp;
+                state.variables.enemyMaxHp = selfBulletBoss.maxHp;
             } else {
                 state.variables.enemyHp = 0;
                 state.variables.enemyMaxHp = 0;
             }
+            state.variables.boss1Hp = (typeof cpu !== 'undefined' && cpu) ? cpu.hp : 0;
+            state.variables.boss1MaxHp = (typeof cpu !== 'undefined' && cpu) ? cpu.maxHp : 0;
+            state.variables.boss2Hp = (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) ? cpu2.hp : 0;
+            state.variables.boss2MaxHp = (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active) ? cpu2.maxHp : 0;
+            state.variables.partnerHp = partnerBulletBoss ? partnerBulletBoss.hp : 0;
+            state.variables.partnerAlive = state.variables.partnerHp > 0 ? 1 : 0;
+            const _bb1x = (typeof cpu !== 'undefined' && cpu) ? cpu.x : 0;
+            const _bb1y = (typeof cpu !== 'undefined' && cpu) ? (isPlayerSide ? (canvas.height - cpu.y) : cpu.y) : 0;
+            const _hasBB2 = (typeof cpu2 !== 'undefined' && cpu2 && cpu2.active);
+            const _bb2x = _hasBB2 ? cpu2.x : _bb1x;
+            const _bb2y = _hasBB2 ? (isPlayerSide ? (canvas.height - cpu2.y) : cpu2.y) : _bb1y;
+            state.variables.ex1 = _bb1x;
+            state.variables.ey1 = _bb1y;
+            state.variables.boss1_x = _bb1x;
+            state.variables.boss1_y = _bb1y;
+            state.variables.exy1 = `${_bb1x},${_bb1y}`;
+            state.variables.ex2 = _bb2x;
+            state.variables.ey2 = _bb2y;
+            state.variables.boss2_x = _bb2x;
+            state.variables.boss2_y = _bb2y;
+            state.variables.exy2 = `${_bb2x},${_bb2y}`;
+            state.variables.partner_x = isBulletBoss2 ? _bb1x : _bb2x;
+            state.variables.partner_y = isBulletBoss2 ? _bb1y : _bb2y;
+            state.variables.partner_xy = `${state.variables.partner_x},${state.variables.partner_y}`;
 
             // 送信機（エミッター）の現在位置（差分追従方式で上書きを防ぐ）
             let emitterDx = attacker.x - (b.prevEmitterX !== undefined ? b.prevEmitterX : attacker.x);
@@ -3440,6 +3509,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 }
                                 break;
                             }
+                            case 'shared_var': {
+                                let varName = block.params.name;
+                                let val = evalValue(block.params.value, state.variables, block, 'value');
+                                setScriptVariable(state, varName, val, !!block.params.isConst, true);
+                                break;
+                            }
                             case 'const_var':
                             case 'set_var': {
                                 let varName = block.params.name;
@@ -3458,21 +3533,21 @@ function stepEmitter(c, state, attacker, target, dt) {
                                 let varName = block.params.name;
                                 let val = evalExpr(block.params.value, state.variables, block, 'value');
                                 let delta = block.params.op === '-' ? -val : val;
-                                let before = state.variables[varName];
-                                if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-                                if (!state.constVars.has(varName)) {
-                                    let curHp = (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') && (typeof cpu !== 'undefined' && cpu) ? cpu.hp : (Number(state.variables[varName]) || 0);
+                                let before = getScriptVariable(state.variables, varName);
+                                if (!isScriptVarConst(state, varName)) {
+                                    const hpBoss = (state.bossOwner === 'CPU2' && typeof cpu2 !== 'undefined' && cpu2) ? cpu2 : ((typeof cpu !== 'undefined' && cpu) ? cpu : null);
+                                    let curHp = (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') && hpBoss ? hpBoss.hp : (Number(getScriptVariable(state.variables, varName)) || 0);
                                     let newVal = curHp + delta;
                                     setScriptVariable(state, varName, newVal, false);
                                 }
-                                if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${block.params.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${state.variables[varName]})`);
+                                if (shouldLog) console.log(`[DEBUG] Bullet #${b.bulletDebugId} change_var: ${varName} ${block.params.op === '-' ? '-=' : '+='} ${val} (before: ${before}, after: ${getScriptVariable(state.variables, varName)})`);
                                 break;
                             }
                             case 'floor_var': {
                                 let varName = block.params.name || block.params.var || 'speed';
-                                if (!state.constVars || typeof state.constVars.has !== 'function') state.constVars = new Set();
-                                if (!state.constVars.has(varName)) {
-                                    let curHp = (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') && (typeof cpu !== 'undefined' && cpu) ? cpu.hp : (Number(state.variables[varName]) || 0);
+                                if (!isScriptVarConst(state, varName)) {
+                                    const hpBoss = (state.bossOwner === 'CPU2' && typeof cpu2 !== 'undefined' && cpu2) ? cpu2 : ((typeof cpu !== 'undefined' && cpu) ? cpu : null);
+                                    let curHp = (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') && hpBoss ? hpBoss.hp : (Number(getScriptVariable(state.variables, varName)) || 0);
                                     let newVal = Math.floor(curHp);
                                     setScriptVariable(state, varName, newVal, false);
                                 }
@@ -3686,7 +3761,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     let toParts = toVal.split(',').map(p => parseFloat(p.trim()));
                                     let fromParts = String(fromVal).split(',').map(p => parseFloat(p.trim()));
                                     if (toParts.length === 2 && fromParts.length === 2 && !isNaN(toParts[0]) && !isNaN(toParts[1]) && !isNaN(fromParts[0]) && !isNaN(fromParts[1])) {
-                                        state.variables[varName] = fromVal;
+                                        setScriptVariable(state, varName, fromVal, false);
                                         if (mode === 'step' || mode === 'vecstep') {
                                             let stepVal = evalExpr(block.params.stepVal || block.params.value || '5', state.variables, block, 'stepVal');
                                             if (mode === 'vecstep') {
@@ -3746,10 +3821,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                                 easing: block.params.easing || 'linear'
                                             });
                                         }
-                                        state.variables[varName + '_x'] = fromParts[0];
-                                        state.variables[varName + '_y'] = fromParts[1];
-                                        state.variables[varName + '.x'] = fromParts[0];
-                                        state.variables[varName + '.y'] = fromParts[1];
+                                        setScriptVariable(state, varName, fromVal, false);
                                         if (block.type === 'tween_var_wait') {
                                             state.waitingTweenName = varName;
                                         }
@@ -3758,7 +3830,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                     if (mode === 'step') {
                                         let stepVal = evalExpr(block.params.stepVal || '5', state.variables, block, 'stepVal');
                                         if (fromVal > toVal && stepVal > 0) stepVal = -stepVal;
-                                        state.variables[varName] = fromVal;
+                                        setScriptVariable(state, varName, fromVal, false);
                                         state.tweens.push({ name: varName, to: toVal, mode: 'step', stepVal });
                                     } else {
                                         let total = evalExpr(block.params.duration || '1', state.variables, block, 'duration');
@@ -3768,7 +3840,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                                         if (isNaN(fNum)) fNum = 0;
                                         let tNum = Number(toVal);
                                         if (isNaN(tNum)) tNum = 0;
-                                        state.variables[varName] = fNum;
+                                        setScriptVariable(state, varName, fNum, false);
                                         state.tweens.push({ name: varName, from: fNum, to: tNum, mode, total, elapsed: 0, easing: block.params.easing || 'linear' });
                                     }
                                     if (block.type === 'tween_var_wait') {
@@ -4082,6 +4154,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 case 'change_var':
                 case 'if':
                 case 'const_var':
+                case 'shared_var':
                 case 'aim_at_target':
                 case 'aim_from_enemy':
                 case 'aim_at_coord':
@@ -4425,6 +4498,7 @@ function stepEmitter(c, state, attacker, target, dt) {
             'if': ['cond'],
             'once': [],
             'const_var': ['name', 'value'],
+            'shared_var': ['name', 'value', 'isConst'],
             'set_var': ['name', 'value'],
             'change_var': ['name', 'op', 'value'],
             'tween_var': ['name', 'from', 'to', 'mode', 'duration', 'stepVal', 'easing'],
@@ -4470,7 +4544,7 @@ function stepEmitter(c, state, attacker, target, dt) {
 
         const BLOCK_TYPE_MAP = {
             'repeat': 'r', 'forever': 'f', 'wait': 'w', 'if': 'i', 'once': 'o',
-            'const_var': 'v', 'set_var': 's', 'change_var': 'c',
+            'const_var': 'v', 'shared_var': 'sv', 'set_var': 's', 'change_var': 'c',
             'tween_var': 't', 'tween_var_wait': 'tw',
             'tween_angle': 'ta', 'tween_angle_wait': 'taw',
             'set_laser': 'sl',
@@ -4843,6 +4917,23 @@ function stepEmitter(c, state, attacker, target, dt) {
 
         let customCardDraftSaveTimer = null;
 
+        function populateBg3dPresetSelect() {
+            const bgSelect = document.getElementById('custom-card-bg');
+            if (!bgSelect) return;
+            const list = (typeof window !== 'undefined' && Array.isArray(window.BG3D_PRESETS)) ? window.BG3D_PRESETS : [{ id: 'none', label: 'なし（デフォルト黒背景）' }];
+            if (bgSelect.options.length === list.length) return;
+            const prevVal = bgSelect.value || 'none';
+            bgSelect.innerHTML = '';
+            list.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = item.label;
+                bgSelect.appendChild(opt);
+            });
+            bgSelect.value = prevVal;
+        }
+        if (typeof window !== 'undefined') window.populateBg3dPresetSelect = populateBg3dPresetSelect;
+
         function saveCustomCardDraft(showNotification = false, skipCodeParse = false, defer = false) {
             const compiledTextarea = document.getElementById('workspace-compiled-textarea');
             if (compiledTextarea) compiledTextarea.value = '';
@@ -4870,11 +4961,17 @@ function stepEmitter(c, state, attacker, target, dt) {
             let difficultyVal = document.getElementById('custom-card-difficulty') ? document.getElementById('custom-card-difficulty').value : (customCardMaker.difficulty || 'NORMAL');
             difficultyVal = typeof normalizeDifficulty === 'function' ? normalizeDifficulty(difficultyVal) : difficultyVal.toUpperCase();
             customCardMaker.difficulty = difficultyVal;
+            let bgVal = document.getElementById('custom-card-bg') ? (document.getElementById('custom-card-bg').value || 'none') : (customCardMaker.bg || 'none');
+            customCardMaker.bg = bgVal;
+            let bossModeVal = document.getElementById('custom-card-boss-mode') ? (document.getElementById('custom-card-boss-mode').value || 'single') : (customCardMaker.bossMode || 'single');
+            customCardMaker.bossMode = bossModeVal;
             
             if (customCardMakerMode === 'code' && !skipCodeParse) {
                 let code = document.getElementById('workspace-code-textarea').value;
                 let parsed = codeToBlocks(code);
-                if (customCardMaker.activeTab === 'emitter') {
+                if (typeof setScriptForTab === 'function') {
+                    setScriptForTab(customCardMaker.activeTab, parsed);
+                } else if (customCardMaker.activeTab === 'emitter') {
                     customCardMaker.emitterScript = parsed;
                 } else if (customCardMaker.activeTab === 'bullet') {
                     customCardMaker.bulletScript = parsed;
@@ -4889,11 +4986,19 @@ function stepEmitter(c, state, attacker, target, dt) {
                 desc: descVal,
                 duration: durationVal,
                 difficulty: difficultyVal,
+                bg: bgVal,
+                bossMode: bossModeVal,
+                hp2: document.getElementById('custom-card-hp2') ? document.getElementById('custom-card-hp2').value : "1000",
+                x_offset2: document.getElementById('custom-card-x-offset2') ? document.getElementById('custom-card-x-offset2').value : "0",
+                y_offset2: document.getElementById('custom-card-y-offset2') ? document.getElementById('custom-card-y-offset2').value : "0",
                 activeTab: customCardMaker.activeTab,
                 customCardMakerMode: customCardMakerMode,
                 emitterScript: customCardMaker.emitterScript,
                 bulletScript: customCardMaker.bulletScript,
                 magicCircleScript: customCardMaker.magicCircleScript || [],
+                emitterScript2: customCardMaker.emitterScript2 || [],
+                bulletScript2: customCardMaker.bulletScript2 || [],
+                magicCircleScript2: customCardMaker.magicCircleScript2 || [],
                 testPassed: customCardMaker.testPassed,
                 x_offset: document.getElementById('custom-card-x-offset') ? document.getElementById('custom-card-x-offset').value : "0",
                 y_offset: document.getElementById('custom-card-y-offset') ? document.getElementById('custom-card-y-offset').value : "0",
@@ -4921,17 +5026,29 @@ function stepEmitter(c, state, attacker, target, dt) {
             }
             
             try {
+                populateBg3dPresetSelect();
                 let draftData = JSON.parse(draftStr);
                 customCardMaker.editingId = draftData.editingId;
                 customCardMaker.name = draftData.name || 'カスタムスペル';
                 customCardMaker.desc = draftData.desc || 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = getCustomCardDuration(draftData.duration);
-                customCardMaker.maxMisses = draftData.maxMisses !== undefined ? Number(draftData.maxMisses) : 2;
+                customCardMaker.maxMisses = draftData.maxMisses !== undefined ? draftData.maxMisses : 2;
                 customCardMaker.difficulty = draftData.difficulty || 'NORMAL';
+                customCardMaker.bg = draftData.bg || 'none';
+                customCardMaker.bossMode = draftData.bossMode === 'double' ? 'double' : 'single';
+                customCardMaker.hp2 = draftData.hp2 !== undefined ? Number(draftData.hp2) : 1000;
+                customCardMaker.x_offset2 = Number(draftData.x_offset2) || 0;
+                customCardMaker.y_offset2 = Number(draftData.y_offset2) || 0;
                 customCardMaker.activeTab = draftData.activeTab || 'emitter';
+                if (customCardMaker.bossMode !== 'double' && String(customCardMaker.activeTab).endsWith('2')) {
+                    customCardMaker.activeTab = 'emitter';
+                }
                 customCardMaker.emitterScript = draftData.emitterScript || [];
                 customCardMaker.bulletScript = draftData.bulletScript || [];
                 customCardMaker.magicCircleScript = draftData.magicCircleScript || [];
+                customCardMaker.emitterScript2 = draftData.emitterScript2 || [];
+                customCardMaker.bulletScript2 = draftData.bulletScript2 || [];
+                customCardMaker.magicCircleScript2 = draftData.magicCircleScript2 || [];
                 customCardMaker.testPassed = draftData.testPassed || false;
                 
                 customCardMakerMode = draftData.customCardMakerMode || 'block';
@@ -4948,9 +5065,12 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime;
                 if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses;
                 if (document.getElementById('custom-card-difficulty')) document.getElementById('custom-card-difficulty').value = customCardMaker.difficulty;
-                
-                document.getElementById('tab-btn-emitter').className = customCardMaker.activeTab === 'emitter' ? 'tab-btn active' : 'tab-btn';
-                document.getElementById('tab-btn-bullet').className = customCardMaker.activeTab === 'bullet' ? 'tab-btn active' : 'tab-btn';
+                if (document.getElementById('custom-card-bg')) document.getElementById('custom-card-bg').value = customCardMaker.bg;
+                if (document.getElementById('custom-card-boss-mode')) document.getElementById('custom-card-boss-mode').value = customCardMaker.bossMode;
+                if (document.getElementById('custom-card-hp2')) document.getElementById('custom-card-hp2').value = draftData.hp2 !== undefined ? draftData.hp2 : "1000";
+                if (document.getElementById('custom-card-x-offset2')) document.getElementById('custom-card-x-offset2').value = customCardMaker.x_offset2;
+                if (document.getElementById('custom-card-y-offset2')) document.getElementById('custom-card-y-offset2').value = customCardMaker.y_offset2;
+                if (typeof syncCustomCardBossModeUI === 'function') syncCustomCardBossModeUI();
                 
                 const btnBlock = document.getElementById('mode-btn-block');
                 const btnCode = document.getElementById('mode-btn-code');
@@ -4972,9 +5092,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 if (draftData.codeText !== undefined) {
                     document.getElementById('workspace-code-textarea').value = draftData.codeText;
                 } else {
-                    let script = customCardMaker.activeTab === 'emitter' ? customCardMaker.emitterScript 
-                                : customCardMaker.activeTab === 'bullet' ? customCardMaker.bulletScript 
-                                : (customCardMaker.magicCircleScript || []);
+                    let script = (typeof getActiveScript === 'function') ? getActiveScript() : [];
                     document.getElementById('workspace-code-textarea').value = blocksToCode(script);
                 }
                 
@@ -4989,6 +5107,7 @@ function stepEmitter(c, state, attacker, target, dt) {
         function customCardMakerOpenEditor(cardId) {
             document.getElementById('card-maker-list-view').classList.add('hidden');
             document.getElementById('card-maker-editor-view').classList.remove('hidden');
+            populateBg3dPresetSelect();
             
             const restoreBtn = document.getElementById('custom-card-draft-load-btn');
             if (restoreBtn) {
@@ -5023,11 +5142,20 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.name = migratedCard.name.replace('【A】', '');
                 customCardMaker.desc = migratedCard.desc;
                 customCardMaker.duration = getCustomCardDuration(migratedCard.duration);
+                customCardMaker.hp = migratedCard.hp !== undefined ? migratedCard.hp : 1000;
                 customCardMaker.x_offset = migratedCard.x_offset || 0;
                 customCardMaker.y_offset = migratedCard.y_offset || 0;
                 customCardMaker.emitterScript = JSON.parse(JSON.stringify(migratedCard.emitterScript || []));
                 customCardMaker.bulletScript = JSON.parse(JSON.stringify(migratedCard.bulletScript || []));
                 customCardMaker.magicCircleScript = JSON.parse(JSON.stringify(migratedCard.magicCircleScript || []));
+                customCardMaker.bg = migratedCard.bg || 'none';
+                customCardMaker.bossMode = migratedCard.bossMode === 'double' ? 'double' : 'single';
+                customCardMaker.hp2 = migratedCard.hp2 !== undefined ? migratedCard.hp2 : 1000;
+                customCardMaker.x_offset2 = migratedCard.x_offset2 || 0;
+                customCardMaker.y_offset2 = migratedCard.y_offset2 || 0;
+                customCardMaker.emitterScript2 = JSON.parse(JSON.stringify(migratedCard.emitterScript2 || []));
+                customCardMaker.bulletScript2 = JSON.parse(JSON.stringify(migratedCard.bulletScript2 || []));
+                customCardMaker.magicCircleScript2 = JSON.parse(JSON.stringify(migratedCard.magicCircleScript2 || []));
                 customCardMaker.despawnTime = migratedCard.despawnTime !== undefined ? migratedCard.despawnTime : 1.5;
                 customCardMaker.maxMisses = migratedCard.maxMisses !== undefined ? migratedCard.maxMisses : 2;
                 customCardMaker.difficulty = migratedCard.difficulty || 'NORMAL';
@@ -5038,6 +5166,7 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.name = 'カスタムスペル';
                 customCardMaker.desc = 'オリジナルの弾幕パターン。';
                 customCardMaker.duration = 15;
+                customCardMaker.hp = 1000;
                 customCardMaker.despawnTime = 1.5;
                 customCardMaker.maxMisses = 2;
                 customCardMaker.difficulty = 'NORMAL';
@@ -5051,6 +5180,14 @@ function stepEmitter(c, state, attacker, target, dt) {
                 customCardMaker.y_offset = 0;
                 customCardMaker.bulletScript = [];
                 customCardMaker.magicCircleScript = [];
+                customCardMaker.bg = 'none';
+                customCardMaker.bossMode = 'single';
+                customCardMaker.hp2 = 1000;
+                customCardMaker.x_offset2 = 0;
+                customCardMaker.y_offset2 = 0;
+                customCardMaker.emitterScript2 = [];
+                customCardMaker.bulletScript2 = [];
+                customCardMaker.magicCircleScript2 = [];
                 customCardMaker.testPassed = false;
                 document.getElementById('card-editor-title').textContent = "新規スペルカード作成";
             }
@@ -5062,12 +5199,19 @@ function stepEmitter(c, state, attacker, target, dt) {
             
             document.getElementById('custom-card-name').value = customCardMaker.name;
             document.getElementById('custom-card-desc').value = customCardMaker.desc;
+            if (document.getElementById('custom-card-hp')) document.getElementById('custom-card-hp').value = customCardMaker.hp !== undefined ? customCardMaker.hp : 1000;
             if (document.getElementById('custom-card-duration')) document.getElementById('custom-card-duration').value = customCardMaker.duration;
             if (document.getElementById('custom-card-x-offset')) document.getElementById('custom-card-x-offset').value = customCardMaker.x_offset || 0;
             if (document.getElementById('custom-card-y-offset')) document.getElementById('custom-card-y-offset').value = customCardMaker.y_offset || 0;
             if (document.getElementById('custom-card-despawn-time')) document.getElementById('custom-card-despawn-time').value = customCardMaker.despawnTime !== undefined ? customCardMaker.despawnTime : 1.5;
             if (document.getElementById('custom-card-max-misses')) document.getElementById('custom-card-max-misses').value = customCardMaker.maxMisses !== undefined ? customCardMaker.maxMisses : 2;
             if (document.getElementById('custom-card-difficulty')) document.getElementById('custom-card-difficulty').value = customCardMaker.difficulty;
+            if (document.getElementById('custom-card-bg')) document.getElementById('custom-card-bg').value = customCardMaker.bg || 'none';
+            if (document.getElementById('custom-card-boss-mode')) document.getElementById('custom-card-boss-mode').value = customCardMaker.bossMode || 'single';
+            if (document.getElementById('custom-card-hp2')) document.getElementById('custom-card-hp2').value = customCardMaker.hp2 !== undefined ? customCardMaker.hp2 : 1000;
+            if (document.getElementById('custom-card-x-offset2')) document.getElementById('custom-card-x-offset2').value = customCardMaker.x_offset2 || 0;
+            if (document.getElementById('custom-card-y-offset2')) document.getElementById('custom-card-y-offset2').value = customCardMaker.y_offset2 || 0;
+            if (typeof syncCustomCardBossModeUI === 'function') syncCustomCardBossModeUI();
             
             renderCardMaker();
         }

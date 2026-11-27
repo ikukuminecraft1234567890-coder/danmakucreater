@@ -998,16 +998,27 @@ html,
             width: 100%;
         }
         .metadata-input {
-            background: rgba(0, 0, 0, 0.4) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            color: #fff !important;
-            padding: 6px 10px !important;
+            background: rgba(14, 18, 34, 0.88) !important;
+            border: 1px solid rgba(155, 185, 230, 0.28) !important;
+            color: #f3f6ff !important;
+            padding: 5px 9px !important;
             border-radius: 6px !important;
-            font-size: 11px !important;
+            font-size: 12px !important;
+            line-height: 1.35 !important;
+            min-height: 31px !important;
+            height: auto !important;
             outline: none !important;
             transition: all 0.2s;
             box-sizing: border-box;
             width: 100%;
+        }
+        select.metadata-input {
+            cursor: pointer;
+            padding-right: 22px !important;
+        }
+        select.metadata-input option {
+            background: #14182b;
+            color: #f3f6ff;
         }
         .metadata-input:focus {
             border-color: #00ffcc !important;
@@ -1591,11 +1602,19 @@ html,
             border-color: rgba(0,255,204,0.22) !important;
         }
         .tabs-header {
-            flex-wrap: nowrap !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: space-between !important;
             align-items: center !important;
-            scrollbar-width: thin;
+            gap: 6px !important;
+            overflow: visible !important;
+        }
+        .tabs-group-scripts,
+        .tabs-group-modes {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
         }
         .tabs-header .tab-btn {
             flex: 0 0 auto !important;
@@ -1605,7 +1624,17 @@ html,
             word-break: keep-all !important;
             writing-mode: horizontal-tb !important;
             text-orientation: mixed !important;
-            line-height: 1.2 !important;
+            line-height: 1.25 !important;
+            font-size: 11px !important;
+            padding: 5px 9px !important;
+            color: #c2cde0 !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(175, 195, 230, 0.22) !important;
+        }
+        .tabs-header .tab-btn.active {
+            color: #00ffcc !important;
+            background: rgba(0, 255, 200, 0.16) !important;
+            border-color: #00ffcc !important;
         }
         .workspace-scroll {
             background: rgba(0,0,0,0.18) !important;
@@ -1762,10 +1791,80 @@ html,
             }
         }
         #card-maker-editor-view .maker-metadata {
-            display: grid !important;
-            grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1.4fr);
-            gap: 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 7px !important;
+            margin-bottom: 8px !important;
             flex: 0 0 auto !important;
+        }
+        #card-maker-editor-view .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: flex-end;
+            width: 100%;
+        }
+        #card-maker-editor-view .meta-field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+        #card-maker-editor-view .meta-field label {
+            font-size: 11px;
+            color: #b8c4dc;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        #card-maker-editor-view .meta-field-name { flex: 1 1 200px; }
+        #card-maker-editor-view .meta-field-desc { flex: 1.8 1 280px; }
+        #card-maker-editor-view .meta-field-num { flex: 0.7 1 88px; }
+        #card-maker-editor-view .meta-field-select { flex: 1 1 128px; }
+        #card-maker-editor-view .meta-field-bg { flex: 1.5 1 190px; }
+        #card-maker-editor-view .meta-row-bosses {
+            align-items: stretch;
+        }
+        #card-maker-editor-view .boss-meta-card {
+            flex: 1 1 270px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 7px;
+            box-sizing: border-box;
+        }
+        #card-maker-editor-view .boss-meta-card.hidden {
+            display: none !important;
+        }
+        #card-maker-editor-view .boss-meta-card.boss1-card {
+            background: rgba(180, 35, 75, 0.14);
+            border: 1px solid rgba(255, 110, 145, 0.38);
+        }
+        #card-maker-editor-view .boss-meta-card.boss2-card {
+            background: rgba(0, 140, 200, 0.14);
+            border: 1px solid rgba(60, 220, 255, 0.42);
+        }
+        #card-maker-editor-view .boss-card-badge {
+            align-self: center;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+        #card-maker-editor-view .boss1-card .boss-card-badge {
+            color: #ff9ab2;
+            background: rgba(255, 70, 110, 0.18);
+            border: 1px solid rgba(255, 110, 145, 0.4);
+        }
+        #card-maker-editor-view .boss2-card .boss-card-badge {
+            color: #7ee8ff;
+            background: rgba(0, 190, 255, 0.18);
+            border: 1px solid rgba(60, 220, 255, 0.45);
+        }
+        #card-maker-editor-view .boss-meta-card .meta-field {
+            flex: 1 1 70px;
         }
         #card-maker-editor-view .maker-layout {
             flex: 1 1 0% !important;
@@ -1828,7 +1927,7 @@ html,
                 padding-bottom: 8px !important;
             }
             #card-maker-editor-view .maker-metadata {
-                grid-template-columns: 1fr 1fr;
+                gap: 6px !important;
                 margin-bottom: 8px !important;
             }
             #card-maker-editor-view .maker-layout {
@@ -1858,8 +1957,8 @@ html,
             }
         }
         @media (max-width: 700px) {
-            #card-maker-editor-view .maker-metadata {
-                grid-template-columns: 1fr;
+            #card-maker-editor-view .meta-row {
+                gap: 6px;
             }
             #card-maker-editor-view .palette-panel {
                 grid-template-columns: repeat(2, minmax(120px, 1fr));

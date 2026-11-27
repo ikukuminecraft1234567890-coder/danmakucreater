@@ -64,6 +64,10 @@ let danmaku2Js = '';
 if (fs.existsSync(path.join(jsDir, 'danmaku2.js'))) {
     danmaku2Js = fs.readFileSync(path.join(jsDir, 'danmaku2.js'), 'utf8');
 }
+let danmaku3Js = '';
+if (fs.existsSync(path.join(jsDir, 'danmaku3.js'))) {
+    danmaku3Js = fs.readFileSync(path.join(jsDir, 'danmaku3.js'), 'utf8');
+}
 const emitterJs = fs.readFileSync(path.join(jsDir, 'emitter.js'), 'utf8');
 
 let bossDanmakuJs = '';
@@ -80,6 +84,11 @@ if (danmaku2Js) {
     eval(danmaku2Js + ';\nwindow.sharedDanmakuListS2 = typeof sharedDanmakuListS2 !== "undefined" ? sharedDanmakuListS2 : [];');
 } else {
     window.sharedDanmakuListS2 = [];
+}
+if (danmaku3Js) {
+    eval(danmaku3Js + ';\nwindow.sharedDanmakuListS3 = typeof sharedDanmakuListS3 !== "undefined" ? sharedDanmakuListS3 : [];');
+} else {
+    window.sharedDanmakuListS3 = [];
 }
 if (bossDanmakuJs) {
     eval(bossDanmakuJs + ';\nwindow.bossDanmakuList = typeof bossDanmakuList !== "undefined" ? bossDanmakuList : [];');
@@ -167,6 +176,8 @@ window.compiledDanmakuList = ${JSON.stringify(window.sharedDanmakuList, null, 2)
 window.sharedDanmakuList = window.compiledDanmakuList;
 window.compiledDanmakuListS2 = ${JSON.stringify(window.sharedDanmakuListS2 || [], null, 2)};
 window.sharedDanmakuListS2 = window.compiledDanmakuListS2;
+window.compiledDanmakuListS3 = ${JSON.stringify(window.sharedDanmakuListS3 || [], null, 2)};
+window.sharedDanmakuListS3 = window.compiledDanmakuListS3;
 
 // Helpers
 window.DanmakuCompilerRuntime.resolveColorParam = function(val, vars) {
@@ -183,15 +194,19 @@ window.setScriptVariable = window.setScriptVariable || function(state, name, val
     if (state.constVars.has(name) && !isConst) return;
     state.variables[name] = value;
     if (isConst) state.constVars.add(name);
-    if (name === 'enemyHp' || name === 'enemy_hp' || name === 'bossHp' || name === 'boss_hp') {
-        if (typeof cpu !== 'undefined' && cpu) {
+    if (name === 'enemyHp' || name === 'enemy_hp' || name === 'bossHp' || name === 'boss_hp' || name === 'boss1Hp' || name === 'boss2Hp') {
+        const targetBoss = (name === 'boss2Hp' || (name !== 'boss1Hp' && state && state.bossOwner === 'CPU2'))
+            ? (typeof cpu2 !== 'undefined' ? cpu2 : null)
+            : (typeof cpu !== 'undefined' ? cpu : null);
+        if (targetBoss) {
             let hpNum = parseFloat(value);
             if (!isNaN(hpNum)) {
-                cpu.hp = Math.max(0, hpNum);
-                state.variables[name] = cpu.hp;
-                state.variables.enemyHp = cpu.hp;
-                if (cpu.hp <= 0 && typeof handleBossDefeat === 'function') {
-                    handleBossDefeat(false);
+                targetBoss.hp = Math.max(0, hpNum);
+                state.variables[name] = targetBoss.hp;
+                if (name !== 'boss1Hp' && name !== 'boss2Hp') state.variables.enemyHp = targetBoss.hp;
+                if (targetBoss.hp <= 0) {
+                    if (typeof handleSingleBossUnitDefeated === 'function') handleSingleBossUnitDefeated(targetBoss, false);
+                    else if (typeof handleBossDefeat === 'function') handleBossDefeat(false);
                 }
             }
         }
@@ -322,46 +337,62 @@ window.DanmakuCompilerRuntime._getCurrentY = function(b, attacker, state, canvas
             compiledCount++;
         }
 
+        const compileEntryScripts = (id, emitterSrc, bulletSrc, magicSrc) => {
+            let blocks = Array.isArray(emitterSrc) ? emitterSrc : (typeof codeToBlocks === 'function' ? codeToBlocks(emitterSrc || '') : []);
+            let compiledBlocks = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(blocks))) : [];
+            let threadGroups = typeof window.DanmakuCompiler.splitParallelThreadGroups === 'function'
+                ? window.DanmakuCompiler.splitParallelThreadGroups(compiledBlocks)
+                : null;
+
+            if (threadGroups && threadGroups.length >= 2) {
+                let funcs = threadGroups.map(group => window.DanmakuCompiler.compileSingle(group));
+                outputJS += `window.compiledDanmaku['${id}'] = [\n  ${funcs.join(',\n  ')}\n];\n`;
+            } else {
+                let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
+                outputJS += `window.compiledDanmaku['${id}'] = ${funcStr};\n`;
+            }
+
+            let bBlocks = Array.isArray(bulletSrc) ? bulletSrc : (typeof codeToBlocks === 'function' ? codeToBlocks(bulletSrc || '') : []);
+            let bCompiled = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(bBlocks))) : [];
+            let bFuncStr = window.DanmakuCompiler.compileSingle(bCompiled, true);
+            outputJS += `window.compiledDanmaku['${id}_bullet'] = ${bFuncStr};\n`;
+
+            let mBlocks = Array.isArray(magicSrc) ? magicSrc : (typeof codeToBlocks === 'function' ? codeToBlocks(magicSrc || '') : []);
+            let mCompiled = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(mBlocks))) : [];
+            let mFuncStr = window.DanmakuCompiler.compileSingle(mCompiled, true);
+            outputJS += `window.compiledDanmaku['${id}_magic'] = ${mFuncStr};\n\n`;
+        };
+
         // 2. Compile S2 Danmaku
         let s2CompiledCount = 0;
         if (Array.isArray(window.sharedDanmakuListS2)) {
             for (let danmaku of window.sharedDanmakuListS2) {
                 let idx = window.sharedDanmakuListS2.indexOf(danmaku);
                 let id = danmaku.id || ('danmaku_s2_' + idx);
-                
-                // Compile emitterScript
-                let blocks = Array.isArray(danmaku.emitterScript) ? danmaku.emitterScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.emitterScript) : []);
-                let compiledBlocks = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(blocks))) : [];
-                let threadGroups = typeof window.DanmakuCompiler.splitParallelThreadGroups === 'function'
-                    ? window.DanmakuCompiler.splitParallelThreadGroups(compiledBlocks)
-                    : null;
-
-                if (threadGroups && threadGroups.length >= 2) {
-                    let funcs = threadGroups.map(group => window.DanmakuCompiler.compileSingle(group));
-                    outputJS += `window.compiledDanmaku['${id}'] = [\n  ${funcs.join(',\n  ')}\n];\n`;
-                } else {
-                    let funcStr = window.DanmakuCompiler.compileSingle(compiledBlocks);
-                    outputJS += `window.compiledDanmaku['${id}'] = ${funcStr};\n`;
+                compileEntryScripts(id, danmaku.emitterScript, danmaku.bulletScript, danmaku.magicCircleScript);
+                if (danmaku.bossMode === 'double' || danmaku.emitterScript2) {
+                    compileEntryScripts(id + '_boss2', danmaku.emitterScript2, danmaku.bulletScript2, danmaku.magicCircleScript2);
                 }
-                
-                // Compile bulletScript
-                let bBlocks = Array.isArray(danmaku.bulletScript) ? danmaku.bulletScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.bulletScript) : []);
-                let bCompiled = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(bBlocks))) : [];
-                let bFuncStr = window.DanmakuCompiler.compileSingle(bCompiled, true);
-                outputJS += `window.compiledDanmaku['${id}_bullet'] = ${bFuncStr};\n`;
-
-                // Compile magicCircleScript
-                let mBlocks = Array.isArray(danmaku.magicCircleScript) ? danmaku.magicCircleScript : (typeof codeToBlocks === 'function' ? codeToBlocks(danmaku.magicCircleScript) : []);
-                let mCompiled = typeof compileIndentedBlocks === 'function' ? compileIndentedBlocks(JSON.parse(JSON.stringify(mBlocks))) : [];
-                let mFuncStr = window.DanmakuCompiler.compileSingle(mCompiled, true);
-                outputJS += `window.compiledDanmaku['${id}_magic'] = ${mFuncStr};\n\n`;
-
                 s2CompiledCount++;
             }
         }
 
+        // 3. Compile S3 Danmaku
+        let s3CompiledCount = 0;
+        if (Array.isArray(window.sharedDanmakuListS3)) {
+            for (let danmaku of window.sharedDanmakuListS3) {
+                let idx = window.sharedDanmakuListS3.indexOf(danmaku);
+                let id = danmaku.id || ('danmaku_s3_' + idx);
+                compileEntryScripts(id, danmaku.emitterScript, danmaku.bulletScript, danmaku.magicCircleScript);
+                if (danmaku.bossMode === 'double' || danmaku.emitterScript2) {
+                    compileEntryScripts(id + '_boss2', danmaku.emitterScript2, danmaku.bulletScript2, danmaku.magicCircleScript2);
+                }
+                s3CompiledCount++;
+            }
+        }
+
         fs.writeFileSync(path.join(jsDir, 'compiledanmaku.js'), outputJS, 'utf8');
-        console.log(`Successfully compiled ${compiledCount} S1 danmaku scripts and ${s2CompiledCount} S2 danmaku scripts to js/compiledanmaku.js!`);
+        console.log(`Successfully compiled ${compiledCount} S1, ${s2CompiledCount} S2, and ${s3CompiledCount} S3 danmaku scripts to js/compiledanmaku.js!`);
 
         // Compile Boss Spells
         if (typeof window.bossDanmakuList !== 'undefined' && Array.isArray(window.bossDanmakuList)) {

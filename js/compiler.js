@@ -4,6 +4,7 @@ window.DanmakuCompiler.formatCompiledBody = function(body) {
     if (!body) return body;
     return body
         .replace(/__v/g, 'vars')
+        .replace(/__g/g, 'sharedVars')
         .replace(/__rand/g, 'random')
         .replace(/__fuzzyEqual/g, '_util.fuzzyEqual')
         .replace(/__fuzzyNotEqual/g, '_util.fuzzyNotEqual')
@@ -99,11 +100,22 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             js += ind + `if (b && typeof window !== 'undefined' && window.requestBulletLayerChange) window.requestBulletLayerChange(b, 'front');\n`;
         } else if (t === 'to_back') {
             js += ind + `if (b && typeof window !== 'undefined' && window.requestBulletLayerChange) window.requestBulletLayerChange(b, 'back');\n`;
+        } else if (t === 'shared_var') {
+            let varName = block.params.var || block.params.name;
+            if (varName) {
+                let valExpr = window.DanmakuCompiler.getExpr(block, 'value', '0');
+                let isConstFlag = block.params.isConst ? 'true' : 'false';
+                js += ind + `if (typeof window !== 'undefined' && window.setScriptVariable) { window.setScriptVariable(state, ${JSON.stringify(varName)}, ${valExpr}, ${isConstFlag}, true); } else { sharedVars[${JSON.stringify(varName.replace(/^(?:(?:global|shared)\.|\$)/, ''))}] = ${valExpr}; }\n`;
+            }
         } else if (t === 'assign' || t === 'set_var' || t === 'const_var') {
             let varName = block.params.var || block.params.name;
             if (varName) {
                 let valExpr = window.DanmakuCompiler.getExpr(block, 'value', '0');
-                if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
+                let sharedMatch = String(varName).trim().match(/^(?:(?:global|shared)\.|\$)([a-zA-Z_][a-zA-Z0-9_]*)$/);
+                if (sharedMatch) {
+                    let isConstFlag = (t === 'const_var') ? 'true' : 'false';
+                    js += ind + `if (typeof window !== 'undefined' && window.setScriptVariable) { window.setScriptVariable(state, ${JSON.stringify(varName)}, ${valExpr}, ${isConstFlag}, true); } else { sharedVars[${JSON.stringify(sharedMatch[1])}] = ${valExpr}; }\n`;
+                } else if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
                     js += ind + `if (typeof cpu !== 'undefined' && cpu) {\n`;
                     js += ind + `  cpu.hp = Math.max(0, ${valExpr});\n`;
                     js += ind + `  vars['${varName}'] = cpu.hp;\n`;
@@ -112,7 +124,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                     js += ind + `  vars['${varName}'] = ${valExpr};\n`;
                     js += ind + `}\n`;
                 } else {
-                    js += ind + `vars['${varName}'] = ${valExpr};\n`;
+                    js += ind + `if (vars['${varName}'] === undefined && Object.prototype.hasOwnProperty.call(sharedVars, '${varName}')) { sharedVars['${varName}'] = ${valExpr}; } else { vars['${varName}'] = ${valExpr}; }\n`;
                     if (varName === 'image' || varName === 'bulletImage') {
                         js += ind + `if (b) b.bulletImage = String(${valExpr}).replace(/^['"]|['"]$/g, '');\n`;
                     } else if (varName === 'blend' || varName === 'blendMode') {
@@ -127,7 +139,11 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
             if (varName) {
                 let op = block.params.op === '-' ? '-' : '+';
                 let valExpr = window.DanmakuCompiler.getExpr(block, 'value', '0');
-                if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
+                let sharedMatch = String(varName).trim().match(/^(?:(?:global|shared)\.|\$)([a-zA-Z_][a-zA-Z0-9_]*)$/);
+                if (sharedMatch) {
+                    let bare = sharedMatch[1];
+                    js += ind + `if (!(typeof window !== 'undefined' && window.isScriptVarConst && window.isScriptVarConst(state, ${JSON.stringify(varName)}))) { sharedVars[${JSON.stringify(bare)}] = (Number(sharedVars[${JSON.stringify(bare)}]) || 0) ${op} (${valExpr}); }\n`;
+                } else if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
                     js += ind + `if (typeof cpu !== 'undefined' && cpu) {\n`;
                     js += ind + `  cpu.hp = Math.max(0, cpu.hp ${op} (${valExpr}));\n`;
                     js += ind + `  vars['${varName}'] = cpu.hp;\n`;
@@ -136,13 +152,17 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                     js += ind + `  vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${valExpr});\n`;
                     js += ind + `}\n`;
                 } else {
-                    js += ind + `vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${valExpr});\n`;
+                    js += ind + `if (vars['${varName}'] === undefined && Object.prototype.hasOwnProperty.call(sharedVars, '${varName}')) { if (!(typeof window !== 'undefined' && window.isScriptVarConst && window.isScriptVarConst(state, '${varName}'))) sharedVars['${varName}'] = (Number(sharedVars['${varName}']) || 0) ${op} (${valExpr}); } else { vars['${varName}'] = (vars['${varName}'] || 0) ${op} (${valExpr}); }\n`;
                 }
             }
         } else if (t === 'floor_var') {
             let varName = block.params.var || block.params.name || 'speed';
             if (varName) {
-                if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
+                let sharedMatch = String(varName).trim().match(/^(?:(?:global|shared)\.|\$)([a-zA-Z_][a-zA-Z0-9_]*)$/);
+                if (sharedMatch) {
+                    let bare = sharedMatch[1];
+                    js += ind + `if (!(typeof window !== 'undefined' && window.isScriptVarConst && window.isScriptVarConst(state, ${JSON.stringify(varName)}))) { sharedVars[${JSON.stringify(bare)}] = Math.floor(Number(sharedVars[${JSON.stringify(bare)}]) || 0); }\n`;
+                } else if (varName === 'enemyHp' || varName === 'enemy_hp' || varName === 'bossHp' || varName === 'boss_hp') {
                     js += ind + `if (typeof cpu !== 'undefined' && cpu) {\n`;
                     js += ind + `  cpu.hp = Math.max(0, Math.floor(cpu.hp));\n`;
                     js += ind + `  vars['${varName}'] = cpu.hp;\n`;
@@ -150,7 +170,7 @@ window.DanmakuCompiler.generateBlocksJS = function(blocks, indent) {
                     js += ind + `  vars['${varName}'] = Math.floor(Number(vars['${varName}']) || 0);\n`;
                     js += ind + `}\n`;
                 } else {
-                    js += ind + `vars['${varName}'] = Math.floor(Number(vars['${varName}']) || 0);\n`;
+                    js += ind + `if (vars['${varName}'] === undefined && Object.prototype.hasOwnProperty.call(sharedVars, '${varName}')) { sharedVars['${varName}'] = Math.floor(Number(sharedVars['${varName}']) || 0); } else { vars['${varName}'] = Math.floor(Number(vars['${varName}']) || 0); }\n`;
                 }
             }
         } else if (t === 'forever') {
@@ -317,6 +337,7 @@ window.DanmakuCompiler.splitParallelThreadGroups = function(blocks) {
 window.DanmakuCompiler.compileSingle = function(blocks, isBulletScript) {
     let funcStr = `function*(state, b, attacker, target, _util) {\n`;
     funcStr += `  let vars = state.variables;\n`;
+    funcStr += `  const sharedVars = (_util && _util.getSharedVars) ? _util.getSharedVars() : ((typeof window !== 'undefined' && window.cardSharedVars) ? window.cardSharedVars : {});\n`;
     funcStr += `  const random = _util.rand;\n`;
     funcStr += `  const rand = _util.rand;\n`;
     funcStr += `  const seedrandom = _util.seedrandom;\n`;

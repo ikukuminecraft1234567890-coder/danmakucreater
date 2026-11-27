@@ -4207,6 +4207,290 @@ if (btp==2) {
 }
     `,
     magicCircleScript: ``
+},{
+    difficulty: "NORMAL",
+    name: "「不滅の土偶」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 3000,
+    duration: 150,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    bullet({ "type": "life", "image": "haniwa", "speed": 300 + random(-100,400), "angle": 0 + random(-30,30), "radius": 40, "health": 100 })
+    wf(60)
+    bullet({ "type": "life", "image": "haniwa", "speed": 300 + random(-100,400), "angle": 180 + random(-30,30), "radius": 40, "health": 100 })
+    wf(60)
+}
+    `,
+    bulletScript: `
+once {
+    tween("speed", speed, 40, "seconds", 0.5, "easeInOut")
+}
+if (frame == 40 * n) {
+    moto = angle
+    aimAtTarget()
+    angle += random(-10,10)
+    bullet({ "type": "normal", "image": "onryou_blue", "radius": 25, "hitRadius": 20, "way": 9, "distance": 20, "distanceType": "step" })
+    angle = moto
+}
+if (isDestroyed) {
+    once {
+        enemyHp += -200
+    }
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "NORMAL",
+    name: "「瞬息万変の光の女神」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 1000,
+    duration: 40,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 2,
+    emitterScript: `
+while (true) {
+    bullet({ "type": "normal", "image": "yellowsimple", "speed": 400, "angle": random(0,360), "radius": 30, "hitRadius": 20, "x": random(-100,100), "y": 150 + random(-100,100), "way": 36, "blend": "lighter" })
+    wf(50)
+    bullet({ "type": "normal", "image": "redsimple", "speed": 600, "angle": random(0,360), "radius": 30, "hitRadius": 20, "x": random(-100,100), "y": 150 + random(-100,100), "way": 18, "blend": "lighter" })
+    wf(50)
+}
+    `,
+    bulletScript: `
+once {
+    moto = speed
+    moto = moto * 0.5
+    tween("speed", speed, 50, "frames", 40, "easeInOut")
+    wf(70)
+    tween("speed", speed, moto, "frames", 40, "easeInOut")
+}
+if (y > 906) {
+    once {
+        y = 0 -20
+    }
+}
+if (x < 0) {
+    once {
+        wf(30)
+        x = 768+20
+        wf(30)
+    }
+}
+if (x > 768) {
+    once {
+        wf(30)
+        x = 0-20
+        wf(30)
+    }
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "NORMAL",
+    name: "光符「紅白リフレクション」",
+    desc: "白い部分は予告線です。",
+    hp: 2000,
+    duration: 60,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    ey = 300
+    wf(2)
+    bullet({ "type": "normal", "image": "aquaamulet", "speed": 300, "radius": 12, "hitRadius": 5, "way": 2 })
+    angle += 21.01
+}
+    `,
+    bulletScript: `
+if (isBounced) {
+    once {
+        speed = 0
+        angle -= 90
+        angle = angle * -2
+        angle += 90
+        bullet({ "type": "trail", "speed": 500, "radius": 2, "hitRadius": 0, "color": "#ffffff", "growTime": 0.5, "keepTime": 1.5, "shrinkTime": 0.01, "round": true })
+        wf(110)
+        bullet({ "type": "trail", "image": "player_knife", "speed": 500, "radius": 8, "hitRadius": 5, "growTime": 0.5, "keepTime": 0.01, "shrinkTime": 0.5, "round": true })
+        y = -9999
+    }
+}
+spriteAngle = angle
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "LUNATIC",
+    name: "奇跡「客星の天照らす夜」",
+    desc: "白い部分は予告線です。",
+    hp: 2000,
+    duration: 600,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+while (true) {
+    ey = 300
+    wf(3)
+    bullet({ "type": "normal", "image": "aquanormal", "speed": 600, "angle": agg, "radius": 0, "hitRadius": 0, "way": 8, "blend": "lighter", "btp": 1 })
+    agg += 30.42
+}
+while (true) {
+    wf(120)
+    aimAtTarget()
+        bullet({ "type": "normal", "image": "redsimple", "speed": 120, "radius": 30, "hitRadius": 15 })
+}
+    `,
+    bulletScript: `
+if (btp == 1) {
+    if (isBounced) {
+        once {
+            radius = 15
+            speed = 0
+            angle -= 90
+            angle = angle *99
+            angle += 90
+            bullet({ "type": "trail", "speed": 500, "radius": 1, "hitRadius": 0, "color": "#ffffff", "growTime": 0.5, "keepTime": 1.5, "shrinkTime": 0.01, "round": true })
+            wf(110)
+            bullet({ "type": "trail", "image": "player_knife", "speed": 500, "radius": 8, "hitRadius": 2, "color": "#33ffff", "growTime": 0.5, "keepTime": 0.01, "shrinkTime": 0.5, "round": true })
+            y = -9999
+        }
+    }
+    spriteAngle = angle
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "hard",
+    name: "「造形術バレットマーケット」",
+    desc: "天弓千亦＆埴安神袿姫",
+    hp: 2000,
+    duration: 50,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 6,
+    emitterScript: `
+while (true) {
+    wf(60)
+    l = 0
+    bx = tx
+    by = ty
+    for (let i = 0; i < 200; i++) {
+        for (let j = 0; j < 2; j++) {
+            l += 1
+            ra = random(0,360)
+            ba = random(0,360)
+            rx = x
+            ry = y + 100
+            bullet({ "type": "normal", "image": "rednormal", "speed": 1600, "angle": ra, "radius": 10, "hitRadius": 4, "isAbsolute": true, "x": rx, "y": ry, "blend": "lighter", "pa": ba, "ps": 2000, "px0": bx, "py0": by })
+            bullet({ "type": "normal", "image": "bluenormal", "speed": 2000, "angle": ba, "radius": 10, "hitRadius": 4, "isAbsolute": true, "x": bx, "y": by, "blend": "lighter", "pa": ra, "ps": 1600, "px0": rx, "py0": ry })
+        }
+        wf(1)
+    }
+    wf(900)
+}
+    `,
+    bulletScript: `
+once {
+    tween("speed", speed, 500, "frames", 4)
+    wf(4)
+    tween("speed", speed, 0, "frames", 40, "easeInOut")
+}
+if (frame == 194..195) {
+    once {
+        D = (ps + 500) / 2 * 4 / 60 + 500 / 2 * 40 / 60
+        nx = px0 + D * cos(pa)
+        ny = py0 + D * sin(pa)
+        tween("x", x, nx, "seconds", 7, "easeInOut")
+        tween("y", y, ny, "seconds", 7, "easeInOut")
+        wait(10)
+        tween("speed", speed, 100, "frames", 40)
+    }
+}
+    `,
+    magicCircleScript: ``
+},{
+    difficulty: "LUNATIC",
+    name: "「トリニタリアンシューティング」",
+    desc: "オリジナルの弾幕パターン。",
+    hp: 3500,
+    duration: 50,
+    maxMisses: 2,
+    x_offset: 0,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+ey = 250
+muki = 1
+while (true) {
+    wf(20)
+    sss = 100
+    angle = random(0,360)
+    for (let i = 0; i < 90; i++) {
+        wf(1)
+        for (let i = 0; i < 2; i++) {
+            sss += 2
+            angle += 8 * muki
+            bullet({ "type": "normal", "speed": 0, "transparency": 100, "tnk": 1 })
+        }
+    }
+    angle = random(0,360)
+    angle2 = random(0,360)
+    for (let i = 0; i < 30; i++) {
+        angle += 20.15 * muki * 1.5
+        angle2 += 20.15 * muki * 1.5
+        angle3 += 20.15 * muki * 1.5
+        angle4 += 20.15 * muki * 1.5
+        playSound("shot")
+        bullet({ "type": "normal", "image": "orangediamond", "radius": 15, "hitRadius": 4, "way": 9, "tnk": 2 })
+        bullet({ "type": "normal", "image": "orangediamond", "speed": 300, "angle": -angle2, "radius": 15, "hitRadius": 4, "way": 9, "tnk": 2 })
+        bullet({ "type": "normal", "image": "orangediamond", "speed": 400, "angle": angle3, "radius": 15, "hitRadius": 4, "way": 9, "tnk": 2 })
+        bullet({ "type": "normal", "image": "orangediamond", "speed": 500, "angle": -angle4, "radius": 15, "hitRadius": 4, "way": 9, "tnk": 2 })
+        wf(3)
+    }
+    muki = muki * -1
+    for (let i = 0; i < 6; i++) {
+        wf(20)
+        playSound("shot")
+        bullet({ "type": "normal", "image": "bluebig2", "speed": 250, "angle": 20, "radius": 45, "hitRadius": 30, "way": 18, "blend": "lighter" })
+    }
+}
+    `,
+    bulletScript: `
+if (tnk==1) {
+    once {
+        advance(sss)
+        wf(1)
+        aimAtTarget()
+        bullet({ "type": "normal", "image": "redsimple", "radius": 0, "hitRadius": 0, "way": 3, "distance": 90 })
+        y = 9999
+    }
+}
+if (tnk==2) {
+    spd = speed
+    once {
+        tween("speed", 0, spd, "seconds", 4)
+    }
+}
+    `,
+    magicCircleScript: `
+once {
+    wf(10)
+    playSound("shot")
+    imageTo("redscale")
+    tween("radius", 60, 14, "frames", 10)
+    tween("speed", 0, 400, "frames", 90)
+    tween("transparency", 100, 0, "frames", 10)
+    hitRadius = 2
+}
+    `
 }
 
 ]
