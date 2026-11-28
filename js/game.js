@@ -4911,6 +4911,8 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
 
         function draw() {
             ctx.save(); // 画面揺れ用のカメラ状態保存
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = 1.0;
             if (screenShakeAmount > 0) {
                 let dx = (Math.random() - 0.5) * screenShakeAmount;
                 let dy = (Math.random() - 0.5) * screenShakeAmount;
@@ -5325,6 +5327,12 @@ function calculateAutoDodge(player, bullets, canvas, dt) {
                         }
                         let margin = baseR + 20;
                         if (maxX < -margin || minX > PLAY_WIDTH + margin || maxY < -margin || minY > canvas.height + margin) {
+                            if (curTrans > 0) {
+                                ctx.globalAlpha = prevAlpha;
+                            }
+                            if (isAdd) {
+                                ctx.globalCompositeOperation = prevComposite;
+                            }
                             continue;
                         }
 

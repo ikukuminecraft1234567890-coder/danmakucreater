@@ -172,6 +172,115 @@ if (phase == 0) {
 }
     `,
     magicCircleScript2: ``
+},{
+    difficulty: "NORMAL",
+    name: "幽剣符「現世墨染斬」",
+    desc: "オリジナルの弾幕パターン。",
+    bg: "hakugyokurou",
+    bossMode: "double",
+    hp2: 1000,
+    x_offset2: 0,
+    y_offset2: -60,
+    hp: 1000,
+    duration: 15,
+    maxMisses: 2,
+    x_offset: -115,
+    y_offset: 0,
+    despawnTime: 1.5,
+    emitterScript: `
+shared slashActive = 0
+shared slashX = -100
+shared slashY = -100
+shared slashWidth = 55
+wf(50)
+while (true) {
+    wf(50)
+    slashY = random(200, 460)
+    tween("ex", ex, 36, "frames", 25, "easeOut")
+    tween("ey", ey, slashY, "frames", 25, "easeOut")
+    wf(25)
+    playSound("charge")
+    bullet({ "type": "trail", "coordMode": "absolute", "x": -20, "y": slashY, "angle": 0, "speed": 3200, "radius": 2, "hitRadius": 0, "color": "#ffffff", "blend": "lighter", "growTime": 0.04, "keepTime": 0.42, "shrinkTime": 0.06, "round": true })
+    wf(30)
+    playSound("laser")
+    bullet({ "type": "trail", "coordMode": "absolute", "x": -20, "y": slashY, "angle": 0, "speed": 2880, "radius": 24, "hitRadius": 0, "color": "#99ffff", "blend": "lighter", "growTime": 0.03, "keepTime": 0.2, "shrinkTime": 0.25, "round": true })
+    bullet({ "type": "trail", "coordMode": "absolute", "x": -20, "y": slashY, "angle": 0, "speed": 2880, "radius": 8, "hitRadius": 0, "color": "#ffffff", "blend": "lighter", "growTime": 0.02, "keepTime": 0.24, "shrinkTime": 0.2, "round": true })
+    slashX = 0
+    slashActive = 1
+    for (let i = 0; i < 16; i++) {
+        slashX += 48
+        ex += 43.5
+        wf(1)
+    }
+    wf(10)
+    slashActive = 0
+    wf(20)
+    tween("ex", ex, 269, "frames", 30, "easeInOut")
+    tween("ey", ey, 179, "frames", 30, "easeInOut")
+    wf(30)
+}
+    `,
+    bulletScript: `
+
+    `,
+    magicCircleScript: ``,
+    emitterScript2: `
+while (true) {
+    wf(60)
+    l = 50
+    angle = random(0,360)
+    for (let i = 0; i < 10; i++) {
+        l += 50
+        bullet({ "type": "normal", "image": "tyoudan", "radius": 25, "hitRadius": 10, "way": 18, "muki": 0.5 })
+    }
+    wf(30)
+    l = 50
+    angle = random(0,360)
+    for (let i = 0; i < 10; i++) {
+        l += 50
+        bullet({ "type": "normal", "image": "tyoudan", "radius": 25, "hitRadius": 10, "way": 18, "muki": -0.5 })
+    }
+    wf(30)
+    l = 50
+    angle = random(0,360)
+    for (let i = 0; i < 10; i++) {
+        l += 50
+        bullet({ "type": "normal", "image": "tyoudan", "radius": 25, "hitRadius": 10, "way": 18, "muki": 0.5 })
+    }
+    wf(30)
+    l = 50
+    angle = random(0,360)
+    for (let i = 0; i < 10; i++) {
+        l += 50
+        bullet({ "type": "normal", "image": "tyoudan", "radius": 25, "hitRadius": 10, "way": 18, "muki": -0.5 })
+    }
+    wf(40)
+}
+    `,
+    bulletScript2: `
+if (slashed == 0 && frame == 70..80) {
+    once {
+        angle += 180 * muki
+        tween("speed", speed, l, "frames", 20)
+        spriteAngle = angle
+    }
+}
+if (slashed == 0 && boss1Hp > 0 && slashActive == 1 && abs(y - slashY) <= slashWidth && x <= slashX) {
+    once {
+        slashed = 1
+        imageTo("whiteknife")
+        radius = 18
+        hitRadius = 6
+        speed = 0
+        tween("speed", 0, 0, "frames", 1)
+        aimAtTarget()
+        spriteAngle = angle
+        wf(20)
+        tween("speed", 0, 240 + l * 0.2, "frames", 18, "easeIn")
+    }
+}
+    `,
+    magicCircleScript2: ``
 }
 ];
 
